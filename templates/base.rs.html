@@ -1,0 +1,123 @@
+@use time::now;
+@use super::statics::*;
+@(content: Content)
+
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1">
+  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/static/@style_css.name" />
+  <title id='title-show'>股票投资</title>
+</head>
+
+<body>
+  <main>
+    <div class="top">
+      <div id="menu-bar">
+        <a href="javascript:;" id="menu-link"><img /></a>
+      </div>
+      <div id="logo">
+        <a href="/"><img /></a>
+      </div>
+      <div id="title">      
+      </div>
+
+      <div id="login">
+        <a href="" id="login1"> 登录 </a>
+        <a href="" id="login2"> 注册 </a>
+      </div>
+      <div id="phone-query">
+        <a href="javascript:;" id="phone-query-button"><img /></a>
+      </div>
+      <div id="function">
+        <a href="/hold_html" id="hold">　持仓　</a>
+        <a href="/trade_html" id="trade">　交易　</a>
+        <a href="/pool_html" id="pool">　股池　</a>
+        <a href="/history_html" id="record">　历史 </a>
+      </div>
+      <div id="query" class="autocomplete">
+        <input type="text" id="auto_input" placeholder="股票代码或拼音简码"><span><img src="/assets/img/zoom.png"
+            width="20px"></span>
+      </div>
+    </div>
+    <div id="menus" style="display: none">
+      <ul>
+        <li id="menu-home">首页</li>
+        <li id="menu-hold">持仓</li>
+        <li id="menu-trade">交易</li>
+        <li id="menu-pool">股池</li>
+        <li id="menu-history">历史</li>
+      </ul>
+    </div>
+
+    <div id="login-form" class="modal">
+      <form class="animate">
+        <div class="container">
+          <label for="uname"><b>用户名</b></label>
+          <input type="text" placeholder="输入用户名" name="uname" value="guest" id="login-name">
+
+          <label for="psw"><b>密码</b></label>
+          <input type="password" placeholder="输入密码" name="psw" value="guest" id="login-pass">
+
+          <button type="submit" id="login-button">登录</button>
+          <label class="check-radio">记住我？
+            <input type="checkbox" id="remember-me" checked="checked">
+            <span class="checkmark"></span>
+          </label>
+        </div>
+
+        <div class="container2">
+          <button type="button" class="cancelbtn" id="cancel">取消</button>
+          <span class="psw">忘记了 <a href="javascript:;" id="forget-pass">密码?</a></span>
+        </div>
+      </form>
+    </div>
+    <div id="logon-form" class="modal">
+      <form class="animate">
+        <div class="container">
+          <label for="uname"><b>用户名</b></label>
+          <input type="text" placeholder="输入用户名" name="uname" id="logon-name" required>
+
+          <label for="psw"><b>密码</b></label>
+          <input type="password" placeholder="输入密码" name="psw" id="logon-pass" required>
+
+          <label for="psw"><b>确认密码</b></label>
+          <input type="password" placeholder="再次输入密码" name="psw" id="logon-pass2" required>
+
+          <button type="submit" id="logon-button">注册</button>
+        </div>
+
+        <div class="container2">
+          <button type="button" class="cancelbtn" id="cancel2">取消</button>
+          <span class="psw">已有账号？ <a href="javascript:;" id="change-login">登录</a></span>
+        </div>
+      </form>
+    </div>
+
+    <script src="/static/@frontmerge_js.name"></script>
+
+    <div class="content">
+      @:content()
+    </div>
+
+  </main>
+  <div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
+    <div class="roar-alert-mask"></div>
+    <div class="roar-alert-message-body" role="alert" aria-relevant="all">
+      <div class="roar-alert-message-tbf roar-alert-message-content"></div>
+      <div class="roar-alert-message-tbf roar-alert-message-button">
+        <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-cancel"></a>
+        <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-confirm"></a>
+      </div>
+    </div>
+  </div>
+  <footer>
+    <p><a href="http://www.tingtran.top" target="_blank">鼎传码行</a> &#169; 2019 -
+      @now().strftime("%Y").unwrap().to_string() </p>
+  </footer>
+  <script src="/static/@backendmerge_js.name"></script>
+</body>
+
+</html>

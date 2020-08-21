@@ -1,0 +1,44 @@
+@(phone: String)
+
+<p class="title-pic search">
+    <img src="/assets/img/user.png" width="30">
+    <span>用户设置</span>
+</p>
+
+<div class="user-set">
+    <div id="password-set">
+        <form>
+            <div class="container">
+                <p>修改密码</p>
+                <div>
+                    <label for="uname">原密码</label>
+                    <input type="password" name="uname" id="old-pass">
+                </div>
+                <div>
+                    <label for="psw">新密码</label>
+                    <input type="password" name="psw" id="new-pass">
+                </div>
+                <div>
+                    <label for="psw">确认密码</label>
+                    <input type="password" name="psw" id="confirm-pass">
+                </div>
+                <button type="submit" id="pass-button">提交</button>
+            </div>
+        </form>
+    </div>
+    <div id="phone-set">
+        <form>
+            <div class="container">
+                <p>设置手机号</p>
+                <div>
+                    <label for="uname">手机号</label>
+                    <input type="text" name="uname" value="@phone" id="phonenumber">
+                </div>
+                <button type="submit" id="phone-button">提交</button>
+            </div>
+            <div id="warn-info">
+                注：手机号用来找回密码，接收买卖提醒信息
+            </div>
+        </form>
+    </div>
+</div>
