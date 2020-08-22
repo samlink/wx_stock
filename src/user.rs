@@ -6,7 +6,7 @@ use crypto::digest::Digest;
 use crypto::md5::Md5;
 use r2d2::Pool;
 use r2d2_postgres::PostgresConnectionManager;
-use tokio_postgres::{NoTls, Error};
+// use tokio_postgres::{NoTls, Error};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -87,19 +87,17 @@ pub fn get_user(
 
     if user_name != "0" {
         let mut conn = db.get().unwrap();
-        let rows = &conn
-            .query(
+        let row = &conn
+            .query_one(
                 r#"SELECT name, theme FROM users Where name=$1"#,
                 &[&user_name],
             )
             .unwrap();
 
-        for row in rows {
-            res_user.name = row.get("name");
-            res_user.theme = match row.get("theme") {
-                Some(t) => t,
-                None => "".to_owned(),
-            }
+        res_user.name = row.get("name");
+        res_user.theme = match row.get("theme") {
+            Some(t) => t,
+            None => "".to_owned(),
         }
     }
 
@@ -107,21 +105,22 @@ pub fn get_user(
 }
 
 ///用户设置页面
-pub fn user_set(db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>, id: Identity) -> HttpResponse {
+pub fn user_set(
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
+    id: Identity,
+) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
     let mut phone = "".to_owned();
 
     if user_name != "0" {
         let mut conn = db.get().unwrap();
-        let rows = &conn
-            .query(r#"SELECT phone FROM users Where name=$1"#, &[&user_name])
+        let row = &conn
+            .query_one(r#"SELECT phone FROM users Where name=$1"#, &[&user_name])
             .unwrap();
 
-        for row in rows {
-            phone = match row.get("phone") {
-                Some(phone) => phone,
-                None => "".to_owned(),
-            }
+        phone = match row.get("phone") {
+            Some(phone) => phone,
+            None => "".to_owned(),
         }
     }
 
@@ -165,31 +164,26 @@ pub fn login(
     let mut failed = 0;
     static MAX_FAILED: i32 = 6;
 
-    let rows = &conn
-        .query(r#"SELECT failed FROM users Where name=$1"#, &[&user.name])
+    let row = &conn
+        .query_one(r#"SELECT failed FROM users Where name=$1"#, &[&user.name])
         .unwrap();
 
-    if !rows.is_empty() {
-        for row in rows {
-            failed = row.get("failed");
-        }
+    if let Some(one_row) = Some(row) {
+        failed = one_row.get("failed");
 
         if failed >= MAX_FAILED {
             HttpResponse::Ok().json(MAX_FAILED)
         } else {
             let md5_pass = md5(user.password.clone(), SALT);
-            let mut name = "".to_owned();
-            let rows = &conn
-                .query(
+            let row = &conn
+                .query_one(
                     r#"SELECT name FROM users Where name=$1 AND password=$2"#,
                     &[&user.name, &md5_pass],
                 )
                 .unwrap();
 
-            if !rows.is_empty() {
-                for row in rows {
-                    name = row.get("name");
-                }
+            if let Some(one_row) = Some(row) {
+                let name: String = one_row.get("name");
 
                 let encrypted_data = encrypt(name.as_bytes(), KEY, IV).ok().unwrap(); //将 name 用 aes 加密保存到前端存储
                 &conn.execute(r#"UPDATE users SET failed=0 WHERE name=$1"#, &[&user.name]);
@@ -226,7 +220,7 @@ pub fn change_pass(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
 
-    if user_name == "guest" || user_name == "0" { 
+    if user_name == "guest" || user_name == "0" {
         return HttpResponse::Ok().json(0);
     }
 
@@ -294,30 +288,22 @@ pub fn forget_pass(
     user: web::Json<User>,
 ) -> HttpResponse {
     let mut conn = db.get().unwrap();
-    let mut get_pass = 0;
     static MAX_PASS: i32 = 6;
 
-    let rows = &conn
-        .query(
+    let row = &conn
+        .query_one(
             r#"SELECT name, phone, get_pass FROM users Where name=$1"#,
             &[&user.name],
         )
         .unwrap();
 
-    if rows.is_empty() {
-        HttpResponse::Ok().json(-1)
-    } else {
-        let mut user_name = "".to_owned();
-        let mut phone = "".to_owned();
-
-        for row in rows {
-            user_name = row.get("name");
-            phone = match row.get("phone") {
-                Some(phone) => phone,
-                None => "".to_owned(),
-            };
-            get_pass = row.get("get_pass");
-        }
+    if let Some(one_row) = Some(row) {
+        let user_name: String = one_row.get("name");
+        let phone: String = match one_row.get("phone") {
+            Some(phone) => phone,
+            None => "".to_owned(),
+        };
+        let mut get_pass: i32 = one_row.get("get_pass");
 
         if phone == "" {
             HttpResponse::Ok().json(-2)
@@ -357,5 +343,7 @@ pub fn forget_pass(
 
             HttpResponse::Ok().json(MAX_PASS - get_pass)
         }
+    } else {
+        HttpResponse::Ok().json(-1)
     }
 }

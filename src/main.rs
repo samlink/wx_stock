@@ -33,8 +33,8 @@ async fn main() -> std::io::Result<()> {
                     .name("auth-sales")
                     .secure(false),
             ))
-            .service(web::resource("/").to(home::index))
-            .service(web::resource("/login").to(home::login))
+            .service(home::index)
+            .service(home::login)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
