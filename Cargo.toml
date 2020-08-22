@@ -24,6 +24,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 postgres = "0.17.5"
+tokio-postgres = "0.5.5"
 serde_postgres = "0.1"
 r2d2 = "0.8.9"
 r2d2_postgres ="*"
@@ -31,4 +32,5 @@ r2d2_postgres ="*"
 rust-crypto = "0.2.36"
 rand = "0.7.3"
 futures = "0.3"
+reqwest = "0.9"
 regex = "1"

@@ -7,8 +7,9 @@ use r2d2_postgres::PostgresConnectionManager;
 use rand::Rng;
 
 mod home;
-mod login;
 mod service;
+mod user;
+mod useraes;
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -20,7 +21,6 @@ async fn main() -> std::io::Result<()> {
     );
 
     let pool = Pool::new(manager).unwrap();
- 
     let private_key = rand::thread_rng().gen::<[u8; 32]>();
 
     println!("服务已启动: 127.0.0.1:8083");

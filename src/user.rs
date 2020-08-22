@@ -6,6 +6,7 @@ use crypto::digest::Digest;
 use crypto::md5::Md5;
 use r2d2::Pool;
 use r2d2_postgres::PostgresConnectionManager;
+use tokio_postgres::{NoTls, Error};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -54,7 +55,7 @@ pub struct SendMessage {
 
 static SALT: &str = "samlink82";
 static KEY: &[u8; 32] = b"Long time ago, I meet you, like!";
-static IV: &[u8; 16] = b"salesmanage";
+static IV: &[u8; 16] = b"stocksalesmanage";
 
 ///获取 md5 码
 fn md5(password: String, salt: &str) -> String {
@@ -66,7 +67,7 @@ fn md5(password: String, salt: &str) -> String {
 
 ///获取用户信息
 pub fn get_user(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<StoredUser>,
     id: Identity,
 ) -> HttpResponse {
@@ -85,7 +86,7 @@ pub fn get_user(
     };
 
     if user_name != "0" {
-        let conn = db.get().unwrap();
+        let mut conn = db.get().unwrap();
         let rows = &conn
             .query(
                 r#"SELECT name, theme FROM users Where name=$1"#,
@@ -106,12 +107,12 @@ pub fn get_user(
 }
 
 ///用户设置页面
-pub fn user_set(db: web::Data<Pool<PostgresConnectionManager>>, id: Identity) -> HttpResponse {
+pub fn user_set(db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
     let mut phone = "".to_owned();
 
     if user_name != "0" {
-        let conn = db.get().unwrap();
+        let mut conn = db.get().unwrap();
         let rows = &conn
             .query(r#"SELECT phone FROM users Where name=$1"#, &[&user_name])
             .unwrap();
@@ -130,11 +131,11 @@ pub fn user_set(db: web::Data<Pool<PostgresConnectionManager>>, id: Identity) ->
 
 /// 用户注册
 pub fn logon(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<User>,
     id: Identity,
 ) -> HttpResponse {
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
     let rows = &conn
         .query(r#"SELECT name FROM users Where name=$1"#, &[&user.name])
         .unwrap();
@@ -156,11 +157,11 @@ pub fn logon(
 
 /// 用户登录
 pub fn login(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<User>,
     id: Identity,
 ) -> HttpResponse {
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
     let mut failed = 0;
     static MAX_FAILED: i32 = 6;
 
@@ -219,7 +220,7 @@ pub fn logout(id: Identity) -> HttpResponse {
 
 ///更改用户密码
 pub fn change_pass(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
@@ -229,7 +230,7 @@ pub fn change_pass(
         return HttpResponse::Ok().json(0);
     }
 
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
     let salt_pass = md5(user.old_pass.clone(), SALT);
 
     let rows = &conn
@@ -254,12 +255,12 @@ pub fn change_pass(
 
 ///设置手机号
 pub fn phone_number(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<Phone>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
 
     if user_name != "guest" && user_name != "0" {
         &conn.execute(
@@ -273,12 +274,12 @@ pub fn phone_number(
 
 ///设置主题
 pub fn change_theme(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     theme: web::Json<Theme>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap();
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
     &conn.execute(
         r#"UPDATE users SET theme=$1 WHERE name=$2"#,
         &[&theme.name, &user_name],
@@ -289,10 +290,10 @@ pub fn change_theme(
 
 ///找回密码
 pub fn forget_pass(
-    db: web::Data<Pool<PostgresConnectionManager>>,
+    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
     user: web::Json<User>,
 ) -> HttpResponse {
-    let conn = db.get().unwrap();
+    let mut conn = db.get().unwrap();
     let mut get_pass = 0;
     static MAX_PASS: i32 = 6;
 
