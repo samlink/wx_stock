@@ -4,6 +4,31 @@ version = "0.1.0"
 authors = ["sam <samlink@126.com>"]
 edition = "2018"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+build = "src/build.rs"
+
+[build-dependencies]
+ructe = "0.12"
 
 [dependencies]
+time = "0.1"
+uuid = { version = "0.8", features = ["serde", "v4"] }
+
+actix-rt = "1.0.0"
+actix-web = "2.0.0"
+actix-files = "0.2.1"
+actix-session = "0.3.0"
+actix-multipart =  "0.2"
+actix-identity = "0.2.0"
+
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+postgres = "0.17.5"
+serde_postgres = "0.1"
+r2d2 = "0.8.9"
+r2d2_postgres ="*"
+
+rust-crypto = "0.2.36"
+rand = "0.7.3"
+futures = "0.3"
+regex = "1"

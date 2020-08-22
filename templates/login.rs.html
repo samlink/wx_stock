@@ -1,0 +1,67 @@
+@use time::now;
+@use super::statics::*;
+@()
+
+<html lang="zh-CN">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1">
+  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/static/login.css" />
+  <title id='title-show'>鼎传仓储销售</title>
+</head>
+
+<body>
+  <main>
+    <div class="top">
+      <div id="logo">
+        <a href="/"><img src="/assets/img/logo2.png" /></a>
+      </div>
+      <div id="title">仓储销售</div>
+    </div>
+
+    <div id="login-form" class="modal">
+      <form class="animate">
+        <div class="container">
+          <label for="uname"><b>用户名</b></label>
+          <input type="text" placeholder="输入用户名" name="uname" value="guest" id="login-name">
+
+          <label for="psw"><b>密码</b></label>
+          <input type="password" placeholder="输入密码" name="psw" value="guest" id="login-pass">
+
+          <button type="submit" id="login-button">登录</button>
+          <label class="check-radio">记住我？
+            <input type="checkbox" id="remember-me" checked="checked">
+            <span class="checkmark"></span>
+          </label>
+          <div class="psw">忘记了 <a href="javascript:;" id="forget-pass">密码?</a></div>
+        </div>
+      </form>
+    </div>
+    <div id="logon-form" class="modal">
+      <form class="animate">
+        <div class="container">
+          <label for="uname"><b>用户名</b></label>
+          <input type="text" placeholder="输入用户名" name="uname" id="logon-name" required>
+
+          <label for="psw"><b>密码</b></label>
+          <input type="password" placeholder="输入密码" name="psw" id="logon-pass" required>
+
+          <label for="psw"><b>确认密码</b></label>
+          <input type="password" placeholder="再次输入密码" name="psw" id="logon-pass2" required>
+
+          <button type="submit" id="logon-button">注册</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p><a href="http://www.tingtran.top" target="_blank">鼎传码行</a> &#169;
+      @now().strftime("%Y").unwrap().to_string() </p>
+  </footer>
+  <script src=""></script>
+</body>
+
+</html>
