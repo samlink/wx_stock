@@ -161,7 +161,6 @@ pub fn login(
     id: Identity,
 ) -> HttpResponse {
     let mut conn = db.get().unwrap();
-    let mut failed = 0;
     static MAX_FAILED: i32 = 6;
 
     let row = &conn
@@ -169,7 +168,7 @@ pub fn login(
         .unwrap();
 
     if let Some(one_row) = Some(row) {
-        failed = one_row.get("failed");
+        let mut failed: i32 = one_row.get("failed");
 
         if failed >= MAX_FAILED {
             HttpResponse::Ok().json(MAX_FAILED)
