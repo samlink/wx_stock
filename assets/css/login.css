@@ -1,0 +1,79 @@
+body {
+  font-size: 14px;
+  padding-top: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+input,
+textarea {
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  padding: 0 5px;
+}
+input:focus,
+textarea:focus {
+  border: 1px solid #82caff;
+}
+
+input {
+  height: 25px;
+}
+
+a {
+  text-decoration: none;
+}
+
+button {
+  padding: 3px 12px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+}
+button:hover {
+  opacity: 0.8;
+}
+
+footer {
+  height: 60px;
+}
+
+.top {
+  display: flex;
+  height: 60px;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  background-image: linear-gradient(270deg, rgba(51, 148, 225, 0.18), transparent);
+  background-color: #584475;
+}
+.top div {
+  display: inline-block;
+}
+.top #logo {
+  margin-top: 5px;
+  margin-left: 15%;
+  align-items: center;
+  vertical-align: middle;
+}
+.top #logo img {
+  width: 25px;
+}
+.top #title {
+  font-size: 16px;
+  color: white;
+  margin-top: 5px;
+  margin-left: 10px;
+}
+.top .menu-log {
+  color: white;
+  margin-right: 15%;
+}
+
+.main {
+  flex: 1;
+}

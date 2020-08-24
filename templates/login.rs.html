@@ -8,20 +8,22 @@
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1">
   <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
-  <link rel="stylesheet" type="text/css" href="/static/login.css" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/login.css" />
   <title id='title-show'>鼎传仓储销售</title>
 </head>
 
 <body>
-  <main>
-    <div class="top">
-      <div id="logo">
-        <a href="/"><img src="/assets/img/logo2.png" /></a>
-      </div>
-      <div id="title">仓储销售</div>
+  <div class="top">
+    <div id="logo">
+      <img src="/assets/img/logo2.png" />
+      <span id="title">仓储销售</span>
     </div>
+    <div class="menu-log"> <a href="javascript:;">注册新账户</a></div>
+    <div class="menu-log" style="display: none;"><a href="javascript:;">登录</a></div>
+  </div>
 
-    <div id="login-form" class="modal">
+  <div class="main">
+    <div id="login-form" class="log-show">
       <form class="animate">
         <div class="container">
           <label for="uname"><b>用户名</b></label>
@@ -39,7 +41,7 @@
         </div>
       </form>
     </div>
-    <div id="logon-form" class="modal">
+    <div id="logon-form" class="log-show" hidden>
       <form class="animate">
         <div class="container">
           <label for="uname"><b>用户名</b></label>
@@ -55,8 +57,8 @@
         </div>
       </form>
     </div>
-  </main>
-
+  </div>
+  
   <footer>
     <p><a href="http://www.tingtran.top" target="_blank">鼎传码行</a> &#169;
       @now().strftime("%Y").unwrap().to_string() </p>
