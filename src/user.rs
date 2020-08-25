@@ -1,12 +1,13 @@
 use crate::service::r2s; //各个子模块之间的互相引用
 use crate::useraes::*;
 use actix_identity::Identity;
-use actix_web::{web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
 use crypto::md5::Md5;
-use r2d2::Pool;
-use r2d2_postgres::PostgresConnectionManager;
+// use r2d2::Pool;
+// use r2d2_postgres::PostgresConnectionManager;
 // use tokio_postgres::{NoTls, Error};
+use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -105,17 +106,19 @@ pub fn get_user(
 }
 
 ///用户设置页面
-pub fn user_set(
-    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
+#[get("/user_set")]
+pub async fn user_set(
+    db: web::Data<Pool>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
     let mut phone = "".to_owned();
 
     if user_name != "0" {
-        let mut conn = db.get().unwrap();
+        let mut conn = db.get().await.unwrap();
         let row = &conn
             .query_one(r#"SELECT phone FROM users Where name=$1"#, &[&user_name])
+            .await
             .unwrap();
 
         phone = match row.get("phone") {
@@ -129,14 +132,15 @@ pub fn user_set(
 }
 
 /// 用户注册
-pub fn logon(
-    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
+pub async fn logon(
+    db: &Pool,
     user: web::Json<User>,
     id: Identity,
 ) -> HttpResponse {
-    let mut conn = db.get().unwrap();
+    let mut conn: Client = db.get().await.unwrap();
     let rows = &conn
         .query(r#"SELECT name FROM users Where name=$1"#, &[&user.name])
+        .await
         .unwrap();
 
     if !rows.is_empty() {
@@ -155,16 +159,18 @@ pub fn logon(
 }
 
 /// 用户登录
-pub fn login(
-    db: web::Data<Pool<PostgresConnectionManager<tokio_postgres::tls::NoTls>>>,
+pub async fn login(
+    // db: web::Data<Pool<PostgresConnectionManager<postgres::tls::NoTls>>>,
+    db: web::Data<Pool>,
     user: web::Json<User>,
     id: Identity,
 ) -> HttpResponse {
-    let mut conn = db.get().unwrap();
+    let mut conn: Client = db.get().await.unwrap();
     static MAX_FAILED: i32 = 6;
 
     let row = &conn
         .query_one(r#"SELECT failed FROM users Where name=$1"#, &[&user.name])
+        .await
         .unwrap();
 
     if let Some(one_row) = Some(row) {
@@ -179,6 +185,7 @@ pub fn login(
                     r#"SELECT name FROM users Where name=$1 AND password=$2"#,
                     &[&user.name, &md5_pass],
                 )
+                .await
                 .unwrap();
 
             if let Some(one_row) = Some(row) {

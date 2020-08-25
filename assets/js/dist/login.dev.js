@@ -66,8 +66,7 @@
       return res.json();
     }).then(function (data) {
       if (data != 0) {
-        // localStorage.setItem('knowledge-user', data);
-        window.location = "/";
+        notifier.show('注册完成，请等待管理员确认', 'info', 6000);
       } else {
         notifier.show('该用户名已存在', 'danger');
       }
@@ -109,7 +108,7 @@
         notifier.show('该用户已被锁定保护', 'danger');
       } else {
         var remeber = document.querySelector('#remember-me').checked;
-        if (remeber) localStorage.setItem('stock-user', data);
+        if (remeber) localStorage.setItem('sales-user', data);
         window.location = "/";
       }
     });
