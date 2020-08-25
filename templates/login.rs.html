@@ -18,25 +18,25 @@
       <img src="/assets/img/logo2.png" />
       <span id="title">鼎传仓储销售</span>
     </div>
-    <div class="menu-log"> <a href="javascript:;">注册新用户</a></div>
-    <div class="menu-log" style="display: none;"><a href="javascript:;">登录</a></div>
+    <div class="menu-log" style="display: none;"> <a href="javascript:;">注册新用户</a></div>
+    <div class="menu-log"><a href="javascript:;">用户登录</a></div>
   </div>
 
   <div class="main">
-    <div id="login-form" class="log-show">
+    <div id="login-form" class="log-show" style="display: none;">
       <form>
         <div class="form-group">
           <label for="uname">用户名</label>
-          <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="login-name">
+          <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="login-name" required>
         </div>
         <div class="form-group">
           <label for="psw">密码</label>
-          <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="login-pass">
+          <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="login-pass" required>
         </div>
         <div class="form-group">
           <label class="check-radio">
             <input type="checkbox" id="remember-me" checked="checked">
-            <span class="checkmark"></span>记住用户名和密码，下次使用无需登录
+            <span class="checkmark"></span>记住用户名和密码，下次使用自动登录
           </label>
         </div>
         <div class="form-group to-center">
@@ -45,18 +45,21 @@
         <div class="psw to-center">忘记了密码？<a href="javascript:;" id="forget-pass">点此找回</a></div>
       </form>
     </div>
-    <div id="logon-form" class="log-show" style="display: none;">
-      <form class="animate">
-        <div class="container">
-          <label for="uname"><b>用户名</b></label>
-          <input type="text" placeholder="请输入用户名" name="uname" id="logon-name" required>
-
-          <label for="psw"><b>密码</b></label>
-          <input type="password" placeholder="请输入密码" name="psw" id="logon-pass" required>
-
-          <label for="psw"><b>确认密码</b></label>
-          <input type="password" placeholder="请再次输入密码" name="psw" id="logon-pass2" required>
-
+    <div id="logon-form" class="log-show">
+      <form>
+        <div class="form-group">
+          <label for="uname">用户名</label>
+          <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="logon-name" required>
+        </div>
+        <div class="form-group">
+          <label for="psw">密码</label>
+          <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="logon-pass" required>
+        </div>
+        <div class="form-group">
+          <label for="psw">确认密码</label>
+          <input class="form-control" type="password" placeholder="请再次输入密码" name="psw" id="logon-pass2" required>
+        </div>
+        <div class="form-group to-center">
           <button type="submit" id="logon-button">注册</button>
         </div>
       </form>
