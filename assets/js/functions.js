@@ -71,7 +71,7 @@ function fetch_data(fn = () => { }) {
         });
 }
 
-//点击表格行，高亮显示
+//点击表格行，高亮显示 
 function click_choose(tbody) {
     for (let tr of tbody.children) {
         tr.addEventListener('click', function (e) {

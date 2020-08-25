@@ -10,6 +10,21 @@ body {
     background-color: #584475;
 }
 
+input {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border: 3px solid #ccc;
+    -webkit-transition: 0.5s;
+    transition: 0.5s;
+    outline: none;
+
+    &：focus {
+        border: 1px solid #7a59ad;
+    }
+}
+
 a {
     text-decoration: none;
 }
@@ -111,6 +126,10 @@ a {
             justify-content: center;
         }
 
+        .remember_bold {
+            font-weight: bold !important;
+        }
+
         button {
             cursor: pointer;
             display: block;
@@ -150,3 +169,4 @@ a {
 @import "variables";
 $check-roadio-checked: #7a59ad;
 @import "checkbox";
+@import "notify";

@@ -4,7 +4,13 @@
   var login_show = document.querySelector('#login-form');
   var logon_show = document.querySelector('#logon-form');
   var login = document.querySelector('#login');
-  var logon = document.querySelector('#logon'); //点击用户登录
+  var logon = document.querySelector('#logon');
+  var remember_me = document.querySelector('#remember-me');
+
+  if (remember_me.checked == true) {
+    document.querySelector('.check-radio').classList.add('remember_bold');
+  } //点击用户登录
+
 
   document.querySelector('#login a').addEventListener('click', function (e) {
     e.preventDefault();
@@ -24,6 +30,10 @@
     logon.style.display = 'none';
     var input = logon_show.querySelectorAll('input');
     input[0].focus();
+  }); //点击记住用户，加重字体
+
+  remember_me.addEventListener('click', function () {
+    document.querySelector('.check-radio').classList.toggle('remember_bold');
   }); //注册
 
   document.querySelector('#logon-button').addEventListener('click', function (evnet) {
