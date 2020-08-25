@@ -9,34 +9,8 @@ body {
   background-color: #584475;
 }
 
-input,
-textarea {
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  padding: 0 5px;
-}
-input:focus,
-textarea:focus {
-  border: 1px solid #82caff;
-}
-
-input {
-  height: 25px;
-}
-
 a {
   text-decoration: none;
-}
-
-button {
-  padding: 3px 12px;
-  font-size: 13px;
-  border: none;
-  cursor: pointer;
-  border-radius: 3px;
-}
-button:hover {
-  opacity: 0.8;
 }
 
 .top {
@@ -111,8 +85,10 @@ button:hover {
   color: #495057;
   background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid #e5e5e5;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+  border: 1px solid #dbdbdb;
+}
+.main .log-show .form-control:focus {
+  border: 1px solid #7a59ad;
 }
 .main .log-show .to-center {
   display: flex;
@@ -120,6 +96,7 @@ button:hover {
   justify-content: center;
 }
 .main .log-show button {
+  cursor: pointer;
   display: block;
   width: 60%;
   box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
@@ -144,6 +121,9 @@ button:hover {
 }
 .main footer a {
   color: white;
+  text-decoration-skip-ink: auto;
+  opacity: 0.6;
+  font-weight: 600;
 }
 
 .check-radio {

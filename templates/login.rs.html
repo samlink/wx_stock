@@ -18,12 +18,12 @@
       <img src="/assets/img/logo2.png" />
       <span id="title">鼎传仓储销售</span>
     </div>
-    <div class="menu-log" style="display: none;"> <a href="javascript:;">注册新用户</a></div>
-    <div class="menu-log"><a href="javascript:;">用户登录</a></div>
+    <div class="menu-log"> <a href="javascript:;">注册新用户</a></div>
+    <div class="menu-log" style="display: none;"><a href="javascript:;">用户登录</a></div>
   </div>
 
   <div class="main">
-    <div id="login-form" class="log-show" style="display: none;">
+    <div id="login-form" class="log-show">
       <form>
         <div class="form-group">
           <label for="uname">用户名</label>
@@ -45,7 +45,7 @@
         <div class="psw to-center">忘记了密码？<a href="javascript:;" id="forget-pass">点此找回</a></div>
       </form>
     </div>
-    <div id="logon-form" class="log-show">
+    <div id="logon-form" class="log-show" style="display: none;">
       <form>
         <div class="form-group">
           <label for="uname">用户名</label>
@@ -59,15 +59,16 @@
           <label for="psw">确认密码</label>
           <input class="form-control" type="password" placeholder="请再次输入密码" name="psw" id="logon-pass2" required>
         </div>
-        <div class="form-group to-center">
+        <div class="to-center">
           <button type="submit" id="logon-button">注册</button>
         </div>
       </form>
     </div>
 
     <footer>
-      <p><a href="http://www.tingtran.top" target="_blank">鼎传码行</a> &#169;
-        @now().strftime("%Y").unwrap().to_string() </p>
+      <p><a href="http://www.tingtran.top" target="_blank">[ 鼎传码行 ]</a>
+        &#169;@now().strftime("%Y").unwrap().to_string() 授权给：北京易瑞盈商贸有限公司
+      </p>
     </footer>
   </div>
 
