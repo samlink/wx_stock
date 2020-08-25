@@ -1,0 +1,86 @@
+
+.check-radio {
+  display: inline-block;
+  position: relative; //为使 checkmark 元素实现绝对定位，这个祖先元素需要设置 position 属性，非 static 即可
+  padding-left: 25px; //调整字与框的间距
+  cursor: pointer;
+  font-size: 13px;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+
+  &:hover input ~ .checkmark,
+  &:hover input ~ .radiomark {
+    background-color: $check-roadio-backround-hover;
+  }
+
+  input {
+    //隐藏默认的 checkbox 元素
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+
+    &:checked ~ .checkmark,
+    &:checked ~ .radiomark {
+      background-color: $check-roadio-checked;
+      border: 1px solid $check-roadio-checked;
+    }
+
+    &:checked ~ .checkmark:after,
+    &:checked ~ .radiomark:after {
+      display: block;
+    }
+  }
+
+  %mark {
+    position: absolute; //相对于 mar-checkbox 的绝对定位，脱离原文档流，实现新的图层
+    top: 2px; //其起始位置就是 mar-checkbox (label) 的起始位置，可以用作对齐
+    left: 0;
+    height: 16px;
+    width: 16px;
+    background-color: $check-roadio-backround;
+    border: 1px solid $check-roadio-backround-hover;
+  }
+
+  .checkmark {
+    @extend %mark;
+    //创建对勾
+    &:after {
+      content: "";
+      position: absolute; //相对于 checkmark 的绝对定位
+      display: none;
+
+      left: 5px;
+      top: 2px;
+      width: 4px; //宽高分别是对勾的边长
+      height: 8px;
+      border: solid $check-roadio-mark; //白色边框
+      border-width: 0 3px 3px 0; //仅有右框和底框
+      -webkit-transform: rotate(45deg); //旋转 45 度
+      -ms-transform: rotate(45deg);
+      transform: rotate(45deg);
+    }
+  }
+
+  .radiomark {
+    @extend %mark;
+    border-radius: 50%;
+    // 创建圆点
+    &:after {
+      content: "";
+      position: absolute;
+      display: none;
+
+      top: 6.7px;
+      left: 6.8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;   //这样就是圆
+      background: $check-roadio-mark;
+    }
+  }
+}

@@ -1,0 +1,105 @@
+/*
+ * roar - v1.0.5 - 2018-05-25
+ * https://getbutterfly.com/roarjs-vanilla-javascript-alert-confirm-replacement/
+ * Copyright (c) 2018 Ciprian Popescu
+ * Licensed GPLv3
+ */
+.roar-alert-mask {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: grey;
+  -moz-opacity: 0;
+  opacity: 0.5;
+  z-index: 1000;
+}
+
+.roar-alert-message-body {
+  position: fixed;
+  z-index: 9999;
+  min-width: 350px;
+  max-width: 400px;
+  top: 40%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  background-color: #fafafc;
+  text-align: center;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 0 48px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 0 48px rgba(0, 0, 0, 0.15);
+  -webkit-animation: roar-show 0.1s;
+  animation: roar-show 0.1s;
+}
+
+a.roar-alert-message-tbf {
+  color: white;
+}
+
+@media screen and (max-width: 480px) {
+  .roar-alert-message-body {
+    min-width: 320px;
+    max-width: 100%;
+  }
+}
+.roar-alert-message-tbf {
+  padding: 0 20px;
+  font-size: 13px;
+}
+
+.roar-alert-message-content {
+  margin-top: 16px;
+  padding: 24px 24px;
+  text-align: center;
+}
+.roar-alert-message-button {
+  position: relative;
+  padding: 20px;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.roar-alert-message-button a {
+  display: block;
+  margin: 0 24px;
+  text-decoration: none;
+  border-radius: 3px;
+  padding: 6px 20px;
+  color: #ffffff;
+}
+
+a.roar-alert-message-button-cancel:hover,
+a.roar-alert-message-button-confirm:hover {
+  opacity: 0.8;
+  text-decoration: none;
+}
+
+@-webkit-keyframes roar-show {
+  0% {
+    -webkit-filter: opacity(0.2);
+    filter: opacity(0.2);
+    margin-top: -16px;
+  }
+  100% {
+    -webkit-filter: opacity(1);
+    filter: opacity(1);
+    margin-top: 0;
+  }
+}
+@keyframes roar-show {
+  0% {
+    -webkit-filter: opacity(0.2);
+    filter: opacity(0.2);
+    margin-top: -16px;
+  }
+  100% {
+    -webkit-filter: opacity(1);
+    filter: opacity(1);
+    margin-top: 0;
+  }
+}

@@ -5,6 +5,8 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  background-image: linear-gradient(270deg, rgba(51, 148, 225, 0.18), transparent);
+  background-color: #584475;
 }
 
 input,
@@ -37,14 +39,6 @@ button:hover {
   opacity: 0.8;
 }
 
-footer {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-}
-
 .top {
   display: flex;
   flex-direction: row;
@@ -55,6 +49,7 @@ footer {
   z-index: 30;
   background-image: linear-gradient(270deg, rgba(51, 148, 225, 0.18), transparent);
   background-color: #584475;
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175);
 }
 .top #logo {
   display: flex;
@@ -63,12 +58,12 @@ footer {
   margin-left: 15%;
 }
 .top #logo img {
-  width: 30px;
+  width: 28px;
 }
 .top #title {
   font-size: 16px;
   color: white;
-  margin-left: 6px;
+  margin-left: 8px;
 }
 .top .menu-log {
   color: white;
@@ -80,11 +75,139 @@ footer {
 
 .main {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  background: url(/assets/img/pattern-1.svg) no-repeat center bottom fixed;
+  background-size: cover;
+  background-color: transparent;
+}
+.main .log-show {
+  margin-top: 5%;
+  border-radius: 10px;
+  background-color: #f7f9fa;
+  box-shadow: 0px 0px 13px 0px rgba(74, 53, 107, 0.08);
+  padding: 1.5rem;
+  word-wrap: break-word;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+.main .log-show .form-group {
+  margin-bottom: 1.5rem;
+}
+.main .log-show .form-group label {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.main .log-show .form-control {
+  height: calc(1.5em + 1.5rem + 2px);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 4px;
+  color: #495057;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #e5e5e5;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+}
+.main .log-show .to-center {
+  display: flex;
   flex-direction: row;
   justify-content: center;
-  flex: 1;
+}
+.main .log-show button {
+  display: block;
+  width: 60%;
+  box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  color: #fff;
+  background-color: #2196f3;
+  border-color: #2196f3;
+  font-weight: 400;
+  text-align: center;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
+}
+.main .log-show button:hover {
+  background-color: #1385e2;
+}
+.main footer {
+  height: 60px;
+  color: white;
+}
+.main footer a {
+  color: white;
 }
 
-.log-show {
-  margin-top: 10%;
+.check-radio {
+  display: inline-block;
+  position: relative;
+  padding-left: 25px;
+  cursor: pointer;
+  font-size: 13px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.check-radio:hover input ~ .checkmark, .check-radio:hover input ~ .radiomark {
+  background-color: #ccc;
+}
+.check-radio input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.check-radio input:checked ~ .checkmark, .check-radio input:checked ~ .radiomark {
+  background-color: #7a59ad;
+  border: 1px solid #7a59ad;
+}
+.check-radio input:checked ~ .checkmark:after, .check-radio input:checked ~ .radiomark:after {
+  display: block;
+}
+.check-radio .radiomark, .check-radio .checkmark {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 16px;
+  width: 16px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+.check-radio .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.check-radio .radiomark {
+  border-radius: 50%;
+}
+.check-radio .radiomark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 6.7px;
+  left: 6.8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
 }
