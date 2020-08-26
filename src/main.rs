@@ -2,43 +2,30 @@ use actix_files as fs;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{web, App, HttpServer};
 use config::ConfigError;
-// use deadpool_postgres::{Config, ManagerConfig, RecyclingMethod};
-// use deadpool_postgres::{Client, Pool, PoolError};
 use dotenv::dotenv;
 use rand::Rng;
 use serde::Deserialize;
-// use tokio_postgres::NoTls;
 
 mod html;
 mod service;
 mod user;
 mod useraes;
 
+#[derive(Deserialize)]
+struct Config {
+    pg: deadpool_postgres::Config,
+}
+
+impl Config {
+    fn from_env() -> Result<Self, ConfigError> {
+        let mut cfg = ::config::Config::new();
+        cfg.merge(::config::Environment::new().separator("__"))?;
+        cfg.try_into()
+    }
+}
+
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
-    // let mut cfg = Config::new();
-    // cfg.host = Some("127.0.0.1".to_string());
-    // cfg.user = Some("postgres".to_string());
-    // cfg.password = Some("sam197298".to_owned());
-    // cfg.dbname = Some("sales".to_string());
-    // cfg.manager = Some(ManagerConfig {
-    //     recycling_method: RecyclingMethod::Fast,
-    // });
-    // let pool = cfg.create_pool(NoTls).unwrap();
-
-    #[derive(Deserialize)]
-    struct Config {
-        pg: deadpool_postgres::Config,
-    }
-
-    impl Config {
-        fn from_env() -> Result<Self, ConfigError> {
-            let mut cfg = ::config::Config::new();
-            cfg.merge(::config::Environment::new().separator("__"))?;
-            cfg.try_into()
-        }
-    }
-
     dotenv().ok();
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();

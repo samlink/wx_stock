@@ -68,7 +68,7 @@
       .then(res => res.json())
       .then(data => {
         if (data != 0) {
-          notifier.show('注册完成，请等待管理员确认', 'info', 6000);
+          notifier.show('注册完成，等待确认', 'info', 6000);
         }
         else {
           notifier.show('该用户名已存在', 'danger');
@@ -107,14 +107,14 @@
           notifier.show('该用户不存在', 'danger');
         }
         else if (data == -2) {
-          notifier.show('需等待管理员确认', 'info');
+          notifier.show('等待管理员确认', 'warning');
         }
         else if (data != 0 && data < MAX_FAILED) {
           notifier.show('密码错误', 'danger');
           setTimeout(() => notifier.show('还有 ' + data + ' 次机会', 'warning'), 500);
         }
         else if (data == 0 || data == MAX_FAILED) {
-          notifier.show('该用户已被锁定保护', 'danger');
+          notifier.show('该用户已被锁定', 'danger');
         }
         else {
           let remeber = document.querySelector('#remember-me').checked;
