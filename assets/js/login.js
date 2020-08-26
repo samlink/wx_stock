@@ -106,6 +106,9 @@
         if (data == -1) {
           notifier.show('该用户不存在', 'danger');
         }
+        else if (data == -2) {
+          notifier.show('需等待管理员确认', 'info');
+        }
         else if (data != 0 && data < MAX_FAILED) {
           notifier.show('密码错误', 'danger');
           setTimeout(() => notifier.show('还有 ' + data + ' 次机会', 'warning'), 500);
