@@ -1,6 +1,6 @@
 use crate::service::{get_user, r2s};
-use actix_web::{get, web, HttpRequest, HttpResponse};
 use actix_identity::Identity;
+use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
@@ -42,10 +42,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             .await
             .unwrap();
 
-        phone = match row.get("phone") {
-            Some(phone) => phone,
-            None => "".to_owned(),
-        }
+        phone = row.get("phone");
     }
 
     let html = r2s(|o| userset(o, phone));

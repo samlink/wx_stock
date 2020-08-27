@@ -36,12 +36,11 @@ async fn main() -> std::io::Result<()> {
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[6; 32])
                     .name("auth-sales")
-                    .max_age(2592000)
+                    .max_age(2592000) //30天
                     .secure(false),
             ))
             .service(html::index)
             .service(html::login)
-            // .service(user::get_user)
             .service(user::login)
             .service(user::logon)
             .service(user::logout)
