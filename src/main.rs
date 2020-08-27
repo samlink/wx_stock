@@ -3,7 +3,6 @@ use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_web::{web, App, HttpServer};
 use config::ConfigError;
 use dotenv::dotenv;
-use rand::Rng;
 use serde::Deserialize;
 
 mod html;
@@ -30,15 +29,13 @@ async fn main() -> std::io::Result<()> {
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
 
-    let private_key = rand::thread_rng().gen::<[u8; 32]>();
-
     println!("服务已启动: 127.0.0.1:8083");
 
     HttpServer::new(move || {
         App::new()
             .data(pool.clone())
             .wrap(IdentityService::new(
-                CookieIdentityPolicy::new(&private_key)
+                CookieIdentityPolicy::new(&[6; 32])
                     .name("auth-sales")
                     .max_age(2592000)
                     .secure(false),

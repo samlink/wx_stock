@@ -1,6 +1,6 @@
 use crate::service::r2s; //各个子模块之间的互相引用
 use crate::useraes::*;
-use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
+use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
 use crypto::md5::Md5;
@@ -199,8 +199,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 #[get("/logout")]
 pub fn logout(id: Identity) -> HttpResponse {
     id.forget();
-    let html = r2s(|o| login_html(o));
-    HttpResponse::Ok().content_type("text/html").body(html)
+    HttpResponse::Found().header("location", "/login").finish()
 }
 
 ///更改用户密码

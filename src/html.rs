@@ -1,5 +1,4 @@
 use crate::service::r2s;
-// use actix_identity::Identity;
 use actix_web::{get, HttpRequest, HttpResponse};
 // use serde::{Deserialize, Serialize};
 use actix_identity::Identity;

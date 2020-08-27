@@ -3,11 +3,6 @@
   var logon_show = document.querySelector('#logon-form');
   var login = document.querySelector('#login');
   var logon = document.querySelector('#logon');
-  // var remember_me = document.querySelector('#remember-me');
-
-  // if (remember_me.checked == true) {
-  //   document.querySelector('.check-radio').classList.add('remember_bold');
-  // }
 
   //点击用户登录
   document.querySelector('#login a').addEventListener('click', function (e) {
@@ -31,12 +26,7 @@
     input[0].focus();
   });
 
-  // //点击记住用户，加重字体
-  // remember_me.addEventListener('click', function () {
-  //   document.querySelector('.check-radio').classList.toggle('remember_bold');
-  // });
-
-  //注册
+  //注册按钮
   document.querySelector('#logon-button').addEventListener('click', function (evnet) {
     event.preventDefault();
 
@@ -76,7 +66,7 @@
       });
   });
 
-  //登录
+  //登录按钮
   document.querySelector('#login-button').addEventListener('click', function (evnet) {
     event.preventDefault();
     var name = document.querySelector('#login-name').value.trim();
@@ -117,20 +107,10 @@
           notifier.show('该用户已被锁定', 'danger');
         }
         else {
-          // let remeber = document.querySelector('#remember-me').checked;
-          // if (remeber) localStorage.setItem('sales-user', data);
           window.location = "/";
         }
       });
   });
-
-  function getCookie(name) {
-    var arr, reg = new RegExp("(^| )" + name + "=([^;]*)(;|$)");
-    if (arr = document.cookie.match(reg))
-      return unescape(arr[2]);
-    else
-      return null;
-  }
 
   //找回密码
   document.querySelector('#forget-pass').addEventListener('click', function () {
