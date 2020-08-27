@@ -1,6 +1,6 @@
 use crate::service::r2s; //各个子模块之间的互相引用
 use crate::useraes::*;
-use actix_identity::Identity;
+use actix_identity::{CookieIdentityPolicy, Identity, IdentityService};
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
 use crypto::md5::Md5;
@@ -64,43 +64,17 @@ fn md5(password: String, salt: &str) -> String {
 }
 
 ///获取用户信息
-pub async fn get_user(
-    db: web::Data<Pool>,
-    user: web::Json<StoredUser>,
-    id: Identity,
-) -> HttpResponse {
-    let mut user_name = id.identity().unwrap_or("0".to_owned());
-    if user.id != "0" && user_name == "0" {
+#[get("/get_user")]
+pub async fn get_user(user: web::Json<StoredUser>, id: Identity) -> HttpResponse {
+    let mut user_name = id.identity().unwrap_or("".to_owned());
+    if user_name == "" {
         let data: Vec<&str> = user.id.split(",").collect();
         let data_u8: Vec<u8> = data.iter().map(|c| c.parse::<u8>().unwrap()).collect();
         let decrypted_data = decrypt(&data_u8, KEY, IV).ok().unwrap();
         user_name = String::from_utf8(decrypted_data).unwrap();
         id.remember(user_name.clone());
     }
-
-    let mut res_user = UserTheme {
-        name: "".to_owned(),
-        theme: "theme-dark".to_owned(),
-    };
-
-    if user_name != "0" {
-        let conn = db.get().await.unwrap();
-        let row = &conn
-            .query_one(
-                r#"SELECT name, theme FROM 用户 Where name=$1"#,
-                &[&user_name],
-            )
-            .await
-            .unwrap();
-
-        res_user.name = row.get("name");
-        res_user.theme = match row.get("theme") {
-            Some(t) => t,
-            None => "".to_owned(),
-        }
-    }
-
-    HttpResponse::Ok().json(res_user)
+    HttpResponse::Ok().json(user_name)
 }
 
 ///用户设置页面
@@ -222,9 +196,11 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 }
 
 /// 退出登录
+#[get("/logout")]
 pub fn logout(id: Identity) -> HttpResponse {
     id.forget();
-    HttpResponse::Found().json(1)
+    let html = r2s(|o| login_html(o));
+    HttpResponse::Ok().content_type("text/html").body(html)
 }
 
 ///更改用户密码

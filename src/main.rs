@@ -40,12 +40,15 @@ async fn main() -> std::io::Result<()> {
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&private_key)
                     .name("auth-sales")
+                    .max_age(2592000)
                     .secure(false),
             ))
             .service(html::index)
             .service(html::login)
+            .service(user::get_user)
             .service(user::login)
             .service(user::logon)
+            .service(user::logout)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
