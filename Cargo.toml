@@ -25,13 +25,11 @@ serde_json = "1.0"
 
 postgres = "0.17.5"
 tokio-postgres = "0.5.5"
-serde_postgres = "0.1"
 deadpool-postgres = "0.5.6"
 config = "0.10.1"
 dotenv = "0.15.0"
 
 rust-crypto = "0.2.36"
 rand = "0.7.3"
-futures = "0.3"
 reqwest = "0.9"
 regex = "1"

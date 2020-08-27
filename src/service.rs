@@ -1,4 +1,5 @@
 use actix_web::{web, HttpResponse};
+use deadpool_postgres::Pool;
 use serde::Deserialize;
 use std::io::{self, Write};
 
@@ -8,6 +9,15 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 #[derive(Deserialize)]
 pub struct File {
     name: String,
+}
+
+#[derive(Deserialize)]
+pub struct UserData {
+    pub name: String,
+    pub phone: String,
+    pub get_pass: i32,
+    pub rights: String,
+    pub confirm: bool,
 }
 
 pub fn serve_static(file: web::Path<File>) -> HttpResponse {
@@ -26,3 +36,37 @@ where
     call(&mut buf).unwrap();
     String::from_utf8(buf).unwrap()
 }
+
+///获取用户信息
+pub async fn get_user(db: web::Data<Pool>, name: String) -> UserData {
+    let conn = db.get().await.unwrap();
+    let rows = &conn
+        .query(
+            r#"SELECT name, phone, get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true"#,
+            &[&name],
+        )
+        .await
+        .unwrap();
+
+    let mut user = UserData {
+        name: "".to_owned(),
+        phone: "".to_owned(),
+        get_pass: 0,
+        rights: "".to_owned(),
+        confirm: false,
+    };
+
+    if rows.is_empty() {
+        user
+    } else {
+        for row in rows {
+            user.name = row.get("name");
+            user.phone = row.get("phone");
+            user.get_pass = row.get("get_pass");
+            user.rights = row.get("rights");
+            user.confirm = row.get("confirm");
+        }
+        user
+    }
+}
+

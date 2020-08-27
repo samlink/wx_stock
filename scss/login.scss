@@ -16,6 +16,7 @@ input {
     margin: 8px 0;
     box-sizing: border-box;
     border: 3px solid #ccc;
+    background-color: white;
     -webkit-transition: 0.5s;
     transition: 0.5s;
     outline: none;
@@ -111,7 +112,7 @@ a {
             line-height: 1.5;
             border-radius: 4px;
             color: #495057;
-            background-color: #fff;
+            // background-color: #fff;
             background-clip: padding-box;
             border: 1px solid #dbdbdb;
 

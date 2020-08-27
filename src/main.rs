@@ -8,7 +8,6 @@ use serde::Deserialize;
 mod html;
 mod service;
 mod user;
-mod useraes;
 
 #[derive(Deserialize)]
 struct Config {
@@ -42,10 +41,11 @@ async fn main() -> std::io::Result<()> {
             ))
             .service(html::index)
             .service(html::login)
-            .service(user::get_user)
+            // .service(user::get_user)
             .service(user::login)
             .service(user::logon)
             .service(user::logout)
+            .service(user::forget_pass)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })

@@ -94,7 +94,7 @@
       .then(res => res.json())
       .then(data => {
         if (data == -1) {
-          notifier.show('该用户不存在', 'danger');
+          notifier.show('用户不存在', 'danger');
         }
         else if (data == -2) {
           notifier.show('等待管理员确认', 'warning');
@@ -104,7 +104,7 @@
           setTimeout(() => notifier.show('还有 ' + data + ' 次机会', 'warning'), 500);
         }
         else if (data == 0 || data == MAX_FAILED) {
-          notifier.show('该用户已被锁定', 'danger');
+          notifier.show('用户已被锁定', 'danger');
         }
         else {
           window.location = "/";
@@ -137,7 +137,7 @@
       .then(res => res.json())
       .then(data => {
         if (data == -1) {
-          notifier.show('此用户不存在', 'danger');
+          notifier.show('用户不存在或待确认', 'danger');
         }
         else if (data == -2) {
           notifier.show('用户没有预留手机号', 'danger');

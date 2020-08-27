@@ -1,5 +1,3 @@
-use crate::service::r2s; //各个子模块之间的互相引用
-use crate::useraes::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
@@ -7,9 +5,6 @@ use crypto::md5::Md5;
 use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-
-include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
-use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
 
 #[derive(Deserialize, Serialize)]
 pub struct User {
@@ -21,11 +16,6 @@ pub struct User {
 pub struct UserTheme {
     name: String,
     theme: String,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct StoredUser {
-    id: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -52,8 +42,6 @@ pub struct SendMessage {
 }
 
 static SALT: &str = "samlink82";
-static KEY: &[u8; 32] = b"Long time ago, I meet you, like!";
-static IV: &[u8; 16] = b"stocksalesmanage";
 
 ///获取 md5 码
 fn md5(password: String, salt: &str) -> String {
@@ -61,42 +49,6 @@ fn md5(password: String, salt: &str) -> String {
     let salt_pass = password + salt;
     hasher.input_str(&salt_pass);
     hasher.result_str()
-}
-
-///获取用户信息
-#[get("/get_user")]
-pub async fn get_user(user: web::Json<StoredUser>, id: Identity) -> HttpResponse {
-    let mut user_name = id.identity().unwrap_or("".to_owned());
-    if user_name == "" {
-        let data: Vec<&str> = user.id.split(",").collect();
-        let data_u8: Vec<u8> = data.iter().map(|c| c.parse::<u8>().unwrap()).collect();
-        let decrypted_data = decrypt(&data_u8, KEY, IV).ok().unwrap();
-        user_name = String::from_utf8(decrypted_data).unwrap();
-        id.remember(user_name.clone());
-    }
-    HttpResponse::Ok().json(user_name)
-}
-
-///用户设置页面
-pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("0".to_owned());
-    let mut phone = "".to_owned();
-
-    if user_name != "0" {
-        let conn = db.get().await.unwrap();
-        let row = &conn
-            .query_one(r#"SELECT phone FROM 用户 Where name=$1"#, &[&user_name])
-            .await
-            .unwrap();
-
-        phone = match row.get("phone") {
-            Some(phone) => phone,
-            None => "".to_owned(),
-        }
-    }
-
-    let html = r2s(|o| userset(o, phone));
-    HttpResponse::Ok().content_type("text/html").body(html)
 }
 
 /// 用户注册
@@ -168,7 +120,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
                     name = row.get("name");
                 }
 
-                let encrypted_data = encrypt(name.as_bytes(), KEY, IV).ok().unwrap(); //将 name 用 aes 加密保存到前端存储
+                // let encrypted_data = encrypt(name.as_bytes(), KEY, IV).ok().unwrap(); //将 name 用 aes 加密保存到前端存储
                 &conn
                     .execute(r#"UPDATE 用户 SET failed=0 WHERE name=$1"#, &[&user.name])
                     .await
@@ -176,7 +128,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
                 id.remember(name);
 
-                HttpResponse::Ok().json(encrypted_data)
+                HttpResponse::Ok().json("succeed")
             } else {
                 failed += 1;
                 &conn
@@ -283,62 +235,72 @@ pub async fn change_theme(
 }
 
 ///找回密码
+#[post("/forget_pass")]
 pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResponse {
     let conn = db.get().await.unwrap();
     static MAX_PASS: i32 = 6;
 
-    let row = &conn
-        .query_one(
-            r#"SELECT name, phone, get_pass FROM 用户 Where name=$1"#,
+    let rows = &conn
+        .query(
+            r#"SELECT name, phone, get_pass FROM 用户 Where name=$1 AND confirm=true"#,
             &[&user.name],
         )
         .await
         .unwrap();
 
-    let user_name: String = row.get("name");
-    let phone: String = match row.get("phone") {
-        Some(phone) => phone,
-        None => "".to_owned(),
-    };
-    let mut get_pass: i32 = row.get("get_pass");
-
-    if phone == "" {
-        HttpResponse::Ok().json(-2)
-    } else if get_pass >= MAX_PASS {
-        HttpResponse::Ok().json(-3)
+    if rows.is_empty() {
+        HttpResponse::Ok().json(-1)
     } else {
-        let words = "abcdefghijklmnpqrstuvwxyz123456789";
-        let mut new_pass = "".to_owned();
+        let mut user_name = "".to_owned();
+        let mut phone = "".to_owned();
+        let mut get_pass = 0i32;
 
-        for _n in 1..5 {
-            let num = rand::thread_rng().gen_range(0, 34);
-            new_pass.push_str(&words[num..num + 1]);
+        for row in rows {
+            user_name = row.get("name");
+            phone = row.get("phone");
+            get_pass = row.get("get_pass");
         }
 
-        let salt_pass = md5(new_pass.clone(), SALT);
-        get_pass += 1;
+        if phone == "" {
+            HttpResponse::Ok().json(-2)
+        } else if get_pass >= MAX_PASS {
+            HttpResponse::Ok().json(-3)
+        } else {
+            let words = "abcdefghijklmnpqrstuvwxyz123456789";
+            let mut new_pass = "".to_owned();
 
-        &conn
-            .execute(
-                r#"UPDATE 用户 SET password=$1, get_pass=$3 WHERE name=$2"#,
-                &[&salt_pass, &user_name, &get_pass],
-            )
-            .await
-            .unwrap();
+            for _n in 1..5 {
+                let num = rand::thread_rng().gen_range(0, 34);
+                new_pass.push_str(&words[num..num + 1]);
+            }
 
-        let send = SendMessage {
-            apikey: "011a9a2b503aa72978bd77ec4577a675".to_owned(),
-            mobile: phone,
-            text: "【鼎传码行】密码已重置，新的密码为：".to_owned() + &new_pass + " ，请及时操作",
-        };
+            let salt_pass = md5(new_pass.clone(), SALT);
+            get_pass += 1;
 
-        let client = reqwest::Client::new();
-        let _res = client
-            .post("https://sms.yunpian.com/v2/sms/single_send.json")
-            .form(&send)
-            .send()
-            .unwrap();
+            &conn
+                .execute(
+                    r#"UPDATE 用户 SET password=$1, get_pass=$3 WHERE name=$2"#,
+                    &[&salt_pass, &user_name, &get_pass],
+                )
+                .await
+                .unwrap();
 
-        HttpResponse::Ok().json(MAX_PASS - get_pass)
+            let send = SendMessage {
+                apikey: "011a9a2b503aa72978bd77ec4577a675".to_owned(),
+                mobile: phone,
+                text: "【鼎传码行】密码已重置，新的密码为：".to_owned()
+                    + &new_pass
+                    + " ，请及时操作",
+            };
+
+            let client = reqwest::Client::new();
+            let _res = client
+                .post("https://sms.yunpian.com/v2/sms/single_send.json")
+                .form(&send)
+                .send()
+                .unwrap();
+
+            HttpResponse::Ok().json(MAX_PASS - get_pass)
+        }
     }
 }
