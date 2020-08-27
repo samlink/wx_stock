@@ -8,91 +8,90 @@
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1">
   <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
-  <title id='title-show'>仓储销售</title>
+  <title id='title-show'>鼎传仓储销售</title>
 </head>
 
 <body>
   <main>
     <div class="top">
-      <div id="menu-bar">
-        <a href="javascript:;" id="menu-link"><img /></a>
-      </div>
       <div id="logo">
-        <a href="/"><img /></a>
+        <img src="/assets/img/logo2.png" />
+        <span id="title">鼎传仓储销售</span>
       </div>
-      <div id="title">      
+
+      <div id="menu">
+        <ul class="menu-ul">
+          <li class="menu-li">
+            <a class="menu-link" href=""><i class="nav-icon"></i><span class="nav-text">商品入库</span></a>
+            <div class="sub-menu">
+              <ul class="sub-ul">
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">采购进货</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">销售退货</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存调入</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存盘盈</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">入库查询</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存查询</span></a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="menu-li">
+            <a class="menu-link" href=""><i class="nav-icon"></i><span class="nav-text">商品出库</span></a>
+            <div class="sub-menu">
+              <ul class="sub-ul">
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存销售</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">直接销售</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">采购退货</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存调出</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库存盘亏</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">出库查询</span></a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="menu-li">
+            <a class="menu-link" href=""><i class="nav-icon"></i><span class="nav-text">客户供应商</span></a>
+            <div class="sub-menu">
+              <ul class="sub-ul">
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">客户管理</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">供应商管理</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">业务往来</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">债务结算</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">客户消费</span></a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="menu-li">
+            <a class="menu-link" href=""><i class="nav-icon"></i><span class="nav-text">统计分析</span></a>
+            <div class="sub-menu">
+              <ul class="sub-ul">
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">综合分析</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">商品统计</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">月度销售</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">费用统计</span></a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="menu-li">
+            <a class="menu-link" href=""><i class="nav-icon"></i><span class="nav-text">功能设置</span></a>
+            <div class="sub-menu">
+              <ul class="sub-ul">
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">商品设置</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">用户设置</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">销售人员</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">仓库设置</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">库位设置</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">系统参数</span></a></li>
+                <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">帮助信息</span></a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
       </div>
 
-      <div id="login">
-        <a href="" id="login1"> 登录 </a>
-        <a href="" id="login2"> 注册 </a>
+      <div id="user">
+        <div class="user-name">用户名称</div>
+        <a href="">信息修改</a>
+        <a href="">退出系统</a>
       </div>
-      <div id="phone-query">
-        <a href="javascript:;" id="phone-query-button"><img /></a>
-      </div>
-      <div id="function">
-        <a href="/hold_html" id="hold">　持仓　</a>
-        <a href="/trade_html" id="trade">　交易　</a>
-        <a href="/pool_html" id="pool">　股池　</a>
-        <a href="/history_html" id="record">　历史 </a>
-      </div>
-      <div id="query" class="autocomplete">
-        <input type="text" id="auto_input" placeholder="股票代码或拼音简码"><span><img src="/assets/img/zoom.png"
-            width="20px"></span>
-      </div>
-    </div>
-    <div id="menus" style="display: none">
-      <ul>
-        <li id="menu-home">首页</li>
-        <li id="menu-hold">持仓</li>
-        <li id="menu-trade">交易</li>
-        <li id="menu-pool">股池</li>
-        <li id="menu-history">历史</li>
-      </ul>
-    </div>
-
-    <div id="login-form" class="modal">
-      <form class="animate">
-        <div class="container">
-          <label for="uname"><b>用户名</b></label>
-          <input type="text" placeholder="输入用户名" name="uname" value="guest" id="login-name">
-
-          <label for="psw"><b>密码</b></label>
-          <input type="password" placeholder="输入密码" name="psw" value="guest" id="login-pass">
-
-          <button type="submit" id="login-button">登录</button>
-          <label class="check-radio">记住我？
-            <input type="checkbox" id="remember-me" checked="checked">
-            <span class="checkmark"></span>
-          </label>
-        </div>
-
-        <div class="container2">
-          <button type="button" class="cancelbtn" id="cancel">取消</button>
-          <span class="psw">忘记了 <a href="javascript:;" id="forget-pass">密码?</a></span>
-        </div>
-      </form>
-    </div>
-    <div id="logon-form" class="modal">
-      <form class="animate">
-        <div class="container">
-          <label for="uname"><b>用户名</b></label>
-          <input type="text" placeholder="输入用户名" name="uname" id="logon-name" required>
-
-          <label for="psw"><b>密码</b></label>
-          <input type="password" placeholder="输入密码" name="psw" id="logon-pass" required>
-
-          <label for="psw"><b>确认密码</b></label>
-          <input type="password" placeholder="再次输入密码" name="psw" id="logon-pass2" required>
-
-          <button type="submit" id="logon-button">注册</button>
-        </div>
-
-        <div class="container2">
-          <button type="button" class="cancelbtn" id="cancel2">取消</button>
-          <span class="psw">已有账号？ <a href="javascript:;" id="change-login">登录</a></span>
-        </div>
-      </form>
     </div>
 
     <div class="content">
@@ -100,6 +99,7 @@
     </div>
 
   </main>
+
   <div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
     <div class="roar-alert-mask"></div>
     <div class="roar-alert-message-body" role="alert" aria-relevant="all">
@@ -110,9 +110,11 @@
       </div>
     </div>
   </div>
+
   <footer>
-    <p><a href="http://www.tingtran.top" target="_blank">鼎传码行</a> &#169; 2019 -
-      @now().strftime("%Y").unwrap().to_string() </p>
+    <p><a href="http://www.tingtran.top" target="_blank">[ 鼎传码行 ]</a>
+      &#169;@now().strftime("%Y").unwrap().to_string()
+    </p>
   </footer>
 </body>
 
