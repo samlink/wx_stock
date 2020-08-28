@@ -26,6 +26,7 @@ html {
         margin: 0;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
         background-color: white;
 
         a {
@@ -39,4 +40,9 @@ html {
             }
         }
     }
+}
+
+.content {
+    display: flex;
+    flex: 1;
 }

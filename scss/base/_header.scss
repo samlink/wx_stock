@@ -34,12 +34,8 @@
 .menu-ul {
     display: flex;
     flex-direction: row;
-    // flex-wrap: nowrap;
-    // width: 100%;
+    flex-wrap: nowrap;
     text-align: center;
-    // padding-left: 0;
-    // margin-top: 0;
-    // margin-bottom: 0;
     list-style: none;
     scrollbar-color: #9dbad5 #dce3ea;
 }
@@ -55,10 +51,6 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        // min-height: 3.75em;
-        // padding: 0.5em 0.5em 0.5em 1.5em;
-        // padding-right: 0.5em;
-        // padding-left: 1.5em;
         text-shadow: none;
         text-decoration: none;
         white-space: nowrap;
@@ -70,23 +62,20 @@
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
-    min-width: 15rem;
-    margin-left: 0;
-    margin-top: -11px;
+    min-width: 30px;
+    margin-left: 6px;
+    margin-top: 10px;
     display: block;
     height: auto !important;
     box-shadow: 2px 1px 2px 0 rgba(0, 0, 0, 0.1);
     border: 1px solid #d1d1d1;
     border-radius: 0.375rem;
     animation: 1s navItemHidden;
-    left: 100%;
-    z-index: 2;
-    margin-left: -11px;
-    // opacity: 0;
+    z-index: 999;
     visibility: hidden;
     transition: margin 150ms, opacity 150ms, visibility 0ms;
-    transition-delay: 0s, 0s, 0s;
     transition-delay: 600ms, 600ms, 750ms;
+    background-color: white;
 }
 
 .menu-link {
@@ -96,17 +85,27 @@
 .sub-ul {
     list-style: none;
     text-align: left;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+    padding-top: 10px;
+    padding-bottom: 15px;
     border-width: 0 !important;
-    margin: 0 0.125rem;
+    margin-left: -36px;
     overflow: visible;
 }
 
 .nav-item {
     position: relative;
+    padding-right: 20px;
+    padding-left: 20px;
+    margin-left: -4px;
+
     &:not(:last-child) {
-        margin-bottom: 1px;
+        margin-bottom: 10px;
+    }
+    &:hover {
+        background-color: $primary-700;
+        .nav-text {
+            color: white;
+        }
     }
 }
 
@@ -119,18 +118,14 @@
     transition: color 150ms;
 }
 
-// .fa {
-//     font-weight: 600;
-//     display: inline-block;
-//     font-style: normal;
-//     font-variant: normal;
-//     text-rendering: auto;
-//     line-height: 1;
-// }
-
+.menu-text,
 .nav-text {
     font-size: 0.925rem;
     font-weight: 500;
+}
+
+.nav-text {
+    color: $fusion-700;
 }
 
 #user {
