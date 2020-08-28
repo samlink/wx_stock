@@ -29,7 +29,7 @@ $fusion-800: darken($color-fusion, 15%) !default;
 $fusion-900: darken($color-fusion, 20%) !default;
 
 $page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
-$base-text-color: darken($white, 60%) !default;
+$base-text-color: darken(white, 60%) !default;
 
 //设备尺寸
 $grid-breakpoints: (
@@ -85,7 +85,7 @@ $table-hover-bg: lighten(desaturate($primary-900, 70%), 63%);
 $table-accent-bg: rgba($fusion-500, 0.02);
 
 //下拉菜单
-$dropdown-border-width: $theme-border-utility-size;
+// $dropdown-border-width: $theme-border-utility-size;
 $dropdown-padding-y: 0.3125rem;
 $dropdown-item-padding-y: 0.75rem;
 $dropdown-item-padding-x: 1.5rem;
@@ -121,7 +121,7 @@ $fs-xl: $fs-base + 3; /* 16px   */
 $fs-xxl: $fs-base + 15; /* 28px   */
 
 //footer
-$footer-bg: $white !default;
+$footer-bg: white !default;
 $footer-text-color: darken($base-text-color, 10%);
 $footer-height: 2.8125rem !default;
 $footer-font-size: $fs-base !default;
