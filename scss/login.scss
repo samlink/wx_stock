@@ -162,9 +162,4 @@ a {
     }
 }
 
-$check-roadio-backround: #eee;
-$check-roadio-backround-hover: #ccc;
-$check-roadio-mark: white;
-$check-roadio-checked: #7a59ad;
-@import "checkbox";
-@import "notify";
+@import "plugins/notify";

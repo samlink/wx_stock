@@ -1,0 +1,127 @@
+//颜色变量
+$color-primary: #886ab5;
+$color-success: #1dc9b7;
+$color-info: #2196f3;
+$color-warning: #ffc241;
+$color-danger: #fd3995;
+$color-fusion: darken(desaturate(adjust-hue($color-primary, 5), 80%), 25%);
+
+$primary-50: lighten($color-primary, 25%) !default;
+$primary-100: lighten($color-primary, 20%) !default;
+$primary-200: lighten($color-primary, 15%) !default;
+$primary-300: lighten($color-primary, 10%) !default;
+$primary-400: lighten($color-primary, 5%) !default;
+$primary-500: $color-primary !default;
+$primary-600: darken($color-primary, 5%) !default;
+$primary-700: darken($color-primary, 10%) !default;
+$primary-800: darken($color-primary, 15%) !default;
+$primary-900: darken($color-primary, 20%) !default;
+
+$fusion-50: lighten($color-fusion, 25%) !default;
+$fusion-100: lighten($color-fusion, 20%) !default;
+$fusion-200: lighten($color-fusion, 15%) !default;
+$fusion-300: lighten($color-fusion, 10%) !default;
+$fusion-400: lighten($color-fusion, 5%) !default;
+$fusion-500: $color-fusion !default;
+$fusion-600: darken($color-fusion, 5%) !default;
+$fusion-700: darken($color-fusion, 10%) !default;
+$fusion-800: darken($color-fusion, 15%) !default;
+$fusion-900: darken($color-fusion, 20%) !default;
+
+$page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
+$base-text-color: darken($white, 60%) !default;
+
+//设备尺寸
+$grid-breakpoints: (
+    xs: 380px,
+    sm: 576px,
+    md: 768px,
+    lg: 992px,
+    xl: 1399px,
+);
+
+//内距
+$p-1: 0.25rem;
+$p-2: 0.5rem;
+$p-3: 1rem;
+$p-4: 1.5rem;
+$p-5: 2rem;
+
+//表单
+$input-height: calc(2.25rem + 1px);
+$input-border-color: #e5e5e5;
+$input-focus-border-color: $color-primary;
+$input-btn-focus-color: transparent;
+$input-padding-y: 0.5rem;
+$input-padding-x: 0.875rem;
+$label-margin-bottom: 0.3rem;
+$form-group-margin-bottom: 1.5rem;
+
+//link
+$link-color: $primary-500;
+$link-hover-color: $primary-400;
+
+// checkbox
+$check-roadio-backround: #eee;
+$check-roadio-backround-hover: #ccc;
+$check-roadio-mark: white;
+$check-roadio-checked: $primary-700; // #7a59ad;
+
+//边框圆角
+$border-radius: 4px;
+$border-radius-plus: 8px;
+
+//button 内距
+$input-btn-padding-y-sm: 0.375rem;
+$input-btn-padding-x-sm: 0.844rem;
+$input-btn-padding-y: 0.5rem;
+$input-btn-padding-x: 1.125rem;
+$input-btn-padding-y-lg: 0.75rem;
+$input-btn-padding-x-lg: 1.5rem;
+
+//表格
+$table-border-color: lighten(desaturate($primary-500, 60%), 35%); //rgba($black, 0.09);
+$table-hover-bg: lighten(desaturate($primary-900, 70%), 63%);
+$table-accent-bg: rgba($fusion-500, 0.02);
+
+//下拉菜单
+$dropdown-border-width: $theme-border-utility-size;
+$dropdown-padding-y: 0.3125rem;
+$dropdown-item-padding-y: 0.75rem;
+$dropdown-item-padding-x: 1.5rem;
+$dropdown-link-active-bg: lighten($primary-50, 13%);
+$dropdown-link-active-color: $primary-900;
+$dropdown-link-hover-color: $primary-700;
+
+$dropdown-xl-width: 21.875rem !default;
+$dropdown-lg-width: 17.5rem !default;
+$dropdown-md-width: 14rem !default;
+$dropdown-sm-width: 8rem !default;
+$dropdown-shadow: 0 0 15px 1px rgba(desaturate($primary-900, 20%), (20/100));
+
+//字体尺寸
+$font-size-base: 0.8125rem;
+$font-size-lg: 1rem;
+$font-size-sm: 0.75rem;
+
+$h1-font-size: 1.5rem;
+$h2-font-size: 1.375rem;
+$h3-font-size: 1.1875rem;
+$h4-font-size: 1.0625rem;
+$h5-font-size: 0.9375rem;
+$h6-font-size: 0.875rem;
+
+$fs-base: 13px !default;
+$fs-nano: $fs-base - 2; /* 11px   */
+$fs-xs: $fs-base - 1; /* 12px   */
+$fs-sm: $fs-base - 0.5; /* 12.5px */
+$fs-md: $fs-base + 1; /* 14px   */
+$fs-lg: $fs-base + 2; /* 15px   */
+$fs-xl: $fs-base + 3; /* 16px   */
+$fs-xxl: $fs-base + 15; /* 28px   */
+
+//footer
+$footer-bg: $white !default;
+$footer-text-color: darken($base-text-color, 10%);
+$footer-height: 2.8125rem !default;
+$footer-font-size: $fs-base !default;
