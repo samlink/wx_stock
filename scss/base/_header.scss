@@ -110,12 +110,42 @@
     }
 }
 
+.nav-icon {
+    margin-right: 5px;
+    margin-left: 0.125em;
+    width: 1.25rem;
+    color: white;
+    font-size: 1.25em;
+    transition: color 150ms;
+}
+
+// .fa {
+//     font-weight: 600;
+//     display: inline-block;
+//     font-style: normal;
+//     font-variant: normal;
+//     text-rendering: auto;
+//     line-height: 1;
+// }
+
+.nav-text {
+    font-size: 0.925rem;
+    font-weight: 500;
+}
+
 #user {
     display: flex;
     flex-direction: row;
     align-items: center;
+    margin-right: 30px;
 }
 
 #user-name {
     color: white;
+    margin-right: 20px;
+    padding-bottom: 3px;
+}
+
+#edit-user {
+    margin-right: 8px;
 }
