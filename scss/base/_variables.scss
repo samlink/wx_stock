@@ -28,6 +28,8 @@ $fusion-700: darken($color-fusion, 10%) !default;
 $fusion-800: darken($color-fusion, 15%) !default;
 $fusion-900: darken($color-fusion, 20%) !default;
 
+$header-grade-color: rgba(51, 148, 225, 0.18);
+$header-shadow-color: rgba(0, 0, 0, 0.13);
 $page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
 $base-text-color: darken(white, 60%) !default;
 
@@ -111,7 +113,7 @@ $h4-font-size: 1.0625rem;
 $h5-font-size: 0.9375rem;
 $h6-font-size: 0.875rem;
 
-$fs-base: 13px !default;
+$fs-base: 14px !default;
 $fs-nano: $fs-base - 2; /* 11px   */
 $fs-xs: $fs-base - 1; /* 12px   */
 $fs-sm: $fs-base - 0.5; /* 12.5px */
@@ -120,8 +122,4 @@ $fs-lg: $fs-base + 2; /* 15px   */
 $fs-xl: $fs-base + 3; /* 16px   */
 $fs-xxl: $fs-base + 15; /* 28px   */
 
-//footer
-$footer-bg: white !default;
-$footer-text-color: darken($base-text-color, 10%);
-$footer-height: 2.8125rem !default;
-$footer-font-size: $fs-base !default;
+

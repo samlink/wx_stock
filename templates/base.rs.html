@@ -7,14 +7,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1">
-  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png"/>
-  <link rel="stylesheet" type="text/css" href="/assets/css/sales.css"/>
+  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/sales.css" />
   <title id='title-show'>鼎传仓储销售</title>
 </head>
 
 <body>
   <main>
-    <div class="top">
+    <div class="header">
       <div id="logo">
         <img src="/assets/img/logo2.png" />
         <span id="title">鼎传仓储销售</span>
@@ -86,12 +86,11 @@
             </div>
           </li>
         </ul>
-      </div>
 
-      <div id="user">
-        <div class="user-name">用户名称</div>
-        <a href="">信息修改</a>
-        <a href="">退出系统</a>
+        <div id="user">
+          <span id="user-name">用户名称</span>
+          <i></i><a href="">信息修改</a><i></i><a href="">退出系统</a>
+        </div>
       </div>
     </div>
 
@@ -113,7 +112,7 @@
   </div>
 
   <footer>
-    <p><a href="http://www.tingtran.top" target="_blank">[ 鼎传码行 ]</a>
+    <p><a href="http://www.tingtran.top" target="_blank"> 鼎传码行 </a>
       &#169;@now().strftime("%Y").unwrap().to_string()
     </p>
   </footer>

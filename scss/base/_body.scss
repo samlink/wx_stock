@@ -21,6 +21,11 @@ input::-moz-focus-inner {
 html {
     scroll-behavior: smooth;
     body {
+        font-size: $fs-base;
+        padding-top: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
         background-color: white;
 
         a {

@@ -1,0 +1,121 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    height: 50px;
+    width: 100%;
+    background-image: linear-gradient(270deg, $header-grade-color, transparent);
+    background-color: $primary-800;
+    box-shadow: 0 1rem 3rem $header-shadow-color;
+}
+
+#logo {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    margin-left: 30px;
+
+    img {
+        margin-right: 8px;
+    }
+
+    #title {
+        font-size: 16px;
+        color: white;
+    }
+}
+
+#menu {
+    display: flex;
+    flex: 1;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.menu-ul {
+    display: flex;
+    flex-direction: row;
+    // flex-wrap: nowrap;
+    // width: 100%;
+    text-align: center;
+    // padding-left: 0;
+    // margin-top: 0;
+    // margin-bottom: 0;
+    list-style: none;
+    scrollbar-color: #9dbad5 #dce3ea;
+}
+
+.menu-li {
+    width: auto;
+    margin-left: 40px;
+    position: relative;
+
+    a {
+        padding-left: 0.375rem;
+        padding-right: 0.375rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        // min-height: 3.75em;
+        // padding: 0.5em 0.5em 0.5em 1.5em;
+        // padding-right: 0.5em;
+        // padding-left: 1.5em;
+        text-shadow: none;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: background-color 150ms, color 150ms;
+    }
+}
+
+.sub-menu {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    min-width: 15rem;
+    margin-left: 0;
+    margin-top: -11px;
+    display: block;
+    height: auto !important;
+    box-shadow: 2px 1px 2px 0 rgba(0, 0, 0, 0.1);
+    border: 1px solid #d1d1d1;
+    border-radius: 0.375rem;
+    animation: 1s navItemHidden;
+    left: 100%;
+    z-index: 2;
+    margin-left: -11px;
+    // opacity: 0;
+    visibility: hidden;
+    transition: margin 150ms, opacity 150ms, visibility 0ms;
+    transition-delay: 0s, 0s, 0s;
+    transition-delay: 600ms, 600ms, 750ms;
+}
+
+.menu-link {
+    color: white;
+}
+
+.sub-ul {
+    list-style: none;
+    text-align: left;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    border-width: 0 !important;
+    margin: 0 0.125rem;
+    overflow: visible;
+}
+
+.nav-item {
+    position: relative;
+    &:not(:last-child) {
+        margin-bottom: 1px;
+    }
+}
+
+#user {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#user-name {
+    color: white;
+}
