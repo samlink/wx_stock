@@ -32,6 +32,7 @@ $header-grade-color: rgba(51, 148, 225, 0.18);
 $header-shadow-color: rgba(0, 0, 0, 0.13);
 $page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
 $base-text-color: darken(white, 60%) !default;
+$menu-hover-color: lighten($color-success, 5%) !default;
 
 //设备尺寸
 $grid-breakpoints: (
@@ -121,5 +122,3 @@ $fs-md: $fs-base + 1; /* 14px   */
 $fs-lg: $fs-base + 2; /* 15px   */
 $fs-xl: $fs-base + 3; /* 16px   */
 $fs-xxl: $fs-base + 15; /* 28px   */
-
-

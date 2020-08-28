@@ -64,14 +64,13 @@
 }
 
 .caret {
-    font-size: 0.925em;
+    font-size: 18px;
     font-weight: 900;
     opacity: 0.92;
     display: none;
     position: absolute;
-    margin-left: auto;
-    margin-right: 1rem;
-    margin-top: 45px;
+    margin-left: 15px;
+    margin-top: -13px;
     transition: transform 150ms, color 150ms, -webkit-transform 150ms;
 }
 
@@ -104,8 +103,10 @@
         display: block;
     }
 
-    .nav-icon {
-        color: $link-hover-color;
+    .nav-icon,
+    .menu-text {
+        color: $menu-hover-color;
+        // font-weight: bold;
     }
 
     .caret {
@@ -168,6 +169,7 @@
 }
 
 #user-name {
+    font-size: 0.925rem;
     color: white;
     margin-right: 20px;
     padding-bottom: 3px;
