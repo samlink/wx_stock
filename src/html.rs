@@ -31,20 +31,18 @@ pub fn login(_req: HttpRequest) -> HttpResponse {
 }
 
 ///用户设置
+#[get("/user_set")]
 pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("0".to_owned());
-    let mut phone = "".to_owned();
-
-    if user_name != "0" {
-        let conn = db.get().await.unwrap();
-        let row = &conn
-            .query_one(r#"SELECT phone FROM 用户 Where name=$1"#, &[&user_name])
-            .await
-            .unwrap();
-
-        phone = row.get("phone");
+    if user_name != "" {
+        let user = get_user(db, user_name).await;
+        if user.name != "" {
+            let html = r2s(|o| userset(o, user));
+            HttpResponse::Ok().content_type("text/html").body(html)
+        } else {
+            HttpResponse::Found().header("location", "/login").finish()
+        }
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
     }
-
-    let html = r2s(|o| userset(o, phone));
-    HttpResponse::Ok().content_type("text/html").body(html)
 }

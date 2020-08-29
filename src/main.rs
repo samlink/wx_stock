@@ -40,6 +40,7 @@ async fn main() -> std::io::Result<()> {
             ))
             .service(html::index)
             .service(html::login)
+            .service(html::user_set)
             .service(user::login)
             .service(user::logon)
             .service(user::logout)

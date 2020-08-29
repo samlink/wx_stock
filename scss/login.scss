@@ -1,3 +1,16 @@
+a,
+a:active,
+a:focus,
+button,
+button:focus,
+button:active {
+    outline: none;
+    outline: 0;
+}
+input::-moz-focus-inner {
+    border: 0;
+}
+
 body {
     font-size: 14px;
     padding-top: 0;

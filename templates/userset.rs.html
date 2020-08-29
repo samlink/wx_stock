@@ -1,8 +1,12 @@
-@(phone: String)
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
 
+@:base({
 <p class="title-pic search">
     <img src="/assets/img/user.png" width="30">
-    <span>用户设置</span>
+    <span>资料修改</span>
 </p>
 
 <div class="user-set">
@@ -32,7 +36,7 @@
                 <p>设置手机号</p>
                 <div>
                     <label for="uname">手机号</label>
-                    <input type="text" name="uname" value="@phone" id="phonenumber">
+                    <input type="text" name="uname" value="@user.phone" id="phonenumber">
                 </div>
                 <button type="submit" id="phone-button">提交</button>
             </div>
@@ -42,3 +46,4 @@
         </form>
     </div>
 </div>
+}, user.name.clone())
