@@ -1,6 +1,6 @@
 @use time::now;
 @use super::statics::*;
-@(content: Content)
+@(content: Content, user: String)
 
 <html lang="zh-CN">
 
@@ -16,14 +16,16 @@
 <body>
   <div class="header">
     <div id="logo">
-      <img src="/assets/img/logo2.png" />
-      <span id="title">鼎传仓储销售</span>
+      <a href="/">
+        <img src="/assets/img/logo2.png" />
+        <span id="title">鼎传仓储销售</span></a>
     </div>
 
     <div id="menu">
       <ul class="menu-ul">
         <li class="menu-li">
-          <a class="menu-link" href=""><i class="nav-icon fa fa-download"></i><span class="menu-text">商品入库</span></a>
+          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-download"></i><span
+              class="menu-text">商品入库</span></a>
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
@@ -37,7 +39,8 @@
           </div>
         </li>
         <li class="menu-li">
-          <a class="menu-link" href=""><i class="nav-icon fa fa-upload"></i><span class="menu-text">商品出库</span></a>
+          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-upload"></i><span
+              class="menu-text">商品出库</span></a>
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
@@ -51,7 +54,8 @@
           </div>
         </li>
         <li class="menu-li">
-          <a class="menu-link" href=""><i class="nav-icon fa fa-user"></i><span class="menu-text">客户供应商</span></a>
+          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-user"></i><span
+              class="menu-text">客户供应商</span></a>
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
@@ -64,7 +68,8 @@
           </div>
         </li>
         <li class="menu-li">
-          <a class="menu-link" href=""><i class="nav-icon fa fa-bar-chart"></i><span class="menu-text">统计分析</span></a>
+          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-bar-chart"></i><span
+              class="menu-text">统计分析</span></a>
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
@@ -76,7 +81,8 @@
           </div>
         </li>
         <li class="menu-li">
-          <a class="menu-link" href=""><i class="nav-icon fa fa-wrench"></i><span class="menu-text">功能设置</span></a>
+          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-wrench"></i><span
+              class="menu-text">功能设置</span></a>
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
@@ -93,9 +99,8 @@
       </ul>
 
       <div id="user">
-        <span id="user-name">用户名</span>
-        <a id="edit-user" href="" title="编辑资料"><i class="nav-icon fa fa-pencil-square-o"></i></a>
-        <a href="" title="退出系统"><i class="nav-icon fa fa-sign-out"></i></a>
+        <a href="" id="user-name">@user</a>
+        <a id="exit" href="/logout" title="退出"><i class="nav-icon fa fa-sign-out"></i></a>
       </div>
     </div>
   </div>

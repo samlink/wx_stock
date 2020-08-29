@@ -14,13 +14,25 @@
     align-items: center;
     margin-left: 30px;
 
-    img {
-        margin-right: 8px;
-    }
+    a {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
 
-    #title {
-        font-size: 16px;
-        color: white;
+        img {
+            margin-right: 8px;
+        }
+
+        #title {
+            font-size: 16px;
+            color: white;
+        }
+
+        &:hover {
+            #title {
+                color: $menu-hover-color;
+            }
+        }
     }
 }
 
@@ -172,9 +184,21 @@
     font-size: 0.925rem;
     color: white;
     margin-right: 20px;
-    padding-bottom: 3px;
+    padding-bottom: 2px;
+
+    &:hover {
+        color: $menu-hover-color;
+    }
 }
 
-#edit-user {
-    margin-right: 8px;
+#exit {
+    font-size: 16px;
+    margin-left: 4px;
+    color: $menu-hover-color;
+
+    &:hover {
+        .nav-icon {
+            color: $menu-hover-color;
+        }
+    }
 }

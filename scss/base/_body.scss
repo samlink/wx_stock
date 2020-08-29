@@ -22,12 +22,12 @@ html {
     scroll-behavior: smooth;
     body {
         font-size: $fs-base;
-        padding-top: 0;
+        padding: 0;
         margin: 0;
+        height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        background-color: white;
 
         a {
             color: $link-color;

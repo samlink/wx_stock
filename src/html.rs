@@ -13,7 +13,7 @@ pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> Http
     if user_name != "" {
         let user = get_user(db, user_name).await;
         if user.name != "" {
-            let html = r2s(|o| help_say_html(o));
+            let html = r2s(|o| help_say_html(o, user.name));
             HttpResponse::Ok().content_type("text/html").body(html)
         } else {
             HttpResponse::Found().header("location", "/login").finish()

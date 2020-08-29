@@ -69,4 +69,3 @@ pub async fn get_user(db: web::Data<Pool>, name: String) -> UserData {
         user
     }
 }
-

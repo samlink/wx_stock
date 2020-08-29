@@ -1,10 +1,9 @@
 @use super::base;
-@()
+@(user: String)
 
 @:base({
 <div class="help">
     <p class="title-pic search">
-        <img src="/assets/img/book.jpg" width="30">
         <span>帮助说明：</span>
     </p>
     <p>1. 名称来源：“当艺术评论家聚在一起的时候，他们会讨论范式、架构和涵义。而艺术家聚在一起的时候，他们会谈谈在哪儿能买到便宜的松节油” —— 毕加索。</p>
@@ -14,4 +13,4 @@
     <p>5. 本软件的数据都是标准化的，适合分析研究公司。但在买卖决策前，请务必阅读上市公司发布的数据报告。 </p>
 </div>
 <script>fetch_data()</script>
-})
+}, user)

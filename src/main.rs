@@ -27,7 +27,6 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
-
     println!("服务已启动: 127.0.0.1:8083");
 
     HttpServer::new(move || {
