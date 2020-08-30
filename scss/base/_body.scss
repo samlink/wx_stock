@@ -17,6 +17,9 @@ button:active,
 input::-moz-focus-inner {
     border: 0;
 }
+input {
+    outline: none;
+}
 
 html {
     scroll-behavior: smooth;

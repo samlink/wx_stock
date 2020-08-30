@@ -18,4 +18,35 @@
             margin-left: 6px;
         }
     }
+
+    form {
+        margin-left: 25px;
+    }
+
+    #phone-num {
+        display: flex;
+        align-items: center;
+    }
+
+    .form-label {
+        display: inline-block;
+        width: 110px;
+        text-align: right;
+    }
+
+    #show-rights {
+        display: flex;
+        align-items: flex-start;
+    }
+
+    #rights {
+        // display: inline-block;
+        width: 80%;
+        margin-left: 15px;
+    }
+}
+#password-set {
+    button {
+        margin-left: 185px;
+    }
 }

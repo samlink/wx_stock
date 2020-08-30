@@ -30,6 +30,10 @@ input::-moz-focus-inner {
   border: 0;
 }
 
+input {
+  outline: none;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -291,20 +295,37 @@ button.btn-info:hover {
   text-decoration: none;
 }
 
+input {
+  border-radius: 4px;
+}
+input:focus {
+  border: 1px solid #886ab5;
+}
+
 .form-control {
   font-size: 14px;
   height: calc(1.47em + 1rem + 2px);
   padding: 0.5rem 0.875rem;
   font-weight: 400;
   line-height: 1.47;
-  color: #495057;
   background-color: #fff;
   background-clip: padding-box;
   border: 1px solid #e5e5e5;
-  border-radius: 4px;
 }
-.form-control:focus {
-  border-color: #886ab5;
+
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label,
+.form-group input {
+  margin-right: 6px;
+}
+
+.no-border {
+  border: 0;
+}
+.no-border:focus {
+  border: 0;
 }
 
 .user-set {
@@ -324,6 +345,30 @@ button.btn-info:hover {
 }
 .user-set .title span {
   margin-left: 6px;
+}
+.user-set form {
+  margin-left: 25px;
+}
+.user-set #phone-num {
+  display: flex;
+  align-items: center;
+}
+.user-set .form-label {
+  display: inline-block;
+  width: 110px;
+  text-align: right;
+}
+.user-set #show-rights {
+  display: flex;
+  align-items: flex-start;
+}
+.user-set #rights {
+  width: 80%;
+  margin-left: 15px;
+}
+
+#password-set button {
+  margin-left: 185px;
 }
 
 /*# sourceMappingURL=sales.css.map */
