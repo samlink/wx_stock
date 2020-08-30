@@ -18,7 +18,7 @@
                 <div class="form-label">
                     <label for="phone">手机号：</label>
                 </div>
-                <input class="form-control" type="text" name="phone" placeholder="手机号用于找回密码" value="@user.phone">
+                <input class="form-control" type="text" id="phone" placeholder="手机号用于找回密码" value="@user.phone">
                 <button class="btn btn-info" type="submit" id="phone-button">提交</button>
             </div>
             <div class="form-group">
@@ -42,24 +42,25 @@
         <form>
             <div class="form-group">
                 <div class="form-label">
-                    <label for="uname">原密码</label>
+                    <label for="old-pass">原密码</label>
                 </div>
-                <input class="form-control" type="password" name="uname" id="old-pass">
+                <input class="form-control" type="password" id="old-pass">
             </div>
             <div class="form-group">
                 <div class="form-label">
-                    <label for="psw">新密码</label>
+                    <label for="new-pass">新密码</label>
                 </div>
-                <input class="form-control" type="password" name="psw" id="new-pass">
+                <input class="form-control" type="password" id="new-pass">
             </div>
             <div class="form-group">
                 <div class="form-label">
-                    <label for="psw">确认密码</label>
+                    <label for="confirm-pass">确认密码</label>
                 </div>
-                <input class="form-control" type="password" name="psw" id="confirm-pass">
+                <input class="form-control" type="password" id="confirm-pass">
             </div>
             <button class="btn btn-info" type="submit" id="pass-button">提交</button>
         </form>
     </div>
 </div>
+<script src="/assets/js/"></script>
 }, user.name.clone())

@@ -5,6 +5,7 @@ use crypto::md5::Md5;
 use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
+use crate::service::{get_user, UserData};
 
 #[derive(Deserialize, Serialize)]
 pub struct User {
@@ -155,14 +156,22 @@ pub fn logout(id: Identity) -> HttpResponse {
 }
 
 ///更改用户密码
+#[post("/change_pass")]
 pub async fn change_pass(
     db: web::Data<Pool>,
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("0".to_owned());
+    let user_name = id.identity().unwrap_or("".to_owned());
+    let user_get: UserData;
 
-    if user_name == "guest" || user_name == "0" {
+    if user_name == "" {
+        return HttpResponse::Ok().json(0);
+    } else {
+        user_get = get_user(db.clone(), user_name.clone()).await;
+    }
+
+    if user_get.name =="" {
         return HttpResponse::Ok().json(0);
     }
 
@@ -172,7 +181,7 @@ pub async fn change_pass(
     let rows = &conn
         .query(
             r#"SELECT name FROM 用户 Where name=$1 AND password=$2"#,
-            &[&user_name, &salt_pass],
+            &[&user_name.clone(), &salt_pass],
         )
         .await
         .unwrap();

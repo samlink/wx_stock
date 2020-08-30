@@ -33,7 +33,7 @@ pub fn login(_req: HttpRequest) -> HttpResponse {
 ///用户设置
 #[get("/user_set")]
 pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("0".to_owned());
+    let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let user = get_user(db, user_name).await;
         if user.name != "" {
