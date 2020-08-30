@@ -203,23 +203,34 @@ pub async fn change_pass(
 }
 
 ///设置手机号
+#[post("/phone_number")]
 pub async fn phone_number(
     db: web::Data<Pool>,
     user: web::Json<Phone>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("0".to_owned());
+    let user_name = id.identity().unwrap_or("".to_owned());
+    let user_get: UserData;
+
+    if user_name == "" {
+        return HttpResponse::Ok().json(0);
+    } else {
+        user_get = get_user(db.clone(), user_name.clone()).await;
+    }
+
+    if user_get.name == "" {
+        return HttpResponse::Ok().json(0);
+    }
+
     let conn = db.get().await.unwrap();
 
-    if user_name != "guest" && user_name != "0" {
-        &conn
-            .execute(
-                r#"UPDATE 用户 SET phone=$1 WHERE name=$2"#,
-                &[&user.phone_number, &user_name],
-            )
-            .await
-            .unwrap();
-    }
+    &conn
+        .execute(
+            r#"UPDATE 用户 SET phone=$1 WHERE name=$2"#,
+            &[&user.phone_number, &user_name],
+        )
+        .await
+        .unwrap();
 
     HttpResponse::Ok().json(1)
 }
