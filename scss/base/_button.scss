@@ -1,0 +1,14 @@
+button {
+    cursor: pointer;
+    border-radius: 4px;
+
+    &.btn {
+        padding: $input-btn-padding-y $input-btn-padding-x;
+    }
+
+    &.btn-xs {
+        padding: 0.25rem 0.5rem 0.275rem;
+        line-height: 1.25;
+        font-size: 0.9rem;
+    }
+}
