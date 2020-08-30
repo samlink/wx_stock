@@ -12,7 +12,7 @@
         }
 
         if (new_pass != confirm_pass) {
-            notifier.show('新密码与确认密码不一致', 'danger');
+            notifier.show('两次密码输入不一致', 'danger');
             return false;
         }
         var password = {

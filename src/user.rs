@@ -1,3 +1,4 @@
+use crate::service::{get_user, UserData};
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
@@ -5,7 +6,6 @@ use crypto::md5::Md5;
 use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use crate::service::{get_user, UserData};
 
 #[derive(Deserialize, Serialize)]
 pub struct User {
@@ -171,7 +171,7 @@ pub async fn change_pass(
         user_get = get_user(db.clone(), user_name.clone()).await;
     }
 
-    if user_get.name =="" {
+    if user_get.name == "" {
         return HttpResponse::Ok().json(0);
     }
 
