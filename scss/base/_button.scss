@@ -3,12 +3,49 @@ button {
     border-radius: 4px;
 
     &.btn {
-        padding: $input-btn-padding-y $input-btn-padding-x;
+        display: inline-block;
+        font-weight: 400;
+        text-align: center;
+        vertical-align: middle;
+        -webkit-user-select: none;
+        user-select: none;
+        border: 1px solid transparent;
+        padding: 0.5rem 1.125rem;
+        font-size: 0.8125rem;
+        line-height: 1.47;
+        transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out,
+            box-shadow 0.15s ease-in-out, -webkit-box-shadow 0.15s ease-in-out;
     }
 
-    &.btn-xs {
-        padding: 0.25rem 0.5rem 0.275rem;
-        line-height: 1.25;
-        font-size: 0.9rem;
+    &.btn-primary {
+        color: white;
+        background-color: $color-primary;
+        border-color: $color-primary;
+        box-shadow: 0 2px 6px 0 rgba($color-primary, 0.5);
+
+        &:hover {
+            background-color: $primary-600;
+            border-color: $primary-700;
+            text-decoration: none;
+        }
     }
+
+    &.btn-info {
+        color: white;
+        background-color: $color-info;
+        border-color: $color-info;
+        box-shadow: 0 2px 6px 0 rgba($color-info, 0.5);
+
+        &:hover {
+            background-color: $info-600;
+            border-color: $info-700;
+            text-decoration: none;
+        }
+    }
+
+    // &.btn-xs {
+    //     padding: 0.25rem 0.5rem 0.275rem;
+    //     line-height: 1.25;
+    //     font-size: 0.9rem;
+    // }
 }

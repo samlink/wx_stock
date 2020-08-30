@@ -17,6 +17,54 @@ $primary-700: darken($color-primary, 10%) !default;
 $primary-800: darken($color-primary, 15%) !default;
 $primary-900: darken($color-primary, 20%) !default;
 
+/* the emeralds */
+$success-50: lighten($color-success, 25%) !default;
+$success-100: lighten($color-success, 20%) !default;
+$success-200: lighten($color-success, 15%) !default;
+$success-300: lighten($color-success, 10%) !default;
+$success-400: lighten($color-success, 5%) !default;
+$success-500: $color-success !default;
+$success-600: darken($color-success, 5%) !default;
+$success-700: darken($color-success, 10%) !default;
+$success-800: darken($color-success, 15%) !default;
+$success-900: darken($color-success, 20%) !default;
+
+/* the amethyths */
+$info-50: lighten($color-info, 25%) !default;
+$info-100: lighten($color-info, 20%) !default;
+$info-200: lighten($color-info, 15%) !default;
+$info-300: lighten($color-info, 10%) !default;
+$info-400: lighten($color-info, 5%) !default;
+$info-500: $color-info !default;
+$info-600: darken($color-info, 5%) !default;
+$info-700: darken($color-info, 10%) !default;
+$info-800: darken($color-info, 15%) !default;
+$info-900: darken($color-info, 20%) !default;
+
+/* the topaz */
+$warning-50: lighten($color-warning, 25%) !default;
+$warning-100: lighten($color-warning, 20%) !default;
+$warning-200: lighten($color-warning, 15%) !default;
+$warning-300: lighten($color-warning, 10%) !default;
+$warning-400: lighten($color-warning, 5%) !default;
+$warning-500: $color-warning !default;
+$warning-600: darken($color-warning, 5%) !default;
+$warning-700: darken($color-warning, 10%) !default;
+$warning-800: darken($color-warning, 15%) !default;
+$warning-900: darken($color-warning, 20%) !default;
+
+/* the rubies */
+$danger-50: lighten($color-danger, 25%) !default;
+$danger-100: lighten($color-danger, 20%) !default;
+$danger-200: lighten($color-danger, 15%) !default;
+$danger-300: lighten($color-danger, 10%) !default;
+$danger-400: lighten($color-danger, 5%) !default;
+$danger-500: $color-danger !default;
+$danger-600: darken($color-danger, 5%) !default;
+$danger-700: darken($color-danger, 10%) !default;
+$danger-800: darken($color-danger, 15%) !default;
+$danger-900: darken($color-danger, 20%) !default;
+
 $fusion-50: lighten($color-fusion, 25%) !default;
 $fusion-100: lighten($color-fusion, 20%) !default;
 $fusion-200: lighten($color-fusion, 15%) !default;
