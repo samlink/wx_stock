@@ -1,0 +1,21 @@
+.user-set {
+    display: flex;
+    flex-direction: row;
+
+    > div {
+        width: 45%;
+        margin-left: 30px;
+    }
+
+    .title {
+        font-size: $fs-lg;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e8e8e8;
+
+        span {
+            margin-left: 6px;
+        }
+    }
+}

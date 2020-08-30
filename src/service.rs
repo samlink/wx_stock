@@ -42,7 +42,7 @@ pub async fn get_user(db: web::Data<Pool>, name: String) -> UserData {
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT name, phone, get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true"#,
+            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true"#,
             &[&name],
         )
         .await

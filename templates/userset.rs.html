@@ -4,45 +4,46 @@
 @(user: UserData)
 
 @:base({
-<p class="title-pic search">
-    <img src="/assets/img/user.png" width="30">
-    <span>资料修改</span>
-</p>
-
 <div class="user-set">
-    <div id="password-set">
+    <div id="user-edit">
+        <div class="title"><i class="fa fa-id-card-o"></i><span>用户资料</span></div>
         <form>
-            <div class="container">
-                <p>修改密码</p>
-                <div>
-                    <label for="uname">原密码</label>
-                    <input type="password" name="uname" id="old-pass">
-                </div>
-                <div>
-                    <label for="psw">新密码</label>
-                    <input type="password" name="psw" id="new-pass">
-                </div>
-                <div>
-                    <label for="psw">确认密码</label>
-                    <input type="password" name="psw" id="confirm-pass">
-                </div>
-                <button type="submit" id="pass-button">提交</button>
+            <div class="form-group">
+                <label>用户名</label>
+                <input class="form-control" type="text" value="@user.name" readonly>
+            </div>
+            <div class="form-group">
+                <label for="phone">手机号</label>
+                <input class="form-control" type="text" name="phone" value="@user.phone">
+                <button type="submit" id="phone-button">提交</button>
+            </div>
+            <p id="warn-info"> 注：找回密码时需要手机号 </p>
+            <div class="form-group">
+                <label>密码找回机会</label>
+                <input class="form-control" type="text" value="@user.get_pass" readonly>
+            </div>
+            <div class="form-group">
+                <label>工作权限</label>
+                <textarea class="form-control" rows="6" value="@user.rights" readonly></textarea>
             </div>
         </form>
     </div>
-    <div id="phone-set">
+    <div id="password-set">
+        <div class="title"><i class="fa fa-key"></i><span>修改密码</span></div>
         <form>
-            <div class="container">
-                <p>设置手机号</p>
-                <div>
-                    <label for="uname">手机号</label>
-                    <input type="text" name="uname" value="@user.phone" id="phonenumber">
-                </div>
-                <button type="submit" id="phone-button">提交</button>
+            <div>
+                <label for="uname">原密码</label>
+                <input type="password" name="uname" id="old-pass">
             </div>
-            <div id="warn-info">
-                注：手机号用来找回密码，接收买卖提醒信息
+            <div>
+                <label for="psw">新密码</label>
+                <input type="password" name="psw" id="new-pass">
             </div>
+            <div>
+                <label for="psw">确认密码</label>
+                <input type="password" name="psw" id="confirm-pass">
+            </div>
+            <button type="submit" id="pass-button">提交</button>
         </form>
     </div>
 </div>
