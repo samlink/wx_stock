@@ -419,9 +419,11 @@ input:focus {
 .user-set {
   display: flex;
   flex-direction: row;
+  justify-content: space-around;
 }
 .user-set > div {
   width: 45%;
+  min-width: 520px;
   margin-left: 30px;
 }
 .user-set .title {
