@@ -1,0 +1,33 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="user-manage">
+    <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 用户设置 </span></div>
+
+    <div class="inline-div" id="users-show">
+        <div class="table-container">
+            <table id="table-users">
+              <thead>
+                <tr>
+                  <th>用户名</th>
+                  <th>手机号</th>
+                  <th>工作权限</th>
+                  <th>确认状态</th>
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+          </div>
+    </div>
+    <div class="inline-div" id="user-rights">
+        用户权限
+    </div>
+</div>
+<script src="/assets/js/pages/usermanage.js"></script>
+}, user.name.clone())

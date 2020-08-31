@@ -120,8 +120,6 @@
       return false;
     }
 
-    let MAX_PASS = 6;
-
     var user = {
       name: name,
       password: ""
@@ -143,7 +141,7 @@
           notifier.show('用户没有预留手机号', 'danger');
         }
         else if (data == -3) {
-          notifier.show('找回密码限次已用完', 'danger');
+          notifier.show('找回密码机会已用完', 'danger');
         }
         else {
           notifier.show('新密码已发送至预留手机号', 'success');

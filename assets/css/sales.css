@@ -46,6 +46,7 @@ html body {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  align-items: center;
 }
 html body a {
   color: #886ab5;
@@ -58,6 +59,7 @@ html body a:hover {
 }
 
 .content {
+  width: 95%;
   flex: 1;
 }
 
@@ -256,6 +258,25 @@ footer {
   color: #21dfcb;
 }
 
+.show-bottom {
+  border-bottom: 3px solid #21dfcb;
+}
+
+.top-title {
+  font-size: 16px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #e8e8e8;
+}
+.top-title .t1 {
+  font-size: 14px;
+}
+.top-title i {
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
 button {
   cursor: pointer;
   border-radius: 4px;
@@ -424,7 +445,6 @@ input:focus {
 .user-set > div {
   width: 45%;
   min-width: 520px;
-  margin-left: 30px;
 }
 .user-set .title {
   font-size: 16px;
@@ -459,6 +479,11 @@ input:focus {
 
 #password-set button {
   margin-left: 185px;
+}
+
+.user-manage .inline-div {
+  display: inline-block;
+  width: 45%;
 }
 
 /*# sourceMappingURL=sales.css.map */

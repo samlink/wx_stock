@@ -20,6 +20,7 @@ pub struct UserData {
     pub confirm: bool,
 }
 
+///静态文件服务
 pub fn serve_static(file: web::Path<File>) -> HttpResponse {
     if let Some(data) = statics::StaticFile::get(&file.name) {
         HttpResponse::Ok().body(data.content)
@@ -28,6 +29,7 @@ pub fn serve_static(file: web::Path<File>) -> HttpResponse {
     }
 }
 
+///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
 where
     Call: FnOnce(&mut dyn Write) -> io::Result<()>,

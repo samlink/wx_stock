@@ -18,24 +18,6 @@ Date.prototype.Format = function (fmt) {
     return fmt;
 }
 
-function home_tip() {
-    fetch('/home_tip')
-        .then(res => res.json())
-        .then(data => {
-            document.querySelector('#hold-tip').textContent = "持股加仓：" + data[0];
-            document.querySelector('#anual-tip').textContent = "年报发布：" + data[1];
-            document.querySelector('#home-words').textContent = data[2];
-            
-            if (data[0] > 0) {
-                document.querySelector('#hold-tip').classList.add('blink');
-            }
-
-            if (data[1] > 0) {
-                document.querySelector('#anual-tip').classList.add('blink');
-            }
-        });
-}
-
 //获取用户
 function fetch_data(fn = () => { }) {
     var stored_name = localStorage.getItem('stock-user');
