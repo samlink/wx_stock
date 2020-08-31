@@ -347,7 +347,7 @@ pub async fn fetch_users(
         if user.name != "" && user.rights.contains("用户设置") {
             let conn = db.get().await.unwrap();
             let skip = (post_data.page - 1) * PAGERECORDS;
-            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT 20 ", post_data.name, post_data.sort, skip);
+            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT 10 ", post_data.name, post_data.sort, skip);
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
             let mut users: Vec<UserData> = Vec::new();

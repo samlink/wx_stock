@@ -438,30 +438,34 @@ input:focus {
 }
 
 /* 基本的table样式 */
+.table-container {
+  border: 1.3px solid #39a1f4;
+}
+
+.table-button {
+  height: 50px;
+  background-color: #edf5fb;
+}
+
 table {
-  font: 1em sans-serif;
-  font-size: 12px;
+  font-size: 14px;
   border-collapse: collapse;
   border-spacing: 0;
-  border: 1.7px solid #218fd7;
   width: 100%;
   table-layout: fixed;
 }
 table td,
 table th {
   vertical-align: middle;
-  border: 1px solid lightgray;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  border-top: none;
   padding: 3.1px 6.3px;
-  line-height: 18.33px;
+  line-height: 20px;
   word-break: keep-all;
   /* 不换行 */
   white-space: nowrap;
   /* 不换行 */
   overflow: hidden;
-  border-top: none;
-  border-left: 1px solid lightgray;
-  border-right: 1px solid lightgray;
-  border-bottom: 1px solid lightgray;
 }
 table td:nth-child(1),
 table th:nth-child(1) {
@@ -471,9 +475,17 @@ table td:nth-last-child(1),
 table th:nth-last-child(1) {
   border-right: none;
 }
+table tr:nth-last-child(1) {
+  border-bottom: none;
+}
 table thead th {
   color: white;
-  background: #218fd7;
+  background: #39a1f4;
+  height: 35px;
+  cursor: pointer;
+}
+table tr {
+  height: 30px;
 }
 table tr:hover,
 table .focus {
