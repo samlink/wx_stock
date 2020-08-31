@@ -7,6 +7,8 @@ use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+const PAGERECORDS: i32 = 10;
+
 #[derive(Deserialize, Serialize)]
 pub struct User {
     name: String,
@@ -322,5 +324,64 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
 
             HttpResponse::Ok().json(MAX_PASS - get_pass)
         }
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct PostData {
+    pub name: String,
+    pub page: i32,
+    pub sort: String,
+}
+
+///获取用户
+#[post("/fetch_users")]
+pub async fn fetch_users(
+    db: web::Data<Pool>,
+    post_data: web::Json<PostData>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let user = get_user(db.clone(), user_name).await;
+        if user.name != "" && user.rights.contains("用户设置") {
+            let conn = db.get().await.unwrap();
+            let skip = (post_data.page - 1) * PAGERECORDS;
+            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT 20 ", post_data.name, post_data.sort, skip);
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+            let mut users: Vec<UserData> = Vec::new();
+
+            for row in rows {
+                let user = UserData {
+                    name: row.get("name"),
+                    phone: row.get("phone"),
+                    rights: row.get("rights"),
+                    confirm: row.get("confirm"),
+                    get_pass: 0,
+                };
+
+                users.push(user);
+            }
+
+            let rows = &conn
+                .query(
+                    r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE $1 || '%'"#,
+                    &[&post_data.name],
+                )
+                .await
+                .unwrap();
+
+            let mut count: i64 = 0;
+            for row in rows {
+                count = row.get("记录数");
+            }
+            let pages = (count as f64 / PAGERECORDS as f64).ceil() as i32;
+            HttpResponse::Ok().json((users, count, pages))
+        } else {
+            HttpResponse::Ok().json(-1)
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
     }
 }

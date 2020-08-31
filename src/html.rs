@@ -53,7 +53,7 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let user = get_user(db, user_name).await;
-        if user.name != "" {
+        if user.name != "" && user.rights.contains("用户设置") {
             let html = r2s(|o| usermanage(o, user));
             HttpResponse::Ok().content_type("text/html").body(html)
         } else {
@@ -63,3 +63,4 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+

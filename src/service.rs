@@ -1,6 +1,6 @@
 use actix_web::{web, HttpResponse};
 use deadpool_postgres::Pool;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
@@ -11,7 +11,7 @@ pub struct File {
     name: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub name: String,
     pub phone: String,
