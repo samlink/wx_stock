@@ -20,7 +20,6 @@
         },
     }
 
-    table.init(data);
-    table.fetch_table(data)
-    // table_control(table);
+    data_table.init(data);
+    data_table.fetch_table(data);   //每次调用（如自动完成功能），只需设置 post_data
 })();

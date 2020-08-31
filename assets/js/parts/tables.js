@@ -1,4 +1,5 @@
-var table = function () {
+var data_table = function () {
+    var data;
     return {
         init: function (table) {
             Object.assign(table, {
@@ -16,6 +17,8 @@ var table = function () {
             table.page_first.disabled = true;
             table.page_pre.disabled = true;
             table.post_data.page = 1;
+            
+            data = table;
 
             table.page_pre.addEventListener('click', (e) => {
                 table.page_input.value--;
@@ -53,8 +56,9 @@ var table = function () {
                         this.textContent = this.textContent + " " + arrow;
 
                         Object.assign(table.post_data, { page: 1, sort: sort });
+                        table.page_input.value = 1;
 
-                        table.fetch_table(table);
+                        data_table.fetch_table(table);
                     })
                 }
             }
@@ -109,9 +113,9 @@ var table = function () {
     }
 
     function change_page(value) {
-        table.page_input.value = value;
-        Object.assign(table.post_data, { page: Number(value) });
-        table.fetch_table(table);
+        data.page_input.value = value;
+        Object.assign(data.post_data, { page: Number(value) });
+        data_table.fetch_table(data);
     }
 
     function button_change(input, first, pre, aft, last, pages) {
