@@ -259,7 +259,7 @@ footer {
 }
 
 .show-bottom {
-  border-bottom: 3px solid #21dfcb;
+  border-bottom: 2px solid #21dfcb;
 }
 
 .top-title {
@@ -435,6 +435,49 @@ input:focus {
 }
 .notifier-close:hover, .notifier-close:focus {
   opacity: 1;
+}
+
+/* 基本的table样式 */
+table {
+  font: 1em sans-serif;
+  font-size: 12px;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border: 1.7px solid #218fd7;
+  width: 100%;
+  table-layout: fixed;
+}
+table td,
+table th {
+  vertical-align: middle;
+  border: 1px solid lightgray;
+  padding: 3.1px 6.3px;
+  line-height: 18.33px;
+  word-break: keep-all;
+  /* 不换行 */
+  white-space: nowrap;
+  /* 不换行 */
+  overflow: hidden;
+  border-top: none;
+  border-left: 1px solid lightgray;
+  border-right: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+}
+table td:nth-child(1),
+table th:nth-child(1) {
+  border-left: none;
+}
+table td:nth-last-child(1),
+table th:nth-last-child(1) {
+  border-right: none;
+}
+table thead th {
+  color: white;
+  background: #218fd7;
+}
+table tr:hover,
+table .focus {
+  background-color: #d2eff7;
 }
 
 .user-set {

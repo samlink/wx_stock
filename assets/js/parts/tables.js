@@ -3,7 +3,7 @@ function table_control(table) {
     table.page_first.disabled = true;
     table.page_pre.disabled = true;
 
-    change_page(1);
+    fetch_show(table.post_data);
 
     if (table.header) {
         for (let th of table.header.children) {
@@ -18,23 +18,37 @@ function table_control(table) {
                 table.sort_name = table.header_names[this.textContent] + " " + order;
                 this.textContent = this.textContent + " " + arrow;
 
-                let seazon = table.selectSeazon ? table.selectSeazon.options[table.selectSeazon.selectedIndex].value : '0';
+                Object.assign(table, { post_data: { page: 1, sort: table.sort_name } });
 
-                let data = {
-                    stock: table.selectFocus.options[table.selectFocus.selectedIndex].value.substring(0, 1),
-                    cate: 1,
-                    seazon: seazon,
-                    page: 1,
-                    sort: table.sort_name,
-                }
-
-                focus_search(data);
+                fetch_show(table.post_data);
             })
         }
     }
 
-    function focus_search(data) {
-        fetch(table.data_url, {
+    table.page_pre.addEventListener('click', (e) => {
+        table.page_input.value--;
+        change_page(table.page_input.value);
+    });
+
+    table.page_aft.addEventListener('click', (e) => {
+        table.page_input.value++;
+        change_page(table.page_input.value);
+    });
+
+    table.page_first.addEventListener('click', (e) => {
+        change_page(1);
+    });
+
+    table.page_last.addEventListener('click', (e) => {
+        change_page(table.total_pages.textContent);
+    });
+
+    table.page_input.addEventListener('change', function () {
+        change_page(table.page_input.value);
+    });
+
+    function fetch_show(data) {
+        fetch(table.url, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -59,23 +73,6 @@ function table_control(table) {
                             r.classList.remove('focus');
                         }
                         this.classList.add('focus');
-                        //从表可选功能
-                        if (table.sub_body) {
-                            fetch(table.sub_url, {
-                                method: 'post',
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify({ code: this.cells[0].firstChild.innerHTML }),
-                            })
-                                .then(response => response.json())
-                                .then(content => {
-                                    table.sub_info.textContent = this.cells[0].firstChild.innerHTML + " - " + this.cells[1].textContent + "：";
-                                    rows = table.sub_fn(content);
-                                    table.sub_body.innerHTML = rows;
-                                })
-                        }
-
                     });
                 }
 
@@ -93,17 +90,8 @@ function table_control(table) {
 
     function change_page(value) {
         table.page_input.value = value;
-        let seazon = table.selectSeazon ? table.selectSeazon.options[table.selectSeazon.selectedIndex].value : '0';
-
-        let data = {
-            stock: table.selectFocus.options[table.selectFocus.selectedIndex].value.substring(0, 1),
-            cate: 1,
-            seazon: seazon,
-            page: Number(value),
-            sort: table.sort_name,
-        }
-
-        focus_search(data);
+        Object.assign(table, { post_data: { page: Number(value), sort: table.sort_name } });
+        fetch_show(table.post_data);
     }
 
     function button_change(input, first, pre, aft, last, pages) {
@@ -128,57 +116,4 @@ function table_control(table) {
         }
     }
 
-    function auto_change(cate) {
-        table.page_input.value = 1;
-
-        let search = {
-            stock: table.auto_input.value.split('　')[0],
-            cate: cate,
-            seazon: '0',
-            page: 1,
-            sort: table.sort_name,
-        }
-
-        focus_search(search);
-    }
-
-    autocomplete(table.auto_input, table.auto_url, function () {
-        auto_change(2);
-    });
-
-    table.auto_button.addEventListener('click', function () {
-        auto_change(1);
-    });
-
-    table.selectFocus.addEventListener('change', (e) => {
-        change_page(1);
-    });
-
-    if (table.selectSeazon) {
-        table.selectSeazon.addEventListener('change', (e) => {
-            change_page(1);
-        });
-    }
-
-    table.page_pre.addEventListener('click', (e) => {
-        table.page_input.value--;
-        change_page(table.page_input.value);
-    });
-
-    table.page_aft.addEventListener('click', (e) => {
-        table.page_input.value++;
-        change_page(table.page_input.value);
-    });
-
-    table.page_first.addEventListener('click', (e) => {
-        change_page(1);
-    });
-
-    table.page_last.addEventListener('click', (e) => {
-        change_page(table.total_pages.textContent);
-    });
-
-    table.page_input.addEventListener('change', function () {
-        change_page(table.page_input.value);
-    });
 }
