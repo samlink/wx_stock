@@ -11,13 +11,16 @@ var data_table = function () {
                 page_aft: document.querySelector(table.container + ' #aft'),
                 page_last: document.querySelector(table.container + ' #last'),
                 total_pages: document.querySelector(table.container + ' #pages'),
+                page_records: document.querySelector(table.container + ' #page-records'),
+                total_records: document.querySelector(table.container + ' #total-records'),
             });
 
             table.page_input.value = 1;
             table.page_first.disabled = true;
             table.page_pre.disabled = true;
             table.post_data.page = 1;
-            
+            table.page_records.textContent = table.post_data.rec;
+
             data = table;
 
             table.page_pre.addEventListener('click', (e) => {
@@ -58,36 +61,37 @@ var data_table = function () {
                         Object.assign(table.post_data, { page: 1, sort: sort });
                         table.page_input.value = 1;
 
-                        data_table.fetch_table(table);
+                        data_table.fetch_table(table.post_data);
                     })
                 }
             }
         },
 
-        fetch_table: function (table) {
-            fetch(table.url, {
+        fetch_table: function (post_data) {
+            fetch(data.url, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(table.post_data),
+                body: JSON.stringify(post_data),
             })
                 .then(response => response.json())
                 .then(content => {
                     if (content != -1) {
                         let rows = "";
                         for (let tr of content[0]) {
-                            rows += table.row_fn(tr);
+                            rows += data.row_fn(tr);
                         }
 
-                        table.body.innerHTML = rows;
-                        table.total_pages.textContent = content[2];
+                        data.body.innerHTML = rows;
+                        data.total_records.textContent = content[1];
+                        data.total_pages.textContent = content[2];
 
-                        button_change(table.page_input, table.page_first, table.page_pre, table.page_aft, table.page_last, content[2]);
+                        button_change(data.page_input, data.page_first, data.page_pre, data.page_aft, data.page_last, content[2]);
 
-                        for (let tr of table.body.children) {
+                        for (let tr of data.body.children) {
                             tr.addEventListener('click', function (e) {
-                                for (let r of table.body.children) {
+                                for (let r of data.body.children) {
                                     r.classList.remove('focus');
                                 }
                                 this.classList.add('focus');
@@ -95,7 +99,7 @@ var data_table = function () {
                         }
 
                         //若表中有链接, 去除链接的点击冒泡事件
-                        let links = table.body.querySelectorAll('a');
+                        let links = data.body.querySelectorAll('a');
                         if (links.length > 0) {
                             for (let l of links) {
                                 l.addEventListener('click', function (e) {
@@ -109,13 +113,12 @@ var data_table = function () {
                     }
                 });
         }
-
     }
 
     function change_page(value) {
-        data.page_input.value = value;
-        Object.assign(data.post_data, { page: Number(value) });
-        data_table.fetch_table(data);
+        data.page_input.value = value > data.total_pages.textContent ? data.total_pages.textContent : (value < 1 ? 1 : value);
+        Object.assign(data.post_data, { page: Number(data.page_input.value) });
+        data_table.fetch_table(data.post_data);
     }
 
     function button_change(input, first, pre, aft, last, pages) {

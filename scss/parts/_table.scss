@@ -1,65 +1,110 @@
 /* 基本的table样式 */
 .table-container {
   border: 1.3px solid $info-400;
-}
+  table {
+    font-size: 14px;
+    border-collapse: collapse;
+    border-spacing: 0;
+    width: 100%;
+    table-layout: fixed;
 
-.table-button {
-  height: 50px;
-  background-color: #edf5fb;
-}
-table {
-  // font: 1em sans-serif;
-  font-size: 14px;
-  border-collapse: collapse;
-  border-spacing: 0;
-  width: 100%;
-  table-layout: fixed;
+    td,
+    th {
+      vertical-align: middle;
+      border: 1px solid rgba(0, 0, 0, 0.09);
+      border-top: none;
+      padding: 3.1px 6.3px;
+      line-height: 20px;
+      word-break: keep-all; /* 不换行 */
+      white-space: nowrap; /* 不换行 */
+      overflow: hidden;
+    }
 
-  td,
-  th {
-    vertical-align: middle;
-    border: 1px solid rgba(0, 0, 0, 0.09);
-    border-top: none;
-    padding: 3.1px 6.3px;
-    line-height: 20px;
-    word-break: keep-all; /* 不换行 */
-    white-space: nowrap; /* 不换行 */
-    overflow: hidden;
+    td:nth-child(1),
+    th:nth-child(1) {
+      border-left: none;
+    }
 
-    // border-top: 1px solid #218fd7;
-    // border-left: 1px solid lightgray;
-    // border-right: 1px solid lightgray;
-    // border-bottom: 1px solid lightgray;
+    td:nth-last-child(1),
+    th:nth-last-child(1) {
+      border-right: none;
+    }
+
+    tr:nth-last-child(1) {
+      border-bottom: none;
+    }
+
+    thead th {
+      color: white;
+      background: $info-400;
+      height: 35px;
+      cursor: pointer;
+    }
+
+    tr {
+      height: 30px;
+    }
+
+    tr:hover {
+      background-color: #e4f4f8;
+    }
+
+    .focus {
+      background-color: #d2eff7;
+    }
   }
 
-
-  td:nth-child(1),
-  th:nth-child(1) {
-    border-left: none;
+  .table-ctrl {
+    height: 50px;
+    background-color: #edf5fb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
-  td:nth-last-child(1),
-  th:nth-last-child(1) {
-    border-right: none;
+  .tools-button {
+    width: 20%;
+    margin-left: 20px;
   }
 
-  tr:nth-last-child(1) {
-    border-bottom: none;
+  .page-button {
+    background-color: $info-400;
+    padding: 0.4rem 0.6rem !important;
+    margin: 0 3px;
+
+    &:hover {
+      background-color: $info-700;
+    }
+
+    &:disabled {
+      background-color: $info-100;
+      cursor: default;
+    }
   }
 
-  thead th {
-    color: white;
-    background: $info-400;
-    height: 35px;
-    cursor: pointer;
+  .table-button {
+    // width: 50%;
+    // text-align: center;
+    display: flex;
+    align-items: center;
   }
 
-  tr {
-    height: 30px;
+  #page-input {
+    width: 40px;
+    height: 28px;
+    text-align: center;
+    padding: 0.5rem 0.2rem;
+    margin: 0 3px;
   }
 
-  tr:hover,
-  .focus {
-    background-color: #d2eff7;
+  .table-info {
+    width: 30%;
+    text-align: right;
+    padding-right: 15px;
+  }
+
+  #pages {
+    display: inline-block;
+    margin: 0 3px;
   }
 }

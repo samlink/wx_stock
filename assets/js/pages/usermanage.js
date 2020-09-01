@@ -13,6 +13,7 @@
         post_data: {
             name: '',
             sort: "confirm ASC",
+            rec: 15,
         },
 
         row_fn: function (tr) {
@@ -21,5 +22,11 @@
     }
 
     data_table.init(data);
-    data_table.fetch_table(data);   //每次调用（如自动完成功能），只需设置 post_data
+    data_table.fetch_table(data.post_data);   //每次调用（如自动完成功能），只需设置 post_data
+
+    document.querySelector('#serach-button').addEventListener('click', function () {
+        let search = document.querySelector('#search-input').value;
+        Object.assign(data.post_data, { name: search });
+        data_table.fetch_table(data.post_data);
+    });
 })();

@@ -7,8 +7,6 @@ use deadpool_postgres::{Client, Pool};
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
-const PAGERECORDS: i32 = 10;
-
 #[derive(Deserialize, Serialize)]
 pub struct User {
     name: String,
@@ -332,6 +330,7 @@ pub struct PostData {
     pub name: String,
     pub page: i32,
     pub sort: String,
+    pub rec: i32,
 }
 
 ///获取用户
@@ -346,8 +345,9 @@ pub async fn fetch_users(
         let user = get_user(db.clone(), user_name).await;
         if user.name != "" && user.rights.contains("用户设置") {
             let conn = db.get().await.unwrap();
-            let skip = (post_data.page - 1) * PAGERECORDS;
-            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT 10 ", post_data.name, post_data.sort, skip);
+            let skip = (post_data.page - 1) * post_data.rec;
+            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT {} ", 
+            post_data.name, post_data.sort, skip, post_data.rec);
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
             let mut users: Vec<UserData> = Vec::new();
@@ -376,7 +376,7 @@ pub async fn fetch_users(
             for row in rows {
                 count = row.get("记录数");
             }
-            let pages = (count as f64 / PAGERECORDS as f64).ceil() as i32;
+            let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
             HttpResponse::Ok().json((users, count, pages))
         } else {
             HttpResponse::Ok().json(-1)

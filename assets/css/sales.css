@@ -312,9 +312,14 @@ button.btn-info {
   box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
 }
 button.btn-info:hover {
-  background-color: #0d8aee;
+  background-color: #0c7cd5;
   border-color: #0c7cd5;
   text-decoration: none;
+}
+button.btn-sm {
+  height: 30px;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.5rem 0.275rem;
 }
 
 input {
@@ -441,21 +446,15 @@ input:focus {
 .table-container {
   border: 1.3px solid #39a1f4;
 }
-
-.table-button {
-  height: 50px;
-  background-color: #edf5fb;
-}
-
-table {
+.table-container table {
   font-size: 14px;
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
   table-layout: fixed;
 }
-table td,
-table th {
+.table-container table td,
+.table-container table th {
   vertical-align: middle;
   border: 1px solid rgba(0, 0, 0, 0.09);
   border-top: none;
@@ -467,29 +466,74 @@ table th {
   /* 不换行 */
   overflow: hidden;
 }
-table td:nth-child(1),
-table th:nth-child(1) {
+.table-container table td:nth-child(1),
+.table-container table th:nth-child(1) {
   border-left: none;
 }
-table td:nth-last-child(1),
-table th:nth-last-child(1) {
+.table-container table td:nth-last-child(1),
+.table-container table th:nth-last-child(1) {
   border-right: none;
 }
-table tr:nth-last-child(1) {
+.table-container table tr:nth-last-child(1) {
   border-bottom: none;
 }
-table thead th {
+.table-container table thead th {
   color: white;
   background: #39a1f4;
   height: 35px;
   cursor: pointer;
 }
-table tr {
+.table-container table tr {
   height: 30px;
 }
-table tr:hover,
-table .focus {
+.table-container table tr:hover {
+  background-color: #e4f4f8;
+}
+.table-container table .focus {
   background-color: #d2eff7;
+}
+.table-container .table-ctrl {
+  height: 50px;
+  background-color: #edf5fb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.table-container .tools-button {
+  width: 20%;
+  margin-left: 20px;
+}
+.table-container .page-button {
+  background-color: #39a1f4;
+  padding: 0.4rem 0.6rem !important;
+  margin: 0 3px;
+}
+.table-container .page-button:hover {
+  background-color: #0c7cd5;
+}
+.table-container .page-button:disabled {
+  background-color: #82c4f8;
+  cursor: default;
+}
+.table-container .table-button {
+  display: flex;
+  align-items: center;
+}
+.table-container #page-input {
+  width: 40px;
+  height: 28px;
+  text-align: center;
+  padding: 0.5rem 0.2rem;
+  margin: 0 3px;
+}
+.table-container .table-info {
+  width: 30%;
+  text-align: right;
+  padding-right: 15px;
+}
+.table-container #pages {
+  display: inline-block;
+  margin: 0 3px;
 }
 
 .user-set {
@@ -539,6 +583,28 @@ table .focus {
 .user-manage .inline-div {
   display: inline-block;
   width: 45%;
+}
+.user-manage .table-search {
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+.user-manage #search-input {
+  width: 180px;
+  height: 30px;
+  padding: 2px 8px;
+  border-color: #e8e8e8;
+}
+.user-manage #search-input:hover, .user-manage #search-input:focus {
+  border-color: #6ab8f7;
+}
+.user-manage #serach-button {
+  color: white;
+  background-color: #2196f3;
+  margin-left: 5px;
+}
+.user-manage #serach-button:hover {
+  background-color: #0c7cd5;
 }
 
 /*# sourceMappingURL=sales.css.map */
