@@ -527,7 +527,7 @@ input:focus {
   margin: 0 3px;
 }
 .table-container .table-info {
-  width: 30%;
+  width: 20%;
   text-align: right;
   padding-right: 15px;
 }
@@ -605,6 +605,9 @@ input:focus {
 }
 .user-manage #serach-button:hover {
   background-color: #0c7cd5;
+}
+.user-manage tbody tr td:nth-child(1) {
+  text-align: center;
 }
 
 /*# sourceMappingURL=sales.css.map */

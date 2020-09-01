@@ -31,4 +31,8 @@
             background-color: $info-700;
         }
     }
+
+    tbody tr td:nth-child(1) {
+        text-align: center;
+    }
 }

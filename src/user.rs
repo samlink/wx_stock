@@ -333,6 +333,15 @@ pub struct PostData {
     pub rec: i32,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct UsersReturn {
+    pub name: String,
+    pub phone: String,
+    pub rights: String,
+    pub confirm: bool,
+    pub num: i64,
+}
+
 ///获取用户
 #[post("/fetch_users")]
 pub async fn fetch_users(
@@ -346,19 +355,22 @@ pub async fn fetch_users(
         if user.name != "" && user.rights.contains("用户设置") {
             let conn = db.get().await.unwrap();
             let skip = (post_data.page - 1) * post_data.rec;
-            let sql = format!("SELECT name, phone, rights, confirm FROM 用户 WHERE name LIKE '{}%' ORDER BY {} OFFSET {} LIMIT {} ", 
-            post_data.name, post_data.sort, skip, post_data.rec);
+            let sql = format!(
+                "SELECT name, phone, rights, confirm, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
+                    FROM 用户 WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
+                post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
+            );
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-            let mut users: Vec<UserData> = Vec::new();
+            let mut users: Vec<UsersReturn> = Vec::new();
 
             for row in rows {
-                let user = UserData {
+                let user = UsersReturn {
                     name: row.get("name"),
                     phone: row.get("phone"),
                     rights: row.get("rights"),
                     confirm: row.get("confirm"),
-                    get_pass: 0,
+                    num: row.get("序号"),
                 };
 
                 users.push(user);

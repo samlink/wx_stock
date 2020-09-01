@@ -11,7 +11,6 @@ var data_table = function () {
                 page_aft: document.querySelector(table.container + ' #aft'),
                 page_last: document.querySelector(table.container + ' #last'),
                 total_pages: document.querySelector(table.container + ' #pages'),
-                page_records: document.querySelector(table.container + ' #page-records'),
                 total_records: document.querySelector(table.container + ' #total-records'),
             });
 
@@ -19,7 +18,6 @@ var data_table = function () {
             table.page_first.disabled = true;
             table.page_pre.disabled = true;
             table.post_data.page = 1;
-            table.page_records.textContent = table.post_data.rec;
 
             data = table;
 
@@ -79,8 +77,14 @@ var data_table = function () {
                 .then(content => {
                     if (content != -1) {
                         let rows = "";
+                        let count = 0;
                         for (let tr of content[0]) {
                             rows += data.row_fn(tr);
+                            count++;
+                        }
+
+                        for (i = 0; i < post_data.rec - count; i++) {
+                            rows += data.blank_row_fn();
                         }
 
                         data.body.innerHTML = rows;
@@ -116,7 +120,7 @@ var data_table = function () {
     }
 
     function change_page(value) {
-        data.page_input.value = value > data.total_pages.textContent ? data.total_pages.textContent : (value < 1 ? 1 : value);
+        data.page_input.value = value > Number(data.total_pages.textContent) ? Number(data.total_pages.textContent) : (value < 1 ? 1 : value);
         Object.assign(data.post_data, { page: Number(data.page_input.value) });
         data_table.fetch_table(data.post_data);
     }
