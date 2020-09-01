@@ -18,6 +18,7 @@
       word-break: keep-all; /* 不换行 */
       white-space: nowrap; /* 不换行 */
       overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     td:nth-child(1),
@@ -95,6 +96,11 @@
     text-align: center;
     padding: 0.5rem 0.2rem;
     margin: 0 3px;
+
+    &:hover,
+    &:focus {
+        border-color: #6ab8f7;
+    }
   }
 
   .table-info {

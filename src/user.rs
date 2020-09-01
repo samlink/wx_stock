@@ -378,7 +378,7 @@ pub async fn fetch_users(
 
             let rows = &conn
                 .query(
-                    r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE $1 || '%'"#,
+                    r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE '%' || $1 || '%'"#,
                     &[&post_data.name],
                 )
                 .await

@@ -8,7 +8,7 @@
             '用户名': 'name',
             '手机号': 'phone',
             '工作权限': 'rights',
-            '确认状态': 'confirm',
+            '是否确认': 'confirm',
         },
         url: "/fetch_users",
         post_data: {

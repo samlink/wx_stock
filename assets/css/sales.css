@@ -355,6 +355,18 @@ input:focus {
   border: 0;
 }
 
+.red {
+  background-color: #db4747;
+}
+
+.green {
+  background-color: #36ad82;
+}
+
+.hide {
+  display: none !important;
+}
+
 .notifier-container {
   z-index: 999;
   position: fixed;
@@ -465,6 +477,7 @@ input:focus {
   white-space: nowrap;
   /* 不换行 */
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .table-container table td:nth-child(1),
 .table-container table th:nth-child(1) {
@@ -526,6 +539,9 @@ input:focus {
   padding: 0.5rem 0.2rem;
   margin: 0 3px;
 }
+.table-container #page-input:hover, .table-container #page-input:focus {
+  border-color: #6ab8f7;
+}
 .table-container .table-info {
   width: 20%;
   text-align: right;
@@ -584,8 +600,16 @@ input:focus {
   display: inline-block;
   width: 45%;
 }
-.user-manage .table-search {
+.user-manage .table-top {
   margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.user-manage .table-edit button {
+  margin-right: 10px;
+}
+.user-manage .table-search {
   display: flex;
   align-items: center;
 }
@@ -606,8 +630,17 @@ input:focus {
 .user-manage #serach-button:hover {
   background-color: #0c7cd5;
 }
-.user-manage tbody tr td:nth-child(1) {
+.user-manage tbody tr td:nth-child(1),
+.user-manage tbody tr td:nth-last-child(1) {
   text-align: center;
+}
+.user-manage .confirm-info {
+  display: inline-block;
+  padding: 0 8px;
+  color: white;
+  height: 22px;
+  font-size: 12px;
+  border-radius: 2px;
 }
 
 /*# sourceMappingURL=sales.css.map */
