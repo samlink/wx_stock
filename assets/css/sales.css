@@ -456,7 +456,7 @@ input:focus {
 
 /* 基本的table样式 */
 .table-container {
-  border: 1.3px solid #39a1f4;
+  border: 1.4px solid #39a1f4;
 }
 .table-container table {
   font-size: 14px;
@@ -464,6 +464,7 @@ input:focus {
   border-spacing: 0;
   width: 100%;
   table-layout: fixed;
+  margin-top: -0.3px;
 }
 .table-container table td,
 .table-container table th {
@@ -532,6 +533,10 @@ input:focus {
   display: flex;
   align-items: center;
 }
+.table-container .table-button span {
+  display: inline-block;
+  margin-bottom: 3px;
+}
 .table-container #page-input {
   width: 40px;
   height: 28px;
@@ -549,7 +554,13 @@ input:focus {
 }
 .table-container #pages {
   display: inline-block;
-  margin: 0 3px;
+  margin-left: 3px;
+  margin-right: 3px;
+}
+.table-container .seperator {
+  height: 15px;
+  border-right: 2px solid #ccc;
+  margin: 0 5px;
 }
 
 .user-set {

@@ -14,7 +14,7 @@
         post_data: {
             name: '',
             sort: "confirm ASC",
-            rec: 15,
+            rec: 16,
         },
 
         row_fn: function (tr) {

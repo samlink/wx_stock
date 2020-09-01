@@ -1,12 +1,13 @@
 /* 基本的table样式 */
 .table-container {
-  border: 1.3px solid $info-400;
+  border: 1.4px solid $info-400;
   table {
     font-size: 14px;
     border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
     table-layout: fixed;
+    margin-top: -0.3px;
 
     td,
     th {
@@ -84,10 +85,13 @@
   }
 
   .table-button {
-    // width: 50%;
-    // text-align: center;
     display: flex;
     align-items: center;
+
+    span {
+      display: inline-block;
+      margin-bottom: 3px;
+    }
   }
 
   #page-input {
@@ -99,7 +103,7 @@
 
     &:hover,
     &:focus {
-        border-color: #6ab8f7;
+      border-color: #6ab8f7;
     }
   }
 
@@ -111,6 +115,13 @@
 
   #pages {
     display: inline-block;
-    margin: 0 3px;
+    margin-left: 3px;
+    margin-right: 3px;
+  }
+
+  .seperator {
+    height: 15px;
+    border-right: 2px solid #ccc;
+    margin: 0 5px;
   }
 }
