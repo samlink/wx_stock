@@ -99,6 +99,8 @@ var data_table = function () {
                                     r.classList.remove('focus');
                                 }
                                 this.classList.add('focus');
+
+                                data.row_click(tr);
                             });
                         }
 

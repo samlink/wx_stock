@@ -31,6 +31,25 @@
         blank_row_fn: function () {
             return `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
         },
+
+        row_click: function (tr) {
+            let rights = tr.children[3].textContent;
+            let rights_arr = rights.split("，");
+            let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
+            for (let check of rights_checks) {
+                check.checked = false;
+            }
+            for (let right of rights_arr) {
+                for (let check of rights_checks) {
+                    console.log("第一层：" + right);
+                    console.log("第二层：" + check.value);
+                    if (right == check.value) {
+                        check.checked = true;
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     data_table.init(data);
@@ -46,7 +65,7 @@
         goods_in: ['采购进货', '销售退货', '库存调入', '库存盘盈', '入库查询', '库存查询'],
         goods_out: ['库存销售', '商品直销', '采购退货', '库存调出', '库存盘亏', '出库查询'],
         customers: ['客户管理', '供应商管理', '业务往来', '债务结算', '客户消费'],
-        statistic: ['综合分析', '商品统计', '月度销售', '费用统计'],
+        statics: ['综合分析', '商品统计', '月度销售', '费用统计'],
         setup: ['功能设置', '用户设置', '销售人员', '仓库设置', '系统参数'],
         other: ['单据确认', '锁定修改', '导出数据'],
     };
@@ -56,26 +75,26 @@
         let goods_in = rights.goods_in.hasOwnProperty(i) ? rights.goods_in[i] : "";
         let goods_out = rights.goods_out.hasOwnProperty(i) ? rights.goods_out[i] : "";
         let customers = rights.customers.hasOwnProperty(i) ? rights.customers[i] : "";
-        let statics = rights.statistic.hasOwnProperty(i) ? rights.statistic[i] : "";
+        let statics = rights.statics.hasOwnProperty(i) ? rights.statics[i] : "";
         let setup = rights.setup.hasOwnProperty(i) ? rights.setup[i] : "";
         let other = rights.other.hasOwnProperty(i) ? rights.other[i] : "";
 
-        let goods_in_chk = goods_in != "" ? `<label class="check-radio"><input type="checkbox" class="goods_in" value="${goods_in}">
+        let goods_in_chk = goods_in != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_in" value="${goods_in}">
                             <span class="checkmark"></span>${goods_in}</label>` : "";
 
-        let goods_out_chk = goods_out != "" ? `<label class="check-radio"><input type="checkbox" class="goods_out" value="${goods_out}">
+        let goods_out_chk = goods_out != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_out" value="${goods_out}">
                             <span class="checkmark"></span>${goods_out}</label>` : "";
 
-        let customers_chk = customers != "" ? `<label class="check-radio"><input type="checkbox" class="customers" value="${customers}">
+        let customers_chk = customers != "" ? `<label class="check-radio"><input type="checkbox" class="um_customers" value="${customers}">
                             <span class="checkmark"></span>${customers}</label>` : "";
 
-        let statics_chk = statics != "" ? `<label class="check-radio"><input type="checkbox" class="statics" value="${statics}">
+        let statics_chk = statics != "" ? `<label class="check-radio"><input type="checkbox" class="um_statics" value="${statics}">
                             <span class="checkmark"></span>${statics}</label>` : "";
 
-        let setup_chk = setup != "" ? `<label class="check-radio"><input type="checkbox" class="setup" value="${setup}">
+        let setup_chk = setup != "" ? `<label class="check-radio"><input type="checkbox" class="um_setup" value="${setup}">
                             <span class="checkmark"></span>${setup}</label>` : "";
 
-        let other_chk = other != "" ? `<label class="check-radio"><input type="checkbox" class="other" value="${other}">
+        let other_chk = other != "" ? `<label class="check-radio"><input type="checkbox" class="um_other" value="${other}">
                             <span class="checkmark"></span>${other}</label>` : "";
 
 
@@ -84,5 +103,20 @@
     }
 
     document.querySelector('.rights-show table tbody').innerHTML = rows;
+
+    Object.keys(rights).forEach(function (key) {
+        document.querySelector('#um_' + key).addEventListener('click', function () {
+            let cate = document.querySelector('#um_' + key);
+            let all = document.querySelectorAll('.um_' + key);
+            for (let item of all) {
+                item.checked = cate.checked ? true : false;
+            }
+        });
+    });
+
+    let all_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
+    for (let check of all_checks) {
+        check.disabled = true;
+    }
 
 })();
