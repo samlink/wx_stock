@@ -111,3 +111,33 @@ pub async fn edit_user(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct UserDel {
+    pub name: String,
+}
+
+///用户删除
+#[post("/del_user")]
+pub async fn del_user(
+    db: web::Data<Pool>,
+    post_data: web::Json<UserDel>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let user = get_user(db.clone(), user_name).await;
+        if user.name != "" && user.rights.contains("用户设置") {
+            let conn = db.get().await.unwrap();
+            &conn
+                .execute(r#"DELETE FROM 用户 WHERE name=$1"#, &[&post_data.name])
+                .await
+                .unwrap();
+            HttpResponse::Ok().json(1)
+        } else {
+            HttpResponse::Ok().json(-1)
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

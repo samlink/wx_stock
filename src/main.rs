@@ -51,6 +51,7 @@ async fn main() -> std::io::Result<()> {
             .service(user_set::phone_number)
             .service(user_manage::fetch_users)
             .service(user_manage::edit_user)
+            .service(user_manage::del_user)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })

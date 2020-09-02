@@ -1,3 +1,5 @@
+const notifier = require("../parts/notifier");
+
 (function () {
     //设置菜单 
     document.querySelector('#function-set').classList.add('show-bottom');
@@ -59,6 +61,7 @@
     data_table.init(data_table.data);
     data_table.fetch_table(data_table.data.post_data);   //每次调用（如搜索功能），只需设置 post_data
 
+    //搜索用户
     document.querySelector('#serach-button').addEventListener('click', function () {
         if (!data_table.data.edit) {
             let search = document.querySelector('#search-input').value;
@@ -231,6 +234,37 @@
                     notifier.show('权限不够，修改失败', 'danger');
                 }
             });
+    });
+
+    //删除按钮
+    document.querySelector('#del-button').addEventListener('click', function () {
+        let name = focus.children[1].textContent;
+
+        alert_confirm('确认删除用户 ' + name + ' 吗？', {
+            confirmCallBack: () => {
+                let data = {
+                    name: name,
+                }
+
+                fetch('/del_user', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content == 1) {
+
+                            notifier.show('用户删除完成', 'success');
+                        }
+                        else {
+                            notifier.show('权限不够，修改失败', 'danger');
+                        }
+                    });
+            }
+        });
     });
 
 })();
