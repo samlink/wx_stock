@@ -83,7 +83,7 @@ var data_table = function () {
                             count++;
                         }
 
-                        for (i = 0; i < post_data.rec - count; i++) {
+                        for (let i = 0; i < post_data.rec - count; i++) {
                             rows += data.blank_row_fn();
                         }
 

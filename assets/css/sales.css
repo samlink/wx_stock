@@ -322,6 +322,72 @@ button.btn-sm {
   padding: 0.25rem 0.5rem 0.275rem;
 }
 
+.check-radio {
+  display: inline-block;
+  position: relative;
+  padding-left: 25px;
+  cursor: pointer;
+  font-size: 13px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+.check-radio:hover input ~ .checkmark, .check-radio:hover input ~ .radiomark {
+  background-color: #ccc;
+}
+.check-radio input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+.check-radio input:checked ~ .checkmark, .check-radio input:checked ~ .radiomark {
+  background-color: #6e4e9e;
+  border: 1px solid #6e4e9e;
+}
+.check-radio input:checked ~ .checkmark:after, .check-radio input:checked ~ .radiomark:after {
+  display: block;
+}
+.check-radio .radiomark, .check-radio .checkmark {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  height: 16px;
+  width: 16px;
+  background-color: #eee;
+  border: 1px solid #ccc;
+}
+.check-radio .checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  -webkit-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  transform: rotate(45deg);
+}
+.check-radio .radiomark {
+  border-radius: 50%;
+}
+.check-radio .radiomark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  top: 6.7px;
+  left: 6.8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
+
 input {
   border-radius: 4px;
 }
@@ -607,51 +673,89 @@ input:focus {
   margin-left: 185px;
 }
 
-.user-manage .inline-div {
-  display: inline-block;
+.user-manage .user-content {
+  display: flex;
+  justify-content: first baseline;
+}
+.user-manage #users-show {
   width: 45%;
 }
-.user-manage .table-top {
+.user-manage #users-show .table-top {
   margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.user-manage .table-edit button {
+.user-manage #users-show .table-edit button {
   margin-right: 10px;
 }
-.user-manage .table-search {
+.user-manage #users-show .table-search {
   display: flex;
   align-items: center;
 }
-.user-manage #search-input {
+.user-manage #users-show #search-input {
   width: 180px;
   height: 30px;
   padding: 2px 8px;
   border-color: #e8e8e8;
 }
-.user-manage #search-input:hover, .user-manage #search-input:focus {
+.user-manage #users-show #search-input:hover, .user-manage #users-show #search-input:focus {
   border-color: #6ab8f7;
 }
-.user-manage #serach-button {
+.user-manage #users-show #serach-button {
   color: white;
   background-color: #2196f3;
   margin-left: 5px;
 }
-.user-manage #serach-button:hover {
+.user-manage #users-show #serach-button:hover {
   background-color: #0c7cd5;
 }
-.user-manage tbody tr td:nth-child(1),
-.user-manage tbody tr td:nth-last-child(1) {
+.user-manage #users-show tbody tr td:nth-child(1),
+.user-manage #users-show tbody tr td:nth-last-child(1) {
   text-align: center;
 }
-.user-manage .confirm-info {
+.user-manage #users-show .confirm-info {
   display: inline-block;
   padding: 0 8px;
   color: white;
   height: 22px;
   font-size: 12px;
   border-radius: 2px;
+}
+.user-manage #user-rights {
+  width: 50%;
+  margin-left: 30px;
+}
+.user-manage #user-rights tbody tr td {
+  text-align: left;
+  padding-left: 16px;
+  border: none;
+  border-left: 1px solid rgba(0, 0, 0, 0.09);
+}
+.user-manage #user-rights tbody tr:nth-last-child(1) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.09);
+}
+.user-manage #user-rights tr:hover {
+  background: none;
+}
+.user-manage #user-rights .rights-top {
+  margin-bottom: 10px;
+  margin-top: 8.5px;
+}
+.user-manage #user-rights .rights-show {
+  height: 565.5px;
+}
+.user-manage #user-rights .check-radio {
+  padding-left: 24px;
+}
+.user-manage #user-rights .check-radio .checkmark {
+  height: 13px;
+  width: 13px;
+  top: 3px;
+}
+.user-manage #user-rights .check-radio .checkmark::after {
+  left: 3.6px;
+  top: 0;
 }
 
 /*# sourceMappingURL=sales.css.map */
