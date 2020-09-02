@@ -36,6 +36,7 @@
         },
 
         row_click: function (tr) {
+            document.querySelector('.rights-top').textContent = `工作权限 - ${tr.children[1].textContent}：`;
             let rights = tr.children[3].textContent;
             let rights_arr = rights.split("，");
             let rights_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
@@ -66,7 +67,7 @@
         }
     });
 
-    //用户权限 ---------------------------------------
+    //用户权限显示 ---------------------------------------
     var rights = {
         goods_in: ['采购进货', '销售退货', '库存调入', '库存盘盈', '入库查询', '库存查询'],
         goods_out: ['库存销售', '商品直销', '采购退货', '库存调出', '库存盘亏', '出库查询'],
@@ -131,8 +132,9 @@
     }
 
     //编辑用户数据 ------------------------------------
-    let confirm_save, rights_save;  //取消时，恢复数据用
+    let confirm_save;  //取消时，恢复数据用
 
+    //编辑按钮
     document.querySelector('#edit-button').addEventListener('click', function () {
         let focus = document.querySelector('.table-users .focus');
         if (!focus) {
@@ -154,7 +156,6 @@
 
             data_table.data.edit = true;
 
-            rights_save = focus.children[3].textContent;
             confirm_save = focus.children[4].textContent;
 
             let confirm = confirm_save == "未确认" ? "" : "checked";
@@ -166,6 +167,7 @@
         }
     });
 
+    //取消按钮
     document.querySelector('#cancel-button').addEventListener('click', function () {
         let focus = document.querySelector('.table-users .focus');
         document.querySelector('#edit-button').classList.remove("hide");
@@ -183,10 +185,52 @@
 
         data_table.data.edit = false;
 
-        focus.children[4].innerHTML = confirm_save;
+        let confirm = confirm_save == "未确认" ? '<span class="confirm-info red">未确认</span>' : '<span class="confirm-info green">已确认</span>';
+
+        focus.children[4].innerHTML = confirm;
         focus.children[4].removeAttribute("style");
 
         focus.click();
+    });
+
+    //提交按钮
+    document.querySelector('#sumit-button').addEventListener('click', function () {
+        let focus = document.querySelector('.table-users .focus');
+        let confirm = focus.children[4].querySelector('input').checked;
+        let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
+        let rights = "";
+        for (let check of rights_checks) {
+            if (check.checked == true) {
+                rights += check.value + "，";
+            }
+        }
+
+        let data = {
+            name: focus.children[1].textContent,
+            confirm: confirm,
+            rights: rights,
+        };
+
+        fetch("/edit_user", {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    confirm_save = confirm ? '已确认' : '未确认';
+                    focus.children[3].innerHTML = rights;
+                    focus.children[3].setAttribute("title", rights);
+                    document.querySelector('#cancel-button').click();
+                    notifier.show('用户修改成功', 'success');
+                }
+                else {
+                    notifier.show('权限不够，修改失败', 'danger');
+                }
+            });
     });
 
 })();

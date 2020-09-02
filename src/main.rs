@@ -7,7 +7,8 @@ use serde::Deserialize;
 
 mod html;
 mod service;
-mod user;
+mod user_manage;
+mod user_set;
 
 #[derive(Deserialize)]
 struct Config {
@@ -42,13 +43,14 @@ async fn main() -> std::io::Result<()> {
             .service(html::login)
             .service(html::user_set)
             .service(html::user_manage)
-            .service(user::login)
-            .service(user::logon)
-            .service(user::logout)
-            .service(user::forget_pass)
-            .service(user::change_pass)
-            .service(user::phone_number)
-            .service(user::fetch_users)
+            .service(user_set::login)
+            .service(user_set::logon)
+            .service(user_set::logout)
+            .service(user_set::forget_pass)
+            .service(user_set::change_pass)
+            .service(user_set::phone_number)
+            .service(user_manage::fetch_users)
+            .service(user_manage::edit_user)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
