@@ -1,6 +1,7 @@
 var data_table = function () {
     var data;
     return {
+        data: data,
         init: function (table) {
             Object.assign(table, {
                 header: document.querySelector(table.container + ' thead tr'),                 //排序可选,若不需要排序功能,则去掉此属性
@@ -22,44 +23,55 @@ var data_table = function () {
             data = table;
 
             table.page_pre.addEventListener('click', (e) => {
-                table.page_input.value--;
-                change_page(table.page_input.value);
+                if (!data_table.data.edit) {
+                    table.page_input.value--;
+                    change_page(table.page_input.value);
+                }
             });
 
             table.page_aft.addEventListener('click', (e) => {
-                table.page_input.value++;
-                change_page(table.page_input.value);
+                if (!data_table.data.edit) {
+                    table.page_input.value++;
+                    change_page(table.page_input.value);
+                }
             });
 
             table.page_first.addEventListener('click', (e) => {
-                change_page(1);
+                if (!data_table.data.edit) {
+                    change_page(1);
+                }
             });
 
             table.page_last.addEventListener('click', (e) => {
-                change_page(table.total_pages.textContent);
+                if (!data_table.data.edit) {
+                    change_page(table.total_pages.textContent);
+                }
             });
 
             table.page_input.addEventListener('change', function () {
-                change_page(table.page_input.value);
+                if (!data_table.data.edit) {
+                    change_page(table.page_input.value);
+                }
             });
 
             if (table.header) {
                 for (let th of table.header.children) {
                     th.addEventListener('click', function (e) {
+                        if (!data_table.data.edit) {
+                            for (let t of table.header.children) {
+                                t.textContent = t.textContent.split(' ')[0];
+                            }
 
-                        for (let t of table.header.children) {
-                            t.textContent = t.textContent.split(' ')[0];
+                            let order = table.post_data.sort.indexOf('ASC') !== -1 ? 'DESC' : 'ASC';
+                            let arrow = table.post_data.sort.indexOf('ASC') !== -1 ? '▼' : '▲';
+                            let sort = table.header_names[this.textContent] + " " + order;
+                            this.textContent = this.textContent + " " + arrow;
+
+                            Object.assign(table.post_data, { page: 1, sort: sort });
+                            table.page_input.value = 1;
+
+                            data_table.fetch_table(table.post_data);
                         }
-
-                        let order = table.post_data.sort.indexOf('ASC') !== -1 ? 'DESC' : 'ASC';
-                        let arrow = table.post_data.sort.indexOf('ASC') !== -1 ? '▼' : '▲';
-                        let sort = table.header_names[this.textContent] + " " + order;
-                        this.textContent = this.textContent + " " + arrow;
-
-                        Object.assign(table.post_data, { page: 1, sort: sort });
-                        table.page_input.value = 1;
-
-                        data_table.fetch_table(table.post_data);
                     })
                 }
             }
@@ -95,12 +107,14 @@ var data_table = function () {
 
                         for (let tr of data.body.children) {
                             tr.addEventListener('click', function (e) {
-                                for (let r of data.body.children) {
-                                    r.classList.remove('focus');
-                                }
-                                this.classList.add('focus');
+                                if (!data_table.data.edit) {
+                                    for (let r of data.body.children) {
+                                        r.classList.remove('focus');
+                                    }
+                                    this.classList.add('focus');
 
-                                data.row_click(tr);
+                                    data.row_click(tr);
+                                }
                             });
                         }
 

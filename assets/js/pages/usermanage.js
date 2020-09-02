@@ -1,7 +1,9 @@
 (function () {
+    //设置菜单 
     document.querySelector('#function-set').classList.add('show-bottom');
 
-    var data = {
+    //显示表格数据 ---------------------------------------
+    data_table.data = {
         container: '.table-users',
         header_names: {
             '序号': 'confirm',                                                     //排序可选,若不需要排序,去掉此属性
@@ -16,6 +18,7 @@
             sort: "confirm ASC",
             rec: 16,
         },
+        edit: false,
 
         row_fn: function (tr) {
             let con = "已确认";
@@ -35,7 +38,7 @@
         row_click: function (tr) {
             let rights = tr.children[3].textContent;
             let rights_arr = rights.split("，");
-            let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
+            let rights_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
             for (let check of rights_checks) {
                 check.checked = false;
                 check.parentNode.removeAttribute("style");
@@ -52,15 +55,18 @@
         }
     }
 
-    data_table.init(data);
-    data_table.fetch_table(data.post_data);   //每次调用（如搜索功能），只需设置 post_data
+    data_table.init(data_table.data);
+    data_table.fetch_table(data_table.data.post_data);   //每次调用（如搜索功能），只需设置 post_data
 
     document.querySelector('#serach-button').addEventListener('click', function () {
-        let search = document.querySelector('#search-input').value;
-        Object.assign(data.post_data, { name: search });
-        data_table.fetch_table(data.post_data);
+        if (!data_table.data.edit) {
+            let search = document.querySelector('#search-input').value;
+            Object.assign(data_table.data.post_data, { name: search });
+            data_table.fetch_table(data_table.data.post_data);
+        }
     });
 
+    //用户权限 ---------------------------------------
     var rights = {
         goods_in: ['采购进货', '销售退货', '库存调入', '库存盘盈', '入库查询', '库存查询'],
         goods_out: ['库存销售', '商品直销', '采购退货', '库存调出', '库存盘亏', '出库查询'],
@@ -123,5 +129,64 @@
     for (let mark of marks) {
         mark.setAttribute("style", "background: lightgrey; border: none;")
     }
+
+    //编辑用户数据 ------------------------------------
+    let confirm_save, rights_save;  //取消时，恢复数据用
+
+    document.querySelector('#edit-button').addEventListener('click', function () {
+        let focus = document.querySelector('.table-users .focus');
+        if (!focus) {
+            notifier.show('请先选择用户', 'danger');
+        }
+        else {
+            document.querySelector('#edit-button').classList.add("hide");
+            document.querySelector('#del-button').classList.add("hide");
+            document.querySelector('#sumit-button').classList.remove("hide");
+            document.querySelector('#cancel-button').classList.remove("hide");
+
+            for (let mark of marks) {
+                mark.removeAttribute("style");
+            }
+
+            for (let check of all_checks) {
+                check.disabled = false;
+            }
+
+            data_table.data.edit = true;
+
+            rights_save = focus.children[3].textContent;
+            confirm_save = focus.children[4].textContent;
+
+            let confirm = confirm_save == "未确认" ? "" : "checked";
+
+            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+                                                <span class="checkmark"></span></label>`;
+
+            focus.children[4].setAttribute("style", "padding-top: 0;");
+        }
+    });
+
+    document.querySelector('#cancel-button').addEventListener('click', function () {
+        let focus = document.querySelector('.table-users .focus');
+        document.querySelector('#edit-button').classList.remove("hide");
+        document.querySelector('#del-button').classList.remove("hide");
+        document.querySelector('#sumit-button').classList.add("hide");
+        document.querySelector('#cancel-button').classList.add("hide");
+
+        for (let mark of marks) {
+            mark.setAttribute("style", "background: lightgrey; border: none;")
+        }
+
+        for (let check of all_checks) {
+            check.disabled = true;
+        }
+
+        data_table.data.edit = false;
+
+        focus.children[4].innerHTML = confirm_save;
+        focus.children[4].removeAttribute("style");
+
+        focus.click();
+    });
 
 })();

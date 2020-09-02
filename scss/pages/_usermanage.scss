@@ -58,6 +58,10 @@
             font-size: 12px;
             border-radius: 2px;
         }
+
+        td .check-radio {
+            display: inline;
+        }
     }
 
     #user-rights {
@@ -94,11 +98,11 @@
                 height: 13px;
                 width: 13px;
                 top: 3px;
-                
+
                 &::after {
                     left: 3.6px;
                     top: 0;
-                }                
+                }
             }
         }
     }
