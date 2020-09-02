@@ -38,13 +38,13 @@
             let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
             for (let check of rights_checks) {
                 check.checked = false;
+                check.parentNode.removeAttribute("style");
             }
             for (let right of rights_arr) {
                 for (let check of rights_checks) {
-                    console.log("第一层：" + right);
-                    console.log("第二层：" + check.value);
                     if (right == check.value) {
                         check.checked = true;
+                        check.parentNode.setAttribute("style", "font-weight: 600;");
                         break;
                     }
                 }
@@ -117,6 +117,11 @@
     let all_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
     for (let check of all_checks) {
         check.disabled = true;
+    }
+
+    let marks = document.querySelectorAll('.rights-show .checkmark');
+    for (let mark of marks) {
+        mark.setAttribute("style", "background: lightgrey; border: none;")
     }
 
 })();
