@@ -1,6 +1,6 @@
 use crate::service::get_user;
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
@@ -84,6 +84,7 @@ pub struct UserEdit {
     pub rights: String,
 }
 
+///用户编辑
 #[post("/edit_user")]
 pub async fn edit_user(
     db: web::Data<Pool>,
