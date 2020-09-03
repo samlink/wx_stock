@@ -709,15 +709,17 @@ a.roar-alert-message-tbf {
 .roar-alert-message-button-confirm {
   background-color: #2196f3;
 }
+.roar-alert-message-button-confirm:hover {
+  color: white;
+  background-color: #0c7cd5;
+}
 
 .roar-alert-message-button-cancel {
   background-color: #fd3995;
 }
-
-a.roar-alert-message-button-cancel:hover,
-a.roar-alert-message-button-confirm:hover {
-  opacity: 0.8;
-  text-decoration: none;
+.roar-alert-message-button-cancel:hover {
+  color: white;
+  background-color: #fc077a;
 }
 
 @-webkit-keyframes roar-show {

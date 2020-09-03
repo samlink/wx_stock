@@ -47,4 +47,11 @@ function alert_confirm(message, optionsA) {
     document.querySelector('.roar-alert-message-content').innerHTML = message;
 
     element.style.display = "block";
+
+    document.onkeydown = function (event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.keyCode == 27 && element && element.style.display == "block") { 
+            element.style.display = "none";
+        }
+    }
 }
