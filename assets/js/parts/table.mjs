@@ -67,20 +67,20 @@ export var table_init = function (data) {
                     Object.assign(table_data.post_data, { page: 1, sort: sort });
                     table_data.page_input.value = 1;
 
-                    fetch_table(table_data.post_data);
+                    fetch_table();
                 }
             })
         }
     }
 }
 
-export var fetch_table = function (post_data) {
+export var fetch_table = function () {
     fetch(table_data.url, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(post_data),
+        body: JSON.stringify(table_data.post_data),
     })
         .then(response => response.json())
         .then(content => {
@@ -92,7 +92,7 @@ export var fetch_table = function (post_data) {
                     count++;
                 }
 
-                for (let i = 0; i < post_data.rec - count; i++) {
+                for (let i = 0; i < table_data.post_data.rec - count; i++) {
                     rows += table_data.blank_row_fn();
                 }
 
@@ -134,7 +134,7 @@ export var fetch_table = function (post_data) {
 function change_page(value) {
     table_data.page_input.value = value > Number(table_data.total_pages.textContent) ? Number(table_data.total_pages.textContent) : (value < 1 ? 1 : value);
     Object.assign(table_data.post_data, { page: Number(table_data.page_input.value) });
-    fetch_table(table_data.post_data);
+    fetch_table();
 }
 
 function button_change(input, first, pre, aft, last, pages) {

@@ -60,14 +60,14 @@ var data = {
 }
 
 table_init(data);
-fetch_table(table_data.post_data);   //每次调用（如搜索功能），只需设置 post_data
+fetch_table();   //每次调用（如搜索功能），只需设置 post_data
 
 //搜索用户
 document.querySelector('#serach-button').addEventListener('click', function () {
     if (!table_data.edit) {
         let search = document.querySelector('#search-input').value;
         Object.assign(table_data.post_data, { name: search });
-        fetch_table(table_data.post_data);
+        fetch_table();
     }
 });
 
