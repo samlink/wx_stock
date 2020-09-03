@@ -1,9 +1,12 @@
+import { table_data, init, fetch_table } from '../parts/table.mjs';
+
 (function () {
+    
     //设置菜单 
     document.querySelector('#function-set').classList.add('show-bottom');
 
     //显示表格数据 ---------------------------------------
-    data_table.data = {
+    var data = {
         container: '.table-users',
         header_names: {
             '序号': 'confirm',                                                     //排序可选,若不需要排序,去掉此属性
@@ -56,15 +59,15 @@
         }
     }
 
-    data_table.init(data_table.data);
-    data_table.fetch_table(data_table.data.post_data);   //每次调用（如搜索功能），只需设置 post_data
+    init(data);
+    fetch_table(table_data.post_data);   //每次调用（如搜索功能），只需设置 post_data
 
     //搜索用户
     document.querySelector('#serach-button').addEventListener('click', function () {
-        if (!data_table.data.edit) {
+        if (!table_data.edit) {
             let search = document.querySelector('#search-input').value;
-            Object.assign(data_table.data.post_data, { name: search });
-            data_table.fetch_table(data_table.data.post_data);
+            Object.assign(table_data.post_data, { name: search });
+            fetch_table(table_data.post_data);
         }
     });
 
@@ -160,7 +163,7 @@
                     check.disabled = false;
                 }
 
-                data_table.data.edit = true;
+                table_data.edit = true;
 
                 confirm_save = focus.children[4].textContent;
 
@@ -190,7 +193,7 @@
             check.disabled = true;
         }
 
-        data_table.data.edit = false;
+        table_data.edit = false;
 
         let confirm = confirm_save == "未确认" ? '<span class="confirm-info red">未确认</span>' : '<span class="confirm-info green">已确认</span>';
 
@@ -271,7 +274,7 @@
                             .then(response => response.json())
                             .then(content => {
                                 if (content == 1) {
-                                    data_table.fetch_table(data_table.data.post_data);
+                                    fetch_table(table_data.post_data);
                                     notifier.show('用户删除完成', 'success');
                                 }
                                 else {
