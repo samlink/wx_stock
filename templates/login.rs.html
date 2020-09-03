@@ -1,6 +1,6 @@
 @use time::now;
 @use super::statics::*;
-@()
+@(compay: String)
 
 <html lang="zh-CN">
 
@@ -62,7 +62,7 @@
 
     <footer>
       <p><a href="http://www.tingtran.top" target="_blank">[ 鼎传码行 ]</a>
-        &#169;@now().strftime("%Y").unwrap().to_string() 授权给：北京易瑞盈商贸有限公司
+        &#169;@now().strftime("%Y").unwrap().to_string() 授权给：@compay
       </p>
     </footer>
   </div>
