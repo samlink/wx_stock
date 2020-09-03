@@ -1,5 +1,3 @@
-const notifier = require("../parts/notifier");
-
 (function () {
     //设置菜单 
     document.querySelector('#function-set').classList.add('show-bottom');
@@ -144,29 +142,35 @@ const notifier = require("../parts/notifier");
             notifier.show('请先选择用户', 'danger');
         }
         else {
-            document.querySelector('#edit-button').classList.add("hide");
-            document.querySelector('#del-button').classList.add("hide");
-            document.querySelector('#sumit-button').classList.remove("hide");
-            document.querySelector('#cancel-button').classList.remove("hide");
-
-            for (let mark of marks) {
-                mark.removeAttribute("style");
+            let name = focus.children[1].textContent;
+            if (name == "admin") {
+                notifier.show('不能编辑管理员信息', 'danger');
             }
+            else {
+                document.querySelector('#edit-button').classList.add("hide");
+                document.querySelector('#del-button').classList.add("hide");
+                document.querySelector('#sumit-button').classList.remove("hide");
+                document.querySelector('#cancel-button').classList.remove("hide");
 
-            for (let check of all_checks) {
-                check.disabled = false;
-            }
+                for (let mark of marks) {
+                    mark.removeAttribute("style");
+                }
 
-            data_table.data.edit = true;
+                for (let check of all_checks) {
+                    check.disabled = false;
+                }
 
-            confirm_save = focus.children[4].textContent;
+                data_table.data.edit = true;
 
-            let confirm = confirm_save == "未确认" ? "" : "checked";
+                confirm_save = focus.children[4].textContent;
 
-            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+                let confirm = confirm_save == "未确认" ? "" : "checked";
+
+                focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
                                                 <span class="checkmark"></span></label>`;
 
-            focus.children[4].setAttribute("style", "padding-top: 0;");
+                focus.children[4].setAttribute("style", "padding-top: 0;");
+            }
         }
     });
 
@@ -231,40 +235,53 @@ const notifier = require("../parts/notifier");
                     notifier.show('用户修改成功', 'success');
                 }
                 else {
-                    notifier.show('权限不够，修改失败', 'danger');
+                    notifier.show('权限不够，操作失败', 'danger');
                 }
             });
     });
 
     //删除按钮
     document.querySelector('#del-button').addEventListener('click', function () {
-        let name = focus.children[1].textContent;
-
-        alert_confirm('确认删除用户 ' + name + ' 吗？', {
-            confirmCallBack: () => {
-                let data = {
-                    name: name,
-                }
-
-                fetch('/del_user', {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content == 1) {
-
-                            notifier.show('用户删除完成', 'success');
-                        }
-                        else {
-                            notifier.show('权限不够，修改失败', 'danger');
-                        }
-                    });
+        let focus = document.querySelector('.table-users .focus');
+        if (!focus) {
+            notifier.show('请选择用户', 'danger');
+        }
+        else {
+            let name = focus.children[1].textContent;
+            if (name == "admin") {
+                notifier.show('无法删除管理员', 'danger');
             }
-        });
+            else if (name == document.querySelector('#user-name').textContent) {
+                notifier.show('无法删除用户自己', 'danger');
+            }
+            else {
+                alert_confirm('确认删除用户 ' + name + ' 吗？', {
+                    confirmCallBack: () => {
+                        let data = {
+                            name: name,
+                        }
+
+                        fetch('/del_user', {
+                            method: 'post',
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(data),
+                        })
+                            .then(response => response.json())
+                            .then(content => {
+                                if (content == 1) {
+                                    data_table.fetch_table(data_table.data.post_data);
+                                    notifier.show('用户删除完成', 'success');
+                                }
+                                else {
+                                    notifier.show('权限不够，操作失败', 'danger');
+                                }
+                            });
+                    }
+                });
+            }
+        }
     });
 
 })();

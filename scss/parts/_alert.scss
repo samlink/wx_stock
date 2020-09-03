@@ -73,6 +73,14 @@ a.roar-alert-message-tbf {
   color: #ffffff;
 }
 
+.roar-alert-message-button-confirm {
+  background-color: $info-500;
+}
+
+.roar-alert-message-button-cancel {
+  background-color: $danger-500;
+}
+
 a.roar-alert-message-button-cancel:hover,
 a.roar-alert-message-button-confirm:hover {
   opacity: 0.8;
