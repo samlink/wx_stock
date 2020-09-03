@@ -1,0 +1,36 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="product-set">
+    <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 商品设置 </span>
+    </div>
+    <div class="product-content">
+        <div class="sidebar">
+            <div class="autocomplete">
+                <input type="text" id="auto_input" placeholder="搜索">
+                <button id="auto_search"><img src="/assets/img/zoom.png" width="20px"></button>
+            </div>
+            <ul id="tree">
+            </ul>
+            <div>
+                <ul id="context-menu">
+                    <li><a href="javascript:;" id="context-add">新增</a></li>
+                    <li><a href="javascript:;" id="context-edit">编辑</a></li>
+                    <li><a href="javascript:;" id="context-del">删除</a></li>
+                </ul>
+            </div>
+            <div id="zhezhao"></div>
+        </div>
+        <div id="product-show">
+            商品信息
+        </div>
+    </div>
+</div>
+<script src="/assets/js/parts/init.js"></script>
+<script src="/assets/js/parts/tree.js"></script>
+<script type="module" src="/assets/js/pages/productset.js"></script>
+}, user.name.clone())

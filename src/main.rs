@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 mod html;
 mod service;
+mod tree;
 mod user_manage;
 mod user_set;
 
@@ -43,6 +44,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::login)
             .service(html::user_set)
             .service(html::user_manage)
+            .service(html::product_set)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
@@ -52,6 +54,7 @@ async fn main() -> std::io::Result<()> {
             .service(user_manage::fetch_users)
             .service(user_manage::edit_user)
             .service(user_manage::del_user)
+            .service(tree::tree)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
