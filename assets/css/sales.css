@@ -828,6 +828,10 @@ a.roar-alert-message-tbf {
   padding: 0;
   text-align: center;
 }
+#context-menu li a:hover {
+  color: white;
+  background-color: #886ab5;
+}
 
 /* 遮罩 */
 #zhezhao {

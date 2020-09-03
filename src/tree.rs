@@ -29,6 +29,7 @@ pub struct Num {
     node_name: String,
 }
 
+#[post("/tree_add")]
 pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
 
@@ -90,6 +91,7 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
     }
 }
 
+#[post("/tree_edit")]
 pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
@@ -103,13 +105,13 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
             .await
             .unwrap();
 
-        &conn
-            .execute(
-                r#"UPDATE content SET title=$1 WHERE num=$2"#,
-                &[&data.node_name, &data.pnum],
-            )
-            .await
-            .unwrap();
+        // &conn
+        //     .execute(
+        //         r#"UPDATE content SET title=$1 WHERE num=$2"#,
+        //         &[&data.node_name, &data.pnum],
+        //     )
+        //     .await
+        //     .unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -117,6 +119,7 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
     }
 }
 
+#[post("/tree_del")]
 pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
