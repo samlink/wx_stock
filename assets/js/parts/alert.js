@@ -18,14 +18,8 @@ function alert_confirm(message, optionsA) {
     }
 
     let element = document.querySelector('#roar-alert');
-    let old_cancelElement = document.querySelector('.roar-alert-message-button-cancel');
-    let old_confirmElement = document.querySelector('.roar-alert-message-button-confirm');
-
-    let cancelElement = old_cancelElement.cloneNode(true);
-    let confirmElement = old_confirmElement.cloneNode(true);
-
-    old_cancelElement.parentNode.replaceChild(cancelElement, old_cancelElement);
-    old_confirmElement.parentNode.replaceChild(confirmElement, old_confirmElement);
+    let cancelElement = document.querySelector('.roar-alert-message-button-cancel');
+    let confirmElement = document.querySelector('.roar-alert-message-button-confirm');
 
     if (!options.cancel) {
         cancelElement.style.display = 'none';
