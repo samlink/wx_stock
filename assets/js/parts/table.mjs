@@ -1,7 +1,7 @@
 
 export var table_data = {};
 
-export var init = function (data) {
+export var table_init = function (data) {
     table_data = Object.assign(data, {
         header: document.querySelector(data.container + ' thead tr'),                 //排序可选,若不需要排序功能,则去掉此属性
         body: document.querySelector(data.container + ' tbody'),
@@ -126,7 +126,7 @@ export var fetch_table = function (post_data) {
                 }
             }
             else {
-                alert("无次操作权限");
+                alert("无此操作权限");
             }
         });
 }

@@ -4,7 +4,7 @@
  * Copyright (c) 2018 Ciprian Popescu
  * Licensed GPLv3
  */
-function alert_confirm(message, optionsA) {
+export function alert_confirm(message, optionsA) {
     var options = {
         cancel: true,
         confirmText: "确认",
