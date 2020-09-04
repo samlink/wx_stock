@@ -59,10 +59,8 @@
 #tree {
   position: relative;
   list-style-type: none;
-  // margin-left: 20px;
   padding: 0 0 0 1rem;
   height: 90%;
-  // overflow: auto;
 
   ul {
     list-style-type: none;
@@ -75,8 +73,7 @@
     padding: 2px 22px;
     margin: 0;
     cursor: pointer;
-    width: auto;
-    // clear: both;
+    width: 80%;
 
     input {
       position: absolute;
@@ -125,10 +122,10 @@
 
   .item::before,
   .item-down::before {
-    // content: url("/assets/img/close-blue3.png");
-    // margin-right: 6px;
-    // vertical-align: middle;
-    // display: inline-block;
+    content: url("/assets/img/close-blue3.png");
+    margin-right: 6px;
+    vertical-align: middle;
+    display: inline-block;
   }
 
   .nested {

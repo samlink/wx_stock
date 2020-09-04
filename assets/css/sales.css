@@ -816,7 +816,7 @@ a.roar-alert-message-tbf {
   padding: 2px 22px;
   margin: 0;
   cursor: pointer;
-  width: auto;
+  width: 80%;
 }
 #tree li input {
   position: absolute;
@@ -855,6 +855,13 @@ a.roar-alert-message-tbf {
 #tree .item-down {
   user-select: none;
   vertical-align: middle;
+}
+#tree .item::before,
+#tree .item-down::before {
+  content: url("/assets/img/close-blue3.png");
+  margin-right: 6px;
+  vertical-align: middle;
+  display: inline-block;
 }
 #tree .nested {
   display: none;
