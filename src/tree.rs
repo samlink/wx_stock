@@ -182,27 +182,32 @@ struct Message {
 pub async fn tree_auto(
     db: web::Data<Pool>,
     search: web::Query<Search>,
+    id: Identity,
 ) -> HttpResponse {
-    // let user_id = id.identity().unwrap_or("".to_owned());
-    let conn = db.get().await.unwrap();
-    let s = ("%".to_owned() + &search.s + "%").to_lowercase();
-    let rows = &conn
-        .query(
-            r#"SELECT num AS id, node_name AS label FROM tree WHERE LOWER(node_name) LIKE $2"#, //查询字段名称与结构名称对应
-            &[&s],
-        )
-        .await
-        .unwrap();
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let s = ("%".to_owned() + &search.s + "%").to_lowercase();
+        let rows = &conn
+            .query(
+                r#"SELECT num AS id, node_name AS label FROM tree WHERE LOWER(node_name) LIKE $2"#, //查询字段名称与结构名称对应
+                &[&s],
+            )
+            .await
+            .unwrap();
 
-    let mut data: Vec<Message> = vec!();
-    for row in rows {
-        let message = Message {
-            id: row.get("id"),
-            label: row.get("label"),
-        };
-        
-        data.push(message);
+        let mut data: Vec<Message> = vec![];
+        for row in rows {
+            let message = Message {
+                id: row.get("id"),
+                label: row.get("label"),
+            };
+
+            data.push(message);
+        }
+
+        HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
     }
-
-    HttpResponse::Ok().json(data)
 }

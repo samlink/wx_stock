@@ -13,7 +13,7 @@ export function autocomplete(input, url, cb) {
         fetch(get_url)
             .then(response => response.json())
             .then(function (arr) {
-                if (arr.length > 0) {
+                if (arr != -1 && arr.length > 0) {
                     a = document.createElement("DIV");
                     a.setAttribute("id", "autocomplete-list");
                     a.setAttribute("class", "autocomplete-items");
