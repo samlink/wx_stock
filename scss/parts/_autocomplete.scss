@@ -1,0 +1,38 @@
+.autocomplete {
+  position: absolute;
+  display: inline-block;
+  z-index: 20;
+
+  $auto-width: 130px; //按需修改
+  input {
+    width: $auto-width;
+  }
+
+  span {
+    position: absolute;
+    top: 2px;
+    right: -5px;
+  }
+  .autocomplete-items {
+    position: relative;
+    font-size: 12px;
+    width: $auto-width * 0.99;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+
+    div {
+      padding: 5px;
+      cursor: pointer;
+      border: 1px solid;
+      border-top: none;
+      width: $auto-width * 0.91;
+      height: 18px;
+      display: block !important;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+}

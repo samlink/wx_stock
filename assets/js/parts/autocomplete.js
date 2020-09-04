@@ -1,4 +1,5 @@
-function autocomplete(input, url, cb) {
+/// input: 输入元素；url: 数据地址；cb: 回调函数
+export function autocomplete(input, url, cb) {
     var currentFocus;
     input.addEventListener("input", function (e) {
         var a, b, i, val = this.value;
@@ -54,29 +55,29 @@ function autocomplete(input, url, cb) {
         }
     });
 
-    function addActive(x) {
-        if (!x) return false;
-        removeActive(x);
-        //循环选择
-        if (currentFocus >= x.length) currentFocus = 0;
-        if (currentFocus < 0) currentFocus = (x.length - 1);
-        x[currentFocus].classList.add("autocomplete-active");
-    }
-
-    function removeActive(x) {
-        for (var i = 0; i < x.length; i++) {
-            x[i].classList.remove("autocomplete-active");
-        }
-    }
-
-    function closeAllLists(elmnt) {
-        var x = document.querySelector(".autocomplete-items");
-        if (x && elmnt != x && elmnt != input) {
-            x.parentNode.removeChild(x);
-        }
-    }
-
     document.addEventListener("click", function (e) {
         closeAllLists(e.target);
     });
+}
+
+function addActive(x) {
+    if (!x) return false;
+    removeActive(x);
+    //循环选择
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    x[currentFocus].classList.add("autocomplete-active");
+}
+
+function removeActive(x) {
+    for (var i = 0; i < x.length; i++) {
+        x[i].classList.remove("autocomplete-active");
+    }
+}
+
+function closeAllLists(elmnt) {
+    var x = document.querySelector(".autocomplete-items");
+    if (x && elmnt != x && elmnt != input) {
+        x.parentNode.removeChild(x);
+    }
 }
