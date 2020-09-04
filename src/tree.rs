@@ -190,7 +190,7 @@ pub async fn tree_auto(
         let s = ("%".to_owned() + &search.s + "%").to_lowercase();
         let rows = &conn
             .query(
-                r#"SELECT num AS id, node_name AS label FROM tree WHERE LOWER(node_name) LIKE $2"#, //查询字段名称与结构名称对应
+                r#"SELECT num AS id, node_name AS label FROM tree WHERE LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
                 &[&s],
             )
             .await

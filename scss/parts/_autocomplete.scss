@@ -3,7 +3,7 @@
   display: inline-block;
   z-index: 20;
 
-  $auto-width: 130px; //按需修改
+  $auto-width: 200px; //按需修改
   input {
     width: $auto-width;
   }
@@ -25,9 +25,9 @@
     div {
       padding: 5px;
       cursor: pointer;
-      border: 1px solid;
+      border: 1px solid #b3d9f3;
       border-top: none;
-      width: $auto-width * 0.91;
+      width: $auto-width * 0.94;
       height: 18px;
       display: block !important;
       overflow: hidden;

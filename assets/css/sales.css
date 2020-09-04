@@ -756,7 +756,6 @@ a.roar-alert-message-tbf {
   margin-bottom: 10px;
 }
 .tree-show input {
-  width: 70%;
   height: 30px;
   margin-bottom: 0;
   display: inline-block;
@@ -783,6 +782,7 @@ a.roar-alert-message-tbf {
   align-items: center;
   justify-content: center;
   padding-bottom: 3px;
+  margin-top: 40px;
   margin-bottom: -2px;
   border: 1px solid #2196f3;
   border-top-left-radius: 3px;
@@ -945,6 +945,41 @@ a.roar-alert-message-tbf {
   top: 0px;
   display: none;
   z-index: 1000;
+}
+
+.autocomplete {
+  position: absolute;
+  display: inline-block;
+  z-index: 20;
+}
+.autocomplete input {
+  width: 200px;
+}
+.autocomplete span {
+  position: absolute;
+  top: 2px;
+  right: -5px;
+}
+.autocomplete .autocomplete-items {
+  position: relative;
+  font-size: 12px;
+  width: 198px;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+}
+.autocomplete .autocomplete-items div {
+  padding: 5px;
+  cursor: pointer;
+  border: 1px solid #b3d9f3;
+  border-top: none;
+  width: 188px;
+  height: 18px;
+  display: block !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .user-set {
