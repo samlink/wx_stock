@@ -48,6 +48,7 @@
         if (data.length > 0) {
             for (let i in data) {
                 var node = document.createElement('li');
+                node.classList.add("hover-show");
                 if (data[i].children.length > 0) {
                     node.innerHTML = '<span class="item" data-num="' + data[i].num + '">' + data[i].node_name + '</span>';
                     var ul = document.createElement('ul');

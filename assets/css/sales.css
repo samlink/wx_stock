@@ -856,12 +856,21 @@ a.roar-alert-message-tbf {
   user-select: none;
   vertical-align: middle;
 }
+#tree .item:hover,
+#tree .item-down:hover {
+  font-weight: 600;
+}
 #tree .item::before,
 #tree .item-down::before {
-  content: url("/assets/img/close-blue3.png");
   margin-right: 6px;
   vertical-align: middle;
   display: inline-block;
+}
+#tree .item::before {
+  content: url("/assets/img/folder.png");
+}
+#tree .item-down::before {
+  content: url("/assets/img/folder-open.png");
 }
 #tree .nested {
   display: none;
@@ -872,6 +881,10 @@ a.roar-alert-message-tbf {
 #tree .leaf {
   height: 23px;
   overflow: hidden;
+}
+#tree .leaf:hover {
+  color: white;
+  background-color: #82c4f8;
 }
 #tree .leaf.is-selected {
   font-weight: bold;

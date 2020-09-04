@@ -115,17 +115,27 @@
 
   .item,
   .item-down {
-    // margin-left: -21.5px;
     user-select: none;
     vertical-align: middle;
+
+    &:hover {
+      font-weight: 600;
+    }
   }
 
   .item::before,
   .item-down::before {
-    content: url("/assets/img/close-blue3.png");
     margin-right: 6px;
     vertical-align: middle;
     display: inline-block;
+  }
+
+  .item::before {
+    content: url("/assets/img/folder.png");
+  }
+
+  .item-down::before {
+    content: url("/assets/img/folder-open.png");
   }
 
   .nested {
@@ -139,6 +149,11 @@
   .leaf {
     height: $node-height;
     overflow: hidden;
+
+    &:hover {
+      color: white;
+      background-color: $info-100;
+    }
 
     &.is-selected {
       font-weight: bold;
