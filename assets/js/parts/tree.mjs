@@ -1,116 +1,47 @@
-; (function (root, factory) {
-    if (typeof exports === 'object' && typeof module === 'object') {
-        module.exports = factory();
-    } else if (typeof define === 'function' && define.amd) {
-        define([], factory);
-    } else if (typeof exports === 'object') {
-        exports['tree'] = factory();
-    } else {
-        root['tree'] = factory();
-    }
-}(typeof self !== 'undefined' ? self : this, function () {
-    var selected_node;
-    var input_html = '<input type="text" id="input_node" value="新节点">';
+import { notifier } from './notifier.mjs';
+import { alert_confirm } from './alert.mjs';
 
-    var menu = document.querySelector('#context-menu');
-    var zhezhao = document.querySelector('#zhezhao');
+var global = {
+    tree_leaf: "",
+    node_num: "",
+    is_saved: true,
+};
 
-    // 从数据库获取 tree 数据
-    var fetch_tree = function () {
-        fetch('/tree')
-            .then(response => response.json())
-            .then(data => {
-                var tree = document.querySelector('#tree');
-                gener_tree(tree, data);
+var selected_node;
+var input_html = '<input type="text" id="input_node" value="新节点">';
 
-                var toggle = document.querySelectorAll(".item");
+var menu = document.querySelector('#context-menu');
+var zhezhao = document.querySelector('#zhezhao');
 
-                for (let i = 0; i < toggle.length; i++) {
-                    toggle[i].addEventListener('click', function (event) {
-                        if (event.target.tagName !== 'INPUT') {
-                            this.parentNode.querySelector(".nested").classList.toggle("active");
-                            this.classList.toggle("item-down");
-                            this.classList.toggle("item");
-                        }
-                    });
-                }
+//从数据库获取 tree 数据
+export var fetch_tree = function () {
+    fetch('/tree')
+        .then(response => response.json())
+        .then(data => {
+            var tree = document.querySelector('#tree');
+            gener_tree(tree, data);
 
-                var leaves = document.querySelectorAll('.leaf');
+            var toggle = document.querySelectorAll(".item");
 
-                for (let leaf of leaves) {
-                    leaf.addEventListener('click', leaf_click);
-                }
-            });
-    }
-
-    // 生成树
-    function gener_tree(tree_node, data) {
-        if (data.length > 0) {
-            for (let i in data) {
-                var node = document.createElement('li');
-                node.classList.add("hover-show");
-                if (data[i].children.length > 0) {
-                    node.innerHTML = '<span class="item" data-num="' + data[i].num + '">' + data[i].node_name + '</span>';
-                    var ul = document.createElement('ul');
-                    ul.classList.add('nested');
-                    var child = gener_tree(ul, data[i].children);
-                    node.appendChild(child);
-                }
-                else {
-                    node.innerText = data[i].node_name;
-                    node.classList.add('leaf');
-                    node.setAttribute('data-num', data[i].num)
-                }
-
-                tree_node.appendChild(node);
+            for (let i = 0; i < toggle.length; i++) {
+                toggle[i].addEventListener('click', function (event) {
+                    if (event.target.tagName !== 'INPUT') {
+                        this.parentNode.querySelector(".nested").classList.toggle("active");
+                        this.classList.toggle("item-down");
+                        this.classList.toggle("item");
+                    }
+                });
             }
-            return tree_node;
-        }
-    }
-
-    // tree 叶节点点击调入内容
-    function leaf_click() {
-        if (event.target.tagName == 'INPUT') {
-            return false;
-        }
-
-        let self = this;
-        if (global.node_num == this.dataset.num) {          //全局变量， 在 init.js 中定义
-            match_screen();
-            return false;
-        }
-
-        let get_new = function () {
-            global.is_saved = true;
-            global.tree_leaf = self.innerText;
-            global.node_num = self.dataset.num;
-
-            var num = {
-                num: global.node_num,
-            }
-
-            fetch_content(num);
 
             var leaves = document.querySelectorAll('.leaf');
+
             for (let leaf of leaves) {
-                leaf.classList.remove('is-selected');
+                leaf.addEventListener('click', leaf_click);
             }
+        });
+}
 
-            self.classList.add('is-selected');
-        }
-
-        if (!global.is_saved) {
-            let options = {
-                confirmCallBack: get_new
-            }
-
-            alert_confirm('编辑的文档还未保存，是否加载新文档？', options);
-        }
-        else {
-            get_new();
-        }
-    }
-
+export var tree_event = function () {
     document.addEventListener('click', function (event) {
         var has_input = document.querySelector('#input_node');
         if (has_input && event.target.tagName !== 'INPUT') {
@@ -233,7 +164,7 @@
                                     pp_node.addEventListener('click', leaf_click);
                                 }
 
-                                document.querySelector('.content').innerHTML = "";
+                                // document.querySelector('.content').innerHTML = "";
                             }
                         });
                 }
@@ -242,7 +173,7 @@
             alert_confirm("删除后无法恢复，确认删除吗？", options);
         }
         else {
-            notifier.show('该节点有子节点， 无法删除！', 'danger');
+            notifier.show('有子节点，无法删除', 'danger');
         }
 
         zhezhao.style.display = "none";
@@ -267,75 +198,138 @@
             return show_menu(event, "none");
         }
     }
+}
 
-    function show_menu(event, display) {
-        var lis = menu.querySelectorAll('li');
-        lis[1].style.display = display;
-        lis[2].style.display = display;
+// 生成树
+function gener_tree(tree_node, data) {
+    if (data.length > 0) {
+        for (let i in data) {
+            var node = document.createElement('li');
+            if (data[i].children.length > 0) {
+                node.innerHTML = '<span class="item" data-num="' + data[i].num + '">' + data[i].node_name + '</span>';
+                var ul = document.createElement('ul');
+                ul.classList.add('nested');
+                var child = gener_tree(ul, data[i].children);
+                node.appendChild(child);
+            }
+            else {
+                node.innerText = data[i].node_name;
+                node.classList.add('leaf');
+                node.setAttribute('data-num', data[i].num)
+            }
 
-        menu.style.display = 'block';
-        zhezhao.style.display = "block";
+            tree_node.appendChild(node);
+        }
+        return tree_node;
+    }
+}
 
-        menu.style.left = event.clientX - 10 + 'px';
-        menu.style.top = event.clientY - 10 + 'px';
-
+// tree 叶节点点击调入内容
+function leaf_click() {
+    if (event.target.tagName == 'INPUT') {
         return false;
     }
 
-    function tree_edit(has_input, selected_node) {
-        if (has_input) {
-            zhezhao.style.display = "none";
-            var has_num = "";
-            if (selected_node.dataset.num) {
-                has_num = selected_node.dataset.num;
-            }
-            var num = {
-                pnum: has_num,
-                node_name: has_input.value,
-            };
+    let self = this;
+    if (global.node_num == this.dataset.num) {          //全局变量， 在 init.js 中定义
+        // match_screen();
+        return false;
+    }
 
-            if (has_input.parentNode.dataset.num) {
-                save_edit(num);
-            }
-            else {
-                save_add(num, has_input.parentNode);
-            }
+    let get_new = function () {
+        global.is_saved = true;
+        global.tree_leaf = self.innerText;
+        global.node_num = self.dataset.num;
 
-            has_input.parentNode.innerHTML = has_input.value;
+        var num = {
+            num: global.node_num,
         }
+        alert("加载商品");
+        // fetch_content(num);  //获取商品信息
+
+        var leaves = document.querySelectorAll('.leaf');
+        for (let leaf of leaves) {
+            leaf.classList.remove('is-selected');
+        }
+
+        self.classList.add('is-selected');
     }
 
-    function save_add(num, new_node) {
-        fetch("/tree_add", {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(num),
-        }).then(response => response.json())
-            .then(data => {
-                new_node.setAttribute('data-num', data);
-                new_node.click();
-            });
-    }
+    if (!global.is_saved) {
+        let options = {
+            confirmCallBack: get_new
+        }
 
-    function save_edit(num) {
-        fetch("/tree_edit", {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(num),
-        }).then(response => {
-            if (response.ok && global.node_num == num.pnum) {
-                global.tree_leaf = num.node_name;
-                global.title_box.innerHTML = global.tree_leaf + '<span class="edit-time">' + global.edit_time + ' 修改</span>';
-            }
+        alert_confirm('编辑还未保存，是否加载新内容？', options);
+    }
+    else {
+        get_new();
+    }
+}
+
+function show_menu(event, display) {
+    var lis = menu.querySelectorAll('li');
+    lis[1].style.display = display;
+    lis[2].style.display = display;
+
+    menu.style.display = 'block';
+    zhezhao.style.display = "block";
+
+    menu.style.left = event.clientX - 10 + 'px';
+    menu.style.top = event.clientY - 10 + 'px';
+
+    return false;
+}
+
+function tree_edit(has_input, selected_node) {
+    if (has_input) {
+        zhezhao.style.display = "none";
+        var has_num = "";
+        if (selected_node.dataset.num) {
+            has_num = selected_node.dataset.num;
+        }
+        var num = {
+            pnum: has_num,
+            node_name: has_input.value,
+        };
+
+        if (has_input.parentNode.dataset.num) {
+            save_edit(num);
+        }
+        else {
+            save_add(num, has_input.parentNode);
+        }
+
+        has_input.parentNode.innerHTML = has_input.value;
+    }
+}
+
+function save_add(num, new_node) {
+    fetch("/tree_add", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(num),
+    }).then(response => response.json())
+        .then(data => {
+            new_node.setAttribute('data-num', data);
+            new_node.click();
         });
-    }
+}
 
-    return {
-        fetch_tree: fetch_tree
-    }
-}));
+function save_edit(num) {
+    fetch("/tree_edit", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(num),
+    }).then(response => {
+        if (response.ok && global.node_num == num.pnum) {
+            global.tree_leaf = num.node_name;
+            // global.title_box.innerHTML = global.tree_leaf + '<span class="edit-time">' + global.edit_time + ' 修改</span>';
+        }
+    });
+}
 

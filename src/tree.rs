@@ -124,8 +124,11 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        &conn.execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum]);
-        &conn.execute(r#"DELETE FROM content WHERE num=$2"#, &[&data.pnum]);
+        &conn
+            .execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum])
+            .await
+            .unwrap();
+        // &conn.execute(r#"DELETE FROM content WHERE num=$2"#, &[&data.pnum]);
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(0)

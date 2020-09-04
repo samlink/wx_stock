@@ -1,15 +1,4 @@
-var global = {
-    tree_leaf: "",
-    node_num: "",
-    edit_time: "",
-    is_saved: true,
-    has_data: true,
-    editor_container: "",
-    toolbar: "",
-    editor: "",
-    title_box: "",
-    on_change: false,
-}
+
 
 Date.prototype.Format = function (fmt) {
     var o = {

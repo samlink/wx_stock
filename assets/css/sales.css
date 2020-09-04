@@ -816,15 +816,14 @@ a.roar-alert-message-tbf {
   padding: 2px 22px;
   margin: 0;
   cursor: pointer;
-  width: 80%;
+  width: 240px;
 }
 #tree li input {
   position: absolute;
+  top: 6px;
   font-size: 14px;
-  width: 80%;
+  width: 160px;
   height: 22.77px;
-  margin-left: 1%;
-  margin-bottom: 1px;
   z-index: 1002;
 }
 #tree li::before {
@@ -880,7 +879,7 @@ a.roar-alert-message-tbf {
 }
 #tree .leaf {
   height: 23px;
-  overflow: hidden;
+  overflow: visible;
 }
 #tree .leaf:hover {
   color: white;
@@ -889,12 +888,22 @@ a.roar-alert-message-tbf {
 #tree .leaf.is-selected {
   font-weight: bold;
 }
-#tree .selected.is-selected {
-  font-weight: normal;
+#tree .selected {
+  color: white;
+  background-color: #6ab8f7;
 }
 #tree .found-color {
   font-style: italic;
   font-weight: bold;
+}
+#tree #zhezhao {
+  width: 100%;
+  height: 100%;
+  -moz-opacity: 0;
+  opacity: 0.6;
+  left: 0;
+  top: 0;
+  z-index: 1000;
 }
 
 #context-menu {
