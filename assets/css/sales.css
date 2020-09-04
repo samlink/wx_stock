@@ -831,11 +831,11 @@ a.roar-alert-message-tbf {
   border-left: 1px dotted #67b2dd;
   bottom: 50px;
   height: 100%;
-  top: -15px;
+  top: 0px;
   width: 10px;
 }
 #tree li:last-child::before {
-  height: 30px;
+  height: 16px;
 }
 #tree li::after {
   content: "";
