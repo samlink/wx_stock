@@ -42,10 +42,10 @@ export function alert_confirm(message, optionsA) {
 
     element.style.display = "block";
 
-    document.onkeydown = function (event) {
+    document.addEventListener('keydown', function (event) {
         var e = event || window.event || arguments.callee.caller.arguments[0];
-        if (e && e.keyCode == 27 && element && element.style.display == "block") { 
+        if (e && e.keyCode == 27 && element && element.style.display == "block") {
             element.style.display = "none";
         }
-    }
+    });
 }

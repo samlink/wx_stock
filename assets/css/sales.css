@@ -788,6 +788,12 @@ a.roar-alert-message-tbf {
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
 }
+.tree-title a {
+  color: white;
+}
+.tree-title a:hover {
+  color: #ffc241;
+}
 
 .tree-container {
   border: 1px solid #2196f3;
@@ -932,7 +938,7 @@ a.roar-alert-message-tbf {
 }
 #context-menu li a:hover {
   color: white;
-  background-color: #886ab5;
+  background-color: #2196f3;
 }
 
 /* 遮罩 */

@@ -43,6 +43,13 @@
   border: 1px solid $info-500;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
+
+  a {
+    color: white;
+    &:hover {
+      color: $color-warning;
+    }
+  }
 }
 
 .tree-container {

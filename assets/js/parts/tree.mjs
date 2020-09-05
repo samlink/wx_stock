@@ -5,6 +5,8 @@ var global = {
     tree_leaf: "",
     node_num: "",
     is_saved: true,
+    name_save: "",
+    edit_cate: "",
 };
 
 var selected_node;
@@ -54,12 +56,35 @@ export var tree_event = function () {
         }
     });
 
-    document.onkeydown = function (event) {
-        if (event && event.keyCode == 13) {
+    //按键事件
+    document.addEventListener('keydown', function (event) {
+        if (event && event.keyCode == 13) {        //回车键
             var has_input = document.querySelector('#input_node');
             tree_edit(has_input, selected_node);
         }
-    }
+        else if (event && event.keyCode == 27) {         //ESC 键
+            var has_input = document.querySelector('#input_node');
+            if (has_input && global.edit_cate == "编辑") {
+                zhezhao.style.display = "none";
+                has_input.parentNode.innerHTML = global.name_save;
+            } else if (has_input && global.edit_cate == "增加") {
+                var parent_node = has_input.parentNode.parentNode;
+                parent_node.removeChild(has_input.parentNode);
+
+                if (parent_node.children.length == 0) {
+                    var pp_node = parent_node.parentNode;
+                    var num2 = pp_node.firstChild.dataset.num;
+                    pp_node.removeChild(parent_node);
+                    pp_node.innerHTML = pp_node.firstChild.innerHTML;
+                    pp_node.classList.add('leaf');
+                    pp_node.setAttribute('data-num', num2);
+                    pp_node.addEventListener('click', leaf_click);
+                }
+
+                zhezhao.style.display = "none";
+            }
+        }
+    });
 
     menu.addEventListener('click', function (event) {
         var event = event || window.event;
@@ -68,7 +93,9 @@ export var tree_event = function () {
         event.stopPropagation();
     });
 
+    //右键菜单增加
     document.querySelector('#context-add').addEventListener('click', function (event) {
+        global.edit_cate = "增加";
         var new_li = document.createElement("li");
 
         if (selected_node.classList.contains('leaf')) {
@@ -125,13 +152,17 @@ export var tree_event = function () {
         zhezhao.style.display = "block";
     });
 
+    //右键菜单编辑
     document.querySelector('#context-edit').addEventListener('click', function (event) {
         var value = selected_node.innerHTML;
+        global.edit_cate = "编辑";
+        global.name_save = value;
         selected_node.innerHTML = '<input type="text" id="input_node" value="' + value + '">'
         selected_node.firstChild.focus();
         zhezhao.style.display = "block";
     });
 
+    //右键菜单删除
     document.querySelector('#context-del').addEventListener('click', function (event) {
         if (selected_node.classList.contains('leaf') ||
             selected_node.parentNode.querySelector('.leaf') === null) {
@@ -248,11 +279,11 @@ function tree_change(node) {
     }
 }
 
+//将搜索到的节点移动到最前面
 function find_root(node) {
     let id = node.parentNode.getAttribute('id');
     if (id && id == "tree") {
         node.parentNode.insertAdjacentElement('afterbegin', node);
-        // alert("找到了");
     }
     else {
         let node_new = node.parentNode;
