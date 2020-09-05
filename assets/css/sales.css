@@ -981,6 +981,14 @@ a.roar-alert-message-tbf {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.autocomplete .autocomplete-items div:hover {
+  color: white;
+  background-color: #2196f3;
+}
+.autocomplete .autocomplete-active {
+  color: white;
+  background-color: #2196f3;
+}
 
 .user-set {
   display: flex;

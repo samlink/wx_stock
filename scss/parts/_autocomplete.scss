@@ -13,6 +13,7 @@
     top: 2px;
     right: -5px;
   }
+  
   .autocomplete-items {
     position: relative;
     font-size: 12px;
@@ -33,6 +34,16 @@
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+
+      &:hover {
+        color: white;
+        background-color: $info-500;
+      }
     }
+  }
+
+  .autocomplete-active {
+    color: white;
+    background-color: $info-500;
   }
 }
