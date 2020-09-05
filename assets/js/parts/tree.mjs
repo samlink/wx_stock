@@ -216,6 +216,26 @@ export var tree_event = function () {
             return show_menu(event, "none");
         }
     }
+    let tree_title = document.querySelector('.tree-title');
+    tree_title.addEventListener('dragover', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.style.cssText = "color: red; font-weight: 600;";
+    });
+
+    tree_title.addEventListener('dragleave', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.style.cssText = "";
+    });
+
+    tree_title.addEventListener('drop', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        this.style.cssText = "";
+        global.home_id = "#";
+        alert_confirm("确认移动到根路径下吗？", { confirmCallBack: tree_drag });
+    });
 }
 
 //搜索树
@@ -313,7 +333,15 @@ function gener_tree(tree_node, data) {
 
             //加入拖拽事件
             node.addEventListener('dragstart', function (e) {
+                e.stopPropagation();
                 global.drag_id = e.target.id;
+                this.style.cssText= "display:none;"
+            });
+
+            node.addEventListener('dragend', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                this.style.cssText= "display: inline-block;"
             });
 
             node.addEventListener('dragover', function (e) {
@@ -368,6 +396,7 @@ function gener_tree(tree_node, data) {
     }
 }
 
+//拖拽信息传回后台数据库
 function tree_drag() {
     let drag = document.getElementById(global.drag_id);
     let caret = drag.querySelector('span');
