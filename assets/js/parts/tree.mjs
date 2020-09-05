@@ -7,6 +7,8 @@ var global = {
     is_saved: true,
     name_save: "",
     edit_cate: "",
+    drag_id: "",
+    home_id: "",
 };
 
 var selected_node;
@@ -16,11 +18,12 @@ var menu = document.querySelector('#context-menu');
 var zhezhao = document.querySelector('#zhezhao');
 
 //从数据库获取 tree 数据
-export var fetch_tree = function () {
+export var fetch_tree = function (cb) {
     fetch('/tree')
         .then(response => response.json())
         .then(data => {
             var tree = document.querySelector('#tree');
+            tree.innerHTML = "";
             gener_tree(tree, data);
 
             var toggle = document.querySelectorAll(".item");
@@ -40,10 +43,15 @@ export var fetch_tree = function () {
             for (let leaf of leaves) {
                 leaf.addEventListener('click', leaf_click);
             }
+
+            if (typeof cb == "function") {
+                cb();
+            }
         });
 }
 
 export var tree_event = function () {
+    //页面点击事件
     document.addEventListener('click', function (event) {
         var has_input = document.querySelector('#input_node');
         if (has_input && event.target.tagName !== 'INPUT') {
@@ -70,17 +78,7 @@ export var tree_event = function () {
             } else if (has_input && global.edit_cate == "增加") {
                 var parent_node = has_input.parentNode.parentNode;
                 parent_node.removeChild(has_input.parentNode);
-
-                if (parent_node.children.length == 0) {
-                    var pp_node = parent_node.parentNode;
-                    var num2 = pp_node.firstChild.dataset.num;
-                    pp_node.removeChild(parent_node);
-                    pp_node.innerHTML = pp_node.firstChild.innerHTML;
-                    pp_node.classList.add('leaf');
-                    pp_node.setAttribute('data-num', num2);
-                    pp_node.addEventListener('click', leaf_click);
-                }
-
+                leaf_caret(parent_node);
                 zhezhao.style.display = "none";
             }
         }
@@ -135,8 +133,7 @@ export var tree_event = function () {
                 next_node.classList.add('active');
             }
         }
-        else if (selected_node.classList.contains('sidebar') ||
-            selected_node.tagName == 'LI' && selected_node.querySelector('.leaf')) {
+        else if (selected_node.classList.contains('tree-title')) {
 
             var tree = document.querySelector('#tree');
             tree.appendChild(new_li);
@@ -184,16 +181,7 @@ export var tree_event = function () {
                             if (data == 1) {
                                 var parent_node = selected_node.parentNode;
                                 parent_node.removeChild(selected_node);
-
-                                if (parent_node.children.length == 0) {
-                                    var pp_node = parent_node.parentNode;
-                                    var num2 = pp_node.firstChild.dataset.num;
-                                    pp_node.removeChild(parent_node);
-                                    pp_node.innerHTML = pp_node.firstChild.innerHTML;
-                                    pp_node.classList.add('leaf');
-                                    pp_node.setAttribute('data-num', num2);
-                                    pp_node.addEventListener('click', leaf_click);
-                                }
+                                leaf_caret(parent_node);
 
                                 // document.querySelector('.content').innerHTML = "";
                             }
@@ -223,8 +211,7 @@ export var tree_event = function () {
             return show_menu(event, "block");
 
         }
-        else if (selected_node.classList.contains('sidebar') ||
-            selected_node.tagName == 'LI' && selected_node.querySelector('.leaf')) {
+        else if (selected_node.classList.contains('tree-title')) {
 
             return show_menu(event, "none");
         }
@@ -269,6 +256,19 @@ export function tree_search(value) {
     }
 }
 
+//茎转换为叶
+function leaf_caret(parent_node) {
+    if (parent_node.children.length == 0) {
+        var pp_node = parent_node.parentNode;
+        var num2 = pp_node.firstChild.dataset.num;
+        pp_node.removeChild(parent_node);
+        pp_node.innerHTML = pp_node.firstChild.innerHTML;
+        pp_node.classList.add('leaf');
+        pp_node.setAttribute('data-num', num2);
+        pp_node.addEventListener('click', leaf_click);
+    }
+}
+
 //搜索树时改变显示
 function tree_change(node) {
     if (!node.parentNode.parentNode.hasAttribute('id')) {
@@ -296,6 +296,8 @@ function gener_tree(tree_node, data) {
     if (data.length > 0) {
         for (let i in data) {
             var node = document.createElement('li');
+            node.setAttribute('id', data[i].num);
+            node.setAttribute('draggable', 'true');
             if (data[i].children.length > 0) {
                 node.innerHTML = '<span class="item" data-num="' + data[i].num + '">' + data[i].node_name + '</span>';
                 var ul = document.createElement('ul');
@@ -306,13 +308,93 @@ function gener_tree(tree_node, data) {
             else {
                 node.innerText = data[i].node_name;
                 node.classList.add('leaf');
-                node.setAttribute('data-num', data[i].num)
+                node.setAttribute('data-num', data[i].num);
             }
+
+            //加入拖拽事件
+            node.addEventListener('dragstart', function (e) {
+                global.drag_id = e.target.id;
+            });
+
+            node.addEventListener('dragover', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                let not_leaf = this.querySelector('span');
+                if (not_leaf) {
+                    not_leaf.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+                    let opened = this.querySelector('.item-down');
+                    if (!opened) {
+                        not_leaf.click();
+                    }
+                }
+                else {
+                    this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+                }
+            });
+
+            node.addEventListener('dragleave', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let not_leaf = this.querySelector('span');
+                if (not_leaf) {
+                    not_leaf.style.cssText = "";
+                }
+                else {
+                    this.style.cssText = "";
+                }
+            });
+
+            node.addEventListener('drop', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                let not_leaf = this.querySelector('span');
+                let name;
+                if (not_leaf) {
+                    not_leaf.style.cssText = "";
+                    name = this.querySelector('span').textContent;
+                }
+                else {
+                    this.style.cssText = "";
+                    name = this.textContent;
+                }
+                global.home_id = this.getAttribute("id");
+                alert_confirm("确认移动到 “" + name + "” 下吗？", { confirmCallBack: tree_drag });
+            });
 
             tree_node.appendChild(node);
         }
         return tree_node;
     }
+}
+
+function tree_drag() {
+    let drag = document.getElementById(global.drag_id);
+    let caret = drag.querySelector('span');
+    let name = caret ? caret.textContent : drag.textContent;
+
+    var num = {
+        pnum: global.home_id,
+        num: global.drag_id,
+    };
+
+    fetch("/tree_drag", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(num),
+    }).then(res => res.json())
+        .then(data => {
+            if (data == 1) {
+                fetch_tree(() => {
+                    tree_search(name);
+                });
+            }
+            else {
+                notifier.show('权限不够，无法修改', 'danger');
+            }
+        });
 }
 
 // tree 叶节点点击调入内容

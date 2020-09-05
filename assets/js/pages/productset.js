@@ -17,6 +17,5 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 });
 
 document.querySelector(".tree-title").addEventListener('click', () => {
-    document.querySelector('#tree').innerHTML = "";
     fetch_tree();
 });

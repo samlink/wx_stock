@@ -780,7 +780,8 @@ a.roar-alert-message-tbf {
   height: 35px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  padding-left: 20px;
   padding-bottom: 3px;
   margin-top: 40px;
   margin-bottom: -2px;
@@ -790,6 +791,7 @@ a.roar-alert-message-tbf {
 }
 .tree-title a {
   color: white;
+  margin-right: 20px;
 }
 .tree-title a:hover {
   color: #ffc241;
@@ -810,6 +812,7 @@ a.roar-alert-message-tbf {
   position: relative;
   list-style-type: none;
   padding: 0 0 0 1rem;
+  margin-top: 8px;
   height: 90%;
 }
 #tree ul {
