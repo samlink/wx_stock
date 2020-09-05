@@ -11,3 +11,11 @@ let input = document.querySelector('#auto_input');
 autocomplete(input, "/tree_auto", () => {
     tree_search(input.value);
 });
+
+document.querySelector("#auto_search").addEventListener('click', () => {
+    tree_search(input.value);
+});
+
+document.querySelector(".tree-title").addEventListener('click', () => {
+    fetch_tree();
+});

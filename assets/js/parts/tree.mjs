@@ -205,18 +205,23 @@ export function tree_search(value) {
     var tree = document.querySelector('#tree');
     var spans = tree.querySelectorAll('span');
     var leaves = tree.querySelectorAll('.leaf');
+    var items = tree.querySelectorAll('.item-down');
+
+    //关闭打开的节点
+    for (let item of items) {
+        item.click();
+    }
 
     for (let span of spans) {
         span.classList.remove('found-color');
-        span.classList.remove('item-down');
-        span.classList.add('item');
 
-        if (value !="" && span.innerText.toLowerCase().includes(value)) {
+        if (value != "" && span.innerText.toLowerCase().includes(value)) {
             span.classList.add('found-color');
             span.classList.remove('item');
             span.classList.add('item-down');
             span.nextElementSibling.classList.add('active');
             tree_change(span);
+            find_root(span);
         }
     }
 
@@ -228,6 +233,7 @@ export function tree_search(value) {
             leaf.parentNode.previousElementSibling.classList.remove('item');
             leaf.parentNode.previousElementSibling.classList.add('item-down');
             tree_change(leaf.parentNode);
+            find_root(leaf.parentNode);
         }
     }
 }
@@ -239,6 +245,18 @@ function tree_change(node) {
         node.parentNode.parentNode.previousElementSibling.classList.remove('item');
         node.parentNode.parentNode.previousElementSibling.classList.add('item-down');
         tree_change(node.parentNode.parentNode);        //递归调用
+    }
+}
+
+function find_root(node) {
+    let id = node.parentNode.getAttribute('id');
+    if (id && id == "tree") {
+        node.parentNode.insertAdjacentElement('afterbegin', node);
+        // alert("找到了");
+    }
+    else {
+        let node_new = node.parentNode;
+        find_root(node_new);
     }
 }
 
