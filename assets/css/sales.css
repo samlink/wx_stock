@@ -893,6 +893,7 @@ a.roar-alert-message-tbf {
   background-color: #6ab8f7;
 }
 #tree .found-color {
+  color: red;
   font-style: italic;
   font-weight: bold;
 }

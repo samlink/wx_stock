@@ -200,6 +200,48 @@ export var tree_event = function () {
     }
 }
 
+//搜索树
+export function tree_search(value) {
+    var tree = document.querySelector('#tree');
+    var spans = tree.querySelectorAll('span');
+    var leaves = tree.querySelectorAll('.leaf');
+
+    for (let span of spans) {
+        span.classList.remove('found-color');
+        span.classList.remove('item-down');
+        span.classList.add('item');
+
+        if (value !="" && span.innerText.toLowerCase().includes(value)) {
+            span.classList.add('found-color');
+            span.classList.remove('item');
+            span.classList.add('item-down');
+            span.nextElementSibling.classList.add('active');
+            tree_change(span);
+        }
+    }
+
+    for (let leaf of leaves) {
+        leaf.classList.remove('found-color');
+        if (value != "" && leaf.innerText.toLowerCase().includes(value)) {
+            leaf.classList.add('found-color');
+            leaf.parentNode.classList.add('active');
+            leaf.parentNode.previousElementSibling.classList.remove('item');
+            leaf.parentNode.previousElementSibling.classList.add('item-down');
+            tree_change(leaf.parentNode);
+        }
+    }
+}
+
+//搜索树时改变显示
+function tree_change(node) {
+    if (!node.parentNode.parentNode.hasAttribute('id')) {
+        node.parentNode.parentNode.classList.add('active');
+        node.parentNode.parentNode.previousElementSibling.classList.remove('item');
+        node.parentNode.parentNode.previousElementSibling.classList.add('item-down');
+        tree_change(node.parentNode.parentNode);        //递归调用
+    }
+}
+
 // 生成树
 function gener_tree(tree_node, data) {
     if (data.length > 0) {
