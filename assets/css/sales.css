@@ -813,7 +813,7 @@ a.roar-alert-message-tbf {
   list-style-type: none;
   padding: 0 0 0 1rem;
   margin-top: 8px;
-  height: 90%;
+  height: 95%;
 }
 #tree ul {
   list-style-type: none;
@@ -829,7 +829,7 @@ a.roar-alert-message-tbf {
 }
 #tree li input {
   position: absolute;
-  top: 6px;
+  top: 5px;
   font-size: 14px;
   width: 160px;
   height: 22.77px;

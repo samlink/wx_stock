@@ -176,9 +176,10 @@ export var tree_event = function () {
                         .then(data => {
                             if (data == 1) {
                                 var parent_node = selected_node.parentNode;
-                                parent_node.removeChild(selected_node);
-                                leaf_caret(parent_node);
-
+                                if (parent_node) {
+                                    parent_node.removeChild(selected_node);
+                                    leaf_caret(parent_node);
+                                }
                                 // document.querySelector('.content').innerHTML = "";
                             }
                         });
@@ -236,6 +237,7 @@ export var tree_event = function () {
 
 //搜索树
 export function tree_search(value) {
+    value = value.toLowerCase();
     var tree = document.querySelector('#tree');
     var spans = tree.querySelectorAll('span');
     var leaves = tree.querySelectorAll('.leaf');
@@ -331,14 +333,21 @@ function gener_tree(tree_node, data) {
             //以下均为拖拽事件
             node.addEventListener('dragstart', function (e) {
                 e.stopPropagation();
-                global.drag_id = e.target.id;
-                global.drag_list = [];
-                let list = this.querySelectorAll('li');
-                for (let item of list) {
-                    global.drag_list.push(item);
+                let has_input = this.querySelector('input');
+                if (!has_input) {
+                    global.drag_id = e.target.id;
+                    global.drag_list = [];
+                    let list = this.querySelectorAll('li');
+                    for (let item of list) {
+                        global.drag_list.push(item);
+                    }
+                    global.drag_list.push(this);
+                    global.drag_list.push(this.parentNode.parentNode);
                 }
-                global.drag_list.push(this);
-                global.drag_list.push(this.parentNode.parentNode);
+                else {
+                    e.preventDefault();
+                }
+
             });
 
             node.addEventListener('dragover', function (e) {
@@ -450,7 +459,7 @@ function leaf_click() {
         var num = {
             num: global.node_num,
         }
-        alert("加载商品");
+        console.log("加载商品");
         // fetch_content(num);  //获取商品信息
 
         var leaves = document.querySelectorAll('.leaf');

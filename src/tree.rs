@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use async_recursion::async_recursion;
 use deadpool_postgres::Pool;
+use pinyin::get_pinyin;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -37,6 +38,7 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
         let conn = db.get().await.unwrap();
         let mut num = "".to_owned();
         let mut pnum = data.pnum.clone();
+        let pinyin = get_pinyin(&data.node_name);
 
         if pnum != "" {
             let rows = &conn
@@ -79,8 +81,8 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
 
         &conn
             .execute(
-                r#"INSERT INTO tree (node_name, num, pnum) VALUES ($1,$2,$3)"#,
-                &[&data.node_name, &num, &pnum],
+                r#"INSERT INTO tree (node_name, num, pnum, pinyin) VALUES ($1,$2,$3,$4)"#,
+                &[&data.node_name, &num, &pnum, &pinyin],
             )
             .await
             .unwrap();
@@ -96,11 +98,12 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
+        let pinyin = get_pinyin(&data.node_name);
 
         &conn
             .execute(
-                r#"UPDATE tree SET node_name=$1 WHERE num=$2"#,
-                &[&data.node_name, &data.pnum],
+                r#"UPDATE tree SET node_name=$1, pinyin=$3 WHERE num=$2"#,
+                &[&data.node_name, &data.pnum, &pinyin],
             )
             .await
             .unwrap();
@@ -188,10 +191,11 @@ pub async fn tree_auto(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let s = ("%".to_owned() + &search.s + "%").to_lowercase();
+        let pinyin = search.s.to_lowercase() + "%";
         let rows = &conn
             .query(
-                r#"SELECT num AS id, node_name AS label FROM tree WHERE LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
-                &[&s],
+                r#"SELECT num AS id, node_name AS label FROM tree WHERE pinyin LIKE $2 OR LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
+                &[&s, &pinyin],
             )
             .await
             .unwrap();

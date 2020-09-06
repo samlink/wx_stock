@@ -34,3 +34,4 @@ rand = "0.7.3"
 reqwest = "0.9"
 regex = "1"
 async-recursion = "0.2"
+pinyin = { path = "../rust_pinyin" } 
