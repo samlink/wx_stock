@@ -32,9 +32,8 @@ pub struct Num {
 
 #[post("/tree_add")]
 pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-
-    if user_name != "" {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         let mut num = "".to_owned();
         let mut pnum = data.pnum.clone();
@@ -95,8 +94,8 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
 
 #[post("/tree_edit")]
 pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         let pinyin = get_pinyin(&data.node_name);
 
@@ -124,8 +123,8 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
 
 #[post("/tree_del")]
 pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         &conn
             .execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum])
@@ -228,8 +227,8 @@ pub async fn tree_drag(
     tree_id: web::Json<TreeId>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         &conn
             .execute(

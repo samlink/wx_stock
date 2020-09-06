@@ -1,3 +1,4 @@
+use actix_identity::Identity;
 use actix_web::{web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
@@ -40,16 +41,7 @@ where
 }
 
 ///获取用户信息
-pub async fn get_user(db: web::Data<Pool>, name: String) -> UserData {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(
-            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true"#,
-            &[&name],
-        )
-        .await
-        .unwrap();
-
+pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserData {
     let mut user = UserData {
         name: "".to_owned(),
         phone: "".to_owned(),
@@ -58,16 +50,31 @@ pub async fn get_user(db: web::Data<Pool>, name: String) -> UserData {
         confirm: false,
     };
 
-    if rows.is_empty() {
-        user
-    } else {
-        for row in rows {
-            user.name = row.get("name");
-            user.phone = row.get("phone");
-            user.get_pass = row.get("get_pass");
-            user.rights = row.get("rights");
-            user.confirm = row.get("confirm");
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let right = format!("%{}%", right);
+        let rows = &conn
+        .query(
+            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
+            &[&user_name, &right],
+        )
+        .await
+        .unwrap();
+
+        if rows.is_empty() {
+            user
+        } else {
+            for row in rows {
+                user.name = row.get("name");
+                user.phone = row.get("phone");
+                user.get_pass = row.get("get_pass");
+                user.rights = row.get("rights");
+                user.confirm = row.get("confirm");
+            }
+            user
         }
+    } else {
         user
     }
 }

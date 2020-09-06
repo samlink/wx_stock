@@ -1,13 +1,15 @@
 /* 基本的table样式 */
 .table-container {
-  border: 1.4px solid $info-400;
+  // border: 1.4px solid $info-400;
   table {
     font-size: 14px;
-    border-collapse: collapse;
+    // border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
     table-layout: fixed;
-    margin-top: -0.3px;
+    // margin-top: -0.3px;
+    border: 1.4px solid $info-400;
+    border-bottom: none;
 
     td,
     th {
@@ -62,6 +64,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1.4px solid $info-400;
+    border-top: none;
   }
 
   .tools-button {

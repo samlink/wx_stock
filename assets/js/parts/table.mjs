@@ -74,7 +74,7 @@ export var table_init = function (data) {
     }
 }
 
-export var fetch_table = function () {
+export var fetch_table = function (cb) {
     fetch(table_data.url, {
         method: 'post',
         headers: {
@@ -123,6 +123,10 @@ export var fetch_table = function () {
                             e.stopPropagation();
                         });
                     }
+                }
+
+                if (typeof cb == "function") {
+                    cb();
                 }
             }
             else {

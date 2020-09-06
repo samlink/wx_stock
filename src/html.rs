@@ -10,15 +10,10 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 ///主页
 #[get("/")]
 pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let user = get_user(db, user_name).await;
-        if user.name != "" {
-            let html = r2s(|o| help_say_html(o, user.name));
-            HttpResponse::Ok().content_type("text/html").body(html)
-        } else {
-            HttpResponse::Found().header("location", "/login").finish()
-        }
+    let user = get_user(db, id, "".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| help_say_html(o, user.name));
+        HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
     }
@@ -33,18 +28,13 @@ pub fn login(_req: HttpRequest) -> HttpResponse {
     HttpResponse::Ok().content_type("text/html").body(html)
 }
 
-///用户设置
+///用户自己设置
 #[get("/user_set")]
 pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let user = get_user(db, user_name).await;
-        if user.name != "" {
-            let html = r2s(|o| userset(o, user));
-            HttpResponse::Ok().content_type("text/html").body(html)
-        } else {
-            HttpResponse::Found().header("location", "/login").finish()
-        }
+    let user = get_user(db, id, "".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| userset(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
     }
@@ -53,15 +43,10 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///用户管理
 #[get("/user_manage")]
 pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let user = get_user(db, user_name).await;
-        if user.name != "" && user.rights.contains("用户设置") {
-            let html = r2s(|o| usermanage(o, user));
-            HttpResponse::Ok().content_type("text/html").body(html)
-        } else {
-            HttpResponse::Found().header("location", "/login").finish()
-        }
+    let user = get_user(db, id, "用户设置".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| usermanage(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
     }
@@ -70,15 +55,10 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///商品设置
 #[get("/product_set")]
 pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let user = get_user(db, user_name).await;
-        if user.name != "" && user.rights.contains("商品设置") {
-            let html = r2s(|o| productset(o, user));
-            HttpResponse::Ok().content_type("text/html").body(html)
-        } else {
-            HttpResponse::Found().header("location", "/login").finish()
-        }
+    let user = get_user(db, id, "商品设置".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| productset(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
     }

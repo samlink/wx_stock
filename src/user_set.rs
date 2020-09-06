@@ -1,4 +1,4 @@
-use crate::service::{get_user, UserData};
+use crate::service::get_user;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
@@ -162,43 +162,35 @@ pub async fn change_pass(
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    let user_get: UserData;
+    let user_get = get_user(db.clone(), id, "".to_owned()).await;
+    if user_get.name != "" {
+        let conn = db.get().await.unwrap();
+        let salt_pass = md5(user.old_pass.clone(), SALT);
 
-    if user_name == "" {
-        return HttpResponse::Ok().json(0);
-    } else {
-        user_get = get_user(db.clone(), user_name.clone()).await;
-    }
-
-    if user_get.name == "" {
-        return HttpResponse::Ok().json(0);
-    }
-
-    let conn = db.get().await.unwrap();
-    let salt_pass = md5(user.old_pass.clone(), SALT);
-
-    let rows = &conn
-        .query(
-            r#"SELECT name FROM 用户 Where name=$1 AND password=$2"#,
-            &[&user_name.clone(), &salt_pass],
-        )
-        .await
-        .unwrap();
-
-    if rows.is_empty() {
-        HttpResponse::Ok().json(0)
-    } else {
-        let new_pass = md5(user.new_pass.clone(), SALT);
-        &conn
-            .execute(
-                r#"UPDATE 用户 SET password=$1 WHERE name=$2"#,
-                &[&new_pass, &user_name],
+        let rows = &conn
+            .query(
+                r#"SELECT name FROM 用户 Where name=$1 AND password=$2"#,
+                &[&user_get.name.clone(), &salt_pass],
             )
             .await
             .unwrap();
 
-        HttpResponse::Ok().json(1)
+        if rows.is_empty() {
+            HttpResponse::Ok().json(0)
+        } else {
+            let new_pass = md5(user.new_pass.clone(), SALT);
+            &conn
+                .execute(
+                    r#"UPDATE 用户 SET password=$1 WHERE name=$2"#,
+                    &[&new_pass, &user_get.name],
+                )
+                .await
+                .unwrap();
+
+            HttpResponse::Ok().json(1)
+        }
+    } else {
+        return HttpResponse::Ok().json(0);
     }
 }
 
@@ -209,30 +201,21 @@ pub async fn phone_number(
     user: web::Json<Phone>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    let user_get: UserData;
+    let user_get = get_user(db.clone(), id, "".to_owned()).await;
+    if user_get.name != "" {
+        let conn = db.get().await.unwrap();
+        &conn
+            .execute(
+                r#"UPDATE 用户 SET phone=$1 WHERE name=$2"#,
+                &[&user.phone_number, &user_get.name],
+            )
+            .await
+            .unwrap();
 
-    if user_name == "" {
-        return HttpResponse::Ok().json(0);
+        HttpResponse::Ok().json(1)
     } else {
-        user_get = get_user(db.clone(), user_name.clone()).await;
+        HttpResponse::Ok().json(0)
     }
-
-    if user_get.name == "" {
-        return HttpResponse::Ok().json(0);
-    }
-
-    let conn = db.get().await.unwrap();
-
-    &conn
-        .execute(
-            r#"UPDATE 用户 SET phone=$1 WHERE name=$2"#,
-            &[&user.phone_number, &user_name],
-        )
-        .await
-        .unwrap();
-
-    HttpResponse::Ok().json(1)
 }
 
 // ///设置主题

@@ -3,6 +3,16 @@
 // import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_event, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
+import { getHeight } from '../parts/tools.mjs';
+
+let auto = document.querySelector('.autocomplete');
+let title = document.querySelector('.tree-title');
+let tree = document.querySelector('.tree-container');
+
+let get_height = getHeight(auto.clientHeight, title.clientHeight) - 35;
+tree.style.height = get_height + "px";
+
+console.log(get_height);
 
 fetch_tree();
 tree_event();
@@ -19,3 +29,7 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 document.querySelector(".tree-title").addEventListener('click', () => {
     fetch_tree();
 });
+
+
+
+

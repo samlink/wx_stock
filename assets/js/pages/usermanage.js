@@ -1,9 +1,20 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
+import { getHeight } from '../parts/tools.mjs';
 
 //设置菜单 
 document.querySelector('#function-set').classList.add('show-bottom');
+
+//设置表格行数、高度
+let top_table = document.querySelector('.table-top').clientHeight;
+let th_table = document.querySelector('.table-users thead').clientHeight;
+let bottom_table = document.querySelector('.table-ctrl').clientHeight;
+
+let get_height = getHeight(top_table, th_table, bottom_table) - 30;
+let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
+
+console.log(top_table);
 
 //显示表格数据 ---------------------------------------
 var data = {
@@ -19,7 +30,7 @@ var data = {
     post_data: {
         name: '',
         sort: "confirm ASC",
-        rec: 16,
+        rec: row_num,
     },
     edit: false,
 
@@ -60,7 +71,12 @@ var data = {
 }
 
 table_init(data);
-fetch_table();   //每次调用（如搜索功能），只需设置 post_data
+fetch_table(() => {
+    let right_show = document.querySelector('.rights-show');
+    let table_height = document.querySelector('.table-users').clientHeight;
+    right_show.style.height = table_height;
+
+});   //每次调用（如搜索功能），只需设置 post_data
 
 //搜索用户
 document.querySelector('#serach-button').addEventListener('click', function () {
@@ -82,7 +98,7 @@ var rights = {
 };
 
 let rows = "";
-for (let i = 0; i < 16; i++) {
+for (let i = 0; i < row_num; i++) {
     let goods_in = rights.goods_in.hasOwnProperty(i) ? rights.goods_in[i] : "";
     let goods_out = rights.goods_out.hasOwnProperty(i) ? rights.goods_out[i] : "";
     let customers = rights.customers.hasOwnProperty(i) ? rights.customers[i] : "";
