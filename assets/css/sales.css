@@ -523,13 +523,15 @@ input:focus {
 }
 
 /* 基本的table样式 */
+.table-container {
+  border: 1.8px solid #ededed;
+}
 .table-container table {
   font-size: 14px;
+  border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
   table-layout: fixed;
-  border: 1.4px solid #39a1f4;
-  border-bottom: none;
 }
 .table-container table td,
 .table-container table th {
@@ -547,7 +549,7 @@ input:focus {
 }
 .table-container table td:nth-child(1),
 .table-container table th:nth-child(1) {
-  border-left: none;
+  border-left: none !important;
 }
 .table-container table td:nth-last-child(1),
 .table-container table th:nth-last-child(1) {
@@ -577,8 +579,6 @@ input:focus {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1.4px solid #39a1f4;
-  border-top: none;
 }
 .table-container .tools-button {
   width: 20%;

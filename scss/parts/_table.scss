@@ -1,15 +1,16 @@
 /* 基本的table样式 */
 .table-container {
   // border: 1.4px solid $info-400;
+  border: 1.8px solid #ededed;
   table {
     font-size: 14px;
-    // border-collapse: collapse;
+    border-collapse: collapse;
     border-spacing: 0;
     width: 100%;
     table-layout: fixed;
     // margin-top: -0.3px;
-    border: 1.4px solid $info-400;
-    border-bottom: none;
+    // border: 1.4px solid #ededed;
+    // border-bottom: none;
 
     td,
     th {
@@ -26,7 +27,7 @@
 
     td:nth-child(1),
     th:nth-child(1) {
-      border-left: none;
+      border-left: none !important;
     }
 
     td:nth-last-child(1),
@@ -64,8 +65,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    border: 1.4px solid $info-400;
-    border-top: none;
+    // border: 1.4px solid #ededed;
+    // border-top: none;
   }
 
   .tools-button {
