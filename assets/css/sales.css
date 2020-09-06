@@ -1153,12 +1153,16 @@ a.roar-alert-message-tbf {
   justify-content: space-between;
   margin-left: 70%;
 }
+.product-content .table-edit {
+  min-width: 200px;
+}
 .product-content .table-edit button {
   margin-left: 15px;
 }
 .product-content .data-button {
   margin-left: 40px;
   margin-right: 20px;
+  min-width: 100px;
 }
 
 /*# sourceMappingURL=sales.css.map */

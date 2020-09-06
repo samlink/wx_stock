@@ -15,14 +15,16 @@
         margin-left: 70%;
     }
 
-    .table-edit button {
-        margin-left: 15px;
+    .table-edit {
+        min-width: 200px;
+        button {
+            margin-left: 15px;
+        }
     }
 
     .data-button {
         margin-left: 40px;
         margin-right: 20px;
+        min-width: 100px;
     }
-
-
 }
