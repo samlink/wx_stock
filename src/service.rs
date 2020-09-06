@@ -21,6 +21,14 @@ pub struct UserData {
     pub confirm: bool,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct PostData {
+    pub name: String,
+    pub page: i32,
+    pub sort: String,
+    pub rec: i32,
+}
+
 ///静态文件服务
 pub fn serve_static(file: web::Path<File>) -> HttpResponse {
     if let Some(data) = statics::StaticFile::get(&file.name) {

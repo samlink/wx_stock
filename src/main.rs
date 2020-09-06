@@ -6,6 +6,7 @@ use dotenv::dotenv;
 use serde::Deserialize;
 
 mod html;
+mod product;
 mod service;
 mod tree;
 mod user_manage;
@@ -60,6 +61,7 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_del)
             .service(tree::tree_auto)
             .service(tree::tree_drag)
+            .service(product::fetch_product)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })

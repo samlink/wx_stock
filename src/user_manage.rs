@@ -1,16 +1,8 @@
-use crate::service::get_user;
+use crate::service::{PostData, get_user};
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-
-#[derive(Deserialize, Serialize)]
-pub struct PostData {
-    pub name: String,
-    pub page: i32,
-    pub sort: String,
-    pub rec: i32,
-}
 
 #[derive(Deserialize, Serialize)]
 pub struct UsersReturn {
