@@ -14,8 +14,6 @@ let bottom_table = document.querySelector('.table-ctrl').clientHeight;
 let get_height = getHeight(top_table, th_table, bottom_table) - 30;
 let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
 
-console.log(top_table);
-
 //显示表格数据 ---------------------------------------
 var data = {
     container: '.table-users',

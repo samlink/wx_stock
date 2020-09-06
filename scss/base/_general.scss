@@ -9,3 +9,31 @@
 .hide {
     display: none !important;
 }
+
+.no-border {
+    border: 0;
+    &:focus {
+        border: 0;
+    }
+}
+
+.search-input {
+    height: 30px;
+    display: inline-block;
+    width: 200px;
+    margin-right: 3px;
+
+    &:hover,
+    &:focus {
+        border-color: $info-200;
+    }
+}
+
+.table-top {
+    // display: flex;
+    // align-items: center;
+    // justify-content: last baseline;
+    margin-left: 3px;
+    margin-bottom: 10px;
+}
+

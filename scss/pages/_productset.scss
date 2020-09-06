@@ -2,8 +2,27 @@
     display: flex;
     align-items: flex-start;
     height: 95%;
-}
 
-#product-show {
-    width: 73%;
+    #product-show {
+        width: 79%;
+        margin-left: 20px;
+    }
+
+    .table-tools {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-left: 70%;
+    }
+
+    .table-edit button {
+        margin-left: 15px;
+    }
+
+    .data-button {
+        margin-left: 40px;
+        margin-right: 20px;
+    }
+
+
 }

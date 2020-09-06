@@ -10,8 +10,8 @@
     </div>
     <div class="product-content">
         <div class="tree-show">
-            <div class="autocomplete">
-                <input type="text" class="form-control" id="auto_input" placeholder="搜索">
+            <div class="autocomplete table-top">
+                <input type="text" class="form-control search-input" id="auto_input" placeholder="分类搜索">
                 <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
                         width="20px"></button>
             </div>
@@ -32,7 +32,63 @@
 
         </div>
         <div id="product-show">
-            商品信息
+            <div class="table-top">
+                <div class="autocomplete product-search">
+                    <input type="text" class="form-control search-input" id="search-input" placeholder="商品搜索">
+                    <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                </div>
+                <div class="table-tools">
+                    <div class="table-edit">
+                        <button class="btn btn-info btn-sm" id="add-button">增加</button>
+                        <button class="btn btn-info btn-sm" id="edit-button">编辑</button>
+                        <button class="btn btn-info btn-sm" id="del-button">删除</button>
+                        <button class="btn btn-info btn-sm hide" id="sumit-button">提交</button>
+                        <button class="btn btn-info btn-sm hide" id="cancel-button">取消</button>
+                    </div>
+                    <div class="data-button">
+                        <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="table-container table-product">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="8%">序号</th>
+                            <th>用户名</th>
+                            <th>手机号</th>
+                            <th width="40%">工作权限</th>
+                            <th>是否确认</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="table-ctrl">
+                    <div class="tools-button"></div>
+                    <div class="table-button">
+                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                width="12px"></button>
+                        <p class="seperator"></p>
+                        <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                        <span>页，共</span><span id="pages"></span><span>页</span>
+                        <p class="seperator"></p>
+                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                width="12px"></button>
+                    </div>
+
+                    <div class="table-info">
+                        共 <span id="total-records"></span> 条记录
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>

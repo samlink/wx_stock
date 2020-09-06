@@ -12,8 +12,6 @@ let tree = document.querySelector('.tree-container');
 let get_height = getHeight(auto.clientHeight, title.clientHeight) - 35;
 tree.style.height = get_height + "px";
 
-console.log(get_height);
-
 fetch_tree();
 tree_event();
 

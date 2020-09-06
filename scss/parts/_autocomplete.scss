@@ -8,12 +8,17 @@
     width: $auto-width;
   }
 
+  button {
+    margin-left: 3px;
+    margin-bottom: 2px;
+  }
+
   span {
     position: absolute;
     top: 2px;
     right: -5px;
   }
-  
+
   .autocomplete-items {
     position: relative;
     font-size: 12px;

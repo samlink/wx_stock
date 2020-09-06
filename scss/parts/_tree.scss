@@ -2,26 +2,15 @@
   height: 95%;
   min-width: 300px;
 
-  .autocomplete {
-    margin-bottom: 10px;
-  }
-
-  input {
-    height: 30px;
-    margin-bottom: 0;
-    display: inline-block;
-    vertical-align: middle;
-
-    &:hover,
-    &:focus {
-      border-color: $info-200;
-    }
-  }
+  // .autocomplete {
+  //   margin-bottom: 10px;
+  // }
 
   button {
     color: white;
     background-color: $color-info;
     margin-left: 3px;
+    margin-bottom: 2px;
     vertical-align: middle;
 
     &:hover {
@@ -32,7 +21,7 @@
 
 .tree-title {
   color: white;
-  background-color: $info-700;
+  background-color: $info-400;
   height: 35px;
   display: flex;
   align-items: center;
