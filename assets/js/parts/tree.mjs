@@ -7,8 +7,9 @@ var global = {
     is_saved: true,
     name_save: "",
     edit_cate: "",
-    drag_id: "",
-    home_id: "",
+    drag_id: "",    //拖拽的 li 的 id
+    home_id: "",    //拖入的 li 的 id
+    drag_list: [],  //记住拖拽的所有 li，防止放置自身或子类
 };
 
 var selected_node;
@@ -335,13 +336,13 @@ function gener_tree(tree_node, data) {
             node.addEventListener('dragstart', function (e) {
                 e.stopPropagation();
                 global.drag_id = e.target.id;
-                this.style.cssText= "display:none;"
-            });
-
-            node.addEventListener('dragend', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                this.style.cssText= "display: inline-block;"
+                global.drag_list = [];
+                let list = this.querySelectorAll('li');
+                for (let item of list) {
+                    global.drag_list.push(item);
+                }
+                global.drag_list.push(this);
+                global.drag_list.push(this.parentNode.parentNode);
             });
 
             node.addEventListener('dragover', function (e) {
@@ -376,6 +377,7 @@ function gener_tree(tree_node, data) {
             node.addEventListener('drop', function (e) {
                 e.preventDefault();
                 e.stopPropagation();
+
                 let not_leaf = this.querySelector('span');
                 let name;
                 if (not_leaf) {
@@ -386,6 +388,12 @@ function gener_tree(tree_node, data) {
                     this.style.cssText = "";
                     name = this.textContent;
                 }
+
+                if (global.drag_list.includes(this)) {
+                    notifier.show('不能拖拽至此处', 'danger');
+                    return;
+                }
+
                 global.home_id = this.getAttribute("id");
                 alert_confirm("确认移动到 “" + name + "” 下吗？", { confirmCallBack: tree_drag });
             });
