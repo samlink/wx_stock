@@ -4,9 +4,9 @@ import { alert_confirm } from './alert.mjs';
 var global = {
     tree_leaf: "",
     node_num: "",
-    is_saved: true,
-    name_save: "",
-    edit_cate: "",
+    is_saved: true, //右侧表格编辑是否保存
+    name_save: "",  //名称，ESC键复原用
+    edit_cate: "",  //编辑类型，ESC键复原用
     drag_id: "",    //拖拽的 li 的 id
     home_id: "",    //拖入的 li 的 id
     drag_list: [],  //记住拖拽的所有 li，防止放置自身或子类
@@ -37,12 +37,6 @@ export var fetch_tree = function (cb) {
                         this.classList.toggle("item");
                     }
                 });
-            }
-
-            var leaves = document.querySelectorAll('.leaf');
-
-            for (let leaf of leaves) {
-                leaf.addEventListener('click', leaf_click);
             }
 
             if (typeof cb == "function") {
@@ -85,6 +79,7 @@ export var tree_event = function () {
         }
     });
 
+    //右键菜单点击事件
     menu.addEventListener('click', function (event) {
         var event = event || window.event;
         selected_node.classList.remove('selected');
@@ -330,9 +325,10 @@ function gener_tree(tree_node, data) {
                 node.innerText = data[i].node_name;
                 node.classList.add('leaf');
                 node.setAttribute('data-num', data[i].num);
+                node.addEventListener('click', leaf_click);
             }
 
-            //加入拖拽事件
+            //以下均为拖拽事件
             node.addEventListener('dragstart', function (e) {
                 e.stopPropagation();
                 global.drag_id = e.target.id;
@@ -477,6 +473,7 @@ function leaf_click() {
     }
 }
 
+//显示右键菜单
 function show_menu(event, display) {
     var lis = menu.querySelectorAll('li');
     lis[1].style.display = display;
@@ -491,6 +488,7 @@ function show_menu(event, display) {
     return false;
 }
 
+//编辑节点，增加或编辑
 function tree_edit(has_input, selected_node) {
     if (has_input) {
         zhezhao.style.display = "none";
@@ -514,6 +512,7 @@ function tree_edit(has_input, selected_node) {
     }
 }
 
+//保存增加的数据到后台
 function save_add(num, new_node) {
     fetch("/tree_add", {
         method: 'post',
@@ -528,6 +527,7 @@ function save_add(num, new_node) {
         });
 }
 
+//保存编辑的数据到后台
 function save_edit(num) {
     fetch("/tree_edit", {
         method: 'post',
