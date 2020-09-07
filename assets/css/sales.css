@@ -1171,7 +1171,7 @@ a.roar-alert-message-tbf {
 }
 
 .system-set #product-show {
-  width: 50%;
+  width: 49%;
 }
 .system-set .table-top {
   display: flex;
@@ -1195,6 +1195,7 @@ a.roar-alert-message-tbf {
 }
 .system-set table thead {
   width: calc(100% - 12px);
+  cursor: default;
 }
 .system-set .table-button {
   display: none;

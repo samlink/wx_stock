@@ -1,6 +1,6 @@
 .system-set {
     #product-show {
-        width: 50%;
+        width: 49%;
     }
 
     .table-top {
@@ -28,6 +28,7 @@
 
     table thead {
         width: calc(100% - 12px);
+        cursor: default;
     }
 
     .table-button {
