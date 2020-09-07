@@ -69,7 +69,7 @@ pub async fn fetch_fields(
         for row in rows {
             count = row.get("记录数");
         }
-        HttpResponse::Ok().json((fields, count, 1))
+        HttpResponse::Ok().json((fields, count))
     } else {
         HttpResponse::Ok().json(-1)
     }
