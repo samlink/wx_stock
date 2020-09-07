@@ -1164,5 +1164,10 @@ a.roar-alert-message-tbf {
   margin-right: 20px;
   min-width: 100px;
 }
+.product-content #product-name {
+  position: relative;
+  margin-left: 30px;
+  top: 0;
+}
 
 /*# sourceMappingURL=sales.css.map */

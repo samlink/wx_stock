@@ -1,7 +1,7 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { fetch_tree, tree_event, tree_search } from '../parts/tree.mjs';
+import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
@@ -12,8 +12,14 @@ let tree = document.querySelector('.tree-container');
 let get_height = getHeight(auto.clientHeight, title.clientHeight) - 35;
 tree.style.height = get_height + "px";
 
+let tree_data = {
+    leaf_click: (name) => {
+        document.querySelector('#product-name').textContent = name;
+    }
+}
+
+tree_init(tree_data);
 fetch_tree();
-tree_event();
 
 let input = document.querySelector('#auto_input');
 autocomplete(input, "/tree_auto", () => {

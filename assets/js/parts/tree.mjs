@@ -19,7 +19,7 @@ var menu = document.querySelector('#context-menu');
 var zhezhao = document.querySelector('#zhezhao');
 
 //从数据库获取 tree 数据
-export var fetch_tree = function (cb) {
+export var fetch_tree = function () {
     fetch('/tree')
         .then(response => response.json())
         .then(data => {
@@ -39,13 +39,14 @@ export var fetch_tree = function (cb) {
                 });
             }
 
-            if (typeof cb == "function") {
-                cb();
+            if (typeof global.fech_call == "function") {
+                fech_call();
             }
         });
 }
 
-export var tree_event = function () {
+export var tree_init = function (data) {
+    Object.assign(global, data);
     //页面点击事件
     document.addEventListener('click', function (event) {
         var has_input = document.querySelector('#input_node');
@@ -213,6 +214,7 @@ export var tree_event = function () {
             return show_menu(event, "none");
         }
     }
+
     let tree_title = document.querySelector('.tree-title');
     tree_title.addEventListener('dragover', function (e) {
         e.preventDefault();
@@ -459,8 +461,10 @@ function leaf_click() {
         var num = {
             num: global.node_num,
         }
-        console.log("加载商品");
-        // fetch_content(num);  //获取商品信息
+
+        if (typeof global.leaf_click == "function") {
+            global.leaf_click(self.textContent);
+        }
 
         var leaves = document.querySelectorAll('.leaf');
         for (let leaf of leaves) {
