@@ -4,63 +4,33 @@
 @(user: UserData)
 
 @:base({
-<div class="product-set">
+<div class="system-set">
     <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
-        <span class="t1"><i class="fa fa-angle-double-right"></i> 商品设置 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 系统参数 </span>
     </div>
-    <div class="product-content">
-        <div class="tree-show">
-            <div class="autocomplete table-top">
-                <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
-                <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
-                        width="20px"></button>
-            </div>
-            <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
-            <div class="tree-container">
-                <ul id="tree">
-                </ul>
-                <div>
-                    <ul id="context-menu">
-                        <li><a href="javascript:;" id="context-add">新增</a></li>
-                        <li><a href="javascript:;" id="context-edit">编辑</a></li>
-                        <li><a href="javascript:;" id="context-del">删除</a></li>
-                    </ul>
-                </div>
-
-                <div id="zhezhao"></div>
-            </div>
-
-        </div>
+    <div class="system-content">
         <div id="product-show">
             <div class="table-top">
-                <div class="autocomplete product-search">
-                    <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
-                    <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
-                    <span id="product-name"></span>
-                </div>
+                <div class="table-title">商品规格字段设置:</div>
                 <div class="table-tools">
                     <div class="table-edit">
-                        <button class="btn btn-info btn-sm" id="add-button">增加</button>
-                        <button class="btn btn-info btn-sm" id="edit-button">编辑</button>
-                        <button class="btn btn-info btn-sm" id="del-button">删除</button>
+                        <button class="btn btn-info btn-sm" id="edit-button">提交</button>
                         <button class="btn btn-info btn-sm hide" id="sumit-button">提交</button>
                         <button class="btn btn-info btn-sm hide" id="cancel-button">取消</button>
                     </div>
-                    <div class="data-button">
-                        <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
-                    </div>
                 </div>
-
             </div>
 
             <div class="table-container table-product">
                 <table>
                     <thead>
                         <tr>
-                            <th width="8%">字段</th>
+                            <th>字段</th>
                             <th>数据类型</th>
                             <th>显示名称</th>
                             <th>显示宽度</th>
+                            <th>控件类型</th>
+                            <th>可选值</th>
                             <th>是否显示</th>
                         </tr>
                     </thead>
@@ -87,11 +57,10 @@
                     <div class="table-info">
                         共 <span id="total-records"></span> 条记录
                     </div>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script type="module" src="/assets/js/pages/productset.js"></script>
+<script type="module" src="/assets/js/pages/systemset.js"></script>
 }, user.name.clone())

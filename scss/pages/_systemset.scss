@@ -1,0 +1,36 @@
+.system-set {
+    #product-show {
+        width: 50%;
+    }
+
+    .table-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 30px 0 10px;
+    }
+
+    .table-title {
+        font-size: 15px;
+    }
+
+    table tbody {
+        display: block;
+        height: 400px;
+        overflow-y: scroll;
+    }
+    table thead,
+    tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table thead {
+        width: calc(100% - 12px);
+    }
+
+    .table-button {
+        display: none;
+    }
+}

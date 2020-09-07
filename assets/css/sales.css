@@ -1170,4 +1170,34 @@ a.roar-alert-message-tbf {
   top: 0;
 }
 
+.system-set #product-show {
+  width: 50%;
+}
+.system-set .table-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 30px 0 10px;
+}
+.system-set .table-title {
+  font-size: 15px;
+}
+.system-set table tbody {
+  display: block;
+  height: 400px;
+  overflow-y: scroll;
+}
+.system-set table thead,
+.system-set tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.system-set table thead {
+  width: calc(100% - 12px);
+}
+.system-set .table-button {
+  display: none;
+}
+
 /*# sourceMappingURL=sales.css.map */
