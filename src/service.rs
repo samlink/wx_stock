@@ -64,7 +64,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
         let right = format!("%{}%", right);
         let rows = &conn
         .query(
-            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM 用户 WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
+            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
             &[&user_name, &right],
         )
         .await

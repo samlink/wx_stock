@@ -26,7 +26,7 @@ pub async fn fetch_users(
         let skip = (post_data.page - 1) * post_data.rec;
         let sql = format!(
             "SELECT name, phone, rights, confirm, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
-                    FROM 用户 WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
+                    FROM users WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
             post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -47,7 +47,7 @@ pub async fn fetch_users(
 
         let rows = &conn
             .query(
-                r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE '%' || $1 || '%'"#,
+                r#"SELECT count(name) as 记录数 FROM users WHERE name LIKE '%' || $1 || '%'"#,
                 &[&post_data.name],
             )
             .await
@@ -83,7 +83,7 @@ pub async fn edit_user(
         let conn = db.get().await.unwrap();
         &conn
             .execute(
-                r#"UPDATE 用户 SET confirm=$1, rights=$2 WHERE name=$3"#,
+                r#"UPDATE users SET confirm=$1, rights=$2 WHERE name=$3"#,
                 &[&post_data.confirm, &post_data.rights, &post_data.name],
             )
             .await
@@ -110,7 +110,7 @@ pub async fn del_user(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         &conn
-            .execute(r#"DELETE FROM 用户 WHERE name=$1"#, &[&post_data.name])
+            .execute(r#"DELETE FROM users WHERE name=$1"#, &[&post_data.name])
             .await
             .unwrap();
         HttpResponse::Ok().json(1)
