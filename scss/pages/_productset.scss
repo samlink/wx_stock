@@ -12,20 +12,24 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-left: 70%;
+        margin-left: 60%;
     }
 
     .table-edit {
         min-width: 200px;
         button {
-            margin-left: 15px;
+            margin-left: 10px;
         }
     }
 
     .data-button {
         margin-left: 40px;
         margin-right: 20px;
-        min-width: 100px;
+        min-width: 200px;
+
+        button {
+            margin-left: 10px;
+        }
     }
 
     #product-name {

@@ -13,44 +13,58 @@ pub async fn fetch_product(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
-        // let conn = db.get().await.unwrap();
-        // let skip = (post_data.page - 1) * post_data.rec;
-        // let sql = format!(
-        //     "SELECT name, phone, rights, confirm, ROW_NUMBER () OVER (ORDER BY {}) as 序号
-        //             FROM 用户 WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
-        //     post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
-        // );
-        // let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let conn = db.get().await.unwrap();
+        let rows = &conn
+            .query(
+                r#"SELECT field_name FROM tableset WHERE table_name='商品规格' AND is_show=true"#,
+                &[],
+            )
+            .await
+            .unwrap();
 
-        // let mut users: Vec<UsersReturn> = Vec::new();
+        let mut fields = "".to_owned();
+        for row in rows {
+            fields += row.get("field_name");
+            fields += ",";
+        }
 
-        // for row in rows {
-        //     let user = UsersReturn {
-        //         name: row.get("name"),
-        //         phone: row.get("phone"),
-        //         rights: row.get("rights"),
-        //         confirm: row.get("confirm"),
-        //         num: row.get("序号"),
-        //     };
+        let skip = (post_data.page - 1) * post_data.rec;
+        let sql = format!(
+            "SELECT {} ROW_NUMBER () OVER (ORDER BY {}) as 序号
+                    FROM 用户 WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
+            fields, post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
+        );
+        
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        //     users.push(user);
-        // }
+        let mut users: Vec<UsersReturn> = Vec::new();
 
-        // let rows = &conn
-        //     .query(
-        //         r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE '%' || $1 || '%'"#,
-        //         &[&post_data.name],
-        //     )
-        //     .await
-        //     .unwrap();
+        for row in rows {
+            let user = UsersReturn {
+                name: row.get("name"),
+                phone: row.get("phone"),
+                rights: row.get("rights"),
+                confirm: row.get("confirm"),
+                num: row.get("序号"),
+            };
 
-        // let mut count: i64 = 0;
-        // for row in rows {
-        //     count = row.get("记录数");
-        // }
-        // let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        // HttpResponse::Ok().json((users, count, pages))
-        HttpResponse::Ok().json(([1, 2, 3], 100, 8))
+            users.push(user);
+        }
+
+        let rows = &conn
+            .query(
+                r#"SELECT count(name) as 记录数 FROM 用户 WHERE name LIKE '%' || $1 || '%'"#,
+                &[&post_data.name],
+            )
+            .await
+            .unwrap();
+
+        let mut count: i64 = 0;
+        for row in rows {
+            count = row.get("记录数");
+        }
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+        HttpResponse::Ok().json((users, count, pages))
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -76,7 +76,6 @@ fetch("/fetch_fields", {
             }
 
             document.querySelector('.table-product thead tr').innerHTML = rows;
-            console.log(header_names);
 
             var data = {
                 container: '.table-product',
