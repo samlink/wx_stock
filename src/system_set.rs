@@ -15,6 +15,7 @@ pub struct FieldsReturn {
     pub option_value: String,
     pub is_show: bool,
     pub show_order: i32,
+    pub rust_name: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -52,6 +53,7 @@ pub async fn fetch_fields(
                 option_value: row.get("option_value"),
                 is_show: row.get("is_show"),
                 show_order: row.get("show_order"),
+                rust_name: row.get("rust_name"),
             };
 
             fields.push(field);

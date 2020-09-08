@@ -30,10 +30,7 @@ let tree_data = {
             },
             edit: false,
 
-            row_fn: function (tr) {
-                return 
-            },
-
+            row_fn: table_row,
             blank_row_fn: blank_row,
 
             row_click: function (tr) {
@@ -117,10 +114,11 @@ fetch("/fetch_fields", {
 
 function table_row(tr) {
     let row = `<tr><td hidden>${tr.id}</td><td>${tr.num}</td>`;
-    for (let row of table_fields) {
-        row += `<td>${tr[row.field_name]}</td>`;
+    for (let name of table_fields) {
+        row += `<td>${tr[name.rust_name]}</td>`;
     }
     row += "</tr>";
+
     return row;
 }
 

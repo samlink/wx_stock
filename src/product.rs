@@ -13,6 +13,7 @@ pub struct FrontData {
     pub rec: i32,
 }
 
+//结构中的变量名与数据库中字段 rust_name 一致，便于前端操作
 #[derive(Deserialize, Serialize)]
 pub struct Product {
     pub num: i64,
