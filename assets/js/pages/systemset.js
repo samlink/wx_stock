@@ -39,7 +39,7 @@ function row_fn(tr) {
 
     let checked = tr.is_show ? "checked" : "";
 
-    return `<tr draggable="true"><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
+    return `<tr draggable="true"><td class='hide'>${tr.id}</td><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
             <input class='form-control input-sm' type="text" value=${tr.show_name}></td>
             <td width=8%><input class='form-control input-sm' type="text" value=${tr.show_width}></td>
             <td><select class='select-sm'><option value="普通输入" ${s1}>普通输入</option><option value="下拉列表" ${s2}>下拉列表</option>
@@ -113,6 +113,40 @@ fetch("/fetch_fields", {
         }
     });
 
+document.querySelector('#sumit-button').addEventListener('click', () => {
+    let data = [];
+    let order = 1;
+    let table_body = document.querySelector('.table-product tbody');
 
+    for (let tr of table_body.children) {
+        if (tr.querySelector('td:nth-child(1)').textContent != "") {
+            let tr_data = {
+                id: Number(tr.querySelector('td:nth-child(1)').textContent),
+                show_name: tr.querySelector('td:nth-child(5) input').value,
+                show_width: Number(tr.querySelector('td:nth-child(6) input').value),
+                ctr_type: tr.querySelector('td:nth-child(7) select').value,
+                option_value: tr.querySelector('td:nth-child(8) input').value,
+                is_show: tr.querySelector('td:nth-child(9) input').checked,
+                show_order: order,
+            }
+            order++;
+            data.push(tr_data);
+        }
+    }
+    console.log(data);
+
+    fetch("/update_tableset", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            console.log(content);
+        });
+
+});
 
 
