@@ -3,6 +3,12 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
+let global = {
+    drag_id: "",
+    drag_tr: "",
+    edit: 0,
+}
+
 let top = document.querySelector('.table-top').clientHeight;
 let ctrl = document.querySelector('.table-ctrl').clientHeight;
 
@@ -29,20 +35,22 @@ function row_fn(tr) {
         s3 = "selected";
     }
 
+    let read_only = tr.ctr_type == "普通输入" ? "disabled" : "";
+
     let checked = tr.is_show ? "checked" : "";
 
-    return `<tr><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td>${tr.data_type}</td><td>
+    return `<tr draggable="true"><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
             <input class='form-control input-sm' type="text" value=${tr.show_name}></td>
             <td width=8%><input class='form-control input-sm' type="text" value=${tr.show_width}></td>
             <td><select class='select-sm'><option value="普通输入" ${s1}>普通输入</option><option value="下拉列表" ${s2}>下拉列表</option>
             <option value="二值选一" ${s3}>二值选一</option></select></td>
-            <td width=20%><input class='form-control input-sm' type="text" value=${tr.option_value}></td>
+            <td width=20%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
             <td width=8%><label class="check-radio"><input type="checkbox" value="${tr.is_show}" ${checked}>
             <span class="checkmark"></span></td></tr>`;
 }
 
 function blank_row_fn() {
-    return `<tr><td width=6%></td><td></td><td></td><td></td><td width=8%></td><td></td><td width=20%></td><td width=8%></td></tr>`;
+    return `<tr><td width=6%></td><td></td><td width=10%></td><td></td><td width=8%></td><td></td><td width=20%></td><td width=8%></td></tr>`;
 }
 
 fetch("/fetch_fields", {
@@ -70,16 +78,35 @@ fetch("/fetch_fields", {
             table_body.innerHTML = rows;
             document.querySelector('#total-records').textContent = content[1];
 
-            // for (let tr of table_body.children) {
-            //     tr.addEventListener('click', function (e) {
-            //         for (let r of table_body.children) {
-            //             r.classList.remove('focus');
-            //         }
-            //         this.classList.add('focus');
+            //拖拽功能
+            for (let tr of table_body.children) {
+                tr.addEventListener('dragstart', function (e) {
+                    e.stopPropagation();
+                    global.drag_tr = e.target;
+                    console.log(global.drag_tr);
+                });
 
-            //         // table_data.row_click(tr);
-            //     });
-            // }
+                tr.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+
+                });
+
+                tr.addEventListener('dragleave', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.style.cssText = "";
+                });
+
+                tr.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    this.style.cssText = "";
+                    table_body.insertBefore(global.drag_tr, this);
+                    global.edit = 1;
+                });
+            }
         }
         else {
             alert("无此操作权限");

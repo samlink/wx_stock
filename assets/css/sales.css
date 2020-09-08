@@ -425,6 +425,9 @@ input:focus {
 .input-sm:focus {
   border-color: #39a1f4;
 }
+.input-sm:disabled {
+  border-color: #e8e8e8;
+}
 
 .select-sm {
   font-size: 14px;
@@ -434,7 +437,7 @@ input:focus {
   border-radius: 4px;
   background-color: white;
   outline: none;
-  padding-left: 10px;
+  padding-left: 6px;
 }
 .select-sm option:hover {
   background: #666;

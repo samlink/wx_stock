@@ -33,6 +33,9 @@ input {
     &:focus {
         border-color: $info-400;
     }
+    &:disabled {
+        border-color: #e8e8e8;
+    }
 }
 
 .select-sm {
@@ -43,10 +46,10 @@ input {
     border-radius: 4px;
     background-color: white;
     outline: none;
-    padding-left: 10px;
+    padding-left: 6px;
 
     option:hover {
-        background:#666;;
+        background: #666;
     }
     &:focus {
         border-color: $info-400;
