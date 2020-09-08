@@ -12,9 +12,39 @@ let tree = document.querySelector('.tree-container');
 let get_height = getHeight(auto.clientHeight, title.clientHeight) - 35;
 tree.style.height = get_height + "px";
 
+let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
+let row_num = Math.floor((get_height - ctrl_height) / 30);
+
 let tree_data = {
-    leaf_click: (name) => {
+    leaf_click: (id, name) => {
         document.querySelector('#product-name').textContent = name;
+        var data = {
+            container: '.table-product',
+            header_names: header_names,
+            url: "/fetch_product",
+            post_data: {
+                id: id,
+                name: '',
+                sort: "规格型号 ASC",
+                rec: row_num,
+            },
+            edit: false,
+
+            row_fn: function (tr) {
+                return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td><td title='${tr.rights}'>${tr.rights}</td>
+                    <td><span class='confirm-info '></span></td></tr>`;
+            },
+
+            blank_row_fn: function () {
+                return `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
+            },
+
+            row_click: function (tr) {
+            }
+        }
+
+        table_init(data);
+        fetch_table();
     }
 }
 
@@ -34,8 +64,6 @@ document.querySelector(".tree-title").addEventListener('click', () => {
     fetch_tree();
 });
 
-let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
-let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 //显示表格数据 ---------------------------------------
 
@@ -44,6 +72,7 @@ let table_name = {
 };
 
 let table_fields;
+let header_names = {};
 
 fetch("/fetch_fields", {
     method: 'post',
@@ -65,7 +94,6 @@ fetch("/fetch_fields", {
             }
 
             all_width += 3;
-            let header_names = {};
             let rows = `<th hidden></th><th width='${300 / all_width}%'>序号</th>`;
 
             for (let th of table_fields) {
@@ -77,44 +105,27 @@ fetch("/fetch_fields", {
 
             document.querySelector('.table-product thead tr').innerHTML = rows;
 
-            var data = {
-                container: '.table-product',
-                header_names: header_names,
-                url: "/fetch_product",
-                post_data: {
-                    name: '',
-                    sort: "规格型号 ASC",
-                    rec: row_num,
-                },
-                edit: false,
+            console.log(table_fields);
 
-                row_fn: function (tr) {
-                    let con = "已确认";
-                    let color = "green";
-                    if (tr.confirm == false) {
-                        con = "未确认";
-                        color = "red";
-                    }
-                    return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td><td title='${tr.rights}'>${tr.rights}</td>
-                        <td><span class='confirm-info ${color}'>${con}</span></td></tr>`;
-                },
+            let row = blank_row();
 
-                blank_row_fn: function () {
-                    return `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
-                },
-
-                row_click: function (tr) {
-                }
+            rows = "";
+            for (let i = 0; i < row_num; i++) {
+                rows += row;
             }
 
-            table_init(data);
-            fetch_table();
-
+            document.querySelector('.table-product tbody').innerHTML = rows;
         }
-
-
     });
 
+function blank_row() {
+    let row = "<tr><td hidden></td><td></td>";
+    for (let _f of table_fields) {
+        row += "<td></td>";
+    }
+    row += "</tr>";
+    return row;
+}
 
 
 // //搜索用户

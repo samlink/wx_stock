@@ -448,7 +448,7 @@ function leaf_click() {
     }
 
     let self = this;
-    if (global.node_num == this.dataset.num) {          //全局变量， 在 init.js 中定义
+    if (global.node_num == this.dataset.num) {
         // match_screen();
         return false;
     }
@@ -458,12 +458,8 @@ function leaf_click() {
         global.tree_leaf = self.innerText;
         global.node_num = self.dataset.num;
 
-        var num = {
-            num: global.node_num,
-        }
-
         if (typeof global.leaf_click == "function") {
-            global.leaf_click(self.textContent);
+            global.leaf_click(global.node_num, self.textContent);
         }
 
         var leaves = document.querySelectorAll('.leaf');

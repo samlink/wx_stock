@@ -23,6 +23,7 @@ pub struct UserData {
 
 #[derive(Deserialize, Serialize)]
 pub struct PostData {
+    pub id: String,
     pub name: String,
     pub page: i32,
     pub sort: String,
