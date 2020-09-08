@@ -1,7 +1,7 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight } from '../parts/tools.mjs';
+import { regReal, getHeight } from '../parts/tools.mjs';
 
 let global = {
     drag_id: "",
@@ -11,10 +11,7 @@ let global = {
 
 let top = document.querySelector('.table-top').clientHeight;
 let ctrl = document.querySelector('.table-ctrl').clientHeight;
-
 let get_height = getHeight(top, ctrl) - 70;
-let row_num = Math.floor(get_height / 30) - 2;
-
 document.querySelector('.table-product tbody').style.height = get_height;
 
 //显示表格数据 ---------------------------------------
@@ -45,7 +42,7 @@ function row_fn(tr) {
             <td><select class='select-sm'><option value="普通输入" ${s1}>普通输入</option><option value="下拉列表" ${s2}>下拉列表</option>
             <option value="二值选一" ${s3}>二值选一</option></select></td>
             <td width=20%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
-            <td width=8%><label class="check-radio"><input type="checkbox" value="${tr.is_show}" ${checked}>
+            <td width=8%><label class="check-radio"><input type="checkbox" ${checked}>
             <span class="checkmark"></span></td></tr>`;
 }
 
@@ -70,7 +67,8 @@ fetch("/fetch_fields", {
                 count++;
             }
 
-            for (let i = 0; i < row_num - count; i++) {
+            //多输入两个空行，便于拖拽操作
+            for (let i = 0; i < 2; i++) {
                 rows += blank_row_fn();
             }
 
@@ -114,16 +112,23 @@ fetch("/fetch_fields", {
     });
 
 document.querySelector('#sumit-button').addEventListener('click', () => {
+
     let data = [];
     let order = 1;
     let table_body = document.querySelector('.table-product tbody');
 
     for (let tr of table_body.children) {
         if (tr.querySelector('td:nth-child(1)').textContent != "") {
+            let width = Number(tr.querySelector('td:nth-child(6) input').value);
+            if (!regReal.test(width)) {
+                notifier.show('宽度输入有错误', 'danger');
+                return false;
+            }
+
             let tr_data = {
                 id: Number(tr.querySelector('td:nth-child(1)').textContent),
                 show_name: tr.querySelector('td:nth-child(5) input').value,
-                show_width: Number(tr.querySelector('td:nth-child(6) input').value),
+                show_width: width,
                 ctr_type: tr.querySelector('td:nth-child(7) select').value,
                 option_value: tr.querySelector('td:nth-child(8) input').value,
                 is_show: tr.querySelector('td:nth-child(9) input').checked,
@@ -133,7 +138,6 @@ document.querySelector('#sumit-button').addEventListener('click', () => {
             data.push(tr_data);
         }
     }
-    console.log(data);
 
     fetch("/update_tableset", {
         method: 'post',
@@ -144,7 +148,12 @@ document.querySelector('#sumit-button').addEventListener('click', () => {
     })
         .then(response => response.json())
         .then(content => {
-            console.log(content);
+            if (content == 1) {
+                notifier.show('字段修改成功', 'success');
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
         });
 
 });

@@ -11,7 +11,7 @@ mod service;
 mod tree;
 mod user_manage;
 mod user_set;
-mod system_set;
+mod field_set;
 
 #[derive(Deserialize)]
 struct Config {
@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::user_set)
             .service(html::user_manage)
             .service(html::product_set)
-            .service(html::system_set)
+            .service(html::field_set)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
@@ -64,8 +64,8 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_auto)
             .service(tree::tree_drag)
             .service(product::fetch_product)
-            .service(system_set::fetch_fields)
-            .service(system_set::update_tableset)
+            .service(field_set::fetch_fields)
+            .service(field_set::update_tableset)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })

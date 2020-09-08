@@ -113,9 +113,14 @@ fetch("/fetch_fields", {
     });
 
 function table_row(tr) {
-    let row = `<tr><td hidden>${tr.id}</td><td>${tr.num}</td>`;
+    let row = `<tr><td hidden>${tr.id}</td><td style="text-align: center;">${tr.num}</td>`;
     for (let name of table_fields) {
-        row += `<td>${tr[name.rust_name]}</td>`;
+        if (name.data_type == "文本") {
+            row += `<td title='${tr[name.rust_name]}'>${tr[name.rust_name]}</td>`;
+        }
+        else {
+            row += `<td>${tr[name.rust_name]}</td>`;
+        }
     }
     row += "</tr>";
 

@@ -1,5 +1,5 @@
-export var reg_real = /^\d+(\.\d+)?$/;
-export var reg_date = /^((?:19|20)\d\d)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
+export var regReal = /^\d+(\.\d+)?$/;
+export var regDate = /^((?:19|20)\d\d)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
 
 export function getHeight() {
     let header = document.querySelector('.header');
