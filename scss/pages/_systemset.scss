@@ -28,10 +28,28 @@
 
     table thead {
         width: calc(100% - 12px);
-        cursor: default;
+        th {
+            cursor: default;
+        }
+    }
+
+    table tbody {
+        td:nth-child(1),
+        td:nth-last-child(1) {
+            text-align: center;
+        }
+
+        tr:hover {
+            background-color: transparent;
+        }
     }
 
     .table-button {
         display: none;
     }
+
+    .checkmark {
+        top: -8px;
+    }
+    
 }

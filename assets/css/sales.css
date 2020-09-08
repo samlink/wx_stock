@@ -416,6 +416,33 @@ input:focus {
   margin-right: 6px;
 }
 
+.input-sm {
+  height: 28px;
+  padding: 3px 5px;
+  width: 100%;
+  border: 1px solid #9acffa;
+}
+.input-sm:focus {
+  border-color: #39a1f4;
+}
+
+.select-sm {
+  font-size: 14px;
+  height: 28px;
+  width: 100%;
+  border: 1px solid #9acffa;
+  border-radius: 4px;
+  background-color: white;
+  outline: none;
+  padding-left: 10px;
+}
+.select-sm option:hover {
+  background: #666;
+}
+.select-sm:focus {
+  border-color: #39a1f4;
+}
+
 .red {
   background-color: #db4747;
 }
@@ -1198,10 +1225,22 @@ a.roar-alert-message-tbf {
 }
 .system-set table thead {
   width: calc(100% - 12px);
+}
+.system-set table thead th {
   cursor: default;
+}
+.system-set table tbody td:nth-child(1),
+.system-set table tbody td:nth-last-child(1) {
+  text-align: center;
+}
+.system-set table tbody tr:hover {
+  background-color: transparent;
 }
 .system-set .table-button {
   display: none;
+}
+.system-set .checkmark {
+  top: -8px;
 }
 
 /*# sourceMappingURL=sales.css.map */

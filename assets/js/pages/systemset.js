@@ -7,7 +7,7 @@ let top = document.querySelector('.table-top').clientHeight;
 let ctrl = document.querySelector('.table-ctrl').clientHeight;
 
 let get_height = getHeight(top, ctrl) - 70;
-let row_num = Math.floor(get_height / 30) - 1;
+let row_num = Math.floor(get_height / 30) - 2;
 
 document.querySelector('.table-product tbody').style.height = get_height;
 
@@ -17,14 +17,32 @@ var data = {
 };
 
 function row_fn(tr) {
-    let show = tr.is_show ? "是" : "否";
+    let s1 = "";
+    let s2 = "";
+    let s3 = "";
 
-    return `<tr><td>${tr.num}</td><td>${tr.field_name}</td><td>${tr.data_type}</td><td>${tr.show_name}</td><td>${tr.show_width}</td>
-                <td>${tr.ctr_type}</td><td>${tr.option_value}</td><td>${show}</td></tr>`;
+    if (tr.ctr_type == "普通输入") {
+        s1 = "selected";
+    } else if (tr.ctr_type == "下拉列表") {
+        s2 = "selected";
+    } else {
+        s3 = "selected";
+    }
+
+    let checked = tr.is_show ? "checked" : "";
+
+    return `<tr><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td>${tr.data_type}</td><td>
+            <input class='form-control input-sm' type="text" value=${tr.show_name}></td>
+            <td width=8%><input class='form-control input-sm' type="text" value=${tr.show_width}></td>
+            <td><select class='select-sm'><option value="普通输入" ${s1}>普通输入</option><option value="下拉列表" ${s2}>下拉列表</option>
+            <option value="二值选一" ${s3}>二值选一</option></select></td>
+            <td width=20%><input class='form-control input-sm' type="text" value=${tr.option_value}></td>
+            <td width=8%><label class="check-radio"><input type="checkbox" value="${tr.is_show}" ${checked}>
+            <span class="checkmark"></span></td></tr>`;
 }
 
 function blank_row_fn() {
-    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+    return `<tr><td width=6%></td><td></td><td></td><td></td><td width=8%></td><td></td><td width=20%></td><td width=8%></td></tr>`;
 }
 
 fetch("/fetch_fields", {
@@ -52,16 +70,16 @@ fetch("/fetch_fields", {
             table_body.innerHTML = rows;
             document.querySelector('#total-records').textContent = content[1];
 
-            for (let tr of table_body.children) {
-                tr.addEventListener('click', function (e) {
-                    for (let r of table_body.children) {
-                        r.classList.remove('focus');
-                    }
-                    this.classList.add('focus');
+            // for (let tr of table_body.children) {
+            //     tr.addEventListener('click', function (e) {
+            //         for (let r of table_body.children) {
+            //             r.classList.remove('focus');
+            //         }
+            //         this.classList.add('focus');
 
-                    // table_data.row_click(tr);
-                });
-            }
+            //         // table_data.row_click(tr);
+            //     });
+            // }
         }
         else {
             alert("无此操作权限");
