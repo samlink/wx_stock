@@ -31,13 +31,10 @@ let tree_data = {
             edit: false,
 
             row_fn: function (tr) {
-                return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td><td title='${tr.rights}'>${tr.rights}</td>
-                    <td><span class='confirm-info '></span></td></tr>`;
+                return 
             },
 
-            blank_row_fn: function () {
-                return `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
-            },
+            blank_row_fn: blank_row,
 
             row_click: function (tr) {
             }
@@ -117,6 +114,15 @@ fetch("/fetch_fields", {
             document.querySelector('.table-product tbody').innerHTML = rows;
         }
     });
+
+function table_row(tr) {
+    let row = `<tr><td hidden>${tr.id}</td><td>${tr.num}</td>`;
+    for (let row of table_fields) {
+        row += `<td>${tr[row.field_name]}</td>`;
+    }
+    row += "</tr>";
+    return row;
+}
 
 function blank_row() {
     let row = "<tr><td hidden></td><td></td>";

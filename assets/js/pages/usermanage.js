@@ -24,7 +24,7 @@ var data = {
         '工作权限': 'rights',
         '是否确认': 'confirm',
     },
-    url: "/fetch_users",
+    url: "/pull_users",
     post_data: {
         name: '',
         sort: "confirm ASC",

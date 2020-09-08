@@ -14,8 +14,8 @@ pub struct UsersReturn {
 }
 
 ///获取用户
-#[post("/fetch_users")]
-pub async fn fetch_users(
+#[post("/pull_users")]
+pub async fn pull_users(
     db: web::Data<Pool>,
     post_data: web::Json<PostData>,
     id: Identity,

@@ -1,8 +1,17 @@
-use crate::service::{get_user, PostData};
+use crate::service::get_user;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize, Serialize)]
+pub struct FrontData {
+    pub id: String,
+    pub name: String,
+    pub page: i32,
+    pub sort: String,
+    pub rec: i32,
+}
 
 #[derive(Deserialize, Serialize)]
 pub struct Product {
@@ -13,7 +22,7 @@ pub struct Product {
     pub p_limit: i32,
     pub not_use: bool,
     pub note: String,
-    pub per: String,
+    pub unit: String,
     pub text1: String,
     pub text2: String,
     pub text3: String,
@@ -32,7 +41,7 @@ pub struct Product {
 #[post("/fetch_product")]
 pub async fn fetch_product(
     db: web::Data<Pool>,
-    post_data: web::Json<PostData>,
+    post_data: web::Json<FrontData>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
@@ -74,7 +83,7 @@ pub async fn fetch_product(
                 p_limit: row.get("库存下限"),
                 not_use: row.get("停用"),
                 note: row.get("备注"),
-                per: row.get("单位"),
+                unit: row.get("单位"),
                 text1: row.get("文本字段1"),
                 text2: row.get("文本字段2"),
                 text3: row.get("文本字段3"),
