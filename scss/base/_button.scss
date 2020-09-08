@@ -47,6 +47,14 @@ button {
         height: 30px;
         font-size: 0.9rem;
         padding: 0.25rem 0.5rem 0.275rem;
+    }
 
+    &:disabled {
+        background-color: $info-50;
+        border: none;
+        cursor: default;
+        &:hover {
+            background-color: $info-50;
+        }
     }
 }

@@ -14,6 +14,9 @@ let ctrl = document.querySelector('.table-ctrl').clientHeight;
 let get_height = getHeight(top, ctrl) - 70;
 document.querySelector('.table-product tbody').style.height = get_height;
 
+let sumit_button = document.querySelector('#sumit-button');
+sumit_button.disabled = true;
+
 //显示表格数据 ---------------------------------------
 var data = {
     name: '商品规格'
@@ -102,6 +105,7 @@ fetch("/fetch_fields", {
                     e.stopPropagation();
                     this.style.cssText = "";
                     table_body.insertBefore(global.drag_tr, this);
+                    sumit_button.disabled = false;
                     global.edit = 1;
                 });
             }
@@ -110,6 +114,7 @@ fetch("/fetch_fields", {
             let all_input = document.querySelectorAll('.table-product tbody input');
             for (let input of all_input) {
                 input.addEventListener('input', () => {
+                    sumit_button.disabled = false;
                     global.edit = 1;
                 });
             }
@@ -117,9 +122,11 @@ fetch("/fetch_fields", {
             let all_select = document.querySelectorAll('.table-product tbody select');
             for (let select of all_select) {
                 select.addEventListener('change', function () {
+                    document.querySelector('#sumit-button').disabled = false;
                     global.edit = 1;
                     if (this.value != "普通输入") {
                         this.parentNode.nextElementSibling.querySelector('input').disabled = false;
+                        this.parentNode.nextElementSibling.querySelector('input').focus();
                     }
                     else {
                         this.parentNode.nextElementSibling.querySelector('input').disabled = true;
@@ -132,16 +139,22 @@ fetch("/fetch_fields", {
         }
     });
 
-document.querySelector('#sumit-button').addEventListener('click', () => {
+sumit_button.addEventListener('click', () => {
     let data = [];
     let order = 1;
     let table_body = document.querySelector('.table-product tbody');
 
     for (let tr of table_body.children) {
-        if (tr.querySelector('td:nth-child(1)').textContent != "" &&
-            !regReal.test(Number(tr.querySelector('td:nth-child(6) input').value))) {
-            notifier.show('宽度输入有错误', 'danger');
-            return false;
+        if (tr.querySelector('td:nth-child(1)').textContent != "") {
+            if (!regReal.test(Number(tr.querySelector('td:nth-child(6) input').value))) {
+                notifier.show('宽度输入有错误', 'danger');
+                return false;
+            }
+            let select = tr.querySelector('select');
+            if (select.value != "普通输入" && select.parentNode.nextElementSibling.querySelector('input').value == "") {
+                notifier.show('可选值还未输入', 'danger');
+                return false;
+            }
         }
     }
 
@@ -172,6 +185,7 @@ document.querySelector('#sumit-button').addEventListener('click', () => {
         .then(content => {
             if (content == 1) {
                 global.edit = 0;
+                document.querySelector('#sumit-button').disabled = true;
                 notifier.show('字段修改成功', 'success');
             }
             else {

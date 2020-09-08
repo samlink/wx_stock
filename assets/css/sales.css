@@ -323,6 +323,14 @@ button.btn-sm {
   font-size: 0.9rem;
   padding: 0.25rem 0.5rem 0.275rem;
 }
+button:disabled {
+  background-color: #9acffa;
+  border: none;
+  cursor: default;
+}
+button:disabled:hover {
+  background-color: #9acffa;
+}
 
 .check-radio {
   display: inline-block;
@@ -1244,6 +1252,9 @@ a.roar-alert-message-tbf {
 }
 .fields-set .checkmark {
   top: -8px;
+}
+.fields-set .table-tip {
+  margin-left: 20px;
 }
 
 /*# sourceMappingURL=sales.css.map */
