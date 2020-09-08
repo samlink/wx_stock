@@ -105,6 +105,27 @@ fetch("/fetch_fields", {
                     global.edit = 1;
                 });
             }
+
+            //编辑时离开提醒
+            let all_input = document.querySelectorAll('.table-product tbody input');
+            for (let input of all_input) {
+                input.addEventListener('input', () => {
+                    global.edit = 1;
+                });
+            }
+
+            let all_select = document.querySelectorAll('.table-product tbody select');
+            for (let select of all_select) {
+                select.addEventListener('change', function () {
+                    global.edit = 1;
+                    if (this.value != "普通输入") {
+                        this.parentNode.nextElementSibling.querySelector('input').disabled = false;
+                    }
+                    else {
+                        this.parentNode.nextElementSibling.querySelector('input').disabled = true;
+                    }
+                });
+            }
         }
         else {
             alert("无此操作权限");
@@ -112,23 +133,24 @@ fetch("/fetch_fields", {
     });
 
 document.querySelector('#sumit-button').addEventListener('click', () => {
-
     let data = [];
     let order = 1;
     let table_body = document.querySelector('.table-product tbody');
 
     for (let tr of table_body.children) {
-        if (tr.querySelector('td:nth-child(1)').textContent != "") {
-            let width = Number(tr.querySelector('td:nth-child(6) input').value);
-            if (!regReal.test(width)) {
-                notifier.show('宽度输入有错误', 'danger');
-                return false;
-            }
+        if (tr.querySelector('td:nth-child(1)').textContent != "" &&
+            !regReal.test(Number(tr.querySelector('td:nth-child(6) input').value))) {
+            notifier.show('宽度输入有错误', 'danger');
+            return false;
+        }
+    }
 
+    for (let tr of table_body.children) {
+        if (tr.querySelector('td:nth-child(1)').textContent != "") {
             let tr_data = {
                 id: Number(tr.querySelector('td:nth-child(1)').textContent),
                 show_name: tr.querySelector('td:nth-child(5) input').value,
-                show_width: width,
+                show_width: Number(tr.querySelector('td:nth-child(6) input').value),
                 ctr_type: tr.querySelector('td:nth-child(7) select').value,
                 option_value: tr.querySelector('td:nth-child(8) input').value,
                 is_show: tr.querySelector('td:nth-child(9) input').checked,
@@ -149,6 +171,7 @@ document.querySelector('#sumit-button').addEventListener('click', () => {
         .then(response => response.json())
         .then(content => {
             if (content == 1) {
+                global.edit = 0;
                 notifier.show('字段修改成功', 'success');
             }
             else {
@@ -158,4 +181,10 @@ document.querySelector('#sumit-button').addEventListener('click', () => {
 
 });
 
+window.onbeforeunload = function (e) {
+    if (global.edit == 1) {
+        var e = window.event || e;
+        e.returnValue = ("编辑未保存提醒");
+    }
+}
 
