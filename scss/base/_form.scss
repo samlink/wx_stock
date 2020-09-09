@@ -25,6 +25,12 @@ input {
     }
 }
 
+.form-label {
+    display: inline-block;
+    width: 110px;
+    text-align: right;
+}
+
 .input-sm {
     height: 28px;
     padding: 3px 5px;

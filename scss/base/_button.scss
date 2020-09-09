@@ -43,6 +43,19 @@ button {
         }
     }
 
+    &.btn-second {
+        color: white;
+        background-color: $color-danger;
+        border-color: $color-danger;
+        box-shadow: 0 2px 6px 0 rgba($color-danger, 0.5);
+
+        &:hover {
+            background-color: $danger-700;
+            border-color: $danger-700;
+            text-decoration: none;
+        }
+    }
+
     &.btn-sm {
         height: 30px;
         font-size: 0.9rem;

@@ -17,9 +17,8 @@ let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 let tree_data = {
     leaf_click: (id, name) => {
-        let name_type = `${name} <span>[ ${id} ]</span>`;
-        document.querySelector('#product-name').innerHTML = name_type;
-        // document.querySelector('#product-name span').textContent = id;
+        document.querySelector('#product-name').textContent = name;
+        document.querySelector('#product-id').textContent = "[ " + id + " ]";
         var data = {
             container: '.table-product',
             header_names: header_names,
@@ -60,7 +59,6 @@ document.querySelector(".tree-title").addEventListener('click', () => {
     fetch_tree();
 });
 
-
 //显示表格数据 ---------------------------------------
 
 let table_name = {
@@ -88,6 +86,9 @@ fetch("/fetch_fields", {
             for (let item of table_fields) {
                 all_width += item.show_width;
             }
+
+            console.log(table_fields);
+
 
             all_width += 3;  //序号列的宽度
             let table_width = document.querySelector('.table-product').clientWidth;
@@ -157,7 +158,6 @@ function blank_row() {
     return row;
 }
 
-
 // //搜索用户
 // document.querySelector('#serach-button').addEventListener('click', function () {
 //     if (!table_data.edit) {
@@ -168,3 +168,67 @@ function blank_row() {
 // });
 
 
+document.querySelector('#add-button').addEventListener('click', function () {
+    let name = document.querySelector('#product-name').textContent;
+    if (name != "") {
+        let form = "<form>";
+
+        for (let name of table_fields) {
+            let control;
+            if (name.ctr_type == "普通输入") {
+                control = `<div class="form-group">
+                                <div class="form-label">
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <input class="form-control input-sm" type="text">
+                            </div>`;
+            } else if (name.ctr_type == "二值选一") {
+                control = `<div class="form-group">
+                                <div class="form-label">                                    
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <label class="check-radio"><input type="checkbox"><span class="checkmark"></span>
+                                </label>
+                            </div>`;
+            } else {
+                control = `<div class="form-group">
+                                <div class="form-label">                                    
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <select class='select-sm'>`;
+                let options = name.option_value.split('_');
+                for (let value of options) {                    
+                    control += `<option value="${value}">${value}</option>`
+                }
+                control += "</select></div>";
+
+            }
+
+            form += control;
+        }
+        form += "</form>";
+
+        document.querySelector('.modal-body').innerHTML = form;
+
+        document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('#zhezhao').style.cssText = "opacity:0.3;background-color:black;display:block;";
+        document.querySelector('#product-modal').style.display = "block";
+    }
+    else {
+        notifier.show('请先选择商品', 'danger');
+    }
+
+});
+
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    close_modal();
+});
+
+document.querySelector('.top-close').addEventListener('click', function () {
+    close_modal();
+});
+
+function close_modal() {
+    document.querySelector('#zhezhao').style.cssText = "display:none;";
+    document.querySelector('#product-modal').style.display = "none";
+}

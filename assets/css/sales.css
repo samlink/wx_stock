@@ -318,6 +318,17 @@ button.btn-info:hover {
   border-color: #0c7cd5;
   text-decoration: none;
 }
+button.btn-second {
+  color: white;
+  background-color: #fd3995;
+  border-color: #fd3995;
+  box-shadow: 0 2px 6px 0 rgba(253, 57, 149, 0.5);
+}
+button.btn-second:hover {
+  background-color: #fc077a;
+  border-color: #fc077a;
+  text-decoration: none;
+}
 button.btn-sm {
   height: 30px;
   font-size: 0.9rem;
@@ -422,6 +433,12 @@ input:focus {
 .form-group label,
 .form-group input {
   margin-right: 6px;
+}
+
+.form-label {
+  display: inline-block;
+  width: 110px;
+  text-align: right;
 }
 
 .input-sm {
@@ -946,15 +963,6 @@ a.roar-alert-message-tbf {
   font-style: italic;
   font-weight: bold;
 }
-#tree #zhezhao {
-  width: 100%;
-  height: 100%;
-  -moz-opacity: 0;
-  opacity: 0.6;
-  left: 0;
-  top: 0;
-  z-index: 1000;
-}
 
 #context-menu {
   width: 80px;
@@ -1044,6 +1052,125 @@ a.roar-alert-message-tbf {
   background-color: #2196f3;
 }
 
+.modal {
+  position: fixed;
+  top: 100px;
+  left: 0;
+  z-index: 1050;
+  display: none;
+  width: 100%;
+  height: 100%;
+  outline: 0;
+  overscroll-behavior: none;
+  padding: 0 !important;
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: opacity 0.15s linear;
+}
+.modal input,
+.modal select {
+  width: 200px;
+  border-color: #e5e5e5;
+}
+.modal .form-group {
+  display: flex;
+  align-items: center;
+}
+.modal .check-radio {
+  margin-top: -17px;
+}
+
+.modal-dialog {
+  position: relative;
+  width: auto;
+  pointer-events: none;
+  transform: none;
+  transition: transform 0.3s ease-out, -webkit-transform 0.3s ease-out;
+  -webkit-transform: translate(0, -50px);
+  max-height: calc(100% - 3.5rem);
+  max-width: 500px;
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  pointer-events: auto;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.3rem;
+  outline: 0;
+  max-height: calc(100vh - 150px);
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 1rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  border-bottom-color: #dee2e6;
+  border-top-left-radius: calc(0.3rem - 1px);
+  border-top-right-radius: calc(0.3rem - 1px);
+  flex-shrink: 0;
+  border-bottom-color: #e4e9ee;
+}
+.modal-header .modal-title {
+  font-size: 14px;
+  color: #106cb6 !important;
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+.modal-header .close {
+  float: right;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  opacity: 0.5;
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 1rem 1rem;
+  margin: 1px -1rem -1rem auto;
+}
+.modal-header .close:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  position: relative;
+  -ms-flex: 1 1 auto;
+  flex: 1 1 auto;
+  padding: 1rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #9dbad5 #dce3ea;
+  overscroll-behavior: none;
+}
+
+.modal-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0.75rem;
+  border-top: 1px solid #dee2e6;
+  border-top-color: #dee2e6;
+  border-bottom-right-radius: calc(0.3rem - 1px);
+  border-bottom-left-radius: calc(0.3rem - 1px);
+  border-top-color: #e4e9ee;
+  background-color: #eff3f8;
+  flex-shrink: 0;
+}
+.modal-footer button {
+  margin: 0 10px;
+}
+
 .user-set {
   display: flex;
   flex-direction: row;
@@ -1069,11 +1196,6 @@ a.roar-alert-message-tbf {
 .user-set #phone-num {
   display: flex;
   align-items: center;
-}
-.user-set .form-label {
-  display: inline-block;
-  width: 110px;
-  text-align: right;
 }
 .user-set #show-rights {
   display: flex;
@@ -1214,11 +1336,12 @@ a.roar-alert-message-tbf {
   margin-left: 30px;
   top: 0;
 }
-.product-content #product-name span {
+.product-content #product-id {
   position: relative;
   font-weight: normal;
   color: #838383;
   top: 0;
+  margin-left: 10px;
 }
 .product-content td:nth-child(2),
 .product-content th:nth-child(2) {

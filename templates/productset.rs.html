@@ -29,14 +29,13 @@
 
                 <div id="zhezhao"></div>
             </div>
-
         </div>
         <div id="product-show">
             <div class="table-top">
                 <div class="autocomplete product-search">
                     <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
-                    <span id="product-name"><span></span></span>
+                    <span id="product-name"></span><span id="product-id"></span>
                 </div>
                 <div class="table-tools">
                     <div class="table-edit">
@@ -88,6 +87,36 @@
             </div>
         </div>
     </div>
+
+    <div class="modal" id="product-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title"></h5>
+
+                    <button type="button" class="top-close close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="modal-sumit-button">
+                        提交
+                    </button>
+                    <button type="button" class="btn btn-second" id="modal-close-button">
+                        返回
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 </div>
 <script type="module" src="/assets/js/pages/productset.js"></script>
 }, user.name.clone())
