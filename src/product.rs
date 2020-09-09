@@ -46,6 +46,9 @@ pub struct Product {
     pub real4: f32,
     pub real5: f32,
     pub real6: f32,
+    pub bool1: bool,
+    pub bool2: bool,
+    pub bool3: bool,
 }
 
 ///获取商品
@@ -64,6 +67,7 @@ pub async fn fetch_product(
                     文本字段4,文本字段5,文本字段6,文本字段7,文本字段8,文本字段9,文本字段10,
                     整数字段1,整数字段2,整数字段3,整数字段4,整数字段5,整数字段6,
                     实数字段1,实数字段2,实数字段3,实数字段4,实数字段5,实数字段6,
+                    布尔字段1,布尔字段2,布尔字段3,
                     ROW_NUMBER () OVER (ORDER BY {}) as 序号
                     FROM products WHERE "商品ID"='{}' AND 规格型号 LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, post_data.id, post_data.name, post_data.sort, skip, post_data.rec
@@ -105,6 +109,9 @@ pub async fn fetch_product(
                 real4: row.get("实数字段4"),
                 real5: row.get("实数字段5"),
                 real6: row.get("实数字段6"),
+                bool1: row.get("布尔字段1"),
+                bool2: row.get("布尔字段2"),
+                bool3: row.get("布尔字段3"),
             };
             products.push(product);
         }

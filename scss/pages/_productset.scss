@@ -37,13 +37,25 @@
     }
 
     #product-name {
+        font-weight: bold;
         position: relative;
         margin-left: 30px;
         top: 0;
+
+        span {
+            position: relative;
+            font-weight: normal;
+            color: $fusion-100;
+            top: 0;
+        }
     }
 
     td:nth-child(2),
     th:nth-child(2) {
-      border-left: none !important;
+        border-left: none !important;
+    }
+
+    table th {
+        padding: 0;
     }
 }

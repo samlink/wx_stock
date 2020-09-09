@@ -17,7 +17,9 @@ let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 let tree_data = {
     leaf_click: (id, name) => {
-        document.querySelector('#product-name').textContent = name;
+        let name_type = `${name} <span>[ ${id} ]</span>`;
+        document.querySelector('#product-name').innerHTML = name_type;
+        // document.querySelector('#product-name span').textContent = id;
         var data = {
             container: '.table-product',
             header_names: header_names,
@@ -88,17 +90,9 @@ fetch("/fetch_fields", {
             }
 
             all_width += 3;  //序号列的宽度
-
-            console.log(all_width);
-
             let table_width = document.querySelector('.table-product').clientWidth;
-            console.log(table_width);
-
-            let rows = `<th hidden></th><th width='${300 / all_width}%'>序号</th>`;
-
             let width = table_width / all_width;
-
-            console.log(width);
+            let rows = `<th hidden></th><th width='${300 / all_width}%'>序号</th>`;
 
             if (width < 18) {
                 rows = `<th hidden></th><th width='${3 * 18}px'>序号</th>`;
@@ -138,6 +132,12 @@ function table_row(tr) {
     for (let name of table_fields) {
         if (name.data_type == "文本") {
             row += `<td title='${tr[name.rust_name]}'>${tr[name.rust_name]}</td>`;
+        } else if (name.data_type == "布尔") {
+            let show = name.option_value.split('_');
+            row += tr[name.rust_name] == true ? `<td style="text-align: center;">${show[0]}</td>` :
+                `<td style="text-align: center;">${show[1]}</td>`;
+        } else if (name.data_type == "整数" || name.data_type == "实数") {
+            row += `<td style="text-align: right;">${tr[name.rust_name]}</td>`;
         }
         else {
             row += `<td>${tr[name.rust_name]}</td>`;

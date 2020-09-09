@@ -25,25 +25,26 @@ var data = {
 function row_fn(tr) {
     let s1 = "";
     let s2 = "";
-    let s3 = "";
 
     if (tr.ctr_type == "普通输入") {
         s1 = "selected";
     } else if (tr.ctr_type == "下拉列表") {
         s2 = "selected";
-    } else {
-        s3 = "selected";
     }
 
+    let select = tr.data_type != "布尔" ? `<select class='select-sm'><option value="普通输入" ${s1}>普通输入</option>
+                <option value="下拉列表" ${s2}>下拉列表</option></select></td>` :
+        `<select class='select-sm'><option value="二值选一" selected>二值选一</option></select></td>`;
+
     let read_only = tr.ctr_type == "普通输入" ? "disabled" : "";
+
 
     let checked = tr.is_show ? "checked" : "";
 
     return `<tr draggable="true"><td class='hide'>${tr.id}</td><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
             <input class='form-control input-sm' type="text" value=${tr.show_name}></td>
             <td width=8%><input class='form-control input-sm' type="text" value=${tr.show_width}></td>
-            <td><select class='select-sm'><option value="普通输入" ${s1}>普通输入</option><option value="下拉列表" ${s2}>下拉列表</option>
-            <option value="二值选一" ${s3}>二值选一</option></select></td>
+            <td>${select}</td>
             <td width=20%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
             <td width=8%><label class="check-radio"><input type="checkbox" ${checked}>
             <span class="checkmark"></span></td></tr>`;
