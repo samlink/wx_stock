@@ -3,7 +3,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { getHeight } from '../parts/tools.mjs';
+import { regInt, regReal, getHeight } from '../parts/tools.mjs';
 
 let global = {
     id: 0,
@@ -313,6 +313,7 @@ function close_modal() {
     document.querySelector('#product-modal').style.display = "none";
 }
 
+//提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     let all_input = document.querySelectorAll('.has-value');
     let num = 0;
@@ -353,6 +354,16 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     }
 
     for (let input of all_input) {
+        if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
+            || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+            notifier.show('数字字段输入错误', 'danger');
+            return false;
+        }
+        num++;
+    }
+
+    num = 0;
+    for (let input of all_input) {
         let value;
         if (input.parentNode.className.indexOf('check-radio') == -1) {
             value = input.value;
@@ -361,15 +372,13 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             value = input.checked;
         }
 
-        if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数"){
+        if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
             value = Number(value);
         }
 
         data[table_fields[num].rust_name] = value;
         num++;
     }
-
-    console.log(data);
 
     let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
 
