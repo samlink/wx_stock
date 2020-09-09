@@ -1,6 +1,6 @@
 .modal {
     position: fixed;
-    top: 100px;
+    top: 0;
     left: 0;
     z-index: 1050;
     display: none;
@@ -13,10 +13,16 @@
     overflow-x: hidden;
     transition: opacity 0.15s linear;
 
+    background: rgba(0, 0, 0, 0.3); //这种背景色和透明度设置方式，才能不会使子元素也透明，起到遮罩作用
+
     input,
     select {
-        width: 200px;
+        width: 300px;
         border-color: #e5e5e5;
+    }
+
+    input {
+        padding: 0 8px;
     }
 
     .form-group {
@@ -38,6 +44,9 @@
     max-height: calc(100% - 3.5rem);
     max-width: 500px;
     margin: 1.75rem auto;
+    margin-top: 130px;
+
+    opacity: 1;
 }
 
 .modal-content {
@@ -58,17 +67,18 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    padding: 1rem 1rem;
     border-bottom: 1px solid #dee2e6;
     border-bottom-color: rgb(222, 226, 230);
     border-top-left-radius: calc(0.3rem - 1px);
     border-top-right-radius: calc(0.3rem - 1px);
     flex-shrink: 0;
     border-bottom-color: #e4e9ee;
+    padding: 3px 20px;
+
     .modal-title {
         font-size: 14px;
         color: #106cb6 !important;
-        margin-bottom: 0;
+        margin-bottom: 8px;
         line-height: 1.5;
     }
     .close {
@@ -82,7 +92,7 @@
         background-color: transparent;
         border: 0;
         cursor: pointer;
-        padding: 1rem 1rem;
+        padding: 5px 16px;
         margin: 1px -1rem -1rem auto;
 
         &:hover {

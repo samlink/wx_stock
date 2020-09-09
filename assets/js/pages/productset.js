@@ -197,7 +197,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
                                 </div>
                                 <select class='select-sm'>`;
                 let options = name.option_value.split('_');
-                for (let value of options) {                    
+                for (let value of options) {
                     control += `<option value="${value}">${value}</option>`
                 }
                 control += "</select></div>";
@@ -211,11 +211,64 @@ document.querySelector('#add-button').addEventListener('click', function () {
         document.querySelector('.modal-body').innerHTML = form;
 
         document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
-        document.querySelector('#zhezhao').style.cssText = "opacity:0.3;background-color:black;display:block;";
         document.querySelector('#product-modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
     }
     else {
         notifier.show('请先选择商品', 'danger');
+    }
+
+});
+
+document.querySelector('#edit-button').addEventListener('click', function () {
+    let name = document.querySelector('#product-name').textContent;
+    let chosed = document.querySelector('tbody .focus');
+    if (name != "" && chosed) {
+        let form = "<form>";
+
+        for (let name of table_fields) {
+            let control;
+            if (name.ctr_type == "普通输入") {
+                control = `<div class="form-group">
+                                <div class="form-label">
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <input class="form-control input-sm" type="text">
+                            </div>`;
+            } else if (name.ctr_type == "二值选一") {
+                control = `<div class="form-group">
+                                <div class="form-label">                                    
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <label class="check-radio"><input type="checkbox"><span class="checkmark"></span>
+                                </label>
+                            </div>`;
+            } else {
+                control = `<div class="form-group">
+                                <div class="form-label">                                    
+                                    <label>${name.show_name}</label>
+                                </div>
+                                <select class='select-sm'>`;
+                let options = name.option_value.split('_');
+                for (let value of options) {
+                    control += `<option value="${value}">${value}</option>`
+                }
+                control += "</select></div>";
+
+            }
+
+            form += control;
+        }
+        form += "</form>";
+
+        document.querySelector('.modal-body').innerHTML = form;
+
+        document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('#product-modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+    }
+    else {
+        notifier.show('请先选择商品规格', 'danger');
     }
 
 });

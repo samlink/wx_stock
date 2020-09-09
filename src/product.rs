@@ -118,8 +118,8 @@ pub async fn fetch_product(
 
         let rows = &conn
             .query(
-                r#"SELECT count("ID") as 记录数 FROM products WHERE 规格型号 LIKE '%' || $1 || '%'"#,
-                &[&post_data.name],
+                r#"SELECT count("ID") as 记录数 FROM products WHERE "商品ID"=$1 AND 规格型号 LIKE '%' || $2 || '%'"#,
+                &[&post_data.id, &post_data.name],
             )
             .await
             .unwrap();
