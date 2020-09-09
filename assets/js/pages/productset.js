@@ -198,7 +198,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
                                 <select class='select-sm'>`;
                 let options = name.option_value.split('_');
                 for (let value of options) {
-                    control += `<option value="${value}">${value}</option>`
+                    control += `<option value="${value}">${value}</option>`;
                 }
                 control += "</select></div>";
 
@@ -223,27 +223,35 @@ document.querySelector('#add-button').addEventListener('click', function () {
 document.querySelector('#edit-button').addEventListener('click', function () {
     let name = document.querySelector('#product-name').textContent;
     let chosed = document.querySelector('tbody .focus');
-    if (name != "" && chosed) {
+    let id = chosed ? chosed.querySelector('td:nth-child(1)').textContent : "";
+    if (name != "" && chosed && id != "") {
         let form = "<form>";
 
+        let num = 3;
         for (let name of table_fields) {
             let control;
             if (name.ctr_type == "普通输入") {
+                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
                 control = `<div class="form-group">
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
-                                <input class="form-control input-sm" type="text">
+                                <input class="form-control input-sm" type="text" value="${value}">
                             </div>`;
             } else if (name.ctr_type == "二值选一") {
+                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
+                let options = name.option_value.split('_');
+                let check = value == options[0] ? "checked" : "";
+
                 control = `<div class="form-group">
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <label class="check-radio"><input type="checkbox"><span class="checkmark"></span>
+                                <label class="check-radio"><input type="checkbox" ${check}><span class="checkmark"></span>
                                 </label>
                             </div>`;
             } else {
+                let show_value = chosed.querySelector(`td:nth-child(${num})`).textContent;
                 control = `<div class="form-group">
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
@@ -251,13 +259,19 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                                 <select class='select-sm'>`;
                 let options = name.option_value.split('_');
                 for (let value of options) {
-                    control += `<option value="${value}">${value}</option>`
+                    if (value == show_value) {
+                        control += `<option value="${value}" selected>${value}</option>`;
+                    }
+                    else {
+                        control += `<option value="${value}">${value}</option>`;
+                    }
                 }
                 control += "</select></div>";
 
             }
 
             form += control;
+            num++;
         }
         form += "</form>";
 
@@ -285,3 +299,7 @@ function close_modal() {
     document.querySelector('#zhezhao').style.cssText = "display:none;";
     document.querySelector('#product-modal').style.display = "none";
 }
+
+document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+    
+});
