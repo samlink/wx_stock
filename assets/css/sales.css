@@ -614,7 +614,7 @@ input:focus {
 .table-container table thead th {
   color: white;
   background: #39a1f4;
-  height: 35px;
+  height: 36px;
   cursor: pointer;
 }
 .table-container table tr {
@@ -802,7 +802,7 @@ a.roar-alert-message-tbf {
 }
 .tree-show {
   height: 95%;
-  min-width: 300px;
+  min-width: 305px;
 }
 .tree-show button {
   color: white;
@@ -845,7 +845,7 @@ a.roar-alert-message-tbf {
   height: 90%;
   overflow-y: auto;
   overflow-x: auto;
-  max-width: 300px;
+  max-width: 305px;
 }
 
 #tree {
@@ -1182,8 +1182,11 @@ a.roar-alert-message-tbf {
   height: 95%;
 }
 .product-content #product-show {
-  width: 79%;
+  flex: 1;
   margin-left: 20px;
+}
+.product-content .table-product {
+  overflow-x: auto;
 }
 .product-content .table-tools {
   display: flex;
@@ -1209,6 +1212,10 @@ a.roar-alert-message-tbf {
   position: relative;
   margin-left: 30px;
   top: 0;
+}
+.product-content td:nth-child(2),
+.product-content th:nth-child(2) {
+  border-left: none !important;
 }
 
 .fields-set #product-show {

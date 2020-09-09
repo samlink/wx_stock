@@ -4,8 +4,12 @@
     height: 95%;
 
     #product-show {
-        width: 79%;
+        flex: 1;
         margin-left: 20px;
+    }
+
+    .table-product {
+        overflow-x: auto;
     }
 
     .table-tools {
@@ -36,5 +40,10 @@
         position: relative;
         margin-left: 30px;
         top: 0;
+    }
+
+    td:nth-child(2),
+    th:nth-child(2) {
+      border-left: none !important;
     }
 }

@@ -1,6 +1,7 @@
+$mini-wd: 305px;
 .tree-show {
   height: 95%;
-  min-width: 300px;
+  min-width: $mini-wd;
 
   // .autocomplete {
   //   margin-bottom: 10px;
@@ -51,7 +52,7 @@
   overflow-y: auto;
   overflow-x: auto;
   // max-height: 560px;
-  max-width: 300px;
+  max-width: $mini-wd;
 }
 
 #tree {

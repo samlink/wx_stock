@@ -87,19 +87,40 @@ fetch("/fetch_fields", {
                 all_width += item.show_width;
             }
 
-            all_width += 3;
+            all_width += 3;  //序号列的宽度
+
+            console.log(all_width);
+
+            let table_width = document.querySelector('.table-product').clientWidth;
+            console.log(table_width);
+
             let rows = `<th hidden></th><th width='${300 / all_width}%'>序号</th>`;
 
+            let width = table_width / all_width;
+
+            console.log(width);
+
+            if (width < 18) {
+                rows = `<th hidden></th><th width='${3 * 18}px'>序号</th>`;
+                document.querySelector('.table-product').style.width = table_width;
+                document.querySelector('.table-product .table-ctrl').style.cssText = `
+                position: absolute;
+                width: ${table_width + 2}px;
+                margin-top: 11px;
+                border: 1px solid #edf5fb;
+                margin-left: -2px;`;
+            }
+
             for (let th of table_fields) {
-                rows += `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>`;
+                rows += width > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
+                    `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
+
                 let key = th.show_name;
                 let value = th.field_name;
                 header_names[key] = value;
             }
 
             document.querySelector('.table-product thead tr').innerHTML = rows;
-
-            console.log(table_fields);
 
             let row = blank_row();
 
