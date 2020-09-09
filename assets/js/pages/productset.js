@@ -5,6 +5,12 @@ import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
+let global = {
+    id: 0,
+    edit: 0,
+    eidt_cate: "",
+}
+
 let auto = document.querySelector('.autocomplete');
 let title = document.querySelector('.tree-title');
 let tree = document.querySelector('.tree-container');
@@ -18,7 +24,7 @@ let row_num = Math.floor((get_height - ctrl_height) / 30);
 let tree_data = {
     leaf_click: (id, name) => {
         document.querySelector('#product-name').textContent = name;
-        document.querySelector('#product-id').textContent = "[ " + id + " ]";
+        document.querySelector('#product-id').textContent = id;
         var data = {
             container: '.table-product',
             header_names: header_names,
@@ -169,6 +175,8 @@ function blank_row() {
 
 
 document.querySelector('#add-button').addEventListener('click', function () {
+    global.eidt_cate = "add";
+
     let name = document.querySelector('#product-name').textContent;
     if (name != "") {
         let form = "<form>";
@@ -180,14 +188,14 @@ document.querySelector('#add-button').addEventListener('click', function () {
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
-                                <input class="form-control input-sm" type="text">
+                                <input class="form-control input-sm has-value" type="text">
                             </div>`;
             } else if (name.ctr_type == "二值选一") {
                 control = `<div class="form-group">
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <label class="check-radio"><input type="checkbox"><span class="checkmark"></span>
+                                <label class="check-radio"><input class="has-value" type="checkbox"><span class="checkmark"></span>
                                 </label>
                             </div>`;
             } else {
@@ -195,7 +203,8 @@ document.querySelector('#add-button').addEventListener('click', function () {
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <select class='select-sm'>`;
+                                <select class='select-sm has-value'>`;
+
                 let options = name.option_value.split('_');
                 for (let value of options) {
                     control += `<option value="${value}">${value}</option>`;
@@ -221,12 +230,15 @@ document.querySelector('#add-button').addEventListener('click', function () {
 });
 
 document.querySelector('#edit-button').addEventListener('click', function () {
+    global.eidt_cate = "edit";
+
     let name = document.querySelector('#product-name').textContent;
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(1)').textContent : "";
-    if (name != "" && chosed && id != "") {
-        let form = "<form>";
+    if (name != "" && id != "") {
+        global.id = id;
 
+        let form = "<form>";
         let num = 3;
         for (let name of table_fields) {
             let control;
@@ -236,7 +248,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
-                                <input class="form-control input-sm" type="text" value="${value}">
+                                <input class="form-control input-sm has-value" type="text" value="${value}">
                             </div>`;
             } else if (name.ctr_type == "二值选一") {
                 let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
@@ -247,7 +259,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <label class="check-radio"><input type="checkbox" ${check}><span class="checkmark"></span>
+                                <label class="check-radio"><input class="has-value" type="checkbox" ${check}><span class="checkmark"></span>
                                 </label>
                             </div>`;
             } else {
@@ -256,7 +268,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <select class='select-sm'>`;
+                                <select class='select-sm has-value'>`;
+
                 let options = name.option_value.split('_');
                 for (let value of options) {
                     if (value == show_value) {
@@ -266,8 +279,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                         control += `<option value="${value}">${value}</option>`;
                     }
                 }
-                control += "</select></div>";
 
+                control += "</select></div>";
             }
 
             form += control;
@@ -301,5 +314,81 @@ function close_modal() {
 }
 
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    
+    let all_input = document.querySelectorAll('.has-value');
+    let num = 0;
+    let data = {
+        num: document.querySelector('#product-id').textContent,
+        id: Number(global.id),
+        p_type: "",
+        price: 0,
+        p_limit: 0,
+        not_use: false,
+        note: "",
+        unit: "",
+        text1: "",
+        text2: "",
+        text3: "",
+        text4: "",
+        text5: "",
+        text6: "",
+        text7: "",
+        text8: "",
+        text9: "",
+        text10: "",
+        integer1: 0,
+        integer2: 0,
+        integer3: 0,
+        integer4: 0,
+        integer5: 0,
+        integer6: 0,
+        real1: 0,
+        real2: 0,
+        real3: 0,
+        real4: 0,
+        real5: 0,
+        real6: 0,
+        bool1: false,
+        bool2: false,
+        bool3: false,
+    }
+
+    for (let input of all_input) {
+        let value;
+        if (input.parentNode.className.indexOf('check-radio') == -1) {
+            value = input.value;
+        }
+        else {
+            value = input.checked;
+        }
+
+        if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数"){
+            value = Number(value);
+        }
+
+        data[table_fields[num].rust_name] = value;
+        num++;
+    }
+
+    console.log(data);
+
+    let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
+
+    fetch(url, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                global.edit = 0;
+                notifier.show('商品修改成功', 'success');
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+
 });

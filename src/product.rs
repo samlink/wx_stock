@@ -51,6 +51,7 @@ pub struct Product {
     pub bool3: bool,
 }
 
+
 ///获取商品
 #[post("/fetch_product")]
 pub async fn fetch_product(
@@ -130,6 +131,102 @@ pub async fn fetch_product(
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ProductPost {
+    pub num: String,
+    pub id: i32,
+    pub p_type: String,
+    pub price: f32,
+    pub p_limit: i32,
+    pub not_use: bool,
+    pub note: String,
+    pub unit: String,
+    pub text1: String,
+    pub text2: String,
+    pub text3: String,
+    pub text4: String,
+    pub text5: String,
+    pub text6: String,
+    pub text7: String,
+    pub text8: String,
+    pub text9: String,
+    pub text10: String,
+    pub integer1: i32,
+    pub integer2: i32,
+    pub integer3: i32,
+    pub integer4: i32,
+    pub integer5: i32,
+    pub integer6: i32,
+    pub real1: f32,
+    pub real2: f32,
+    pub real3: f32,
+    pub real4: f32,
+    pub real5: f32,
+    pub real6: f32,
+    pub bool1: bool,
+    pub bool2: bool,
+    pub bool3: bool,
+}
+
+///编辑更新产品
+#[post("/update_product")]
+pub async fn update_product(
+    db: web::Data<Pool>,
+    data: web::Json<ProductPost>, //作为前端回传数据时，num 为商品ID, 而非序号
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"UPDATE products SET "商品ID"='{}',规格型号='{}',出售价格={},库存下限={},停用={},备注='{}',单位='{}',文本字段1='{}',
+                文本字段2='{}',文本字段3='{}',文本字段4='{}',文本字段5='{}',文本字段6='{}',文本字段7='{}',文本字段8='{}',文本字段9='{}',
+                文本字段10='{}',整数字段1={},整数字段2={},整数字段3={},整数字段4={},整数字段5={},整数字段6={},实数字段1={},实数字段2={},
+                实数字段3={},实数字段4={},实数字段5={},实数字段6={},布尔字段1={},布尔字段2={},布尔字段3={}
+                WHERE "ID"='{}'"#,
+            data.num,
+            data.p_type,
+            data.price,
+            data.p_limit,
+            data.not_use,
+            data.note,
+            data.unit,
+            data.text1,
+            data.text2,
+            data.text3,
+            data.text4,
+            data.text5,
+            data.text6,
+            data.text7,
+            data.text8,
+            data.text9,
+            data.text10,
+            data.integer1,
+            data.integer2,
+            data.integer3,
+            data.integer4,
+            data.integer5,
+            data.integer6,
+            data.real1,
+            data.real2,
+            data.real3,
+            data.real4,
+            data.real5,
+            data.real6,
+            data.bool1,
+            data.bool2,
+            data.bool3,
+            data.id,
+        );
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

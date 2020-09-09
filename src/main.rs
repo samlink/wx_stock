@@ -64,6 +64,7 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_auto)
             .service(tree::tree_drag)
             .service(product::fetch_product)
+            .service(product::update_product)
             .service(field_set::fetch_fields)
             .service(field_set::update_tableset)
             .service(web::resource("static/{name}").to(service::serve_static))
