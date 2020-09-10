@@ -308,6 +308,7 @@ pub struct Message {
     label: String,
 }
 
+//自动完成
 #[get("/product_auto")]
 pub async fn product_auto(
     db: web::Data<Pool>,
