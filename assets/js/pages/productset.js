@@ -25,26 +25,12 @@ let tree_data = {
     leaf_click: (id, name) => {
         document.querySelector('#product-name').textContent = name;
         document.querySelector('#product-id').textContent = id;
-        var data = {
-            container: '.table-product',
-            header_names: header_names,
-            url: "/fetch_product",
-            post_data: {
-                id: id,
-                name: '',
-                sort: "规格型号 ASC",
-                rec: row_num,
-            },
-            edit: false,
 
-            row_fn: table_row,
-            blank_row_fn: blank_row,
+        let post_data = {
+            id: id,
+        };
 
-            row_click: function (tr) {
-            }
-        }
-
-        table_init(data);
+        Object.assign(table_data.post_data, post_data);
         fetch_table();
     }
 }
@@ -65,7 +51,7 @@ document.querySelector(".tree-title").addEventListener('click', () => {
     fetch_tree();
 });
 
-//显示表格数据 ---------------------------------------
+//显示表格数据 -------------------------------------------------------------------
 
 let table_name = {
     name: "商品规格"
@@ -73,6 +59,22 @@ let table_name = {
 
 let table_fields;
 let header_names = {};
+
+let init_data = {
+    container: '.table-product',
+    header_names: header_names,
+    url: "/fetch_blank",
+    post_data: {
+        id: 0,
+        name: '',
+        sort: "规格型号 ASC",
+        rec: row_num,
+    },
+    edit: false,
+
+    row_fn: table_row,
+    blank_row_fn: blank_row,
+};
 
 fetch("/fetch_fields", {
     method: 'post',
@@ -123,14 +125,25 @@ fetch("/fetch_fields", {
 
             document.querySelector('.table-product thead tr').innerHTML = rows;
 
-            let row = blank_row();
+            // let row = blank_row();
 
-            rows = "";
-            for (let i = 0; i < row_num; i++) {
-                rows += row;
+            // rows = "";
+            // for (let i = 0; i < row_num; i++) {
+            //     rows += row;
+            // }
+
+            // document.querySelector('.table-product tbody').innerHTML = rows;
+
+
+
+            table_init(init_data);
+            fetch_table();
+
+            let data = {
+                url: "/fetch_product",
             }
 
-            document.querySelector('.table-product tbody').innerHTML = rows;
+            Object.assign(table_data, data);
         }
     });
 
@@ -309,6 +322,15 @@ document.querySelector('.top-close').addEventListener('click', function () {
 });
 
 function close_modal() {
+    if (global.edit == 1) {
+        alert_confirm('编辑还未保存，确认退出吗？', {
+            confirmCallBack: () => {
+                document.querySelector('#zhezhao').style.cssText = "display:none;";
+                document.querySelector('#product-modal').style.display = "none";
+            }
+        });
+    }
+
     document.querySelector('#zhezhao').style.cssText = "display:none;";
     document.querySelector('#product-modal').style.display = "none";
 }
@@ -394,10 +416,25 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             if (content == 1) {
                 global.edit = 0;
                 notifier.show('商品修改成功', 'success');
+                fetch_table();
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
-
 });
+
+//编辑时离开提醒
+let all_input = document.querySelectorAll('.table-product tbody input');
+for (let input of all_input) {
+    input.addEventListener('input', () => {
+        global.edit = 1;
+    });
+}
+
+let all_select = document.querySelectorAll('.table-product tbody select');
+for (let select of all_select) {
+    select.addEventListener('change', function () {
+        global.edit = 1;
+    });
+}

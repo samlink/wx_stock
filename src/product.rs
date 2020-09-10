@@ -51,7 +51,6 @@ pub struct Product {
     pub bool3: bool,
 }
 
-
 ///获取商品
 #[post("/fetch_product")]
 pub async fn fetch_product(
@@ -230,4 +229,11 @@ pub async fn update_product(
     } else {
         HttpResponse::Ok().json(-1)
     }
+}
+
+///获取一条空记录，用于无数据表格初始化
+#[post("/fetch_blank")]
+pub fn fetch_blank() -> HttpResponse {
+    let v: Vec<i32> = Vec::new();
+    HttpResponse::Ok().json((v, 0, 0))
 }
