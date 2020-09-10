@@ -3,13 +3,15 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight } from '../parts/tools.mjs';
+import { regInt, regReal, getHeight, download_file } from '../parts/tools.mjs';
 
 let global = {
     id: 0,
     edit: 0,
     eidt_cate: "",
 }
+
+//配置自动完成和树的显示 ---------------------------------------------------
 
 let auto = document.querySelector('.autocomplete');
 let title = document.querySelector('.tree-title');
@@ -52,7 +54,7 @@ document.querySelector(".tree-title").addEventListener('click', () => {
     fetch_tree();
 });
 
-//显示表格数据 -------------------------------------------------------------------
+//商品规格表格数据 -------------------------------------------------------------------
 
 let table_name = {
     name: "商品规格"
@@ -312,7 +314,6 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     else {
         notifier.show('请先选择商品规格', 'danger');
     }
-
 });
 
 //提交按键
@@ -447,3 +448,37 @@ function leave_alert() {
         });
     }
 }
+
+//数据导入和导出 ------------------------------------------------------------------------------
+
+document.querySelector('#data-out').addEventListener('click', function () {
+    let name = document.querySelector('#product-name').textContent;
+    if (name != "") {
+        let name_id = document.querySelector('#product-id').textContent;
+
+        let data = {
+            id: name_id,
+        };
+
+        fetch("/fetch_blank", {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    download_file("/download/p.xlsx");
+                    notifier.show('成功导出至 Excel 文件', 'success');
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
+    }
+    else {
+        notifier.show('请先选择商品', 'danger');
+    }
+});

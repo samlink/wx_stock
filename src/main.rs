@@ -72,6 +72,7 @@ async fn main() -> std::io::Result<()> {
             .service(field_set::update_tableset)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
+            .service(fs::Files::new("/download", "download"))
     })
     .bind("127.0.0.1:8083")?
     .run()

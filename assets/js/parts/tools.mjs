@@ -2,6 +2,7 @@ export var regInt = /^[+]{0,1}(\d+)$/;
 export var regReal = /^\d+(\.\d+)?$/;
 export var regDate = /^((?:19|20)\d\d)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
 
+//获得控件的高度
 export function getHeight() {
     let header = document.querySelector('.header');
     let footer = document.querySelector('footer');
@@ -14,4 +15,12 @@ export function getHeight() {
         sum += arguments[i];
     }
     return content_height - sum;
+}
+
+export function download_file(url) {
+    var downloadLink = document.createElement("a");
+    downloadLink.href = url;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
 }
