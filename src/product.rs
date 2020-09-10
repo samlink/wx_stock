@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use xlsxwriter::*;
 
 #[derive(Deserialize, Serialize)]
 pub struct FrontData {
@@ -338,6 +339,104 @@ pub async fn product_auto(
         }
 
         HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct ProductName {
+    id: String,
+    name: String,
+}
+
+#[post("/product_out")]
+pub async fn product_out(
+    db: web::Data<Pool>,
+    name: web::Json<ProductName>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let rows = &conn
+        .query(
+            r#"SELECT field_name, show_name FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
+            &[],
+        )
+        .await
+        .unwrap();
+
+        let wb = Workbook::new("data.xlsx");
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        sheet.freeze_panes(1, 1); //冻结第一行第一列
+
+        let format1 = wb
+            .add_format()
+            .set_align(FormatAlignment::CenterAcross)
+            .set_bold(); //设置格式：居中，加粗
+
+        sheet
+            .write_string(0, 0, arguments[1].as_str(), Some(&format1))
+            .unwrap();
+        sheet.write_string(0, 1, "销售额", Some(&format1)).unwrap();
+        sheet
+            .write_string(0, 2, "销售成本", Some(&format1))
+            .unwrap();
+
+        //设置列宽
+        sheet.set_column(0, 16, 10.0, None).unwrap();
+        sheet.set_column(18, 17, 25.0, None).unwrap();
+
+        // let mut ch = 0;
+        let sql = r#"select * from 年报 where 标识=$1 order by 年份 desc"#;
+
+        let rows = &conn.query(sql, &[]).await.unwrap();
+
+        let mut n = rows.len() as u32;
+
+        for row in rows {
+            let na: String = row.get("年份");
+            let n2: i32 = row.get("销售额");
+            let n3: i32 = row.get("销售成本");
+            let n4: i32 = row.get("销售管理费");
+            let n6: i32 = row.get("财务费用");
+            let n7: i32 = row.get("净利润");
+            let n8: i32 = row.get("股份数");
+            let n9: i32 = row.get("短期借款");
+            let n10: i32 = row.get("长期借款");
+            let n11: i32 = row.get("股东权益");
+            let n12: i32 = row.get("折旧及减值");
+            let n13: i32 = row.get("营运现金流");
+            let n14: i32 = row.get("资本支出");
+            let n15: i32 = row.get("收售业务");
+            let n16: i32 = row.get("股权变动");
+            let n17: i32 = row.get("支付股息");
+            let n18: String = row.get("备注");
+
+            let formula = format!("=B{}-C{}-D{}", n + 1, n + 1, n + 1);
+
+            sheet.write_string(n, 0, na.as_str(), None).unwrap();
+            sheet.write_number(n, 1, n2 as f64, None).unwrap();
+
+            n = n - 1;
+        }
+
+        let c = rows.len() + 2;
+        let b = c - 1;
+        let formula = format!("=B{}-C{}-D{}", c, c, c);
+        let formula2 = format!("=CONCAT(YEAR(A{})+1, RIGHT(A{},6))", b, b);
+
+        sheet.write_formula(b as u32, 4, &formula, None).unwrap();
+        sheet.write_formula(b as u32, 0, &formula2, None).unwrap();
+
+        //设置行高
+        for i in 0..30 {
+            sheet.set_row(i, 20.0, None).unwrap();
+        }
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

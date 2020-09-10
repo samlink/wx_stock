@@ -458,6 +458,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
 
         let data = {
             id: name_id,
+            name: name,
         };
 
         fetch("/fetch_blank", {
