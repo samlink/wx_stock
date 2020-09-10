@@ -39,7 +39,8 @@ tree_init(tree_data);
 fetch_tree();
 
 let input = document.querySelector('#auto_input');
-autocomplete(input, "/tree_auto", () => {
+
+autocomplete(input, "", "/tree_auto", () => {
     tree_search(input.value);
 });
 
@@ -65,7 +66,7 @@ let init_data = {
     header_names: header_names,
     url: "/fetch_blank",
     post_data: {
-        id: 0,
+        id: "",
         name: '',
         sort: "规格型号 ASC",
         rec: row_num,
@@ -125,22 +126,12 @@ fetch("/fetch_fields", {
 
             document.querySelector('.table-product thead tr').innerHTML = rows;
 
-            // let row = blank_row();
-
-            // rows = "";
-            // for (let i = 0; i < row_num; i++) {
-            //     rows += row;
-            // }
-
-            // document.querySelector('.table-product tbody').innerHTML = rows;
-
-
-
             table_init(init_data);
             fetch_table();
 
             let data = {
                 url: "/fetch_product",
+                page: 1,
             }
 
             Object.assign(table_data, data);
@@ -177,16 +168,24 @@ function blank_row() {
     return row;
 }
 
-// //搜索用户
-// document.querySelector('#serach-button').addEventListener('click', function () {
-//     if (!table_data.edit) {
-//         let search = document.querySelector('#search-input').value;
-//         Object.assign(table_data.post_data, { name: search });
-//         fetch_table();
-//     }
-// });
+//搜索规格
+let search_input = document.querySelector('#search-input');
+let cate = document.querySelector('#product-id');
+autocomplete(search_input, cate, "/product_auto", () => {
+    search_table();
+});
 
+document.querySelector('#serach-button').addEventListener('click', function () {
+    search_table();
+});
 
+function search_table() {
+    let search = document.querySelector('#search-input').value;
+    Object.assign(table_data.post_data, { name: search, page: 1 });
+    fetch_table();
+}
+
+//增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
 
@@ -235,6 +234,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
         document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
+        leave_alert();
     }
     else {
         notifier.show('请先选择商品', 'danger');
@@ -242,6 +242,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 
 });
 
+//编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {
     global.eidt_cate = "edit";
 
@@ -306,6 +307,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
+        leave_alert();
     }
     else {
         notifier.show('请先选择商品规格', 'danger');
@@ -313,35 +315,13 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 });
 
-document.querySelector('#modal-close-button').addEventListener('click', function () {
-    close_modal();
-});
-
-document.querySelector('.top-close').addEventListener('click', function () {
-    close_modal();
-});
-
-function close_modal() {
-    if (global.edit == 1) {
-        alert_confirm('编辑还未保存，确认退出吗？', {
-            confirmCallBack: () => {
-                document.querySelector('#zhezhao').style.cssText = "display:none;";
-                document.querySelector('#product-modal').style.display = "none";
-            }
-        });
-    }
-
-    document.querySelector('#zhezhao').style.cssText = "display:none;";
-    document.querySelector('#product-modal').style.display = "none";
-}
-
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     let all_input = document.querySelectorAll('.has-value');
     let num = 0;
     let data = {
-        num: document.querySelector('#product-id').textContent,
-        id: Number(global.id),
+        num: document.querySelector('#product-id').textContent, //品名ID
+        id: Number(global.id),  //自身ID
         p_type: "",
         price: 0,
         p_limit: 0,
@@ -424,17 +404,46 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         });
 });
 
-//编辑时离开提醒
-let all_input = document.querySelectorAll('.table-product tbody input');
-for (let input of all_input) {
-    input.addEventListener('input', () => {
-        global.edit = 1;
-    });
+
+//关闭按键
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    close_modal();
+});
+
+//关闭按键
+document.querySelector('.top-close').addEventListener('click', function () {
+    close_modal();
+});
+
+//关闭函数
+function close_modal() {
+    if (global.edit == 1) {
+        alert_confirm('编辑还未保存，确认退出吗？', {
+            confirmCallBack: () => {
+                global.edit = 0;
+                document.querySelector('#zhezhao').style.cssText = "display:none;";
+                document.querySelector('#product-modal').style.display = "none";
+            }
+        });
+    } else {
+        document.querySelector('#zhezhao').style.cssText = "display:none;";
+        document.querySelector('#product-modal').style.display = "none";
+    }
 }
 
-let all_select = document.querySelectorAll('.table-product tbody select');
-for (let select of all_select) {
-    select.addEventListener('change', function () {
-        global.edit = 1;
-    });
+//编辑离开提醒事件
+function leave_alert() {
+    let all_input = document.querySelectorAll('#product-modal input');
+    for (let input of all_input) {
+        input.addEventListener('input', () => {
+            global.edit = 1;
+        });
+    }
+
+    let all_select = document.querySelectorAll('#product-modal select');
+    for (let select of all_select) {
+        select.addEventListener('change', function () {
+            global.edit = 1;
+        });
+    }
 }

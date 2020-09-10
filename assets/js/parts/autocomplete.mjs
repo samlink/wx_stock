@@ -1,14 +1,15 @@
-/// input: 输入元素；url: 数据地址；cb: 回调函数
-export function autocomplete(input, url, cb) {
+/// input: 输入元素；cate: 类别元素，url: 数据地址；cb: 回调函数
+export function autocomplete(input, cate, url, cb) {
     var currentFocus;
     input.addEventListener("input", function (e) {
-        var a, b, i, val = this.value;
+        var a, b, i;
+        var val = this.value;
 
         closeAllLists();
         if (!val) { return false; }
 
         currentFocus = -1;
-        var get_url = url + "?s=" + val;
+        var get_url = cate == "" ? `${url}?s=${val}` : `${url}?s=${val}&cate=${cate.textContent}`;
 
         fetch(get_url)
             .then(response => response.json())

@@ -1030,6 +1030,7 @@ a.roar-alert-message-tbf {
   left: 0;
   right: 0;
   background-color: white;
+  margin-top: -3px;
 }
 .autocomplete .autocomplete-items div {
   padding: 5px;

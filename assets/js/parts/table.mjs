@@ -110,7 +110,10 @@ export var fetch_table = function (cb) {
                             }
                             this.classList.add('focus');
 
-                            table_data.row_click(tr);
+                            if (table_data.row_click == "function") {
+                                table_data.row_click(tr);
+                            }
+
                         }
                     });
                 }

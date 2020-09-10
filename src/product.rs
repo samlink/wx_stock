@@ -1,6 +1,6 @@
 use crate::service::get_user;
 use actix_identity::Identity;
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
@@ -62,6 +62,7 @@ pub async fn fetch_product(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.to_lowercase();
         let sql = format!(
             r#"SELECT "ID",规格型号,出售价格,库存下限,停用,备注,单位,文本字段1,文本字段2,文本字段3,
                     文本字段4,文本字段5,文本字段6,文本字段7,文本字段8,文本字段9,文本字段10,
@@ -69,8 +70,8 @@ pub async fn fetch_product(
                     实数字段1,实数字段2,实数字段3,实数字段4,实数字段5,实数字段6,
                     布尔字段1,布尔字段2,布尔字段3,
                     ROW_NUMBER () OVER (ORDER BY {}) as 序号
-                    FROM products WHERE "商品ID"='{}' AND 规格型号 LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, post_data.id, post_data.name, post_data.sort, skip, post_data.rec
+                    FROM products WHERE "商品ID"='{}' AND LOWER(规格型号) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, post_data.id, name, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -118,8 +119,8 @@ pub async fn fetch_product(
 
         let rows = &conn
             .query(
-                r#"SELECT count("ID") as 记录数 FROM products WHERE "商品ID"=$1 AND 规格型号 LIKE '%' || $2 || '%'"#,
-                &[&post_data.id, &post_data.name],
+                r#"SELECT count("ID") as 记录数 FROM products WHERE "商品ID"=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
+                &[&post_data.id, &name],
             )
             .await
             .unwrap();
@@ -231,9 +232,112 @@ pub async fn update_product(
     }
 }
 
+///编辑更新产品
+#[post("/add_product")]
+pub async fn add_product(
+    db: web::Data<Pool>,
+    data: web::Json<ProductPost>, //作为前端回传数据时，num 为商品ID, 而非序号
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"INSERT INTO products ("商品ID",规格型号,出售价格,库存下限,停用,备注,单位,文本字段1,文本字段2,文本字段3,文本字段4,文本字段5,文本字段6,
+                文本字段7,文本字段8,文本字段9,文本字段10,整数字段1,整数字段2,整数字段3,整数字段4,整数字段5,整数字段6,实数字段1,实数字段2,实数字段3,
+                实数字段4,实数字段5,实数字段6,布尔字段1,布尔字段2,布尔字段3) VALUES('{}','{}',{},{},{},'{}','{}','{}','{}','{}','{}','{}','{}',
+                '{}','{}','{}','{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{})"#,
+            data.num,
+            data.p_type,
+            data.price,
+            data.p_limit,
+            data.not_use,
+            data.note,
+            data.unit,
+            data.text1,
+            data.text2,
+            data.text3,
+            data.text4,
+            data.text5,
+            data.text6,
+            data.text7,
+            data.text8,
+            data.text9,
+            data.text10,
+            data.integer1,
+            data.integer2,
+            data.integer3,
+            data.integer4,
+            data.integer5,
+            data.integer6,
+            data.real1,
+            data.real2,
+            data.real3,
+            data.real4,
+            data.real5,
+            data.real6,
+            data.bool1,
+            data.bool2,
+            data.bool3
+        );
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取一条空记录，用于无数据表格初始化
 #[post("/fetch_blank")]
 pub fn fetch_blank() -> HttpResponse {
     let v: Vec<i32> = Vec::new();
     HttpResponse::Ok().json((v, 0, 0))
+}
+
+#[derive(Deserialize)]
+pub struct Search {
+    s: String,
+    cate: String,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Message {
+    id: i32,
+    label: String,
+}
+
+#[get("/product_auto")]
+pub async fn product_auto(
+    db: web::Data<Pool>,
+    search: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let s = ("%".to_owned() + &search.s + "%").to_lowercase();
+        let rows = &conn
+            .query(
+                r#"SELECT "ID" AS id, 规格型号 AS label FROM products WHERE "商品ID"=$2 AND LOWER(规格型号) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
+                &[&s, &search.cate],
+            )
+            .await
+            .unwrap();
+
+        let mut data: Vec<Message> = vec![];
+        for row in rows {
+            let message = Message {
+                id: row.get("id"),
+                label: row.get("label"),
+            };
+
+            data.push(message);
+        }
+
+        HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
 }

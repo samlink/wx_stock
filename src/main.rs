@@ -65,6 +65,8 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_drag)
             .service(product::fetch_product)
             .service(product::update_product)
+            .service(product::add_product)
+            .service(product::product_auto)
             .service(product::fetch_blank)
             .service(field_set::fetch_fields)
             .service(field_set::update_tableset)

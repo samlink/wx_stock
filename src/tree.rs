@@ -171,7 +171,7 @@ pub struct Search {
 }
 
 #[derive(Deserialize, Serialize)]
-struct Message {
+pub struct Message {
     id: String,
     label: String,
 }
