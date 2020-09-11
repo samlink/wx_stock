@@ -9,6 +9,7 @@ let global = {
     id: 0,
     edit: 0,
     eidt_cate: "",
+    modal: "",
 }
 
 //配置自动完成和树的显示 ---------------------------------------------------
@@ -191,6 +192,7 @@ function search_table() {
 //增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
+    global.modal = "增加规格";
 
     let name = document.querySelector('#product-name').textContent;
     if (name != "") {
@@ -235,6 +237,8 @@ document.querySelector('#add-button').addEventListener('click', function () {
         document.querySelector('.modal-body').innerHTML = form;
 
         document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
@@ -248,6 +252,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 //编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {
     global.eidt_cate = "edit";
+    global.modal = "编辑规格";
 
     let name = document.querySelector('#product-name').textContent;
     let chosed = document.querySelector('tbody .focus');
@@ -308,6 +313,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal-body').innerHTML = form;
 
         document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
@@ -319,92 +325,97 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    let all_input = document.querySelectorAll('.has-value');
-    let num = 0;
-    let data = {
-        num: 0,
-        id: Number(global.id),  //自身ID
-        name_id: document.querySelector('#product-id').textContent, //品名ID
-        p_type: "",
-        price: 0,
-        p_limit: 0,
-        not_use: false,
-        note: "",
-        unit: "",
-        text1: "",
-        text2: "",
-        text3: "",
-        text4: "",
-        text5: "",
-        text6: "",
-        text7: "",
-        text8: "",
-        text9: "",
-        text10: "",
-        integer1: 0,
-        integer2: 0,
-        integer3: 0,
-        integer4: 0,
-        integer5: 0,
-        integer6: 0,
-        real1: 0,
-        real2: 0,
-        real3: 0,
-        real4: 0,
-        real5: 0,
-        real6: 0,
-        bool1: false,
-        bool2: false,
-        bool3: false,
-    }
-
-    for (let input of all_input) {
-        if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
-            || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
-            notifier.show('数字字段输入错误', 'danger');
-            return false;
-        }
-        num++;
-    }
-
-    num = 0;
-    for (let input of all_input) {
-        let value;
-        if (input.parentNode.className.indexOf('check-radio') == -1) {
-            value = input.value;
-        }
-        else {
-            value = input.checked;
+    if (global.modal != "批量导入") {
+        let all_input = document.querySelectorAll('.has-value');
+        let num = 0;
+        let data = {
+            num: 0,
+            id: Number(global.id),  //自身ID
+            name_id: document.querySelector('#product-id').textContent, //品名ID
+            p_type: "",
+            price: 0,
+            p_limit: 0,
+            not_use: false,
+            note: "",
+            unit: "",
+            text1: "",
+            text2: "",
+            text3: "",
+            text4: "",
+            text5: "",
+            text6: "",
+            text7: "",
+            text8: "",
+            text9: "",
+            text10: "",
+            integer1: 0,
+            integer2: 0,
+            integer3: 0,
+            integer4: 0,
+            integer5: 0,
+            integer6: 0,
+            real1: 0,
+            real2: 0,
+            real3: 0,
+            real4: 0,
+            real5: 0,
+            real6: 0,
+            bool1: false,
+            bool2: false,
+            bool3: false,
         }
 
-        if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
-            value = Number(value);
+        for (let input of all_input) {
+            if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
+                || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+                notifier.show('数字字段输入错误', 'danger');
+                return false;
+            }
+            num++;
         }
 
-        data[table_fields[num].rust_name] = value;
-        num++;
-    }
-
-    let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
-
-    fetch(url, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content == 1) {
-                global.edit = 0;
-                notifier.show('商品修改成功', 'success');
-                fetch_table();
+        num = 0;
+        for (let input of all_input) {
+            let value;
+            if (input.parentNode.className.indexOf('check-radio') == -1) {
+                value = input.value;
             }
             else {
-                notifier.show('权限不够，操作失败', 'danger');
+                value = input.checked;
             }
-        });
+
+            if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
+                value = Number(value);
+            }
+
+            data[table_fields[num].rust_name] = value;
+            num++;
+        }
+
+        let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
+
+        fetch(url, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    global.edit = 0;
+                    notifier.show('商品修改成功', 'success');
+                    fetch_table();
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
+    }
+    else {
+
+    }
 });
 
 
@@ -424,12 +435,12 @@ function close_modal() {
         alert_confirm('编辑还未保存，确认退出吗？', {
             confirmCallBack: () => {
                 global.edit = 0;
-                document.querySelector('#zhezhao').style.cssText = "display:none;";
+                // document.querySelector('#zhezhao').style.cssText = "display:none;";
                 document.querySelector('#product-modal').style.display = "none";
             }
         });
     } else {
-        document.querySelector('#zhezhao').style.cssText = "display:none;";
+        // document.querySelector('#zhezhao').style.cssText = "display:none;";
         document.querySelector('#product-modal').style.display = "none";
     }
 }
@@ -494,6 +505,7 @@ document.getElementById('data-in').addEventListener('click', function () {
 });
 
 fileBtn.addEventListener('change', () => {
+    console.log();
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
@@ -505,7 +517,10 @@ fileBtn.addEventListener('change', () => {
             .then(content => {
                 if (content != -1) {
 
-                    document.querySelector('#product-modal').style.display = "block";
+                    global.modal = "批量导入";
+                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
+                    document.querySelector('#product-modal').style.cssText = "display: block";
+                    fileBtn.value = "";
 
                 } else {
                     notifier.show('缺少操作权限', 'danger');
