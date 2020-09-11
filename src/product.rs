@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use std::fs;
 use xlsxwriter::*;
 
 #[derive(Deserialize, Serialize)]
@@ -19,6 +20,7 @@ pub struct FrontData {
 pub struct Product {
     pub num: i64,
     pub id: i32,
+    pub name_id: String,
     pub p_type: String,
     pub price: f32,
     pub p_limit: i32,
@@ -83,6 +85,7 @@ pub async fn fetch_product(
             let product = Product {
                 num: row.get("序号"),
                 id: row.get("ID"),
+                name_id: "".to_string(),
                 p_type: row.get("规格型号"),
                 price: row.get("出售价格"),
                 p_limit: row.get("库存下限"),
@@ -137,48 +140,11 @@ pub async fn fetch_product(
     }
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct ProductPost {
-    pub num: String,
-    pub id: i32,
-    pub p_type: String,
-    pub price: f32,
-    pub p_limit: i32,
-    pub not_use: bool,
-    pub note: String,
-    pub unit: String,
-    pub text1: String,
-    pub text2: String,
-    pub text3: String,
-    pub text4: String,
-    pub text5: String,
-    pub text6: String,
-    pub text7: String,
-    pub text8: String,
-    pub text9: String,
-    pub text10: String,
-    pub integer1: i32,
-    pub integer2: i32,
-    pub integer3: i32,
-    pub integer4: i32,
-    pub integer5: i32,
-    pub integer6: i32,
-    pub real1: f32,
-    pub real2: f32,
-    pub real3: f32,
-    pub real4: f32,
-    pub real5: f32,
-    pub real6: f32,
-    pub bool1: bool,
-    pub bool2: bool,
-    pub bool3: bool,
-}
-
 ///编辑更新产品
 #[post("/update_product")]
 pub async fn update_product(
     db: web::Data<Pool>,
-    data: web::Json<ProductPost>, //作为前端回传数据时，num 为商品ID, 而非序号
+    data: web::Json<Product>, //作为前端回传数据时，num 为商品ID, 而非序号
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
@@ -190,7 +156,7 @@ pub async fn update_product(
                 文本字段10='{}',整数字段1={},整数字段2={},整数字段3={},整数字段4={},整数字段5={},整数字段6={},实数字段1={},实数字段2={},
                 实数字段3={},实数字段4={},实数字段5={},实数字段6={},布尔字段1={},布尔字段2={},布尔字段3={}
                 WHERE "ID"='{}'"#,
-            data.num,
+            data.name_id,
             data.p_type,
             data.price,
             data.p_limit,
@@ -237,7 +203,7 @@ pub async fn update_product(
 #[post("/add_product")]
 pub async fn add_product(
     db: web::Data<Pool>,
-    data: web::Json<ProductPost>, //作为前端回传数据时，num 为商品ID, 而非序号
+    data: web::Json<Product>, //作为前端回传数据时，num 为商品ID, 而非序号
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
@@ -248,7 +214,7 @@ pub async fn add_product(
                 文本字段7,文本字段8,文本字段9,文本字段10,整数字段1,整数字段2,整数字段3,整数字段4,整数字段5,整数字段6,实数字段1,实数字段2,实数字段3,
                 实数字段4,实数字段5,实数字段6,布尔字段1,布尔字段2,布尔字段3) VALUES('{}','{}',{},{},{},'{}','{}','{}','{}','{}','{}','{}','{}',
                 '{}','{}','{}','{}',{},{},{},{},{},{},{},{},{},{},{},{},{},{},{})"#,
-            data.num,
+            data.name_id,
             data.p_type,
             data.price,
             data.p_limit,
@@ -350,10 +316,11 @@ pub struct ProductName {
     name: String,
 }
 
+//导出数据
 #[post("/product_out")]
 pub async fn product_out(
     db: web::Data<Pool>,
-    name: web::Json<ProductName>,
+    product: web::Json<ProductName>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
@@ -361,82 +328,104 @@ pub async fn product_out(
         let conn = db.get().await.unwrap();
         let rows = &conn
         .query(
-            r#"SELECT field_name, show_name FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
+            r#"SELECT field_name, show_name, data_type, option_value FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
             &[],
         )
         .await
         .unwrap();
 
-        let wb = Workbook::new("data.xlsx");
-        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+        let mut fields: Vec<(String, String, String, String)> = Vec::new();
+        for row in rows {
+            fields.push((
+                row.get("field_name"),
+                row.get("show_name"),
+                row.get("data_type"),
+                row.get("option_value"),
+            ));
+        }
 
-        sheet.freeze_panes(1, 1); //冻结第一行第一列
+        let file_name = format!("./download/{}.xlsx", product.name);
+        let wb = Workbook::new(&file_name);
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
 
         let format1 = wb
             .add_format()
             .set_align(FormatAlignment::CenterAcross)
             .set_bold(); //设置格式：居中，加粗
 
-        sheet
-            .write_string(0, 0, arguments[1].as_str(), Some(&format1))
-            .unwrap();
-        sheet.write_string(0, 1, "销售额", Some(&format1)).unwrap();
-        sheet
-            .write_string(0, 2, "销售成本", Some(&format1))
-            .unwrap();
+        sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
+        sheet.write_string(0, 1, "商品ID", Some(&format1)).unwrap();
+
+        let mut n = 2;
+        for f in &fields {
+            sheet.write_string(0, n, &f.1, Some(&format1)).unwrap();
+            n += 1;
+        }
 
         //设置列宽
         sheet.set_column(0, 16, 10.0, None).unwrap();
-        sheet.set_column(18, 17, 25.0, None).unwrap();
 
-        // let mut ch = 0;
-        let sql = r#"select * from 年报 where 标识=$1 order by 年份 desc"#;
+        let mut sql = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
+        for f in &fields {
+            if f.2 == "文本" {
+                let txt = format!("{},", f.0);
+                sql += &txt;
+            } else if f.2 == "整数" || f.2 == "实数" {
+                let num = format!("{}::float8,", f.0);
+                sql += &num;
+            } else {
+                let op: Vec<&str> = f.3.split("_").collect();
+                let bl = format!("case when {}=true then '{}' else '{}' end case,", f.0, op[0], op[1]);
+                sql += &bl;
+            }
+        }
 
-        let rows = &conn.query(sql, &[]).await.unwrap();
+        let tail = format!(r#""商品ID" FROM products WHERE "商品ID"='{}'"#, product.id);
+        sql += &tail;
 
-        let mut n = rows.len() as u32;
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
+        let mut n = 1u32;
         for row in rows {
-            let na: String = row.get("年份");
-            let n2: i32 = row.get("销售额");
-            let n3: i32 = row.get("销售成本");
-            let n4: i32 = row.get("销售管理费");
-            let n6: i32 = row.get("财务费用");
-            let n7: i32 = row.get("净利润");
-            let n8: i32 = row.get("股份数");
-            let n9: i32 = row.get("短期借款");
-            let n10: i32 = row.get("长期借款");
-            let n11: i32 = row.get("股东权益");
-            let n12: i32 = row.get("折旧及减值");
-            let n13: i32 = row.get("营运现金流");
-            let n14: i32 = row.get("资本支出");
-            let n15: i32 = row.get("收售业务");
-            let n16: i32 = row.get("股权变动");
-            let n17: i32 = row.get("支付股息");
-            let n18: String = row.get("备注");
+            sheet.write_number(n, 0, row.get("编号"), None).unwrap();
+            sheet.write_string(n, 1, row.get("商品ID"), None).unwrap();
 
-            let formula = format!("=B{}-C{}-D{}", n + 1, n + 1, n + 1);
+            let mut m = 2u16;
+            for f in &fields {
+                // if f.2 == "文本" {
+                //     sheet.write_string(n, m, row.get(&*f.0), None).unwrap();
+                // } else
+                if f.2 == "整数" || f.2 == "实数" {
+                    sheet.write_number(n, m, row.get(&*f.0), None).unwrap();
+                } else {
+                    sheet.write_string(n, m, row.get(&*f.0), None).unwrap();
+                }
+                // else {
+                //     sheet.write_boolean(n, m, row.get(&*f.0), None).unwrap();
+                // }
 
-            sheet.write_string(n, 0, na.as_str(), None).unwrap();
-            sheet.write_number(n, 1, n2 as f64, None).unwrap();
+                m += 1;
+            }
 
-            n = n - 1;
+            n += 1;
         }
 
-        let c = rows.len() + 2;
-        let b = c - 1;
-        let formula = format!("=B{}-C{}-D{}", c, c, c);
-        let formula2 = format!("=CONCAT(YEAR(A{})+1, RIGHT(A{},6))", b, b);
+        // let c = rows.len() + 2;
+        // let b = c - 1;
+        // let formula = format!("=B{}-C{}-D{}", c, c, c);
+        // let formula2 = format!("=CONCAT(YEAR(A{})+1, RIGHT(A{},6))", b, b);
 
-        sheet.write_formula(b as u32, 4, &formula, None).unwrap();
-        sheet.write_formula(b as u32, 0, &formula2, None).unwrap();
+        // sheet.write_formula(b as u32, 4, &formula, None).unwrap();
+        // sheet.write_formula(b as u32, 0, &formula2, None).unwrap();
 
-        //设置行高
-        for i in 0..30 {
-            sheet.set_row(i, 20.0, None).unwrap();
-        }
-
-        HttpResponse::Ok().json(1)
+        // //设置行高
+        // for i in 0..30 {
+        //     sheet.set_row(i, 20.0, None).unwrap();
+        // }
+        wb.close().unwrap();
+        // let path = format!("./download/{}", file_name);
+        // fs::copy(file_name, path).unwrap();
+        HttpResponse::Ok().json(product.name.clone())
     } else {
         HttpResponse::Ok().json(-1)
     }

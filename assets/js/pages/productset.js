@@ -321,8 +321,9 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     let all_input = document.querySelectorAll('.has-value');
     let num = 0;
     let data = {
-        num: document.querySelector('#product-id').textContent, //品名ID
+        num: 0,
         id: Number(global.id),  //自身ID
+        name_id: document.querySelector('#product-id').textContent, //品名ID
         p_type: "",
         price: 0,
         p_limit: 0,
@@ -461,7 +462,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
             name: name,
         };
 
-        fetch("/fetch_blank", {
+        fetch("/product_out", {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -471,8 +472,8 @@ document.querySelector('#data-out').addEventListener('click', function () {
             .then(response => response.json())
             .then(content => {
                 if (content != -1) {
-                    download_file("/download/p.xlsx");
-                    notifier.show('成功导出至 Excel 文件', 'success');
+                    download_file(`/download/${content}.xlsx`);
+                    // notifier.show('成功导出至 Excel 文件', 'success');
                 }
                 else {
                     notifier.show('权限不够，操作失败', 'danger');
