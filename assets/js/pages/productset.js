@@ -31,7 +31,7 @@ let tree_data = {
         let post_data = {
             id: id,
         };
-        
+
         Object.assign(table_data.post_data, post_data);
         fetch_table();
     }
@@ -503,8 +503,10 @@ fileBtn.addEventListener('change', () => {
         })
             .then(res => res.json())
             .then(content => {
-                if (content == 1) {
-                    console.log("成功：" + content);
+                if (content != -1) {
+
+                    document.querySelector('#product-modal').style.display = "block";
+
                 } else {
                     notifier.show('缺少操作权限', 'danger');
                 }

@@ -90,9 +90,10 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
 }
 
 //上传文件保存
-pub async fn save_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
+pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
+    let path = "./upload/product.xlsx".to_owned();
     while let Ok(Some(mut field)) = payload.try_next().await {
-        let filepath = "./upload/product.xlsx".to_owned();
+        let filepath = path.clone();
         let mut f = web::block(|| std::fs::File::create(filepath))
             .await
             .unwrap();
@@ -101,5 +102,5 @@ pub async fn save_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
             f = web::block(move || f.write_all(&data).map(|_| f)).await?;
         }
     }
-    Ok(HttpResponse::Ok().into())
+    Ok(path)
 }

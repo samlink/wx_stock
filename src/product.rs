@@ -2,6 +2,7 @@ use crate::service::{get_user, save_file};
 use actix_identity::Identity;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
+use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use xlsxwriter::*;
@@ -325,26 +326,7 @@ pub async fn product_out(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
-        let conn = db.get().await.unwrap();
-        let rows = &conn
-            .query(
-                r#"SELECT field_name, show_name, data_type, option_value, show_width 
-                    FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
-                &[],
-            )
-            .await
-            .unwrap();
-
-        let mut fields: Vec<(String, String, String, String, f32)> = Vec::new();
-        for row in rows {
-            fields.push((
-                row.get("field_name"),
-                row.get("show_name"),
-                row.get("data_type"),
-                row.get("option_value"),
-                row.get("show_width"),
-            ));
-        }
+        let fields = get_fields(db.clone()).await;
 
         let file_name = format!("./download/{}.xlsx", product.name);
         let wb = Workbook::new(&file_name);
@@ -393,6 +375,7 @@ pub async fn product_out(
         let tail = format!(r#""商品ID" FROM products WHERE "商品ID"='{}'"#, product.id);
         sql += &tail;
 
+        let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut n = 1u32;
@@ -429,15 +412,74 @@ pub async fn product_out(
     }
 }
 
-//导出数据
+//批量导入
 #[post("/product_in")]
 pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        save_file(payload).await.unwrap();
+        let path = save_file(payload).await.unwrap();
 
-        HttpResponse::Ok().json(1)
+        let fields = get_fields(db.clone()).await;
+        let mut records = Vec::new();
+        let mut excel: Xlsx<_> = open_workbook(path).unwrap();
+        if let Some(Ok(r)) = excel.worksheet_range("数据") {
+            let mut n = 0;
+            for row in r.rows() {
+                let mut rec = "".to_owned();
+                if n == 0 {
+                    rec += &format!("{},", row[0].get_string().unwrap());
+                    rec += &format!("{},", row[1].get_string().unwrap());                    
+                    for i in 0..fields.len() {
+                        rec += &format!("{},", row[i + 2].get_string().unwrap());
+                    }
+
+                    records.push(rec);
+                    n = n + 1;
+                    continue;
+                }
+
+                rec += &format!("{},", row[0].get_float().unwrap());
+                rec += &format!("{},", row[1].get_string().unwrap());
+
+                for i in 0..fields.len() {
+                    if fields[i].2 == "实数" || fields[i].2 == "整数" {
+                        rec += &format!("{},", row[i + 2].get_float().unwrap_or(0f64));
+                    } else {
+                        rec += &format!("{},", row[i + 2].get_string().unwrap_or(""));
+                    }
+                }
+
+                records.push(rec);
+            }
+        }
+        HttpResponse::Ok().json(records)
     } else {
         HttpResponse::Ok().json(-1)
     }
+}
+
+//获取显示字段
+async fn get_fields(db: web::Data<Pool>) -> Vec<(String, String, String, String, f32)> {
+    let conn = db.get().await.unwrap();
+    let rows = &conn
+            .query(
+                r#"SELECT field_name, show_name, data_type, option_value, show_width 
+                    FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
+                &[],
+            )
+            .await
+            .unwrap();
+
+    let mut fields: Vec<(String, String, String, String, f32)> = Vec::new();
+    for row in rows {
+        fields.push((
+            row.get("field_name"),
+            row.get("show_name"),
+            row.get("data_type"),
+            row.get("option_value"),
+            row.get("show_width"),
+        ));
+    }
+
+    fields
 }

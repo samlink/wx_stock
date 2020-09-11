@@ -38,4 +38,5 @@ reqwest = "0.9"
 regex = "1"
 async-recursion = "0.2"
 xlsxwriter = "0.3.1"
+calamine = "0.16.1"
 pinyin = { path = "../rust_pinyin" } 
