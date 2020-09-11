@@ -327,20 +327,22 @@ pub async fn product_out(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
-        .query(
-            r#"SELECT field_name, show_name, data_type, option_value FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
-            &[],
-        )
-        .await
-        .unwrap();
+            .query(
+                r#"SELECT field_name, show_name, data_type, option_value, show_width 
+                    FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
+                &[],
+            )
+            .await
+            .unwrap();
 
-        let mut fields: Vec<(String, String, String, String)> = Vec::new();
+        let mut fields: Vec<(String, String, String, String, f32)> = Vec::new();
         for row in rows {
             fields.push((
                 row.get("field_name"),
                 row.get("show_name"),
                 row.get("data_type"),
                 row.get("option_value"),
+                row.get("show_width"),
             ));
         }
 
@@ -353,17 +355,22 @@ pub async fn product_out(
             .set_align(FormatAlignment::CenterAcross)
             .set_bold(); //设置格式：居中，加粗
 
+        let format2 = wb.add_format().set_align(FormatAlignment::CenterAcross);
+
+        //设置列宽
+        sheet.set_column(0, 0, 8.0, None).unwrap();
+        sheet.set_column(1, 1, 12.0, None).unwrap();
+
         sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
         sheet.write_string(0, 1, "商品ID", Some(&format1)).unwrap();
 
         let mut n = 2;
         for f in &fields {
             sheet.write_string(0, n, &f.1, Some(&format1)).unwrap();
+            sheet.set_column(n, n, (f.4 * 2.5).into(), None).unwrap();
+
             n += 1;
         }
-
-        //设置列宽
-        sheet.set_column(0, 16, 10.0, None).unwrap();
 
         let mut sql = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
         for f in &fields {
@@ -375,7 +382,10 @@ pub async fn product_out(
                 sql += &num;
             } else {
                 let op: Vec<&str> = f.3.split("_").collect();
-                let bl = format!("case when {}=true then '{}' else '{}' end case,", f.0, op[0], op[1]);
+                let bl = format!(
+                    "case when {} then '{}' else '{}' end as {},",
+                    f.0, op[0], op[1], f.0
+                );
                 sql += &bl;
             }
         }
@@ -387,22 +397,24 @@ pub async fn product_out(
 
         let mut n = 1u32;
         for row in rows {
-            sheet.write_number(n, 0, row.get("编号"), None).unwrap();
-            sheet.write_string(n, 1, row.get("商品ID"), None).unwrap();
+            sheet
+                .write_number(n, 0, row.get("编号"), Some(&format2))
+                .unwrap();
+            sheet
+                .write_string(n, 1, row.get("商品ID"), Some(&format2))
+                .unwrap();
 
             let mut m = 2u16;
             for f in &fields {
-                // if f.2 == "文本" {
-                //     sheet.write_string(n, m, row.get(&*f.0), None).unwrap();
-                // } else
                 if f.2 == "整数" || f.2 == "实数" {
                     sheet.write_number(n, m, row.get(&*f.0), None).unwrap();
-                } else {
+                } else if f.2 == "文本" {
                     sheet.write_string(n, m, row.get(&*f.0), None).unwrap();
+                } else {
+                    sheet
+                        .write_string(n, m, row.get(&*f.0), Some(&format2))
+                        .unwrap();
                 }
-                // else {
-                //     sheet.write_boolean(n, m, row.get(&*f.0), None).unwrap();
-                // }
 
                 m += 1;
             }
