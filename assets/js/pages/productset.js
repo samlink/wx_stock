@@ -98,9 +98,6 @@ fetch("/fetch_fields", {
                 all_width += item.show_width;
             }
 
-            console.log(table_fields);
-
-
             all_width += 3;  //序号列的宽度
             let table_width = document.querySelector('.table-product').clientWidth;
             let width = table_width / all_width;
@@ -133,10 +130,14 @@ fetch("/fetch_fields", {
 
             let data = {
                 url: "/fetch_product",
+            }
+
+            let post_data = {
                 page: 1,
             }
 
             Object.assign(table_data, data);
+            Object.assign(table_data.post_data, post_data);
         }
     });
 
