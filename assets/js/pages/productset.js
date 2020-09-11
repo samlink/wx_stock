@@ -3,7 +3,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, download_file } from '../parts/tools.mjs';
+import { regInt, regReal, getHeight, download_file, checkFileType } from '../parts/tools.mjs';
 
 let global = {
     id: 0,
@@ -31,7 +31,7 @@ let tree_data = {
         let post_data = {
             id: id,
         };
-
+        
         Object.assign(table_data.post_data, post_data);
         fetch_table();
     }
@@ -485,3 +485,33 @@ document.querySelector('#data-out').addEventListener('click', function () {
         notifier.show('请先选择商品', 'danger');
     }
 });
+
+//批量导入
+let fileBtn = document.getElementById('choose_file');
+
+document.getElementById('data-in').addEventListener('click', function () {
+    fileBtn.click();
+});
+
+fileBtn.addEventListener('change', () => {
+    if (checkFileType(fileBtn)) {
+        const fd = new FormData();
+        fd.append('file', fileBtn.files[0]);
+        fetch('/product_in', {
+            method: 'POST',
+            body: fd,
+        })
+            .then(res => res.json())
+            .then(content => {
+                if (content == 1) {
+                    console.log("成功：" + content);
+                } else {
+                    notifier.show('缺少操作权限', 'danger');
+                }
+            });
+    }
+    else {
+        notifier.show('需要 excel 文件', 'danger');
+    }
+});
+

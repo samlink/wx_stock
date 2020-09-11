@@ -110,7 +110,7 @@ export var fetch_table = function (cb) {
                             }
                             this.classList.add('focus');
 
-                            if (table_data.row_click == "function") {
+                            if (typeof table_data.row_click == "function") {
                                 table_data.row_click(tr);
                             }
                         }

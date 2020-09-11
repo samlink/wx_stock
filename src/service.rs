@@ -1,6 +1,8 @@
 use actix_identity::Identity;
-use actix_web::{web, HttpResponse};
+use actix_multipart::Multipart;
+use actix_web::{post, web, Error, HttpResponse};
 use deadpool_postgres::Pool;
+use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
@@ -85,4 +87,19 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
     } else {
         user
     }
+}
+
+//上传文件保存
+pub async fn save_file(mut payload: Multipart) -> Result<HttpResponse, Error> {
+    while let Ok(Some(mut field)) = payload.try_next().await {
+        let filepath = "./upload/product.xlsx".to_owned();
+        let mut f = web::block(|| std::fs::File::create(filepath))
+            .await
+            .unwrap();
+        while let Some(chunk) = field.next().await {
+            let data = chunk.unwrap();
+            f = web::block(move || f.write_all(&data).map(|_| f)).await?;
+        }
+    }
+    Ok(HttpResponse::Ok().into())
 }

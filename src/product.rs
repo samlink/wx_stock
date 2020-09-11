@@ -1,5 +1,6 @@
-use crate::service::get_user;
+use crate::service::{get_user, save_file};
 use actix_identity::Identity;
+use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
@@ -423,6 +424,19 @@ pub async fn product_out(
 
         wb.close().unwrap();
         HttpResponse::Ok().json(product.name.clone())
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//导出数据
+#[post("/product_in")]
+pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
+    if user.name != "" {
+        save_file(payload).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -31,8 +31,8 @@ pub async fn fetch_fields(
     post_data: web::Json<FieldsPost>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "字段设置".to_owned()).await;
-    if user.name != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
             "SELECT *, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 

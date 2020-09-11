@@ -24,3 +24,16 @@ export function download_file(url) {
     downloadLink.click();
     document.body.removeChild(downloadLink);
 }
+
+//检查上传文件类型
+export function checkFileType(input) {
+    var acceptType = input.getAttribute('accept');
+    var selectedFile = input.value;
+    var fileType = selectedFile.substring(selectedFile.indexOf('.') + 1, selectedFile.length);
+    var location = acceptType.indexOf(fileType);
+    if (location > -1) {
+        return true;
+    } else {
+        return false;
+    }
+}
