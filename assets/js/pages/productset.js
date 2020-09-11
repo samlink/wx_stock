@@ -516,8 +516,35 @@ fileBtn.addEventListener('change', () => {
             .then(res => res.json())
             .then(content => {
                 if (content != -1) {
+                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>"
+                    let n = 1;
+                    for (let item of content[0]) {
+                        let arr_p = item.split("<`*_*`>");
+                        let row;
+                        if (n == 1) {
+                            row = `<tr>`;
+                            for (let p of arr_p) {
+                                row += `<th>${p}</th}>`;
+                            }
+                            row += "</tr></thead><tbody>";
+                            n = 2;
+                        } else {
+                            row = `<tr>`;
+                            for (let p of arr_p) {
+                                row += `<td>${p}</td>`;
+                            }
+                            row += "</tr>";
+                        }
+
+                        rows += row;
+                    }
+                    rows += "</tbody></table></div>";
+                    document.querySelector('.modal-body').innerHTML = rows;
+                    document.querySelector('.modal-title').innerHTML = content[1] + " 将导入如下数据 (仅显示前 100 条）：";
+                    document.querySelector('#modal-info').innerHTML = content[1] + " 在库中的数据将被全部替换，请谨慎操作！";
 
                     global.modal = "批量导入";
+
                     document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
                     document.querySelector('#product-modal').style.cssText = "display: block";
                     fileBtn.value = "";

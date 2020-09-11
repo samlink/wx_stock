@@ -419,18 +419,23 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
     if user.name != "" {
         let path = save_file(payload).await.unwrap();
 
+        let mut p_id = "".to_owned(); //商品ID
         let fields = get_fields(db.clone()).await;
         let mut records = Vec::new();
         let mut excel: Xlsx<_> = open_workbook(path).unwrap();
+
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let mut n = 0;
+            let mut num = 1;
+
             for row in r.rows() {
                 let mut rec = "".to_owned();
+                let split = "<`*_*`>";
                 if n == 0 {
-                    rec += &format!("{},", row[0].get_string().unwrap());
-                    rec += &format!("{},", row[1].get_string().unwrap());                    
+                    rec += &format!("{}{}", row[0].get_string().unwrap(), split);
+                    rec += &format!("{}{}", row[1].get_string().unwrap(), split);
                     for i in 0..fields.len() {
-                        rec += &format!("{},", row[i + 2].get_string().unwrap());
+                        rec += &format!("{}{}", row[i + 2].get_string().unwrap(), split);
                     }
 
                     records.push(rec);
@@ -438,21 +443,37 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                     continue;
                 }
 
-                rec += &format!("{},", row[0].get_float().unwrap());
-                rec += &format!("{},", row[1].get_string().unwrap());
+                rec += &format!("{}{}", row[0].get_float().unwrap(), split);
+                rec += &format!("{}{}", row[1].get_string().unwrap(), split);
+                p_id = row[1].get_string().unwrap().to_owned();
 
                 for i in 0..fields.len() {
                     if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                        rec += &format!("{},", row[i + 2].get_float().unwrap_or(0f64));
+                        rec += &format!("{}{}", row[i + 2].get_float().unwrap_or(0f64), split);
                     } else {
-                        rec += &format!("{},", row[i + 2].get_string().unwrap_or(""));
+                        rec += &format!("{}{}", row[i + 2].get_string().unwrap_or(""), split);
                     }
                 }
 
                 records.push(rec);
+
+                num += 1;
+                if num == 100 {
+                    break;
+                }
+            }
+
+            let conn = db.get().await.unwrap();
+            let rows = &conn
+                .query(r#"SELECT node_name FROM tree WHERE num=$1"#, &[&p_id])
+                .await
+                .unwrap();
+
+            for row in rows {
+                p_id = row.get("node_name");
             }
         }
-        HttpResponse::Ok().json(records)
+        HttpResponse::Ok().json((records, p_id))
     } else {
         HttpResponse::Ok().json(-1)
     }

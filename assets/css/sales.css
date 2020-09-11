@@ -1178,6 +1178,11 @@ a.roar-alert-message-tbf {
   margin: 0 10px;
 }
 
+#modal-info {
+  margin-right: 60px;
+  color: #fd3995;
+}
+
 .user-set {
   display: flex;
   flex-direction: row;
