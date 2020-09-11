@@ -3,7 +3,6 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use std::fs;
 use xlsxwriter::*;
 
 #[derive(Deserialize, Serialize)]
@@ -422,21 +421,7 @@ pub async fn product_out(
             n += 1;
         }
 
-        // let c = rows.len() + 2;
-        // let b = c - 1;
-        // let formula = format!("=B{}-C{}-D{}", c, c, c);
-        // let formula2 = format!("=CONCAT(YEAR(A{})+1, RIGHT(A{},6))", b, b);
-
-        // sheet.write_formula(b as u32, 4, &formula, None).unwrap();
-        // sheet.write_formula(b as u32, 0, &formula2, None).unwrap();
-
-        // //设置行高
-        // for i in 0..30 {
-        //     sheet.set_row(i, 20.0, None).unwrap();
-        // }
         wb.close().unwrap();
-        // let path = format!("./download/{}", file_name);
-        // fs::copy(file_name, path).unwrap();
         HttpResponse::Ok().json(product.name.clone())
     } else {
         HttpResponse::Ok().json(-1)

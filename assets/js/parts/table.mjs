@@ -113,7 +113,6 @@ export var fetch_table = function (cb) {
                             if (table_data.row_click == "function") {
                                 table_data.row_click(tr);
                             }
-
                         }
                     });
                 }
