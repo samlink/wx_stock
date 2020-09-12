@@ -487,6 +487,21 @@ document.getElementById('data-in').addEventListener('click', function () {
 });
 
 fileBtn.addEventListener('change', () => {
+    data_in(fileBtn, "将追加", "追加新数据，同时保留原数据", "批量导入");
+});
+
+//批量更新
+let fileBtn_update = document.getElementById('choose_file2');
+
+document.getElementById('data-update').addEventListener('click', function () {
+    fileBtn_update.click();
+});
+
+fileBtn_update.addEventListener('change', () => {
+    data_in(fileBtn_update, "将更新", "更新数据，原数据将被替换，请谨慎操作！", "批量更新");
+});
+
+function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
@@ -523,10 +538,10 @@ fileBtn.addEventListener('change', () => {
                     document.querySelector('.modal-body').innerHTML = rows;
 
                     let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将追加导入 ${content[2]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = content[1] + " 追加新数据，原数据被保留！";
+                    document.querySelector('.modal-title').innerHTML = `${content[1]} ${info1} ${content[2]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = `${content[1]} ${info2}`;
 
-                    global.eidt_cate = "批量导入";
+                    global.eidt_cate = cate;
 
                     document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
                     document.querySelector('#product-modal').style.cssText = "display: block";
@@ -535,75 +550,14 @@ fileBtn.addEventListener('change', () => {
                 } else if (content == -1) {
                     notifier.show('缺少操作权限', 'danger');
                 } else {
-                    notifier.show('表格列数不符合', 'danger');
+                    notifier.show('excel 表列数不符合', 'danger');
                 }
             });
     }
     else {
         notifier.show('需要 excel 文件', 'danger');
     }
-});
+}
 
-//批量更新
-let fileBtn_update = document.getElementById('choose_file2');
 
-document.getElementById('data-update').addEventListener('click', function () {
-    fileBtn_update.click();
-});
-
-fileBtn_update.addEventListener('change', () => {
-    if (checkFileType(fileBtn_update)) {
-        const fd = new FormData();
-        fd.append('file', fileBtn_update.files[0]);
-        fetch('/product_in', {
-            method: 'POST',
-            body: fd,
-        })
-            .then(res => res.json())
-            .then(content => {
-                if (content != -1) {
-                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>"
-                    let n = 1;
-                    for (let item of content[0]) {
-                        let arr_p = item.split("<`*_*`>");
-                        let row;
-                        if (n == 1) {
-                            row = `<tr>`;
-                            for (let i = 0; i < arr_p.length - 1; i++) {
-                                row += `<th>${arr_p[i]}</th}>`;
-                            }
-                            row += "</tr></thead><tbody>";
-                            n = 2;
-                        } else {
-                            row = `<tr>`;
-                            for (let i = 0; i < arr_p.length - 1; i++) {
-                                row += `<td>${arr_p[i]}</td>`;
-                            }
-                            row += "</tr>";
-                        }
-
-                        rows += row;
-                    }
-                    rows += "</tbody></table></div>";
-                    document.querySelector('.modal-body').innerHTML = rows;
-
-                    let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将更新 ${content[2]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = content[1] + " 更新数据，原数据被替换，请谨慎操作！";
-
-                    global.eidt_cate = "批量更新";
-
-                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
-                    document.querySelector('#product-modal').style.cssText = "display: block";
-                    fileBtn_update.value = "";
-
-                } else {
-                    notifier.show('缺少操作权限', 'danger');
-                }
-            });
-    }
-    else {
-        notifier.show('需要 excel 文件', 'danger');
-    }
-});
 

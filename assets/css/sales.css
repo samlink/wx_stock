@@ -1326,7 +1326,7 @@ a.roar-alert-message-tbf {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-left: 60%;
+  margin-left: 50%;
 }
 .product-content .table-edit {
   min-width: 200px;
@@ -1337,7 +1337,7 @@ a.roar-alert-message-tbf {
 .product-content .data-button {
   margin-left: 40px;
   margin-right: 20px;
-  min-width: 200px;
+  min-width: 300px;
 }
 .product-content .data-button button {
   margin-left: 10px;

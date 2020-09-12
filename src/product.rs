@@ -348,8 +348,6 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
             let mut num = 1;
             let total_coloum = r.get_size().1;
 
-            println!("列数：{}", total_coloum);
-            println!("字段数：{}", fields.len());
             if total_coloum - 2 != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
