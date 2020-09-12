@@ -330,7 +330,7 @@ pub async fn product_out(
     }
 }
 
-//批量导入
+//批量导入、批量更新返回数据
 #[post("/product_in")]
 pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
@@ -346,6 +346,13 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let mut n = 0;
             let mut num = 1;
+            let total_coloum = r.get_size().1;
+
+            println!("列数：{}", total_coloum);
+            println!("字段数：{}", fields.len());
+            if total_coloum - 2 != fields.len() {
+                return HttpResponse::Ok().json(-2);
+            }
 
             for row in r.rows() {
                 let mut rec = "".to_owned();
@@ -400,6 +407,7 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
     }
 }
 
+//批量导入数据写库
 #[post("/product_datain")]
 pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
@@ -409,23 +417,6 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone()).await;
             let conn = db.get().await.unwrap();
-
-            let mut product_id = "";
-            let mut n = 0u8;
-
-            for row in r.rows() {
-                if n == 0 {
-                    n = n + 1;
-                    continue;
-                }
-                product_id = row[1].get_string().unwrap_or("");
-                break;
-            }
-            &conn
-                .execute(r#"DELETE FROM products WHERE "商品ID"=$1"#, &[&product_id])
-                .await
-                .unwrap();
-
             let mut init = r#"INSERT INTO products ("#.to_owned();
 
             for f in &fields {
@@ -459,6 +450,61 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                 }
 
                 sql += &format!("'{}')", row[1].get_string().unwrap_or(""));
+
+                &conn.query(sql.as_str(), &[]).await.unwrap();
+            }
+        }
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//批量更新数据写库
+#[post("/product_updatein")]
+pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
+    if user.name != "" {
+        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+
+        if let Some(Ok(r)) = excel.worksheet_range("数据") {
+            let fields = get_fields(db.clone()).await;
+            let conn = db.get().await.unwrap();
+            let mut n = 0u8;
+
+            for row in r.rows() {
+                if n == 0 {
+                    n = n + 1;
+                    continue;
+                }
+                let mut sql = r#"UPDATE products SET "#.to_owned();
+
+                for i in 0..fields.len() {
+                    if fields[i].2 == "文本" {
+                        sql += &format!(
+                            "{}='{}',",
+                            fields[i].0,
+                            row[i + 2].get_string().unwrap_or("")
+                        );
+                    } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
+                        sql += &format!(
+                            "{}={},",
+                            fields[i].0,
+                            row[i + 2].get_float().unwrap_or(0f64)
+                        );
+                    } else {
+                        let op: Vec<&str> = fields[i].3.split("_").collect();
+                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
+                            true
+                        } else {
+                            false
+                        };
+                        sql += &format!("{}={},", fields[i].0, val);
+                    }
+                }
+
+                sql = sql.trim_end_matches(',').to_owned();
+                sql += &format!(r#" WHERE "ID"={}"#, row[0].get_float().unwrap());
 
                 &conn.query(sql.as_str(), &[]).await.unwrap();
             }

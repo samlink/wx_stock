@@ -9,7 +9,6 @@ let global = {
     row_id: 0,
     edit: 0,
     eidt_cate: "",
-    modal: "",
     product_id: "",
     product_name: "",
 }
@@ -110,10 +109,10 @@ fetch("/fetch_fields", {
             all_width += 3;  //序号列的宽度
             let table_width = document.querySelector('.table-product').clientWidth;
             let width = table_width / all_width;
-            let rows = `<th hidden></th><th width='${300 / all_width}%'>序号</th>`;
+            let rows = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
 
             if (width < 18) {
-                rows = `<th hidden></th><th width='${3 * 18}px'>序号</th>`;
+                rows = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
                 document.querySelector('.table-product').style.width = table_width;
                 document.querySelector('.table-product .table-ctrl').style.cssText = `
                 position: absolute;
@@ -131,7 +130,7 @@ fetch("/fetch_fields", {
                 let value = th.field_name;
                 header_names[key] = value;
             }
-
+            header_names["编号"] = `"ID"`;
             document.querySelector('.table-product thead tr').innerHTML = rows;
 
             table_init(init_data);
@@ -152,7 +151,7 @@ fetch("/fetch_fields", {
 
 function table_row(tr) {
     let rec = tr.split('<`*_*`>');
-    let row = `<tr><td hidden>${rec[0]}</td><td style="text-align: center;">${rec[1]}</td>`;
+    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td>${rec[0]}</td>`;
     let n = 2;
     for (let name of table_fields) {
         if (name.data_type == "文本") {
@@ -171,7 +170,7 @@ function table_row(tr) {
 }
 
 function blank_row() {
-    let row = "<tr><td hidden></td><td></td>";
+    let row = "<tr><td></td><td></td>";
     for (let _f of table_fields) {
         row += "<td></td>";
     }
@@ -200,7 +199,6 @@ function search_table() {
 //增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
-    global.modal = "增加规格";
 
     if (global.product_name != "") {
         let form = "<form>";
@@ -259,10 +257,9 @@ document.querySelector('#add-button').addEventListener('click', function () {
 //编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {
     global.eidt_cate = "edit";
-    global.modal = "编辑规格";
 
     let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(1)').textContent : "";
+    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (global.product_name != "" && id != "") {
         global.row_id = id;
 
@@ -331,7 +328,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    if (global.modal != "批量导入") {
+    if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
         let all_input = document.querySelectorAll('.has-value');
         let num = 0;
         for (let input of all_input) {
@@ -390,13 +387,14 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             });
     }
     else {
-        fetch("/product_datain", {
+        let url = global.eidt_cate == "批量导入" ? "/product_datain" : "/product_updatein";
+        fetch(url, {
             method: 'post',
         })
             .then(response => response.json())
             .then(content => {
                 if (content == 1) {
-                    notifier.show('批量导入成功', 'success');
+                    notifier.show('批量操作成功', 'success');
                     close_modal();
                 }
                 else {
@@ -498,6 +496,71 @@ fileBtn.addEventListener('change', () => {
         })
             .then(res => res.json())
             .then(content => {
+                if (content != -1 && content != -2) {
+                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>"
+                    let n = 1;
+                    for (let item of content[0]) {
+                        let arr_p = item.split("<`*_*`>");
+                        let row;
+                        if (n == 1) {
+                            row = `<tr>`;
+                            for (let i = 0; i < arr_p.length - 1; i++) {
+                                row += `<th>${arr_p[i]}</th}>`;
+                            }
+                            row += "</tr></thead><tbody>";
+                            n = 2;
+                        } else {
+                            row = `<tr>`;
+                            for (let i = 0; i < arr_p.length - 1; i++) {
+                                row += `<td>${arr_p[i]}</td>`;
+                            }
+                            row += "</tr>";
+                        }
+
+                        rows += row;
+                    }
+                    rows += "</tbody></table></div>";
+                    document.querySelector('.modal-body').innerHTML = rows;
+
+                    let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
+                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将追加导入 ${content[2]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = content[1] + " 追加新数据，原数据被保留！";
+
+                    global.eidt_cate = "批量导入";
+
+                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
+                    document.querySelector('#product-modal').style.cssText = "display: block";
+                    fileBtn.value = "";
+
+                } else if (content == -1) {
+                    notifier.show('缺少操作权限', 'danger');
+                } else {
+                    notifier.show('表格列数不符合', 'danger');
+                }
+            });
+    }
+    else {
+        notifier.show('需要 excel 文件', 'danger');
+    }
+});
+
+//批量更新
+let fileBtn_update = document.getElementById('choose_file2');
+
+document.getElementById('data-update').addEventListener('click', function () {
+    fileBtn_update.click();
+});
+
+fileBtn_update.addEventListener('change', () => {
+    if (checkFileType(fileBtn_update)) {
+        const fd = new FormData();
+        fd.append('file', fileBtn_update.files[0]);
+        fetch('/product_in', {
+            method: 'POST',
+            body: fd,
+        })
+            .then(res => res.json())
+            .then(content => {
                 if (content != -1) {
                     let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>"
                     let n = 1;
@@ -525,14 +588,14 @@ fileBtn.addEventListener('change', () => {
                     document.querySelector('.modal-body').innerHTML = rows;
 
                     let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将导入 ${content[2]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = content[1] + " 在库中的数据将被全部替换，请谨慎操作！";
+                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将更新 ${content[2]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = content[1] + " 更新数据，原数据被替换，请谨慎操作！";
 
-                    global.modal = "批量导入";
+                    global.eidt_cate = "批量更新";
 
                     document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
                     document.querySelector('#product-modal').style.cssText = "display: block";
-                    fileBtn.value = "";
+                    fileBtn_update.value = "";
 
                 } else {
                     notifier.show('缺少操作权限', 'danger');
