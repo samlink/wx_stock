@@ -16,7 +16,7 @@ pub struct FieldsReturn {
     pub option_value: String,
     pub is_show: bool,
     pub show_order: i32,
-    pub rust_name: String,
+    // pub rust_name: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -35,8 +35,9 @@ pub async fn fetch_fields(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            "SELECT *, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
-                    FROM tableset WHERE table_name='{}' ORDER BY show_order",
+            r#"SELECT "ID",field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,show_order,
+                    ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+                    FROM tableset WHERE table_name='{}' ORDER BY show_order"#,
             post_data.name
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -55,7 +56,6 @@ pub async fn fetch_fields(
                 option_value: row.get("option_value"),
                 is_show: row.get("is_show"),
                 show_order: row.get("show_order"),
-                rust_name: row.get("rust_name"),
             };
 
             fields.push(field);

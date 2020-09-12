@@ -151,20 +151,19 @@ fetch("/fetch_fields", {
     });
 
 function table_row(tr) {
-    let row = `<tr><td hidden>${tr.id}</td><td style="text-align: center;">${tr.num}</td>`;
+    let rec = tr.split('<`*_*`>');
+    let row = `<tr><td hidden>${rec[0]}</td><td style="text-align: center;">${rec[1]}</td>`;
+    let n = 2;
     for (let name of table_fields) {
         if (name.data_type == "文本") {
-            row += `<td title='${tr[name.rust_name]}'>${tr[name.rust_name]}</td>`;
-        } else if (name.data_type == "布尔") {
-            let show = name.option_value.split('_');
-            row += tr[name.rust_name] == true ? `<td style="text-align: center;">${show[0]}</td>` :
-                `<td style="text-align: center;">${show[1]}</td>`;
+            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
-            row += `<td style="text-align: right;">${tr[name.rust_name]}</td>`;
+            row += `<td style="text-align: right;">${rec[n]}</td>`;
         }
         else {
-            row += `<td>${tr[name.rust_name]}</td>`;
+            row += `<td>${rec[n]}</td>`;
         }
+        n++;
     }
     row += "</tr>";
 
@@ -332,47 +331,9 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    console.log(global.modal);
     if (global.modal != "批量导入") {
         let all_input = document.querySelectorAll('.has-value');
         let num = 0;
-        let data = {
-            num: 0,
-            id: Number(global.row_id),  //自身ID
-            name_id: global.product_id, //品名ID
-            p_type: "",
-            price: 0,
-            p_limit: 0,
-            not_use: false,
-            note: "",
-            unit: "",
-            text1: "",
-            text2: "",
-            text3: "",
-            text4: "",
-            text5: "",
-            text6: "",
-            text7: "",
-            text8: "",
-            text9: "",
-            text10: "",
-            integer1: 0,
-            integer2: 0,
-            integer3: 0,
-            integer4: 0,
-            integer5: 0,
-            integer6: 0,
-            real1: 0,
-            real2: 0,
-            real3: 0,
-            real4: 0,
-            real5: 0,
-            real6: 0,
-            bool1: false,
-            bool2: false,
-            bool3: false,
-        }
-
         for (let input of all_input) {
             if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
                 || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
@@ -381,8 +342,11 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
             num++;
         }
+        let split = "<`*_*`>";
+        let product = `${global.row_id}${split}${global.product_id}${split}`;
 
         num = 0;
+
         for (let input of all_input) {
             let value;
             if (input.parentNode.className.indexOf('check-radio') == -1) {
@@ -396,9 +360,13 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 value = Number(value);
             }
 
-            data[table_fields[num].rust_name] = value;
+            product += `${value}${split}`;
             num++;
         }
+
+        let data = {
+            data: product,
+        };
 
         let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
 
@@ -501,7 +469,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
             .then(content => {
                 if (content != -1) {
                     download_file(`/download/${content}.xlsx`);
-                    // notifier.show('成功导出至 Excel 文件', 'success');
+                    notifier.show('成功导出至 Excel 文件', 'success');
                 }
                 else {
                     notifier.show('权限不够，操作失败', 'danger');
