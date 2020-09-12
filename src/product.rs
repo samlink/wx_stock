@@ -103,7 +103,7 @@ pub async fn fetch_product(
 #[post("/update_product")]
 pub async fn update_product(
     db: web::Data<Pool>,
-    p: web::Json<Product>, 
+    p: web::Json<Product>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
@@ -353,8 +353,8 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                 if n == 0 {
                     rec += &format!("{}{}", row[0].get_string().unwrap(), split);
                     rec += &format!("{}{}", row[1].get_string().unwrap(), split);
-                    for i in 0..fields.len() {
-                        rec += &format!("{}{}", row[i + 2].get_string().unwrap(), split);
+                    for f in &fields {
+                        rec += &format!("{}{}", &*f.1, split);
                     }
 
                     records.push(rec);
