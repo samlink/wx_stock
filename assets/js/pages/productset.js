@@ -6,10 +6,12 @@ import { autocomplete } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, download_file, checkFileType } from '../parts/tools.mjs';
 
 let global = {
-    id: 0,
+    row_id: 0,
     edit: 0,
     eidt_cate: "",
     modal: "",
+    product_id: "",
+    product_name: "",
 }
 
 //配置自动完成和树的显示 ---------------------------------------------------
@@ -26,11 +28,17 @@ let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 let tree_data = {
     leaf_click: (id, name) => {
+        global.product_name = name;
+        global.product_id = id;
+
         document.querySelector('#product-name').textContent = name;
         document.querySelector('#product-id').textContent = id;
 
         let post_data = {
             id: id,
+            name: '',
+            // sort: "规格型号 ASC",
+            page: 1,
         };
 
         Object.assign(table_data.post_data, post_data);
@@ -175,6 +183,7 @@ function blank_row() {
 //搜索规格
 let search_input = document.querySelector('#search-input');
 let cate = document.querySelector('#product-id');
+
 autocomplete(search_input, cate, "/product_auto", () => {
     search_table();
 });
@@ -194,8 +203,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
     global.modal = "增加规格";
 
-    let name = document.querySelector('#product-name').textContent;
-    if (name != "") {
+    if (global.product_name != "") {
         let form = "<form>";
 
         for (let name of table_fields) {
@@ -236,7 +244,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 
         document.querySelector('.modal-body').innerHTML = form;
 
-        document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('.modal-title').textContent = global.product_name;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
         document.querySelector('#product-modal').style.display = "block";
@@ -254,11 +262,10 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     global.eidt_cate = "edit";
     global.modal = "编辑规格";
 
-    let name = document.querySelector('#product-name').textContent;
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(1)').textContent : "";
-    if (name != "" && id != "") {
-        global.id = id;
+    if (global.product_name != "" && id != "") {
+        global.row_id = id;
 
         let form = "<form>";
         let num = 3;
@@ -312,7 +319,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         document.querySelector('.modal-body').innerHTML = form;
 
-        document.querySelector('.modal-title').textContent = document.querySelector('#product-name').textContent;
+        document.querySelector('.modal-title').textContent = global.product_name;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
@@ -325,13 +332,14 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+    console.log(global.modal);
     if (global.modal != "批量导入") {
         let all_input = document.querySelectorAll('.has-value');
         let num = 0;
         let data = {
             num: 0,
-            id: Number(global.id),  //自身ID
-            name_id: document.querySelector('#product-id').textContent, //品名ID
+            id: Number(global.row_id),  //自身ID
+            name_id: global.product_id, //品名ID
             p_type: "",
             price: 0,
             p_limit: 0,
@@ -414,10 +422,21 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             });
     }
     else {
-
+        fetch("/product_datain", {
+            method: 'post',
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    notifier.show('批量导入成功', 'success');
+                    close_modal();
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
     }
 });
-
 
 //关闭按键
 document.querySelector('#modal-close-button').addEventListener('click', function () {
@@ -435,14 +454,14 @@ function close_modal() {
         alert_confirm('编辑还未保存，确认退出吗？', {
             confirmCallBack: () => {
                 global.edit = 0;
-                // document.querySelector('#zhezhao').style.cssText = "display:none;";
                 document.querySelector('#product-modal').style.display = "none";
             }
         });
     } else {
-        // document.querySelector('#zhezhao').style.cssText = "display:none;";
         document.querySelector('#product-modal').style.display = "none";
     }
+
+    document.querySelector('#modal-info').innerHTML = "";
 }
 
 //编辑离开提醒事件
@@ -465,13 +484,10 @@ function leave_alert() {
 //数据导入和导出 ------------------------------------------------------------------------------
 
 document.querySelector('#data-out').addEventListener('click', function () {
-    let name = document.querySelector('#product-name').textContent;
-    if (name != "") {
-        let name_id = document.querySelector('#product-id').textContent;
-
+    if (global.product_name != "") {
         let data = {
-            id: name_id,
-            name: name,
+            id: global.product_id,
+            name: global.product_name,
         };
 
         fetch("/product_out", {
@@ -505,7 +521,6 @@ document.getElementById('data-in').addEventListener('click', function () {
 });
 
 fileBtn.addEventListener('change', () => {
-    console.log();
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
@@ -523,15 +538,15 @@ fileBtn.addEventListener('change', () => {
                         let row;
                         if (n == 1) {
                             row = `<tr>`;
-                            for (let p of arr_p) {
-                                row += `<th>${p}</th}>`;
+                            for (let i = 0; i < arr_p.length - 1; i++) {
+                                row += `<th>${arr_p[i]}</th}>`;
                             }
                             row += "</tr></thead><tbody>";
                             n = 2;
                         } else {
                             row = `<tr>`;
-                            for (let p of arr_p) {
-                                row += `<td>${p}</td>`;
+                            for (let i = 0; i < arr_p.length - 1; i++) {
+                                row += `<td>${arr_p[i]}</td>`;
                             }
                             row += "</tr>";
                         }
@@ -540,7 +555,9 @@ fileBtn.addEventListener('change', () => {
                     }
                     rows += "</tbody></table></div>";
                     document.querySelector('.modal-body').innerHTML = rows;
-                    document.querySelector('.modal-title').innerHTML = content[1] + " 将导入如下数据 (仅显示前 100 条）：";
+
+                    let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
+                    document.querySelector('.modal-title').innerHTML = `${content[1]} 将导入 ${content[2]} 条数据${message}：`;
                     document.querySelector('#modal-info').innerHTML = content[1] + " 在库中的数据将被全部替换，请谨慎操作！";
 
                     global.modal = "批量导入";

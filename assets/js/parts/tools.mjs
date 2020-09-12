@@ -17,6 +17,7 @@ export function getHeight() {
     return content_height - sum;
 }
 
+//下载文件，url 是下载地址
 export function download_file(url) {
     var downloadLink = document.createElement("a");
     downloadLink.href = url;
@@ -25,7 +26,7 @@ export function download_file(url) {
     document.body.removeChild(downloadLink);
 }
 
-//检查上传文件类型
+//检查上传文件类型，input 是输入控件
 export function checkFileType(input) {
     var acceptType = input.getAttribute('accept');
     var selectedFile = input.value;

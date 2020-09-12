@@ -420,6 +420,7 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
         let path = save_file(payload).await.unwrap();
 
         let mut p_id = "".to_owned(); //商品ID
+        let mut total_rows = 0;
         let fields = get_fields(db.clone()).await;
         let mut records = Vec::new();
         let mut excel: Xlsx<_> = open_workbook(path).unwrap();
@@ -458,10 +459,12 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                 records.push(rec);
 
                 num += 1;
-                if num == 100 {
+                if num == 50 {
                     break;
                 }
             }
+
+            total_rows = r.get_size().0 - 1;
 
             let conn = db.get().await.unwrap();
             let rows = &conn
@@ -473,7 +476,76 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                 p_id = row.get("node_name");
             }
         }
-        HttpResponse::Ok().json((records, p_id))
+        HttpResponse::Ok().json((records, p_id, total_rows))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/product_datain")]
+pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
+    if user.name != "" {
+        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+
+        if let Some(Ok(r)) = excel.worksheet_range("数据") {
+            let fields = get_fields(db.clone()).await;
+            let conn = db.get().await.unwrap();
+
+            let mut product_id = "";
+            let mut n = 0u8;
+
+            for row in r.rows() {
+                if n == 0 {
+                    n = n + 1;
+                    continue;
+                }
+                product_id = row[1].get_string().unwrap_or("");
+                break;
+            }
+            &conn
+                .execute(r#"DELETE FROM products WHERE "商品ID"=$1"#, &[&product_id])
+                .await
+                .unwrap();
+
+            let mut init = r#"INSERT INTO products ("#.to_owned();
+
+            for f in &fields {
+                init += &format!("{},", &*f.0);
+            }
+
+            init += r#""商品ID") VALUES("#;
+
+            let mut n = 0u8;
+            for row in r.rows() {
+                if n == 0 {
+                    n = n + 1;
+                    continue;
+                }
+                let mut sql = init.clone();
+
+                for i in 0..fields.len() {
+                    if fields[i].2 == "文本" {
+                        sql += &format!("'{}',", row[i + 2].get_string().unwrap_or(""));
+                    } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
+                        sql += &format!("{},", row[i + 2].get_float().unwrap_or(0f64));
+                    } else {
+                        let op: Vec<&str> = fields[i].3.split("_").collect();
+                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
+                            true
+                        } else {
+                            false
+                        };
+                        sql += &format!("{},", val);
+                    }
+                }
+
+                sql += &format!("'{}')", row[1].get_string().unwrap_or(""));
+
+                &conn.query(sql.as_str(), &[]).await.unwrap();
+            }
+        }
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
