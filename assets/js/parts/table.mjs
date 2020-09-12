@@ -54,7 +54,7 @@ export var table_init = function (data) {
     if (table_data.header) {
         for (let th of table_data.header.children) {
             th.addEventListener('click', function (e) {
-                if (!table_data.edit) {
+                if (!table_data.edit && this.textContent != "序号") {
                     for (let t of table_data.header.children) {
                         t.textContent = t.textContent.split(' ')[0];
                     }
