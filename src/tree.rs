@@ -107,14 +107,6 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
             .await
             .unwrap();
 
-        // &conn
-        //     .execute(
-        //         r#"UPDATE content SET title=$1 WHERE num=$2"#,
-        //         &[&data.node_name, &data.pnum],
-        //     )
-        //     .await
-        //     .unwrap();
-
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(0)
@@ -126,11 +118,36 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        &conn
-            .execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum])
+        let rows = &conn
+            .query(
+                r#"SELECT "ID" FROM products WHERE "商品ID"=$1 LIMIT 1"#,
+                &[&data.pnum],
+            )
             .await
             .unwrap();
-        // &conn.execute(r#"DELETE FROM content WHERE num=$2"#, &[&data.pnum]);
+        if rows.is_empty() {
+            &conn
+                .execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum])
+                .await
+                .unwrap();
+        } else {
+            &conn
+                .execute(
+                    r#"UPDATE products SET 停用=true WHERE "商品ID"=$1"#,
+                    &[&data.pnum],
+                )
+                .await
+                .unwrap();
+
+            &conn
+                .execute(
+                    r#"UPDATE tree SET not_use=true WHERE num=$1"#,
+                    &[&data.pnum],
+                )
+                .await
+                .unwrap();
+        }
+
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(0)
@@ -144,7 +161,7 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
 
     let rows = &conn
         .query(
-            r##"SELECT node_name, num, pnum FROM tree WHERE pnum=$1 ORDER BY node_name"##, //查询字段名称与结构名称对应
+            r##"SELECT node_name, num, pnum FROM tree WHERE pnum=$1 AND not_use=false ORDER BY node_name"##, //查询字段名称与结构名称对应
             &[&num],
         )
         .await
@@ -193,7 +210,7 @@ pub async fn tree_auto(
         let pinyin = search.s.to_lowercase() + "%";
         let rows = &conn
             .query(
-                r#"SELECT num AS id, node_name AS label FROM tree WHERE pinyin LIKE $2 OR LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
+                r#"SELECT num AS id, node_name AS label FROM tree WHERE not_use=false AND pinyin LIKE $2 OR LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
                 &[&s, &pinyin],
             )
             .await

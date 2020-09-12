@@ -449,7 +449,6 @@ function leaf_click() {
 
     let self = this;
     if (global.node_num == this.dataset.num) {
-        // match_screen();
         return false;
     }
 
@@ -547,7 +546,6 @@ function save_edit(num) {
     }).then(response => {
         if (response.ok && global.node_num == num.pnum) {
             global.tree_leaf = num.node_name;
-            // global.title_box.innerHTML = global.tree_leaf + '<span class="edit-time">' + global.edit_time + ' 修改</span>';
         }
     });
 }
