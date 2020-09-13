@@ -2,7 +2,8 @@ import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, download_file, checkFileType } from '../parts/tools.mjs';
+import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
+import * as service from '../parts/service.mjs';
 
 let global = {
     row_id: 0,
@@ -30,7 +31,7 @@ let header_names = {};
 let init_data = {
     container: '.table-customer',
     header_names: header_names,
-    url: "/fetch_blank",
+    url: "/fetch_customer",
     post_data: {
         id: "",
         name: '',
@@ -90,47 +91,15 @@ fetch("/fetch_fields", {
 
             table_init(init_data);
             fetch_table();
-
-            let data = {
-                url: "/fetch_customer",
-            }
-
-            let post_data = {
-                page: 1,
-            }
-
-            Object.assign(table_data, data);
-            Object.assign(table_data.post_data, post_data);
         }
     });
 
 function table_row(tr) {
-    let rec = tr.split('<`*_*`>');
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
-    let n = 2;
-    for (let name of table_fields) {
-        if (name.data_type == "文本") {
-            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
-        } else if (name.data_type == "整数" || name.data_type == "实数") {
-            row += `<td style="text-align: right;">${rec[n]}</td>`;
-        }
-        else {
-            row += `<td>${rec[n]}</td>`;
-        }
-        n++;
-    }
-    row += "</tr>";
-
-    return row;
+    return service.build_row_from_string(tr, table_fields);
 }
 
 function blank_row() {
-    let row = "<tr><td></td><td hidden></td>";
-    for (let _f of table_fields) {
-        row += "<td></td>";
-    }
-    row += "</tr>";
-    return row;
+    return service.build_blank_from_fields(table_fields);
 }
 
 //搜索规格

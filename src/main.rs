@@ -75,6 +75,7 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_updatein)
             .service(field_set::fetch_fields)
             .service(field_set::update_tableset)
+            .service(customer::fetch_customer)
             .service(service::fetch_blank)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))

@@ -9,6 +9,8 @@ use std::io::{self, Write};
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
 use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
 
+pub static SPLITER: &str = "<`*_*`>";
+
 #[derive(Deserialize)]
 pub struct File {
     name: String,
