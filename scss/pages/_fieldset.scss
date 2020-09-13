@@ -1,6 +1,6 @@
 .fields-set {
     #product-show {
-        width: 49%;
+        width: 70%;
     }
 
     .table-top {
@@ -12,6 +12,15 @@
 
     .table-title {
         font-size: 15px;
+    }
+
+    #table-choose {
+        width: 200px;
+        height: 30px;
+        border-color: #e5e5e5;
+        &:hover {
+            border-color: $info-50;
+        }
     }
 
     table tbody {
@@ -51,9 +60,8 @@
     .checkmark {
         top: -8px;
     }
-    
+
     .table-tip {
         margin-left: 20px;
     }
-   
 }

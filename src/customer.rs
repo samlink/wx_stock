@@ -175,6 +175,13 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
     }
 }
 
+///获取一条空记录，用于无数据表格初始化
+#[post("/fetch_blank")]
+pub fn fetch_blank() -> HttpResponse {
+    let v: Vec<i32> = Vec::new();
+    HttpResponse::Ok().json((v, 0, 0))
+}
+
 #[derive(Deserialize)]
 pub struct Search {
     s: String,

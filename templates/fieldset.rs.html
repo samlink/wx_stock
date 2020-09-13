@@ -11,7 +11,14 @@
     <div class="system-content">
         <div id="product-show">
             <div class="table-top">
-                <div class="table-title">商品规格字段设置:</div>
+                <div class="table-title">
+                    <select name="table-choose" class="select-sm" id="table-choose">
+                        <option value="商品规格" selected>商品设置 - 商品规格</option>
+                        <option value="客户管理">客户管理 - 客户</option>
+                        <option value="供应商管理">供应商管理 - 供应商</option>
+
+                    </select>
+                </div>
                 <div class="table-tools">
                     <div class="table-edit">
                         <button class="btn btn-info btn-sm" id="sumit-button" disabled=true>提交修改</button>

@@ -89,6 +89,13 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
     }
 }
 
+///获取一条空记录，用于无数据表格初始化
+#[post("/fetch_blank")]
+pub fn fetch_blank() -> HttpResponse {
+    let v: Vec<i32> = Vec::new();
+    HttpResponse::Ok().json((v, 0, 0))
+}
+
 //上传文件保存
 pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     let path = "./upload/product.xlsx".to_owned();
@@ -104,3 +111,4 @@ pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     }
     Ok(path)
 }
+

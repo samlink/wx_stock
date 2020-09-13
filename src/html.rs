@@ -75,3 +75,15 @@ pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+///客户管理
+#[get("/customer_manage")]
+pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "客户管理".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| customer(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}

@@ -1,0 +1,55 @@
+.customer-content {
+    height: 95%;
+
+    .table-customer {
+        overflow-x: auto;
+    }
+
+    .table-tools {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-left: 60%;
+    }
+
+    .table-edit {
+        min-width: 200px;
+        button {
+            margin-left: 10px;
+        }
+    }
+
+    .data-button {
+        margin-left: 40px;
+        margin-right: 20px;
+        min-width: 300px;
+
+        button {
+            margin-left: 10px;
+        }
+    }
+
+    #customer-name {
+        font-weight: bold;
+        position: relative;
+        margin-left: 30px;
+        top: 0;
+    }
+
+    #customer-id {
+        position: relative;
+        font-weight: normal;
+        color: rgb(242, 246, 243);
+        top: 0;
+        margin-left: 10px;
+    }
+
+    td:nth-child(2),
+    th:nth-child(2) {
+        border-left: none !important;
+    }
+
+    table th {
+        padding: 0;
+    }
+}

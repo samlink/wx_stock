@@ -5,13 +5,14 @@ use config::ConfigError;
 use dotenv::dotenv;
 use serde::Deserialize;
 
+mod customer;
+mod field_set;
 mod html;
 mod product;
 mod service;
 mod tree;
 mod user_manage;
 mod user_set;
-mod field_set;
 
 #[derive(Deserialize)]
 struct Config {
@@ -48,6 +49,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::user_manage)
             .service(html::product_set)
             .service(html::field_set)
+            .service(html::customer_manage)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
@@ -71,9 +73,9 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_in)
             .service(product::product_datain)
             .service(product::product_updatein)
-            .service(product::fetch_blank)
             .service(field_set::fetch_fields)
             .service(field_set::update_tableset)
+            .service(service::fetch_blank)
             .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/download", "download"))

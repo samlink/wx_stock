@@ -1,0 +1,103 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="customer-set">
+    <div class="top-title"><span><i class="fa fa-user"></i> 客户供应商 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 客户管理 </span>
+    </div>
+    <div class="customer-content">        
+        <div id="customer-show">
+            <div class="table-top">
+                <div class="autocomplete customer-search">
+                    <input type="text" class="form-control search-input" id="search-input" placeholder="客户搜索">
+                    <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                    <span id="customer-name"></span><span id="customer-id"></span>
+                </div>
+                <div class="table-tools">
+                    <div class="table-edit">
+                        <button class="btn btn-info btn-sm" id="add-button">增加</button>
+                        <button class="btn btn-info btn-sm" id="edit-button">编辑</button>
+                        <button class="btn btn-info btn-sm" id="del-button">删除</button>
+                    </div>
+                    <div class="data-button">
+                        <input type="file" id="choose_file2" class="hide" accept="xls,xlsx" />
+                        <button class="btn btn-info btn-sm" id="data-update">批量更新</button>
+                        <input type="file" id="choose_file" class="hide" accept="xls,xlsx" />
+                        <button class="btn btn-info btn-sm" id="data-in">批量导入</button>
+                        <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container table-customer">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="table-ctrl">
+                    <div class="tools-button"></div>
+                    <div class="table-button">
+                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                width="12px"></button>
+                        <p class="seperator"></p>
+                        <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                        <span>页，共</span><span id="pages"></span><span>页</span>
+                        <p class="seperator"></p>
+                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                width="12px"></button>
+                    </div>
+
+                    <div class="table-info">
+                        共 <span id="total-records"></span> 条记录
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="customer-modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <p class="modal-title"></p>
+
+                    <button type="button" class="top-close close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                </div>
+
+                <div class="modal-footer">
+                    <div id="modal-info"></div>
+                    <button type="button" class="btn btn-info" id="modal-sumit-button">
+                        提交
+                    </button>
+                    <button type="button" class="btn btn-second" id="modal-close-button">
+                        返回
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="module" src="/assets/js/pages/customer.js"></script>
+}, user.name.clone())
