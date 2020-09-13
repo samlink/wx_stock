@@ -33,6 +33,22 @@ pub struct PostData {
     pub rec: i32,
 }
 
+//自动完成使用
+#[derive(Deserialize, Serialize)]
+pub struct Message {
+    id: i32,
+    label: String,
+}
+
+//存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
+pub struct FieldsData {
+    pub field_name: String,
+    pub show_name: String,
+    pub data_type: String,
+    pub option_value: String,
+    pub show_width: f32,
+}
+
 ///静态文件服务
 pub fn serve_static(file: web::Path<File>) -> HttpResponse {
     if let Some(data) = statics::StaticFile::get(&file.name) {
@@ -91,6 +107,23 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
     }
 }
 
+pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
+    let conn = db.get().await.unwrap();
+    let rows = &conn.query(sql, &[]).await.unwrap();
+
+    let mut data = Vec::new();
+    for row in rows {
+        let message = Message {
+            id: row.get("id"),
+            label: row.get("label"),
+        };
+
+        data.push(message);
+    }
+
+    HttpResponse::Ok().json(data)
+}
+
 ///获取一条空记录，用于无数据表格初始化
 #[post("/fetch_blank")]
 pub fn fetch_blank() -> HttpResponse {
@@ -114,3 +147,107 @@ pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     Ok(path)
 }
 
+//从数据库读取数据后，按显示字段，组合成字符串数组。以返回给前端
+pub fn build_string_from_base(
+    rows: &Vec<tokio_postgres::Row>,
+    fields: Vec<FieldsData>,
+) -> Vec<String> {
+    let mut products = Vec::new();
+    for row in rows {
+        let mut product = "".to_owned();
+        let num: i32 = row.get("ID"); //字段顺序已与前端配合一致，后台不可自行更改
+        product += &format!("{}{}", num, SPLITER);
+        let num: i64 = row.get("序号");
+        product += &format!("{}{}", num, SPLITER);
+
+        for f in &fields {
+            if f.data_type == "文本" {
+                let s: String = row.get(&*f.field_name);
+                product += &format!("{}{}", s, SPLITER);
+            } else if f.data_type == "整数" {
+                let num: i32 = row.get(&*f.field_name);
+                product += &format!("{}{}", num, SPLITER);
+            } else if f.data_type == "实数" {
+                let num: f32 = row.get(&*f.field_name);
+                product += &format!("{}{}", num, SPLITER);
+            } else {
+                let op: Vec<&str> = f.option_value.split("_").collect();
+                let b: bool = row.get(&*f.field_name);
+                let val = if b == true { op[0] } else { op[1] };
+                product += &format!("{}{}", val, SPLITER);
+            }
+        }
+
+        products.push(product);
+    }
+    products
+}
+
+//从前端传过来字符串数组，按显示字段，组合成 update 语句。供更新数据用
+pub fn build_sql_for_update(
+    field_names: Vec<&str>,
+    mut sql: String,
+    fields: Vec<FieldsData>,
+) -> String {
+    for i in 0..fields.len() {
+        if fields[i].data_type == "文本" {
+            sql += &format!("{}='{}',", fields[i].field_name, field_names[i + 2]);
+        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
+            sql += &format!("{}={},", fields[i].field_name, field_names[i + 2]);
+        } else {
+            let op: Vec<&str> = fields[i].option_value.split("_").collect();
+            let val = if field_names[i + 2] == op[0] {
+                true
+            } else {
+                false
+            };
+            sql += &format!("{}={},", fields[i].field_name, val);
+        }
+    }
+    sql
+}
+
+//从前端传过来字符串数组，按显示字段，组合成 insert 语句。供追加数据用
+pub fn build_sql_for_insert(
+    field_names: Vec<&str>,
+    mut sql: String,
+    fields: Vec<FieldsData>,
+) -> String {
+    for i in 0..fields.len() {
+        if fields[i].data_type == "文本" {
+            sql += &format!("'{}',", field_names[i + 2]);
+        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
+            sql += &format!("{},", field_names[i + 2]);
+        } else {
+            let op: Vec<&str> = fields[i].option_value.split("_").collect();
+            let val = if field_names[i + 2] == op[0] {
+                true
+            } else {
+                false
+            };
+            sql += &format!("{},", val);
+        }
+    }
+    sql
+}
+
+//将显示字段拼接成导出 excel 用的查询语句
+pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String {
+    for f in fields {
+        if f.data_type == "文本" {
+            let txt = format!("{},", f.field_name);
+            sql += &txt;
+        } else if f.data_type == "整数" || f.data_type == "实数" {
+            let num = format!("{}::float8,", f.field_name);
+            sql += &num;
+        } else {
+            let op: Vec<&str> = f.option_value.split("_").collect();
+            let bl = format!(
+                "case when {} then '{}' else '{}' end as {},",
+                f.field_name, op[0], op[1], f.field_name
+            );
+            sql += &bl;
+        }
+    }
+    sql
+}

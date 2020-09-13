@@ -9,8 +9,6 @@ let global = {
     row_id: 0,
     edit: 0,
     eidt_cate: "",
-    customer_id: "",
-    customer_name: "",
 }
 
 let table_top = document.querySelector('.table-top').clientHeight;
@@ -124,58 +122,14 @@ function search_table() {
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
 
-    if (global.customer_name != "") {
-        let form = "<form>";
+    document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
 
-        for (let name of table_fields) {
-            let control;
-            if (name.ctr_type == "普通输入") {
-                control = `<div class="form-group">
-                                <div class="form-label">
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <input class="form-control input-sm has-value" type="text">
-                            </div>`;
-            } else if (name.ctr_type == "二值选一") {
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox"><span class="checkmark"></span>
-                                </label>
-                            </div>`;
-            } else {
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <select class='select-sm has-value'>`;
+    document.querySelector('.modal-title').textContent = "增加客户";
+    document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
-                let options = name.option_value.split('_');
-                for (let value of options) {
-                    control += `<option value="${value}">${value}</option>`;
-                }
-                control += "</select></div>";
-
-            }
-
-            form += control;
-        }
-        form += "</form>";
-
-        document.querySelector('.modal-body').innerHTML = form;
-
-        document.querySelector('.modal-title').textContent = global.customer_name;
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
-
-        document.querySelector('#customer-modal').style.display = "block";
-        document.querySelector('.modal-body input').focus();
-        leave_alert();
-    }
-    else {
-        notifier.show('请先选择商品', 'danger');
-    }
-
+    document.querySelector('#customer-modal').style.display = "block";
+    document.querySelector('.modal-body input').focus();
+    leave_alert();
 });
 
 //编辑按键
@@ -184,69 +138,19 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-    if (global.customer_name != "" && id != "") {
+    if (id != "") {
         global.row_id = id;
 
-        let form = "<form>";
-        let num = 3;
-        for (let name of table_fields) {
-            let control;
-            if (name.ctr_type == "普通输入") {
-                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                control = `<div class="form-group">
-                                <div class="form-label">
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <input class="form-control input-sm has-value" type="text" value="${value}">
-                            </div>`;
-            } else if (name.ctr_type == "二值选一") {
-                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                let options = name.option_value.split('_');
-                let check = value == options[0] ? "checked" : "";
+        document.querySelector('.modal-body').innerHTML = service.build_edit_form(table_fields, chosed);
 
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox" ${check}><span class="checkmark"></span>
-                                </label>
-                            </div>`;
-            } else {
-                let show_value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <select class='select-sm has-value'>`;
-
-                let options = name.option_value.split('_');
-                for (let value of options) {
-                    if (value == show_value) {
-                        control += `<option value="${value}" selected>${value}</option>`;
-                    }
-                    else {
-                        control += `<option value="${value}">${value}</option>`;
-                    }
-                }
-
-                control += "</select></div>";
-            }
-
-            form += control;
-            num++;
-        }
-        form += "</form>";
-
-        document.querySelector('.modal-body').innerHTML = form;
-
-        document.querySelector('.modal-title').textContent = global.customer_name;
+        document.querySelector('.modal-title').textContent = "编辑客户";
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('#customer-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
     else {
-        notifier.show('请先选择商品规格', 'danger');
+        notifier.show('请先选择客户', 'danger');
     }
 });
 
@@ -263,8 +167,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
             num++;
         }
-        let split = "<`*_*`>";
-        let customer = `${global.row_id}${split}${global.customer_id}${split}`;
+        let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
 
         num = 0;
 
@@ -277,11 +180,11 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 value = input.checked;
             }
 
-            if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
-                value = Number(value);
-            }
+            // if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
+            //     value = Number(value);
+            // }
 
-            customer += `${value}${split}`;
+            customer += `${value}${SPLITER}`;
             num++;
         }
 
@@ -302,7 +205,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     global.edit = 0;
-                    notifier.show('商品修改成功', 'success');
+                    notifier.show('客户修改成功', 'success');
                     fetch_table();
                 }
                 else {
@@ -374,33 +277,24 @@ function leave_alert() {
 //数据导入和导出 ------------------------------------------------------------------------------
 
 document.querySelector('#data-out').addEventListener('click', function () {
-    if (global.customer_name != "") {
-        let data = {
-            id: global.customer_id,
-            name: global.customer_name,
-        };
 
-        fetch("/customer_out", {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    download_file(`/download/${content}.xlsx`);
-                    notifier.show('成功导出至 Excel 文件', 'success');
-                }
-                else {
-                    notifier.show('权限不够，操作失败', 'danger');
-                }
-            });
-    }
-    else {
-        notifier.show('请先选择商品', 'danger');
-    }
+    fetch("/customer_out", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                download_file(`/download/${content}.xlsx`);
+                notifier.show('成功导出至 Excel 文件', 'success');
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
 });
 
 //批量导入
