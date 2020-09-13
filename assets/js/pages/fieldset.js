@@ -1,4 +1,3 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { regReal, getHeight } from '../parts/tools.mjs';
@@ -21,6 +20,15 @@ sumit_button.disabled = true;
 var data = {
     name: '商品规格'
 };
+
+fetch_data(data);
+
+document.querySelector('#table-choose').addEventListener('change', function () {
+    let data = {
+        name: this.value,
+    };
+    fetch_data(data);
+})
 
 function row_fn(tr) {
     let s1 = "";
@@ -54,91 +62,93 @@ function blank_row_fn() {
     return `<tr><td width=6%></td><td></td><td width=10%></td><td></td><td width=8%></td><td></td><td width=20%></td><td width=8%></td></tr>`;
 }
 
-fetch("/fetch_fields", {
-    method: 'post',
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-})
-    .then(response => response.json())
-    .then(content => {
-        if (content != -1) {
-            let rows = "";
-            let count = 0;
-            for (let tr of content[0]) {
-                rows += row_fn(tr);
-                count++;
+function fetch_data(data) {
+    fetch("/fetch_fields", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                let rows = "";
+                let count = 0;
+                for (let tr of content[0]) {
+                    rows += row_fn(tr);
+                    count++;
+                }
+
+                //多输入两个空行，便于拖拽操作
+                for (let i = 0; i < 2; i++) {
+                    rows += blank_row_fn();
+                }
+
+                let table_body = document.querySelector('.table-product tbody');
+                table_body.innerHTML = rows;
+                document.querySelector('#total-records').textContent = content[1];
+
+                //拖拽功能
+                for (let tr of table_body.children) {
+                    tr.addEventListener('dragstart', function (e) {
+                        e.stopPropagation();
+                        global.drag_tr = e.target;
+                        console.log(global.drag_tr);
+                    });
+
+                    tr.addEventListener('dragover', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+
+                    });
+
+                    tr.addEventListener('dragleave', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.style.cssText = "";
+                    });
+
+                    tr.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.style.cssText = "";
+                        table_body.insertBefore(global.drag_tr, this);
+                        sumit_button.disabled = false;
+                        global.edit = 1;
+                    });
+                }
+
+                //编辑时离开提醒
+                let all_input = document.querySelectorAll('.table-product tbody input');
+                for (let input of all_input) {
+                    input.addEventListener('input', () => {
+                        sumit_button.disabled = false;
+                        global.edit = 1;
+                    });
+                }
+
+                let all_select = document.querySelectorAll('.table-product tbody select');
+                for (let select of all_select) {
+                    select.addEventListener('change', function () {
+                        document.querySelector('#sumit-button').disabled = false;
+                        global.edit = 1;
+                        if (this.value != "普通输入") {
+                            this.parentNode.nextElementSibling.querySelector('input').disabled = false;
+                            this.parentNode.nextElementSibling.querySelector('input').focus();
+                        }
+                        else {
+                            this.parentNode.nextElementSibling.querySelector('input').disabled = true;
+                        }
+                    });
+                }
             }
-
-            //多输入两个空行，便于拖拽操作
-            for (let i = 0; i < 2; i++) {
-                rows += blank_row_fn();
+            else {
+                alert("无此操作权限");
             }
-
-            let table_body = document.querySelector('.table-product tbody');
-            table_body.innerHTML = rows;
-            document.querySelector('#total-records').textContent = content[1];
-
-            //拖拽功能
-            for (let tr of table_body.children) {
-                tr.addEventListener('dragstart', function (e) {
-                    e.stopPropagation();
-                    global.drag_tr = e.target;
-                    console.log(global.drag_tr);
-                });
-
-                tr.addEventListener('dragover', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
-
-                });
-
-                tr.addEventListener('dragleave', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.style.cssText = "";
-                });
-
-                tr.addEventListener('drop', function (e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.style.cssText = "";
-                    table_body.insertBefore(global.drag_tr, this);
-                    sumit_button.disabled = false;
-                    global.edit = 1;
-                });
-            }
-
-            //编辑时离开提醒
-            let all_input = document.querySelectorAll('.table-product tbody input');
-            for (let input of all_input) {
-                input.addEventListener('input', () => {
-                    sumit_button.disabled = false;
-                    global.edit = 1;
-                });
-            }
-
-            let all_select = document.querySelectorAll('.table-product tbody select');
-            for (let select of all_select) {
-                select.addEventListener('change', function () {
-                    document.querySelector('#sumit-button').disabled = false;
-                    global.edit = 1;
-                    if (this.value != "普通输入") {
-                        this.parentNode.nextElementSibling.querySelector('input').disabled = false;
-                        this.parentNode.nextElementSibling.querySelector('input').focus();
-                    }
-                    else {
-                        this.parentNode.nextElementSibling.querySelector('input').disabled = true;
-                    }
-                });
-            }
-        }
-        else {
-            alert("无此操作权限");
-        }
-    });
+        });
+}
 
 sumit_button.addEventListener('click', () => {
     let data = [];

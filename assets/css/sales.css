@@ -1400,7 +1400,7 @@ a.roar-alert-message-tbf {
 .fields-set table thead th {
   cursor: default;
 }
-.fields-set table tbody td:nth-child(1),
+.fields-set table tbody td:nth-child(2),
 .fields-set table tbody td:nth-last-child(1) {
   text-align: center;
 }
