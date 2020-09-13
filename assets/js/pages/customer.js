@@ -21,7 +21,7 @@ let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
 let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 let table_name = {
-    name: "用户管理"
+    name: "客户"
 };
 
 let table_fields;
@@ -65,10 +65,10 @@ fetch("/fetch_fields", {
             all_width += 3;  //序号列的宽度
             let table_width = document.querySelector('.table-customer').clientWidth;
             let width = table_width / all_width;
-            let rows = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
+            let rows = `<th width='${300 / all_width}%'>序号</th><th hidden>编号</th>`;
 
             if (width < 18) {
-                rows = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
+                rows = `<th width='${3 * 18}px'>序号</th><th hidden>编号</th>`;
                 document.querySelector('.table-customer').style.width = table_width;
                 document.querySelector('.table-customer .table-ctrl').style.cssText = `
                 position: absolute;
@@ -86,7 +86,6 @@ fetch("/fetch_fields", {
                 let value = th.field_name;
                 header_names[key] = value;
             }
-            header_names["编号"] = `"ID"`;
             document.querySelector('.table-customer thead tr').innerHTML = rows;
 
             table_init(init_data);
@@ -107,7 +106,7 @@ fetch("/fetch_fields", {
 
 function table_row(tr) {
     let rec = tr.split('<`*_*`>');
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td>${rec[0]}</td>`;
+    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
     let n = 2;
     for (let name of table_fields) {
         if (name.data_type == "文本") {
@@ -126,7 +125,7 @@ function table_row(tr) {
 }
 
 function blank_row() {
-    let row = "<tr><td></td><td></td>";
+    let row = "<tr><td></td><td hidden></td>";
     for (let _f of table_fields) {
         row += "<td></td>";
     }

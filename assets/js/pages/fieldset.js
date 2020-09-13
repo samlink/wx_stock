@@ -17,11 +17,11 @@ let sumit_button = document.querySelector('#sumit-button');
 sumit_button.disabled = true;
 
 //显示表格数据 ---------------------------------------
-var data = {
-    name: '商品规格'
-};
+// var data = {
+//     name: '商品规格'
+// };
 
-fetch_data(data);
+// fetch_data(data);
 
 document.querySelector('#table-choose').addEventListener('change', function () {
     let data = {
