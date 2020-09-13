@@ -71,7 +71,7 @@ pub async fn fetch_customer(
     }
 }
 
-///编辑更新产品
+///编辑更新客户
 #[post("/update_customer")]
 pub async fn update_customer(
     db: web::Data<Pool>,
@@ -83,10 +83,10 @@ pub async fn update_customer(
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), "客户").await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
+        let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
         let init = r#"UPDATE customers SET "#.to_owned();
         let mut sql = build_sql_for_update(field_names.clone(), init, fields);
-        sql = sql.trim_end_matches(",").to_string();
-        sql += &format!(r#" WHERE "ID"={}"#, field_names[0]);
+        sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, field_names[0]);
 
         &conn.execute(sql.as_str(), &[]).await.unwrap();
 
@@ -96,29 +96,29 @@ pub async fn update_customer(
     }
 }
 
-///编辑增加产品
+///编辑增加客户
 #[post("/add_customer")]
 pub async fn add_customer(
     db: web::Data<Pool>,
     p: web::Json<Product>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "客户管理".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), "客户").await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
+        let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
+
         let mut init = r#"INSERT INTO customers ("#.to_owned();
 
         for f in &fields {
             init += &format!("{},", &*f.field_name);
         }
 
-        init = init.trim_end_matches(",").to_string();
-        init += r#") VALUES("#;
+        init += "助记码) VALUES(";
         let mut sql = build_sql_for_insert(field_names.clone(), init, fields);
-        sql = sql.trim_end_matches(",").to_string();
-        sql += ")";
+        sql += &format!("'{}')", py);
 
         &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -131,7 +131,6 @@ pub async fn add_customer(
 #[derive(Deserialize)]
 pub struct Search {
     s: String,
-    cate: String,
 }
 
 //自动完成
@@ -145,7 +144,7 @@ pub async fn customer_auto(
     if user_name != "" {
         let s = search.s.to_lowercase();
         let sql = &format!(
-            r#"SELECT "ID" AS id, 名称 AS label FROM customers WHERE 助记码 LIKE '{}%' OR 名称 LIKE %{}%"#,
+            r#"SELECT "ID" AS id, 名称 AS label FROM customers WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
             s, s
         );
 
@@ -155,24 +154,14 @@ pub async fn customer_auto(
     }
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct ProductName {
-    id: String,
-    name: String,
-}
-
 //导出数据
-#[post("/product_out")]
-pub async fn product_out(
-    db: web::Data<Pool>,
-    product: web::Json<ProductName>,
-    id: Identity,
-) -> HttpResponse {
+#[post("/customer_out")]
+pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
         let fields = get_fields(db.clone(), "客户").await;
 
-        let file_name = format!("./download/{}.xlsx", product.name);
+        let file_name = "./download/客户.xlsx";
         let wb = Workbook::new(&file_name);
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
 
@@ -183,14 +172,7 @@ pub async fn product_out(
 
         let format2 = wb.add_format().set_align(FormatAlignment::CenterAcross);
 
-        //设置列宽
-        sheet.set_column(0, 0, 8.0, None).unwrap();
-        sheet.set_column(1, 1, 12.0, None).unwrap();
-
-        sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
-        sheet.write_string(0, 1, "商品ID", Some(&format1)).unwrap();
-
-        let mut n = 2;
+        let mut n = 0;
         for f in &fields {
             sheet
                 .write_string(0, n, &f.show_name, Some(&format1))
@@ -202,25 +184,18 @@ pub async fn product_out(
             n += 1;
         }
 
-        let mut sql = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
+        let init = "SELECT ".to_owned();
+        let mut sql = build_sql_for_excel(init, &fields);
+        sql = sql.trim_end_matches(",").to_owned();
 
-        sql = build_sql_for_excel(sql, &fields);
-
-        sql += &format!(r#""商品ID" FROM products WHERE "商品ID"='{}'"#, product.id);
+        sql += " FROM customers";
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut n = 1u32;
         for row in rows {
-            sheet
-                .write_number(n, 0, row.get("编号"), Some(&format2))
-                .unwrap();
-            sheet
-                .write_string(n, 1, row.get("商品ID"), Some(&format2))
-                .unwrap();
-
-            let mut m = 2u16;
+            let mut m = 0u16;
             for f in &fields {
                 if f.data_type == "整数" || f.data_type == "实数" {
                     sheet
@@ -242,7 +217,7 @@ pub async fn product_out(
         }
 
         wb.close().unwrap();
-        HttpResponse::Ok().json(product.name.clone())
+        HttpResponse::Ok().json("客户")
     } else {
         HttpResponse::Ok().json(-1)
     }

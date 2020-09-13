@@ -27,7 +27,7 @@ impl Config {
     }
 }
 
-#[actix_rt::main]
+#[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let config = Config::from_env().unwrap();
@@ -78,8 +78,11 @@ async fn main() -> std::io::Result<()> {
             .service(customer::fetch_customer)
             .service(customer::update_customer)
             .service(customer::add_customer)
+            .service(customer::customer_auto)
+            .service(customer::customer_out)
             .service(service::fetch_blank)
             .service(web::resource("static/{name}").to(service::serve_static))
+            // .service(web::resource("download/{name}").to(service::serve_download))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/download", "download"))
     })

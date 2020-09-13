@@ -102,9 +102,8 @@ function blank_row() {
 
 //搜索规格
 let search_input = document.querySelector('#search-input');
-let cate = document.querySelector('#customer-id');
 
-autocomplete(search_input, cate, "/customer_auto", () => {
+autocomplete(search_input, "", "/customer_auto", () => {
     search_table();
 });
 
@@ -179,10 +178,6 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             else {
                 value = input.checked;
             }
-
-            // if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
-            //     value = Number(value);
-            // }
 
             customer += `${value}${SPLITER}`;
             num++;
@@ -280,10 +275,6 @@ document.querySelector('#data-out').addEventListener('click', function () {
 
     fetch("/customer_out", {
         method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
     })
         .then(response => response.json())
         .then(content => {

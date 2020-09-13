@@ -58,6 +58,15 @@ pub fn serve_static(file: web::Path<File>) -> HttpResponse {
     }
 }
 
+// ///静态文件服务
+// pub fn serve_download(file: web::Path<File>) -> HttpResponse {
+//     if let Some(data) = (&file.name) {
+//         HttpResponse::Ok().body(data.content)
+//     } else {
+//         HttpResponse::NotFound().into()
+//     }
+// }
+
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
 where
@@ -107,6 +116,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
     }
 }
 
+//自动完成
 pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
     let conn = db.get().await.unwrap();
     let rows = &conn.query(sql, &[]).await.unwrap();
