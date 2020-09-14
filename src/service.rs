@@ -1,7 +1,7 @@
+use actix_web::Either;
 use actix_files as fs;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
-use actix_web::http::header::{ContentDisposition, DispositionType};
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use futures::{StreamExt, TryStreamExt};
@@ -66,19 +66,31 @@ pub async fn serve_download(
     req: HttpRequest,
     db: web::Data<Pool>,
     id: Identity,
-) -> Result<fs::NamedFile, Error> {
+) -> Either<Result<fs::NamedFile, Error>, Result<&'static str, Error>> {
     let user = get_user(db, id, "导出数据".to_owned()).await;
     if user.name != "" {
         let path = req.match_info().query("filename");
-        let file = fs::NamedFile::open(format!("./download/{}", path))?;
-        Ok(file.set_content_disposition(ContentDisposition {
-            disposition: DispositionType::Attachment,
-            parameters: vec![],
-        }))
+        Either::A(Ok(fs::NamedFile::open(format!("./download/{}", path)).unwrap()))
     } else {
-        panic!("有用户非法下载")
+        Either::B(Ok("你没有权限下载该文件"))
+        // panic!("有用户非法下载")
     }
 }
+// ///下载文件服务
+// #[get("/download/{filename:.*}")]
+// pub async fn serve_download(
+//     req: HttpRequest,
+//     db: web::Data<Pool>,
+//     id: Identity,
+// ) -> Result<fs::NamedFile, Error> {
+//     let user = get_user(db, id, "导出数据".to_owned()).await;
+//     if user.name != "" {
+//         let path = req.match_info().query("filename");
+//         Ok(fs::NamedFile::open(format!("./download/{}", path))?)
+//     } else {
+//         panic!("有用户非法下载")
+//     }
+// }
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
