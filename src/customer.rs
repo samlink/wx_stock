@@ -225,13 +225,12 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 //批量导入、批量更新返回数据
-#[post("/product_in")]
-pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
+#[post("/customer_in")]
+pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
         let path = save_file(payload).await.unwrap();
 
-        let mut p_id = "".to_owned(); //商品ID
         let mut total_rows = 0;
         let fields = get_fields(db.clone(), "客户").await;
         let mut records = Vec::new();
@@ -242,15 +241,15 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
             let mut num = 1;
             let total_coloum = r.get_size().1;
 
-            if total_coloum - 2 != fields.len() {
+            if total_coloum != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
             for row in r.rows() {
                 let mut rec = "".to_owned();
                 if n == 0 {
-                    rec += &format!("{}{}", row[0].get_string().unwrap(), SPLITER);
-                    rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
+                    // rec += &format!("{}{}", row[0].get_string().unwrap(), SPLITER);
+                    // rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
                     for f in &fields {
                         rec += &format!("{}{}", &*f.show_name, SPLITER);
                     }
@@ -260,15 +259,14 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                     continue;
                 }
 
-                rec += &format!("{}{}", row[0].get_float().unwrap(), SPLITER);
-                rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
-                p_id = row[1].get_string().unwrap().to_owned();
+                // rec += &format!("{}{}", row[0].get_float().unwrap(), SPLITER);
+                // rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
 
                 for i in 0..fields.len() {
                     if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        rec += &format!("{}{}", row[i + 2].get_float().unwrap_or(0f64), SPLITER);
+                        rec += &format!("{}{}", row[i].get_float().unwrap_or(0f64), SPLITER);
                     } else {
-                        rec += &format!("{}{}", row[i + 2].get_string().unwrap_or(""), SPLITER);
+                        rec += &format!("{}{}", row[i].get_string().unwrap_or(""), SPLITER);
                     }
                 }
 
@@ -281,18 +279,8 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
             }
 
             total_rows = r.get_size().0 - 1;
-
-            let conn = db.get().await.unwrap();
-            let rows = &conn
-                .query(r#"SELECT node_name FROM tree WHERE num=$1"#, &[&p_id])
-                .await
-                .unwrap();
-
-            for row in rows {
-                p_id = row.get("node_name");
-            }
         }
-        HttpResponse::Ok().json((records, p_id, total_rows))
+        HttpResponse::Ok().json((records, total_rows))
     } else {
         HttpResponse::Ok().json(-1)
     }

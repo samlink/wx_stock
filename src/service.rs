@@ -73,24 +73,8 @@ pub async fn serve_download(
         Either::A(Ok(fs::NamedFile::open(format!("./download/{}", path)).unwrap()))
     } else {
         Either::B(Ok("你没有权限下载该文件"))
-        // panic!("有用户非法下载")
     }
 }
-// ///下载文件服务
-// #[get("/download/{filename:.*}")]
-// pub async fn serve_download(
-//     req: HttpRequest,
-//     db: web::Data<Pool>,
-//     id: Identity,
-// ) -> Result<fs::NamedFile, Error> {
-//     let user = get_user(db, id, "导出数据".to_owned()).await;
-//     if user.name != "" {
-//         let path = req.match_info().query("filename");
-//         Ok(fs::NamedFile::open(format!("./download/{}", path))?)
-//     } else {
-//         panic!("有用户非法下载")
-//     }
-// }
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String

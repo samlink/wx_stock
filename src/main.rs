@@ -80,6 +80,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::add_customer)
             .service(customer::customer_auto)
             .service(customer::customer_out)
+            .service(customer::customer_in)
             .service(service::fetch_blank)
             .service(service::serve_download)
             // .service(web::resource("static/{name}").to(service::serve_static))

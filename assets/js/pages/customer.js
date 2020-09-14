@@ -323,17 +323,15 @@ function data_in(fileBtn, info1, info2, cate) {
                     let rows = "<div class='table-container table-customer'><table style='font-size: 12px;'><thead>"
                     let n = 1;
                     for (let item of content[0]) {
-                        let arr_p = item.split("<`*_*`>");
-                        let row;
+                        let arr_p = item.split(SPLITER);
+                        let row = `<tr>`;
                         if (n == 1) {
-                            row = `<tr>`;
                             for (let i = 0; i < arr_p.length - 1; i++) {
                                 row += `<th>${arr_p[i]}</th}>`;
                             }
                             row += "</tr></thead><tbody>";
                             n = 2;
                         } else {
-                            row = `<tr>`;
                             for (let i = 0; i < arr_p.length - 1; i++) {
                                 row += `<td>${arr_p[i]}</td>`;
                             }
@@ -345,9 +343,9 @@ function data_in(fileBtn, info1, info2, cate) {
                     rows += "</tbody></table></div>";
                     document.querySelector('.modal-body').innerHTML = rows;
 
-                    let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${content[1]} ${info1} ${content[2]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = `${content[1]} ${info2}`;
+                    let message = content[1] > 50 ? " (仅显示前 50 条）" : "";
+                    document.querySelector('.modal-title').innerHTML = `客户信息${info1} ${content[1]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = `客户信息${info2}`;
 
                     global.eidt_cate = cate;
 
