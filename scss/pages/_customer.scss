@@ -29,19 +29,17 @@
         }
     }
 
-    #customer-name {
-        font-weight: bold;
-        position: relative;
-        margin-left: 30px;
-        top: 0;
+    .autocomplete-items,
+    #search-input {
+        width: 260px;
     }
 
-    #customer-id {
-        position: relative;
-        font-weight: normal;
-        color: rgb(242, 246, 243);
-        top: 0;
-        margin-left: 10px;
+    .autocomplete-items div {
+        width: 249px;
+    }
+
+    #serach-button {
+        margin-bottom: 4px;
     }
 
     td:nth-child(2),

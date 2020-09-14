@@ -1,6 +1,8 @@
+use actix_files as fs;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
-use actix_web::{post, web, Error, HttpResponse};
+use actix_web::http::header::{ContentDisposition, DispositionType};
+use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
@@ -50,22 +52,33 @@ pub struct FieldsData {
 }
 
 ///静态文件服务
-pub fn serve_static(file: web::Path<File>) -> HttpResponse {
-    if let Some(data) = statics::StaticFile::get(&file.name) {
-        HttpResponse::Ok().body(data.content)
-    } else {
-        HttpResponse::NotFound().into()
-    }
-}
-
-// ///静态文件服务
-// pub fn serve_download(file: web::Path<File>) -> HttpResponse {
-//     if let Some(data) = (&file.name) {
+// pub fn serve_static(file: web::Path<File>) -> HttpResponse {
+//     if let Some(data) = statics::StaticFile::get(&file.name) {
 //         HttpResponse::Ok().body(data.content)
 //     } else {
 //         HttpResponse::NotFound().into()
 //     }
 // }
+
+///下载文件服务
+#[get("/download/{filename:.*}")]
+pub async fn serve_download(
+    req: HttpRequest,
+    db: web::Data<Pool>,
+    id: Identity,
+) -> Result<fs::NamedFile, Error> {
+    let user = get_user(db, id, "导出数据".to_owned()).await;
+    if user.name != "" {
+        let path = req.match_info().query("filename");
+        let file = fs::NamedFile::open(format!("./download/{}", path))?;
+        Ok(file.set_content_disposition(ContentDisposition {
+            disposition: DispositionType::Attachment,
+            parameters: vec![],
+        }))
+    } else {
+        panic!("有用户非法下载")
+    }
+}
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String

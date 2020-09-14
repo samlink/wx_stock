@@ -272,7 +272,6 @@ function leave_alert() {
 //数据导入和导出 ------------------------------------------------------------------------------
 
 document.querySelector('#data-out').addEventListener('click', function () {
-
     fetch("/customer_out", {
         method: 'post',
     })

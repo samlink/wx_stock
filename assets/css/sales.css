@@ -1443,18 +1443,15 @@ a.roar-alert-message-tbf {
 .customer-content .data-button button {
   margin-left: 10px;
 }
-.customer-content #customer-name {
-  font-weight: bold;
-  position: relative;
-  margin-left: 30px;
-  top: 0;
+.customer-content .autocomplete-items,
+.customer-content #search-input {
+  width: 260px;
 }
-.customer-content #customer-id {
-  position: relative;
-  font-weight: normal;
-  color: #f2f6f3;
-  top: 0;
-  margin-left: 10px;
+.customer-content .autocomplete-items div {
+  width: 249px;
+}
+.customer-content #serach-button {
+  margin-bottom: 4px;
 }
 .customer-content td:nth-child(2),
 .customer-content th:nth-child(2) {

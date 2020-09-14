@@ -81,10 +81,9 @@ async fn main() -> std::io::Result<()> {
             .service(customer::customer_auto)
             .service(customer::customer_out)
             .service(service::fetch_blank)
-            .service(web::resource("static/{name}").to(service::serve_static))
-            // .service(web::resource("download/{name}").to(service::serve_download))
+            .service(service::serve_download)
+            // .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
-            .service(fs::Files::new("/download", "download"))
     })
     .bind("127.0.0.1:8083")?
     .run()

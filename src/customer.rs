@@ -217,6 +217,7 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         }
 
         wb.close().unwrap();
+
         HttpResponse::Ok().json("客户")
     } else {
         HttpResponse::Ok().json(-1)
