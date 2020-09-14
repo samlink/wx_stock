@@ -152,7 +152,7 @@ pub fn fetch_blank() -> HttpResponse {
 
 //上传文件保存
 pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
-    let path = "./upload/product.xlsx".to_owned();
+    let path = "./upload/upload_in.xlsx".to_owned();
     while let Ok(Some(mut field)) = payload.try_next().await {
         let filepath = path.clone();
         let mut f = web::block(|| std::fs::File::create(filepath))

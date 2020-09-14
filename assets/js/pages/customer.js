@@ -209,7 +209,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             });
     }
     else {
-        let url = global.eidt_cate == "批量导入" ? "/customer_datain" : "/customer_updatein";
+        let url = global.eidt_cate == "批量导入" ? "/customer_addin" : "/customer_updatein";
         fetch(url, {
             method: 'post',
         })

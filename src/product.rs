@@ -403,7 +403,7 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
 pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+        let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone()).await;
@@ -456,7 +456,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+        let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone()).await;

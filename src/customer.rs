@@ -172,7 +172,10 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         let format2 = wb.add_format().set_align(FormatAlignment::CenterAcross);
 
-        let mut n = 0;
+        sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
+        sheet.set_column(0, 0, 10.0, Some(&format2)).unwrap();
+
+        let mut n = 1;
         for f in &fields {
             sheet
                 .write_string(0, n, &f.show_name, Some(&format1))
@@ -184,7 +187,7 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             n += 1;
         }
 
-        let init = "SELECT ".to_owned();
+        let init = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields);
         sql = sql.trim_end_matches(",").to_owned();
 
@@ -195,7 +198,10 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         let mut n = 1u32;
         for row in rows {
-            let mut m = 0u16;
+            sheet
+                .write_number(n, 0, row.get("编号"), Some(&format2))
+                .unwrap();
+            let mut m = 1u16;
             for f in &fields {
                 if f.data_type == "整数" || f.data_type == "实数" {
                     sheet
@@ -241,15 +247,15 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
             let mut num = 1;
             let total_coloum = r.get_size().1;
 
-            if total_coloum != fields.len() {
+            if total_coloum - 1 != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
             for row in r.rows() {
                 let mut rec = "".to_owned();
+                //制作表头数据
                 if n == 0 {
-                    // rec += &format!("{}{}", row[0].get_string().unwrap(), SPLITER);
-                    // rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
+                    rec += &format!("{}{}", "编号", SPLITER);
                     for f in &fields {
                         rec += &format!("{}{}", &*f.show_name, SPLITER);
                     }
@@ -259,14 +265,12 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
                     continue;
                 }
 
-                // rec += &format!("{}{}", row[0].get_float().unwrap(), SPLITER);
-                // rec += &format!("{}{}", row[1].get_string().unwrap(), SPLITER);
-
+                rec += &format!("{}{}", row[0], SPLITER);
                 for i in 0..fields.len() {
                     if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        rec += &format!("{}{}", row[i].get_float().unwrap_or(0f64), SPLITER);
+                        rec += &format!("{}{}", row[i + 1].get_float().unwrap_or(0f64), SPLITER);
                     } else {
-                        rec += &format!("{}{}", row[i].get_string().unwrap_or(""), SPLITER);
+                        rec += &format!("{}{}", row[i + 1].get_string().unwrap_or(""), SPLITER);
                     }
                 }
 
@@ -287,22 +291,21 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
 }
 
 //批量导入数据写库
-#[post("/product_datain")]
-pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+#[post("/customer_addin")]
+pub async fn customer_addin(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+        let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone(), "客户").await;
             let conn = db.get().await.unwrap();
-            let mut init = r#"INSERT INTO products ("#.to_owned();
+            let mut init = "INSERT INTO customers (".to_owned();
 
             for f in &fields {
                 init += &format!("{},", &*f.field_name);
             }
-
-            init += r#""商品ID") VALUES("#;
+            init += "助记码) VALUES(";
 
             let mut n = 0u8;
             for row in r.rows() {
@@ -314,12 +317,12 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
                 for i in 0..fields.len() {
                     if fields[i].data_type == "文本" {
-                        sql += &format!("'{}',", row[i + 2].get_string().unwrap_or(""));
+                        sql += &format!("'{}',", row[i + 1].get_string().unwrap_or(""));
                     } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        sql += &format!("{},", row[i + 2].get_float().unwrap_or(0f64));
+                        sql += &format!("{},", row[i + 1].get_float().unwrap_or(0f64));
                     } else {
                         let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
+                        let val = if row[i + 1].get_string().unwrap_or("") == op[0] {
                             true
                         } else {
                             false
@@ -328,7 +331,8 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                     }
                 }
 
-                sql += &format!("'{}')", row[1].get_string().unwrap_or(""));
+                let py = pinyin::get_pinyin(&row[1].get_string().unwrap_or(""));
+                sql += &format!("'{}')", py);
 
                 &conn.query(sql.as_str(), &[]).await.unwrap();
             }
@@ -340,11 +344,11 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 //批量更新数据写库
-#[post("/product_updatein")]
-pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+#[post("/customer_updatein")]
+pub async fn customer_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let mut excel: Xlsx<_> = open_workbook("./upload/product.xlsx").unwrap();
+        let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone(), "客户").await;
@@ -356,24 +360,24 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     n = n + 1;
                     continue;
                 }
-                let mut sql = r#"UPDATE products SET "#.to_owned();
+                let mut sql = r#"UPDATE customers SET "#.to_owned();
 
                 for i in 0..fields.len() {
                     if fields[i].data_type == "文本" {
                         sql += &format!(
                             "{}='{}',",
                             fields[i].field_name,
-                            row[i + 2].get_string().unwrap_or("")
+                            row[i + 1].get_string().unwrap_or("")
                         );
                     } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
                         sql += &format!(
                             "{}={},",
                             fields[i].field_name,
-                            row[i + 2].get_float().unwrap_or(0f64)
+                            row[i + 1].get_float().unwrap_or(0f64)
                         );
                     } else {
                         let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
+                        let val = if row[i + 1].get_string().unwrap_or("") == op[0] {
                             true
                         } else {
                             false
@@ -382,8 +386,12 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     }
                 }
 
-                sql = sql.trim_end_matches(',').to_owned();
-                sql += &format!(r#" WHERE "ID"={}"#, row[0].get_float().unwrap());
+                let py = pinyin::get_pinyin(&row[1].get_string().unwrap_or(""));
+                sql += &format!(
+                    r#"助记码={} WHERE "ID"={}"#,
+                    py,
+                    row[0].get_float().unwrap()
+                );
 
                 &conn.query(sql.as_str(), &[]).await.unwrap();
             }
