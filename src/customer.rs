@@ -305,6 +305,8 @@ pub async fn customer_addin(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone(), "客户").await;
             let conn = db.get().await.unwrap();
+            let total_rows = r.get_size().0 - 1;
+
             let mut init = "INSERT INTO customers (".to_owned();
 
             for f in &fields {
@@ -312,31 +314,24 @@ pub async fn customer_addin(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             }
             init += "助记码) VALUES(";
 
-            let mut n = 0u8;
-            for row in r.rows() {
-                if n == 0 {
-                    n = n + 1;
-                    continue;
-                }
+            for j in 0..total_rows {
                 let mut sql = init.clone();
 
                 for i in 0..fields.len() {
                     if fields[i].data_type == "文本" {
-                        sql += &format!("'{}',", row[i + 1].get_string().unwrap_or(""));
+                        sql += &format!("'{}',", r[(j + 1, i + 1)]);
                     } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        sql += &format!("{},", row[i + 1].get_float().unwrap_or(0f64));
+                        sql += &format!("{},", r[(j + 1, i + 1)]);
                     } else {
                         let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                        let val = if row[i + 1].get_string().unwrap_or("") == op[0] {
-                            true
-                        } else {
-                            false
-                        };
+                        let value = format!("{}", r[(j + 1, i + 1)]);
+                        let val = if value == op[0] { true } else { false };
                         sql += &format!("{},", val);
                     }
                 }
 
-                let py = pinyin::get_pinyin(&row[1].get_string().unwrap_or(""));
+                let name = &format!("{}", r[(j + 1, 1)]);
+                let py = pinyin::get_pinyin(name);
                 sql += &format!("'{}')", py);
 
                 &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -358,9 +353,7 @@ pub async fn customer_updatein(db: web::Data<Pool>, id: Identity) -> HttpRespons
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone(), "客户").await;
             let conn = db.get().await.unwrap();
-            // let total_coloum = r.get_size().1;
             let total_rows = r.get_size().0 - 1;
-            // let mut n = 0u8;
 
             for i in 0..total_rows {
                 let mut sql = r#"UPDATE customers SET "#.to_owned();

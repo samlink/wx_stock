@@ -217,6 +217,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     notifier.show('批量操作成功', 'success');
+                    fetch_table();
                     close_modal();
                 }
                 else {
