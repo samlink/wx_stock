@@ -14,11 +14,13 @@ pub struct FrontData {
     pub page: i32,
     pub sort: String,
     pub rec: i32,
+    pub cate: String,
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct Product {
+pub struct Customer {
     pub data: String,
+    pub cate: String,
 }
 
 ///获取客户
@@ -28,13 +30,18 @@ pub async fn fetch_customer(
     post_data: web::Json<FrontData>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "客户管理".to_owned()).await;
+    let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;
     if user.name != "" {
+        let database = if post_data.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
 
-        let fields = get_fields(db.clone(), "客户").await;
+        let fields = get_fields(db.clone(), &post_data.cate).await;
 
         let mut sql_fields = r#"SELECT "ID","#.to_owned();
 
@@ -43,22 +50,21 @@ pub async fn fetch_customer(
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM customers WHERE 
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM {} WHERE 
             LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, name, post_data.sort, skip, post_data.rec
+            sql_fields, post_data.sort, database, name, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let products = build_string_from_base(rows, fields);
 
-        let rows = &conn
-            .query(
-                r#"SELECT count("ID") as 记录数 FROM customers WHERE LOWER(名称) LIKE '%' || $1 || '%'"#,
-                &[&name],
-            )
-            .await
-            .unwrap();
+        let count_sql = format!(
+            r#"SELECT count("ID") as 记录数 FROM {} WHERE LOWER(名称) LIKE '%{}%'"#,
+            database, name
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
         for row in rows {
@@ -75,16 +81,21 @@ pub async fn fetch_customer(
 #[post("/update_customer")]
 pub async fn update_customer(
     db: web::Data<Pool>,
-    p: web::Json<Product>,
+    p: web::Json<Customer>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "客户管理".to_owned()).await;
+    let user = get_user(db.clone(), id, format!("{}管理", p.cate)).await;
     if user.name != "" {
+        let database = if p.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
         let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone(), "客户").await;
+        let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
-        let init = r#"UPDATE customers SET "#.to_owned();
+        let init = format!("UPDATE {} SET ", database);
         let mut sql = build_sql_for_update(field_names.clone(), init, fields);
         sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, field_names[0]);
 
@@ -100,17 +111,22 @@ pub async fn update_customer(
 #[post("/add_customer")]
 pub async fn add_customer(
     db: web::Data<Pool>,
-    p: web::Json<Product>,
+    p: web::Json<Customer>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "客户管理".to_owned()).await;
+    let user = get_user(db.clone(), id, format!("{}管理", p.cate)).await;
     if user.name != "" {
+        let database = if p.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
         let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone(), "客户").await;
+        let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
 
-        let mut init = r#"INSERT INTO customers ("#.to_owned();
+        let mut init = format!("INSERT INTO {} (", database);
 
         for f in &fields {
             init += &format!("{},", &*f.field_name);
@@ -154,12 +170,48 @@ pub async fn customer_auto(
     }
 }
 
+//自动完成
+#[get("/supplier_auto")]
+pub async fn supplier_auto(
+    db: web::Data<Pool>,
+    search: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let s = search.s.to_lowercase();
+        let sql = &format!(
+            r#"SELECT "ID" AS id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
+            s, s
+        );
+
+        autocomplete(db.clone(), sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize)]
+pub struct OutCate {
+    cate: String,
+}
+
 //导出数据
 #[post("/customer_out")]
-pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn customer_out(
+    db: web::Data<Pool>,
+    out_data: web::Json<OutCate>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
-        let fields = get_fields(db.clone(), "客户").await;
+        let database = if out_data.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
+
+        let fields = get_fields(db.clone(), &out_data.cate).await;
 
         let file_name = "./download/客户.xlsx";
         let wb = Workbook::new(&file_name);
@@ -191,7 +243,7 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let mut sql = build_sql_for_excel(init, &fields);
         sql = sql.trim_end_matches(",").to_owned();
 
-        sql += " FROM customers";
+        sql += &format!(" FROM {}", database);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -214,25 +266,7 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
                 m += 1;
             }
-            // for f in &fields {
-            //     if f.data_type == "整数" {
-            //         let inteter: i32 = row.get(&*f.field_name);
-            //         sheet.write_number(n, m, inteter as f64, None).unwrap();
-            //     } else if f.data_type == "实数" {
-            //         let real: f32 = row.get(&*f.field_name);
-            //         sheet.write_number(n, m, real as f64, None).unwrap();
-            //     } else if f.data_type == "文本" {
-            //         sheet
-            //             .write_string(n, m, row.get(&*f.field_name), None)
-            //             .unwrap();
-            //     } else {
-            //         sheet
-            //             .write_string(n, m, row.get(&*f.field_name), Some(&format2))
-            //             .unwrap();
-            //     }
 
-            //     m += 1;
-            // }
             n += 1;
         }
 

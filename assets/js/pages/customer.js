@@ -5,6 +5,16 @@ import { autocomplete } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
+let cate = document.querySelector('#category').textContent;
+let cate_set = cate == "客户" ? {
+    cate: "客户",
+    auto_url: "customer_auto",
+
+} : {
+        cate: "供应商",
+        auto_url: "supplier_auto",
+    };
+
 let global = {
     row_id: 0,
     edit: 0,
@@ -20,7 +30,7 @@ let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
 let row_num = Math.floor((get_height - ctrl_height) / 30);
 
 let table_name = {
-    name: "客户"
+    name: cate_set.cate,
 };
 
 let table_fields;
@@ -35,6 +45,7 @@ let init_data = {
         name: '',
         sort: "名称 ASC",
         rec: row_num,
+        cate: cate_set.cate,
     },
     edit: false,
 
@@ -103,7 +114,7 @@ function blank_row() {
 //搜索规格
 let search_input = document.querySelector('#search-input');
 
-autocomplete(search_input, "", "/customer_auto", () => {
+autocomplete(search_input, "", cate_set.auto_url, () => {
     search_table();
 });
 
@@ -123,7 +134,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 
     document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
 
-    document.querySelector('.modal-title').textContent = "增加客户";
+    document.querySelector('.modal-title').textContent = "增加" + cate_set.cate;
     document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
     document.querySelector('#customer-modal').style.display = "block";
@@ -142,14 +153,14 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(table_fields, chosed);
 
-        document.querySelector('.modal-title').textContent = "编辑客户";
+        document.querySelector('.modal-title').textContent = "编辑" + cate_set.cate;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('#customer-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
     else {
-        notifier.show('请先选择客户', 'danger');
+        notifier.show('请先选择' + cate_set.cate, 'danger');
     }
 });
 
@@ -185,6 +196,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
         let data = {
             data: customer,
+            cate: cate_set.cate,
         };
 
         let url = global.eidt_cate == "edit" ? "/update_customer" : "/add_customer";
@@ -200,7 +212,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     global.edit = 0;
-                    notifier.show('客户修改成功', 'success');
+                    notifier.show(cate_set.cate + '修改成功', 'success');
                     fetch_table();
                 }
                 else {
@@ -275,6 +287,10 @@ function leave_alert() {
 document.querySelector('#data-out').addEventListener('click', function () {
     fetch("/customer_out", {
         method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ cate: cate_set.cate }),
     })
         .then(response => response.json())
         .then(content => {
@@ -345,8 +361,8 @@ function data_in(fileBtn, info1, info2, cate) {
                     document.querySelector('.modal-body').innerHTML = rows;
 
                     let message = content[1] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `客户信息${info1} ${content[1]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = `客户信息${info2}`;
+                    document.querySelector('.modal-title').innerHTML = `${cate_set.cate}信息${info1} ${content[1]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = `${cate_set.cate}信息${info2}`;
 
                     global.eidt_cate = cate;
 
