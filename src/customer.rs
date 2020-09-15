@@ -294,6 +294,22 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
     }
 }
 
+//批量导入、批量更新返回数据
+#[post("/supplier_in")]
+pub async fn supplier_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
+    if user.name != "" {
+        let (records, total_rows) = data_in(db, payload, "供应商").await;
+        if total_rows == -1 {
+            HttpResponse::Ok().json(-2)
+        } else {
+            HttpResponse::Ok().json((records, total_rows))
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 async fn data_in(db: web::Data<Pool>, payload: Multipart, cate: &str) -> (Vec<String>, i32) {
     let path = save_file(payload).await.unwrap();
 
@@ -341,17 +357,26 @@ async fn data_in(db: web::Data<Pool>, payload: Multipart, cate: &str) -> (Vec<St
 
 //批量导入数据写库
 #[post("/customer_addin")]
-pub async fn customer_addin(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn customer_addin(
+    db: web::Data<Pool>,
+    data_cate: web::Json<OutCate>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
+        let database = if data_cate.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let fields = get_fields(db.clone(), "客户").await;
+            let fields = get_fields(db.clone(), &data_cate.cate).await;
             let conn = db.get().await.unwrap();
             let total_rows = r.get_size().0 - 1;
 
-            let mut init = "INSERT INTO customers (".to_owned();
+            let mut init = format!("INSERT INTO {} (", database);
 
             for f in &fields {
                 init += &format!("{},", &*f.field_name);
@@ -389,18 +414,27 @@ pub async fn customer_addin(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 //批量更新数据写库
 #[post("/customer_updatein")]
-pub async fn customer_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn customer_updatein(
+    db: web::Data<Pool>,
+    data_cate: web::Json<OutCate>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
+        let database = if data_cate.cate == "客户" {
+            "customers"
+        } else {
+            "supplier"
+        };
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let fields = get_fields(db.clone(), "客户").await;
+            let fields = get_fields(db.clone(), &data_cate.cate).await;
             let conn = db.get().await.unwrap();
             let total_rows = r.get_size().0 - 1;
 
             for i in 0..total_rows {
-                let mut sql = r#"UPDATE customers SET "#.to_owned();
+                let mut sql = format!("UPDATE {} SET ", database);
 
                 for j in 0..fields.len() {
                     if fields[j].data_type == "文本" {

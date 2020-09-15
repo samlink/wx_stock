@@ -83,6 +83,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_auto)
             .service(customer::customer_out)
             .service(customer::customer_in)
+            .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
             .service(service::fetch_blank)

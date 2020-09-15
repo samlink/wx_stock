@@ -9,10 +9,12 @@ let cate = document.querySelector('#category').textContent;
 let cate_set = cate == "客户" ? {
     cate: "客户",
     auto_url: "customer_auto",
+    in_url: "customer_in",
 
 } : {
         cate: "供应商",
         auto_url: "supplier_auto",
+        in_url: "supplier_in",
     };
 
 let global = {
@@ -224,6 +226,10 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         let url = global.eidt_cate == "批量导入" ? "/customer_addin" : "/customer_updatein";
         fetch(url, {
             method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ cate: cate_set.cate }),
         })
             .then(response => response.json())
             .then(content => {
@@ -330,7 +336,7 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        fetch('/customer_in', {
+        fetch(cate_set.in_url, {
             method: 'POST',
             body: fd,
         })
