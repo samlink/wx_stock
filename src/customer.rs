@@ -213,7 +213,7 @@ pub async fn customer_out(
 
         let fields = get_fields(db.clone(), &out_data.cate).await;
 
-        let file_name = "./download/客户.xlsx";
+        let file_name = format!("./download/{}.xlsx", out_data.cate);
         let wb = Workbook::new(&file_name);
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
 
@@ -272,7 +272,7 @@ pub async fn customer_out(
 
         wb.close().unwrap();
 
-        HttpResponse::Ok().json("客户")
+        HttpResponse::Ok().json(&out_data.cate)
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -283,50 +283,60 @@ pub async fn customer_out(
 pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let path = save_file(payload).await.unwrap();
+        let (records, total_rows) = data_in(db, payload, "客户").await;
+        if total_rows == -1 {
+            HttpResponse::Ok().json(-2)
+        } else {
+            HttpResponse::Ok().json((records, total_rows))
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
 
-        let mut total_rows = 0;
-        let fields = get_fields(db.clone(), "客户").await;
-        let mut records = Vec::new();
-        let mut excel: Xlsx<_> = open_workbook(path).unwrap();
+async fn data_in(db: web::Data<Pool>, payload: Multipart, cate: &str) -> (Vec<String>, i32) {
+    let path = save_file(payload).await.unwrap();
 
-        if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let mut num = 0;
-            let total_coloum = r.get_size().1;
-            total_rows = r.get_size().0 - 1;
+    let mut total_rows = 0;
+    let fields = get_fields(db.clone(), cate).await;
+    let mut records = Vec::new();
+    let mut excel: Xlsx<_> = open_workbook(path).unwrap();
 
-            if total_coloum - 1 != fields.len() {
-                return HttpResponse::Ok().json(-2);
-            }
+    if let Some(Ok(r)) = excel.worksheet_range("数据") {
+        let mut num = 0;
+        let total_coloum = r.get_size().1;
+        total_rows = r.get_size().0 - 1;
 
-            //制作表头数据
+        if total_coloum - 1 != fields.len() {
+            return (records, -1);
+        }
+
+        //制作表头数据
+        let mut rec = "".to_owned();
+        rec += &format!("{}{}", "编号", SPLITER);
+        for f in &fields {
+            rec += &format!("{}{}", &*f.show_name, SPLITER);
+        }
+
+        records.push(rec);
+
+        for i in 0..total_rows {
             let mut rec = "".to_owned();
-            rec += &format!("{}{}", "编号", SPLITER);
-            for f in &fields {
-                rec += &format!("{}{}", &*f.show_name, SPLITER);
+            for j in 0..total_coloum {
+                let value = &r[(i + 1, j)];
+                rec += &format!("{}{}", value, SPLITER);
             }
 
             records.push(rec);
 
-            for i in 0..total_rows {
-                let mut rec = "".to_owned();
-                for j in 0..total_coloum {
-                    let value = &r[(i + 1, j)];
-                    rec += &format!("{}{}", value, SPLITER);
-                }
-
-                records.push(rec);
-
-                num += 1;
-                if num == 50 {
-                    break;
-                }
+            num += 1;
+            if num == 50 {
+                break;
             }
         }
-        HttpResponse::Ok().json((records, total_rows))
-    } else {
-        HttpResponse::Ok().json(-1)
     }
+
+    (records, total_rows as i32)
 }
 
 //批量导入数据写库
