@@ -50,6 +50,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::product_set)
             .service(html::field_set)
             .service(html::customer_manage)
+            .service(html::supplier_manage)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)

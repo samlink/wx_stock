@@ -81,7 +81,19 @@ pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "客户管理".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| customer(o, user));
+        let html = r2s(|o| customer(o, user, "客户"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
+
+///供应商管理
+#[get("/supplier_manage")]
+pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "供应商管理".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| customer(o, user, "供应商"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
