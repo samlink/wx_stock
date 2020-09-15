@@ -1,7 +1,7 @@
-use actix_web::Either;
 use actix_files as fs;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
+use actix_web::Either;
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use futures::{StreamExt, TryStreamExt};
@@ -70,7 +70,9 @@ pub async fn serve_download(
     let user = get_user(db, id, "导出数据".to_owned()).await;
     if user.name != "" {
         let path = req.match_info().query("filename");
-        Either::A(Ok(fs::NamedFile::open(format!("./download/{}", path)).unwrap()))
+        Either::A(Ok(
+            fs::NamedFile::open(format!("./download/{}", path)).unwrap()
+        ))
     } else {
         Either::B(Ok("你没有权限下载该文件"))
     }
@@ -254,18 +256,15 @@ pub fn build_sql_for_insert(
 pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String {
     for f in fields {
         if f.data_type == "文本" {
-            let txt = format!("{},", f.field_name);
-            sql += &txt;
+            sql += &format!("{},", f.field_name);
         } else if f.data_type == "整数" || f.data_type == "实数" {
-            let num = format!("{}::float8,", f.field_name);
-            sql += &num;
+            sql += &format!("cast({} as VARCHAR),", f.field_name);
         } else {
             let op: Vec<&str> = f.option_value.split("_").collect();
-            let bl = format!(
+            sql += &format!(
                 "case when {} then '{}' else '{}' end as {},",
                 f.field_name, op[0], op[1], f.field_name
             );
-            sql += &bl;
         }
     }
     sql

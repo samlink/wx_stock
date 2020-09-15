@@ -187,7 +187,7 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             n += 1;
         }
 
-        let init = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
+        let init = r#"SELECT "ID" as 编号,"#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields);
         sql = sql.trim_end_matches(",").to_owned();
 
@@ -198,27 +198,41 @@ pub async fn customer_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         let mut n = 1u32;
         for row in rows {
-            sheet
-                .write_number(n, 0, row.get("编号"), Some(&format2))
-                .unwrap();
+            let id: i32 = row.get("编号");
+            sheet.write_number(n, 0, id as f64, Some(&format2)).unwrap();
             let mut m = 1u16;
             for f in &fields {
-                if f.data_type == "整数" || f.data_type == "实数" {
+                if f.data_type == "布尔" {
                     sheet
-                        .write_number(n, m, row.get(&*f.field_name), None)
-                        .unwrap();
-                } else if f.data_type == "文本" {
-                    sheet
-                        .write_string(n, m, row.get(&*f.field_name), None)
+                        .write_string(n, m, row.get(&*f.field_name), Some(&format2))
                         .unwrap();
                 } else {
                     sheet
-                        .write_string(n, m, row.get(&*f.field_name), Some(&format2))
+                        .write_string(n, m, row.get(&*f.field_name), None)
                         .unwrap();
                 }
 
                 m += 1;
             }
+            // for f in &fields {
+            //     if f.data_type == "整数" {
+            //         let inteter: i32 = row.get(&*f.field_name);
+            //         sheet.write_number(n, m, inteter as f64, None).unwrap();
+            //     } else if f.data_type == "实数" {
+            //         let real: f32 = row.get(&*f.field_name);
+            //         sheet.write_number(n, m, real as f64, None).unwrap();
+            //     } else if f.data_type == "文本" {
+            //         sheet
+            //             .write_string(n, m, row.get(&*f.field_name), None)
+            //             .unwrap();
+            //     } else {
+            //         sheet
+            //             .write_string(n, m, row.get(&*f.field_name), Some(&format2))
+            //             .unwrap();
+            //     }
+
+            //     m += 1;
+            // }
             n += 1;
         }
 
@@ -243,35 +257,28 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
         let mut excel: Xlsx<_> = open_workbook(path).unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let mut n = 0;
-            let mut num = 1;
+            let mut num = 0;
             let total_coloum = r.get_size().1;
+            total_rows = r.get_size().0 - 1;
 
             if total_coloum - 1 != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
-            for row in r.rows() {
+            //制作表头数据
+            let mut rec = "".to_owned();
+            rec += &format!("{}{}", "编号", SPLITER);
+            for f in &fields {
+                rec += &format!("{}{}", &*f.show_name, SPLITER);
+            }
+
+            records.push(rec);
+
+            for i in 0..total_rows {
                 let mut rec = "".to_owned();
-                //制作表头数据
-                if n == 0 {
-                    rec += &format!("{}{}", "编号", SPLITER);
-                    for f in &fields {
-                        rec += &format!("{}{}", &*f.show_name, SPLITER);
-                    }
-
-                    records.push(rec);
-                    n = n + 1;
-                    continue;
-                }
-
-                rec += &format!("{}{}", row[0], SPLITER);
-                for i in 0..fields.len() {
-                    if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        rec += &format!("{}{}", row[i + 1].get_float().unwrap_or(0f64), SPLITER);
-                    } else {
-                        rec += &format!("{}{}", row[i + 1].get_string().unwrap_or(""), SPLITER);
-                    }
+                for j in 0..total_coloum {
+                    let value = &r[(i + 1, j)];
+                    rec += &format!("{}{}", value, SPLITER);
                 }
 
                 records.push(rec);
@@ -281,8 +288,6 @@ pub async fn customer_in(db: web::Data<Pool>, payload: Multipart, id: Identity) 
                     break;
                 }
             }
-
-            total_rows = r.get_size().0 - 1;
         }
         HttpResponse::Ok().json((records, total_rows))
     } else {
@@ -353,45 +358,29 @@ pub async fn customer_updatein(db: web::Data<Pool>, id: Identity) -> HttpRespons
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
             let fields = get_fields(db.clone(), "客户").await;
             let conn = db.get().await.unwrap();
-            let mut n = 0u8;
+            // let total_coloum = r.get_size().1;
+            let total_rows = r.get_size().0 - 1;
+            // let mut n = 0u8;
 
-            for row in r.rows() {
-                if n == 0 {
-                    n = n + 1;
-                    continue;
-                }
+            for i in 0..total_rows {
                 let mut sql = r#"UPDATE customers SET "#.to_owned();
 
-                for i in 0..fields.len() {
-                    if fields[i].data_type == "文本" {
-                        sql += &format!(
-                            "{}='{}',",
-                            fields[i].field_name,
-                            row[i + 1].get_string().unwrap_or("")
-                        );
-                    } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        sql += &format!(
-                            "{}={},",
-                            fields[i].field_name,
-                            row[i + 1].get_float().unwrap_or(0f64)
-                        );
+                for j in 0..fields.len() {
+                    if fields[j].data_type == "文本" {
+                        sql += &format!("{}='{}',", fields[j].field_name, r[(i + 1, j + 1)]);
+                    } else if fields[j].data_type == "实数" || fields[j].data_type == "整数" {
+                        sql += &format!("{}={},", fields[j].field_name, r[(i + 1, j + 1)]);
                     } else {
-                        let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                        let val = if row[i + 1].get_string().unwrap_or("") == op[0] {
-                            true
-                        } else {
-                            false
-                        };
-                        sql += &format!("{}={},", fields[i].field_name, val);
+                        let op: Vec<&str> = fields[j].option_value.split("_").collect();
+                        let value = format!("{}", r[(i + 1, j + 1)]);
+                        let val = if value == op[0] { true } else { false };
+                        sql += &format!("{}={},", fields[j].field_name, val);
                     }
                 }
-
-                let py = pinyin::get_pinyin(&row[1].get_string().unwrap_or(""));
-                sql += &format!(
-                    r#"助记码={} WHERE "ID"={}"#,
-                    py,
-                    row[0].get_float().unwrap()
-                );
+                let name = &format!("{}", r[(i + 1, 1)]);
+                let id = format!("{}", r[(i + 1, 0)]);
+                let py = pinyin::get_pinyin(name);
+                sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, id);
 
                 &conn.query(sql.as_str(), &[]).await.unwrap();
             }
