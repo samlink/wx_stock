@@ -1,4 +1,4 @@
-use crate::service::{PostData, get_user};
+use crate::service::{get_user, PostData, SPLITER};
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
@@ -65,29 +65,34 @@ pub async fn pull_salers(
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct UserEdit {
-    pub name: String,
-    pub confirm: bool,
-    pub rights: String,
+pub struct SalerEdit {
+    pub saler: String,
+    pub cate: String,
 }
 
 ///用户编辑
-#[post("/edit_user")]
-pub async fn edit_user(
+#[post("/edit_saler")]
+pub async fn edit_saler(
     db: web::Data<Pool>,
-    post_data: web::Json<UserEdit>,
+    post_data: web::Json<SalerEdit>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "用户设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "销售人员".to_owned()).await;
     if user.name != "" {
+        let saler: Vec<&str> = post_data.saler.split(SPLITER).collect();
         let conn = db.get().await.unwrap();
-        &conn
-            .execute(
-                r#"UPDATE users SET confirm=$1, rights=$2 WHERE name=$3"#,
-                &[&post_data.confirm, &post_data.rights, &post_data.name],
+        let sql = if post_data.cate == "add" {
+            format!(
+                r#"INSERT INTO salers VALUES('{}','{}','{}')"#,
+                saler[0], saler[1], saler[2]
             )
-            .await
-            .unwrap();
+        } else {
+            format!(
+                r#"UPDATE salers SET name='{}', phone='{}', note='{}' WHERE "ID"={}"#,
+                saler[0], saler[1], saler[2], saler[3]
+            )
+        };
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

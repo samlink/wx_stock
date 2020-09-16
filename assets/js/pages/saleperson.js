@@ -1,11 +1,12 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight } from '../parts/tools.mjs';
+import { getHeight, SPLITER } from '../parts/tools.mjs';
 
 let global = {
     row_id: 0,
     edit: 0,
+    eidt_cate: "",
 }
 //设置菜单 
 document.querySelector('#function-set').classList.add('show-bottom');
@@ -49,18 +50,16 @@ fetch_table();
 
 //搜索用户
 document.querySelector('#serach-button').addEventListener('click', function () {
-    if (!table_data.edit) {
-        let search = document.querySelector('#search-input').value;
-        Object.assign(table_data.post_data, { name: search });
-        fetch_table();
-    }
+    let search = document.querySelector('#search-input').value;
+    Object.assign(table_data.post_data, { name: search });
+    fetch_table();
 });
 
 //编辑用户数据 ------------------------------------
-let confirm_save;  //取消时，恢复数据用
 
 //编辑按钮
 document.querySelector('#edit-button').addEventListener('click', function () {
+    global.eidt_cate = "edit";
     let focus = document.querySelector('.table-users .focus');
     if (!focus) {
         notifier.show('请先选择人员', 'danger');
@@ -69,6 +68,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         let name_save = focus.children[1].textContent;
         let phone_save = focus.children[2].textContent;
         let note_save = focus.children[3].textContent;
+        global.row_id = focus.children[4].textContent;
 
         let control = `
                 <form>
@@ -93,14 +93,46 @@ document.querySelector('#edit-button').addEventListener('click', function () {
                 </form>`;
 
         global.row_id = focus.children[4].textContent;
-        console.log(global.row_id);
         document.querySelector('.modal-body').innerHTML = control;
         document.querySelector('.modal-title').textContent = "编辑销售人员";
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 260px;"
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 240px;"
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
+});
+
+//增加按钮
+document.querySelector('#add-button').addEventListener('click', function () {
+    global.eidt_cate = "add";
+    let control = `
+                <form>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>姓名</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>电话</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>备注</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text">
+                    </div>
+                </form>`;
+
+    document.querySelector('.modal-body').innerHTML = control;
+    document.querySelector('.modal-title').textContent = "增加销售人员";
+    document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 240px;"
+    document.querySelector('.modal').style.display = "block";
+    document.querySelector('.modal-body input').focus();
+    leave_alert();
 });
 
 //关闭按键
@@ -137,6 +169,43 @@ function leave_alert() {
         });
     }
 }
+
+//提交按键
+document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+    let all_input = document.querySelectorAll('.has-value');
+    let saler = "";
+
+    for (let input of all_input) {
+        saler += `${input.value}${SPLITER}`
+    }
+
+    saler += global.row_id;
+
+    let data = {
+        saler: saler,
+        cate: global.eidt_cate,
+    };
+
+    fetch('/edit_saler', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data), 
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                global.edit = 0;
+                notifier.show('销售人员修改成功', 'success');
+                fetch_table();
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+
+});
 
 //删除按钮
 document.querySelector('#del-button').addEventListener('click', function () {

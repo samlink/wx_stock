@@ -184,7 +184,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         }
         let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
 
-        num = 0;
+        // num = 0;
 
         for (let input of all_input) {
             let value;
@@ -196,7 +196,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
 
             customer += `${value}${SPLITER}`;
-            num++;
+            // num++;
         }
 
         let data = {
