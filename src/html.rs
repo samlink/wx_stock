@@ -111,3 +111,15 @@ pub async fn sale_person(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+///销售人员
+#[get("/warehouse_set")]
+pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "仓库设置".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| warehouse(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}

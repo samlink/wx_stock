@@ -1,0 +1,30 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="ware-house">
+    <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 仓库设置 </span>
+    </div>
+    <div class="house-content">
+        <div class="house-set">
+            <div class="title">全部仓库</div>
+            <div class="house">
+                <ul>
+                    <li>黄河道仓库</li>
+                    <li>东丽仓库</li>
+                    <li>西青仓库</li>
+                    <li>在途</li>
+                </ul>
+            </div>
+        </div>
+        <div class="position-set">
+
+        </div>
+    </div>
+
+</div>
+
+}, user.name.clone())
