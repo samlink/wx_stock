@@ -173,57 +173,65 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
         let all_input = document.querySelectorAll('.has-value');
-        let num = 0;
-        for (let input of all_input) {
-            if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
-                || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
-                notifier.show('数字字段输入错误', 'danger');
-                return false;
+        if (all_input[0].value != "") {
+            let num = 0;
+            for (let input of all_input) {
+                if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
+                    || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+                    notifier.show('数字字段输入错误', 'danger');
+                    return false;
+                }
+                num++;
             }
-            num++;
-        }
-        let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
+            let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
 
-        // num = 0;
+            // num = 0;
 
-        for (let input of all_input) {
-            let value;
-            if (input.parentNode.className.indexOf('check-radio') == -1) {
-                value = input.value;
-            }
-            else {
-                value = input.checked;
-            }
-
-            customer += `${value}${SPLITER}`;
-            // num++;
-        }
-
-        let data = {
-            data: customer,
-            cate: cate_set.cate,
-        };
-
-        let url = global.eidt_cate == "edit" ? "/update_customer" : "/add_customer";
-
-        fetch(url, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content == 1) {
-                    global.edit = 0;
-                    notifier.show(cate_set.cate + '修改成功', 'success');
-                    fetch_table();
+            for (let input of all_input) {
+                let value;
+                if (input.parentNode.className.indexOf('check-radio') == -1) {
+                    value = input.value;
                 }
                 else {
-                    notifier.show('权限不够，操作失败', 'danger');
+                    value = input.checked;
                 }
-            });
+
+                customer += `${value}${SPLITER}`;
+                // num++;
+            }
+
+            let data = {
+                data: customer,
+                cate: cate_set.cate,
+            };
+
+            let url = global.eidt_cate == "edit" ? "/update_customer" : "/add_customer";
+
+            fetch(url, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content == 1) {
+                        global.edit = 0;
+                        notifier.show(cate_set.cate + '修改成功', 'success');
+                        fetch_table();
+                        if (global.eidt_cate == "add") {
+                            for (let input of all_input) {
+                                input.value = "";
+                            }
+                        }
+                    }
+                    else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
+        }
+        notifier.show('空值不能提交', 'danger');
     }
     else {
         let url = global.eidt_cate == "批量导入" ? "/customer_addin" : "/customer_updatein";

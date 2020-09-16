@@ -219,60 +219,71 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
         let all_input = document.querySelectorAll('.has-value');
-        let num = 0;
-        for (let input of all_input) {
-            if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
-                || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
-                notifier.show('数字字段输入错误', 'danger');
-                return false;
+        if (all_input[0].value != "") {
+            let num = 0;
+            for (let input of all_input) {
+                if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
+                    || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+                    notifier.show('数字字段输入错误', 'danger');
+                    return false;
+                }
+                num++;
             }
-            num++;
-        }
-        let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
+            let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
 
-        num = 0;
+            num = 0;
 
-        for (let input of all_input) {
-            let value;
-            if (input.parentNode.className.indexOf('check-radio') == -1) {
-                value = input.value;
-            }
-            else {
-                value = input.checked;
-            }
-
-            if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
-                value = Number(value);
-            }
-
-            product += `${value}${SPLITER}`;
-            num++;
-        }
-
-        let data = {
-            data: product,
-        };
-
-        let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
-
-        fetch(url, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content == 1) {
-                    global.edit = 0;
-                    notifier.show('商品修改成功', 'success');
-                    fetch_table();
+            for (let input of all_input) {
+                let value;
+                if (input.parentNode.className.indexOf('check-radio') == -1) {
+                    value = input.value;
                 }
                 else {
-                    notifier.show('权限不够，操作失败', 'danger');
+                    value = input.checked;
                 }
-            });
+
+                if (table_fields[num].data_type == "整数" || table_fields[num].data_type == "实数") {
+                    value = Number(value);
+                }
+
+                product += `${value}${SPLITER}`;
+                num++;
+            }
+
+            let data = {
+                data: product,
+            };
+
+            let url = global.eidt_cate == "edit" ? "/update_product" : "/add_product";
+
+            fetch(url, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content == 1) {
+                        global.edit = 0;
+                        notifier.show('商品修改成功', 'success');
+                        fetch_table();
+                        if (global.eidt_cate == "add") {
+                            for (let input of all_input) {
+                                input.value = "";
+                            }
+                        }
+                    }
+                    else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
+        }
+        else {
+            notifier.show('空值不能提交', 'danger');
+
+        }
     }
     else {
         let url = global.eidt_cate == "批量导入" ? "/product_datain" : "/product_updatein";

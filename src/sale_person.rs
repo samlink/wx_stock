@@ -83,13 +83,18 @@ pub async fn edit_saler(
         let conn = db.get().await.unwrap();
         let sql = if post_data.cate == "add" {
             format!(
-                r#"INSERT INTO salers VALUES('{}','{}','{}')"#,
+                r#"INSERT INTO salers (name, phone, note) VALUES('{}','{}','{}')"#,
                 saler[0], saler[1], saler[2]
             )
-        } else {
+        } else if post_data.cate == "edit" {
             format!(
                 r#"UPDATE salers SET name='{}', phone='{}', note='{}' WHERE "ID"={}"#,
                 saler[0], saler[1], saler[2], saler[3]
+            )
+        } else {
+            format!(
+                r#"DELETE FROM salers WHERE "ID"={}"#,
+                saler[0]
             )
         };
         &conn.execute(sql.as_str(), &[]).await.unwrap();
@@ -99,27 +104,27 @@ pub async fn edit_saler(
     }
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct UserDel {
-    pub name: String,
-}
+// #[derive(Deserialize, Serialize)]
+// pub struct SalerDel {
+//     pub id: i32,
+// }
 
-///用户删除
-#[post("/del_user")]
-pub async fn del_user(
-    db: web::Data<Pool>,
-    post_data: web::Json<UserDel>,
-    id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id, "用户设置".to_owned()).await;
-    if user.name != "" {
-        let conn = db.get().await.unwrap();
-        &conn
-            .execute(r#"DELETE FROM users WHERE name=$1"#, &[&post_data.name])
-            .await
-            .unwrap();
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+// ///用户删除
+// #[post("/del_user")]
+// pub async fn del_user(
+//     db: web::Data<Pool>,
+//     post_data: web::Json<SalerDel>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user = get_user(db.clone(), id, "销售人员".to_owned()).await;
+//     if user.name != "" {
+//         let conn = db.get().await.unwrap();
+//         &conn
+//             .execute(r#"DELETE FROM salers WHERE name=$1"#, &[&post_data.name])
+//             .await
+//             .unwrap();
+//         HttpResponse::Ok().json(1)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }

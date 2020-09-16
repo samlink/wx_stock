@@ -173,37 +173,48 @@ function leave_alert() {
 //提交按键
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     let all_input = document.querySelectorAll('.has-value');
-    let saler = "";
+    if (all_input[0].value != "") {
 
-    for (let input of all_input) {
-        saler += `${input.value}${SPLITER}`
+        let saler = "";
+
+        for (let input of all_input) {
+            saler += `${input.value}${SPLITER}`
+        }
+
+        saler += global.row_id;
+
+        let data = {
+            saler: saler,
+            cate: global.eidt_cate,
+        };
+
+        fetch('/edit_saler', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    global.edit = 0;
+                    notifier.show('销售人员修改成功', 'success');
+                    fetch_table();
+                    if (global.eidt_cate == "add") {
+                        for (let input of all_input) {
+                            input.value = "";
+                        }
+                    }
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
     }
-
-    saler += global.row_id;
-
-    let data = {
-        saler: saler,
-        cate: global.eidt_cate,
-    };
-
-    fetch('/edit_saler', {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data), 
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content == 1) {
-                global.edit = 0;
-                notifier.show('销售人员修改成功', 'success');
-                fetch_table();
-            }
-            else {
-                notifier.show('权限不够，操作失败', 'danger');
-            }
-        });
+    else {
+        notifier.show('姓名不能为空', 'danger');
+    }
 
 });
 
@@ -214,40 +225,33 @@ document.querySelector('#del-button').addEventListener('click', function () {
         notifier.show('请选择用户', 'danger');
     }
     else {
-        let name = focus.children[1].textContent;
-        if (name == "admin") {
-            notifier.show('无法删除管理员', 'danger');
-        }
-        else if (name == document.querySelector('#user-name').textContent) {
-            notifier.show('无法删除用户自己', 'danger');
-        }
-        else {
-            alert_confirm('确认删除用户 ' + name + ' 吗？', {
-                confirmCallBack: () => {
-                    let data = {
-                        name: name,
-                    }
 
-                    fetch('/del_user', {
-                        method: 'post',
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(data),
-                    })
-                        .then(response => response.json())
-                        .then(content => {
-                            if (content == 1) {
-                                fetch_table(table_data.post_data);
-                                notifier.show('用户删除完成', 'success');
-                            }
-                            else {
-                                notifier.show('权限不够，操作失败', 'danger');
-                            }
-                        });
-                }
-            });
-        }
+        alert_confirm('确认删除 ' + focus.children[1].textContent + ' 吗？', {
+            confirmCallBack: () => {
+                let data = {
+                    saler: focus.children[4].textContent,
+                    cate: 'del',
+                };
+
+                fetch('/edit_saler', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content == 1) {
+                            fetch_table(table_data.post_data);
+                            notifier.show('删除完成', 'success');
+                        }
+                        else {
+                            notifier.show('权限不够，操作失败', 'danger');
+                        }
+                    });
+            }
+        });
     }
 });
 
