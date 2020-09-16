@@ -1374,6 +1374,7 @@ a.roar-alert-message-tbf {
 }
 .fields-set .table-title {
   font-size: 15px;
+  margin-left: 10px;
 }
 .fields-set #table-choose {
   width: 200px;
@@ -1415,6 +1416,20 @@ a.roar-alert-message-tbf {
 }
 .fields-set .table-tip {
   margin-left: 20px;
+}
+.fields-set #choose-info {
+  position: fixed;
+  top: 40%;
+  left: 29%;
+  width: 200px;
+  height: 60px;
+  font-size: large;
+  display: flex;
+  align-items: center;
+  padding: 0 15px;
+  color: #fd3995;
+  background-color: antiquewhite;
+  text-align: center;
 }
 
 .customer-content {

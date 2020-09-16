@@ -27,6 +27,7 @@ document.querySelector('#table-choose').addEventListener('change', function () {
     let data = {
         name: this.value,
     };
+    document.querySelector('#choose-info').classList.add('hide');
     fetch_data(data);
 })
 
