@@ -1476,4 +1476,9 @@ a.roar-alert-message-tbf {
   padding: 0;
 }
 
+.sale_person td:nth-last-child(2),
+.sale_person th:nth-last-child(2) {
+  border-right: none !important;
+}
+
 /*# sourceMappingURL=sales.css.map */

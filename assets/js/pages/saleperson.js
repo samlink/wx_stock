@@ -3,6 +3,10 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
+let global = {
+    row_id: 0,
+    edit: 0,
+}
 //设置菜单 
 document.querySelector('#function-set').classList.add('show-bottom');
 
@@ -25,28 +29,23 @@ var data = {
     url: "/pull_salers",
     post_data: {
         name: '',
-        sort: "confirm ASC",
+        sort: "name ASC",
         rec: row_num,
     },
     edit: false,
 
     row_fn: function (tr) {
-        return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td><td title='${tr.rights}'>${tr.rights}</td></tr>`;
+        return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td>
+                <td title='${tr.note}'>${tr.note}</td><td hidden>${tr.id}</td></tr>`;
     },
 
     blank_row_fn: function () {
-        return `<tr><td></td><td></td><td></td><td></td></tr>`;
+        return `<tr><td></td><td></td><td></td><td></td><td hidden></td></tr>`;
     },
-
 }
 
 table_init(data);
-fetch_table(() => {
-    let right_show = document.querySelector('.rights-show');
-    let table_height = document.querySelector('.table-users').clientHeight;
-    right_show.style.height = table_height;
-
-}); 
+fetch_table();
 
 //搜索用户
 document.querySelector('#serach-button').addEventListener('click', function () {
@@ -64,106 +63,80 @@ let confirm_save;  //取消时，恢复数据用
 document.querySelector('#edit-button').addEventListener('click', function () {
     let focus = document.querySelector('.table-users .focus');
     if (!focus) {
-        notifier.show('请先选择用户', 'danger');
+        notifier.show('请先选择人员', 'danger');
     }
     else {
-        let name = focus.children[1].textContent;
-        if (name == "admin") {
-            notifier.show('不能编辑管理员信息', 'danger');
-        }
-        else {
-            document.querySelector('#edit-button').classList.add("hide");
-            document.querySelector('#del-button').classList.add("hide");
-            document.querySelector('#sumit-button').classList.remove("hide");
-            document.querySelector('#cancel-button').classList.remove("hide");
+        let name_save = focus.children[1].textContent;
+        let phone_save = focus.children[2].textContent;
+        let note_save = focus.children[3].textContent;
 
-            for (let mark of marks) {
-                mark.removeAttribute("style");
-            }
+        let control = `
+                <form>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>姓名</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text" value=${name_save}>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>电话</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text" value=${phone_save}>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>备注</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text" value=${note_save}>
+                    </div>
+                </form>`;
 
-            for (let check of all_checks) {
-                check.disabled = false;
-            }
-
-            table_data.edit = true;
-
-            confirm_save = focus.children[4].textContent;
-
-            let confirm = confirm_save == "未确认" ? "" : "checked";
-
-            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
-                                                <span class="checkmark"></span></label>`;
-
-            focus.children[4].setAttribute("style", "padding-top: 0;");
-        }
+        global.row_id = focus.children[4].textContent;
+        console.log(global.row_id);
+        document.querySelector('.modal-body').innerHTML = control;
+        document.querySelector('.modal-title').textContent = "编辑销售人员";
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 260px;"
+        document.querySelector('.modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+        leave_alert();
     }
 });
 
-//取消按钮
-document.querySelector('#cancel-button').addEventListener('click', function () {
-    let focus = document.querySelector('.table-users .focus');
-    document.querySelector('#edit-button').classList.remove("hide");
-    document.querySelector('#del-button').classList.remove("hide");
-    document.querySelector('#sumit-button').classList.add("hide");
-    document.querySelector('#cancel-button').classList.add("hide");
-
-    for (let mark of marks) {
-        mark.setAttribute("style", "background: lightgrey; border: none;")
-    }
-
-    for (let check of all_checks) {
-        check.disabled = true;
-    }
-
-    table_data.edit = false;
-
-    let confirm = confirm_save == "未确认" ? '<span class="confirm-info red">未确认</span>' : '<span class="confirm-info green">已确认</span>';
-
-    focus.children[4].innerHTML = confirm;
-    focus.children[4].removeAttribute("style");
-
-    focus.click();
+//关闭按键
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    close_modal();
 });
 
-//提交按钮
-document.querySelector('#sumit-button').addEventListener('click', function () {
-    let focus = document.querySelector('.table-users .focus');
-    let confirm = focus.children[4].querySelector('input').checked;
-    let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
-    let rights = "";
-    for (let check of rights_checks) {
-        if (check.checked == true) {
-            rights += check.value + "，";
-        }
-    }
+//关闭按键
+document.querySelector('.top-close').addEventListener('click', function () {
+    close_modal();
+});
 
-    let data = {
-        name: focus.children[1].textContent,
-        confirm: confirm,
-        rights: rights,
-    };
-
-    fetch("/edit_user", {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content == 1) {
-                confirm_save = confirm ? '已确认' : '未确认';
-                focus.children[3].innerHTML = rights;
-                focus.children[3].setAttribute("title", rights);
-                document.querySelector('#cancel-button').click();
-                notifier.show('用户修改成功', 'success');
-            }
-            else {
-                notifier.show('权限不够，操作失败', 'danger');
+//关闭函数
+function close_modal() {
+    if (global.edit == 1) {
+        alert_confirm('编辑还未保存，确认退出吗？', {
+            confirmCallBack: () => {
+                global.edit = 0;
+                document.querySelector('.modal').style.display = "none";
             }
         });
-});
+    } else {
+        document.querySelector('.modal').style.display = "none";
+    }
+
+    document.querySelector('#modal-info').innerHTML = "";
+}
+
+function leave_alert() {
+    let all_input = document.querySelectorAll('.modal input');
+    for (let input of all_input) {
+        input.addEventListener('input', () => {
+            global.edit = 1;
+        });
+    }
+}
 
 //删除按钮
 document.querySelector('#del-button').addEventListener('click', function () {
@@ -209,3 +182,6 @@ document.querySelector('#del-button').addEventListener('click', function () {
     }
 });
 
+window.onbeforeunload = function (e) {
+    document.querySelector('.modal-dialog').style.cssText = "";
+}

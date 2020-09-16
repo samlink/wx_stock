@@ -1,0 +1,6 @@
+.sale_person {
+    td:nth-last-child(2),
+    th:nth-last-child(2) {
+        border-right: none !important;
+    }
+}

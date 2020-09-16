@@ -6,48 +6,48 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct UsersReturn {
+    pub id: i32,
     pub name: String,
     pub phone: String,
-    pub rights: String,
-    pub confirm: bool,
+    pub note: String,
     pub num: i64,
 }
 
 ///获取用户
-#[post("/pull_users")]
-pub async fn pull_users(
+#[post("/pull_salers")]
+pub async fn pull_salers(
     db: web::Data<Pool>,
     post_data: web::Json<PostData>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "用户设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "销售人员".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let sql = format!(
-            "SELECT name, phone, rights, confirm, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
-                    FROM users WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
+            r#"SELECT "ID", name, phone, note, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
+                    FROM salers WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let mut users: Vec<UsersReturn> = Vec::new();
+        let mut salers: Vec<UsersReturn> = Vec::new();
 
         for row in rows {
-            let user = UsersReturn {
+            let saler = UsersReturn {
+                id: row.get("ID"),
                 name: row.get("name"),
                 phone: row.get("phone"),
-                rights: row.get("rights"),
-                confirm: row.get("confirm"),
+                note: row.get("note"),
                 num: row.get("序号"),
             };
 
-            users.push(user);
+            salers.push(saler);
         }
 
         let rows = &conn
             .query(
-                r#"SELECT count(name) as 记录数 FROM users WHERE name LIKE '%' || $1 || '%'"#,
+                r#"SELECT count(name) as 记录数 FROM salers WHERE name LIKE '%' || $1 || '%'"#,
                 &[&post_data.name],
             )
             .await
@@ -58,7 +58,7 @@ pub async fn pull_users(
             count = row.get("记录数");
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        HttpResponse::Ok().json((users, count, pages))
+        HttpResponse::Ok().json((salers, count, pages))
     } else {
         HttpResponse::Ok().json(-1)
     }
