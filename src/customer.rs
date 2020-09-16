@@ -164,7 +164,7 @@ pub async fn customer_auto(
             s, s
         );
 
-        autocomplete(db.clone(), sql).await
+        autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -185,7 +185,7 @@ pub async fn supplier_auto(
             s, s
         );
 
-        autocomplete(db.clone(), sql).await
+        autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -327,27 +327,28 @@ async fn data_in(db: web::Data<Pool>, payload: Multipart, cate: &str) -> (Vec<St
             return (records, -1);
         }
 
-        //制作表头数据
-        let mut rec = "".to_owned();
-        rec += &format!("{}{}", "编号", SPLITER);
-        for f in &fields {
-            rec += &format!("{}{}", &*f.show_name, SPLITER);
-        }
-
-        records.push(rec);
-
-        for i in 0..total_rows {
+        if total_rows > 0 {
+            //制作表头数据
             let mut rec = "".to_owned();
-            for j in 0..total_coloum {
-                let value = &r[(i + 1, j)];
-                rec += &format!("{}{}", value, SPLITER);
+            rec += &format!("{}{}", "编号", SPLITER);
+            for f in &fields {
+                rec += &format!("{}{}", &*f.show_name, SPLITER);
             }
 
             records.push(rec);
 
-            num += 1;
-            if num == 50 {
-                break;
+            for i in 0..total_rows {
+                let mut rec = "".to_owned();
+                for j in 0..total_coloum {
+                    rec += &format!("{}{}", r[(i + 1, j)], SPLITER);
+                }
+
+                records.push(rec);
+
+                num += 1;
+                if num == 50 {
+                    break;
+                }
             }
         }
     }
@@ -375,35 +376,37 @@ pub async fn customer_addin(
             let fields = get_fields(db.clone(), &data_cate.cate).await;
             let conn = db.get().await.unwrap();
             let total_rows = r.get_size().0 - 1;
+            if total_rows > 0 {
+                let mut init = format!("INSERT INTO {} (", database);
 
-            let mut init = format!("INSERT INTO {} (", database);
-
-            for f in &fields {
-                init += &format!("{},", &*f.field_name);
-            }
-            init += "助记码) VALUES(";
-
-            for j in 0..total_rows {
-                let mut sql = init.clone();
-
-                for i in 0..fields.len() {
-                    if fields[i].data_type == "文本" {
-                        sql += &format!("'{}',", r[(j + 1, i + 1)]);
-                    } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-                        sql += &format!("{},", r[(j + 1, i + 1)]);
-                    } else {
-                        let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                        let value = format!("{}", r[(j + 1, i + 1)]);
-                        let val = if value == op[0] { true } else { false };
-                        sql += &format!("{},", val);
-                    }
+                for f in &fields {
+                    init += &format!("{},", &*f.field_name);
                 }
+                init += "助记码) VALUES(";
 
-                let name = &format!("{}", r[(j + 1, 1)]);
-                let py = pinyin::get_pinyin(name);
-                sql += &format!("'{}')", py);
+                for j in 0..total_rows {
+                    let mut sql = init.clone();
 
-                &conn.query(sql.as_str(), &[]).await.unwrap();
+                    for i in 0..fields.len() {
+                        if fields[i].data_type == "文本" {
+                            sql += &format!("'{}',", r[(j + 1, i + 1)]);
+                        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
+                        {
+                            sql += &format!("{},", r[(j + 1, i + 1)]);
+                        } else {
+                            let op: Vec<&str> = fields[i].option_value.split("_").collect();
+                            let value = format!("{}", r[(j + 1, i + 1)]);
+                            let val = if value == op[0] { true } else { false };
+                            sql += &format!("{},", val);
+                        }
+                    }
+
+                    let name = &format!("{}", r[(j + 1, 1)]);
+                    let py = pinyin::get_pinyin(name);
+                    sql += &format!("'{}')", py);
+
+                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                }
             }
         }
         HttpResponse::Ok().json(1)
@@ -433,59 +436,34 @@ pub async fn customer_updatein(
             let conn = db.get().await.unwrap();
             let total_rows = r.get_size().0 - 1;
 
-            for i in 0..total_rows {
-                let mut sql = format!("UPDATE {} SET ", database);
+            if total_rows > 0 {
+                for i in 0..total_rows {
+                    let mut sql = format!("UPDATE {} SET ", database);
 
-                for j in 0..fields.len() {
-                    if fields[j].data_type == "文本" {
-                        sql += &format!("{}='{}',", fields[j].field_name, r[(i + 1, j + 1)]);
-                    } else if fields[j].data_type == "实数" || fields[j].data_type == "整数" {
-                        sql += &format!("{}={},", fields[j].field_name, r[(i + 1, j + 1)]);
-                    } else {
-                        let op: Vec<&str> = fields[j].option_value.split("_").collect();
-                        let value = format!("{}", r[(i + 1, j + 1)]);
-                        let val = if value == op[0] { true } else { false };
-                        sql += &format!("{}={},", fields[j].field_name, val);
+                    for j in 0..fields.len() {
+                        if fields[j].data_type == "文本" {
+                            sql += &format!("{}='{}',", fields[j].field_name, r[(i + 1, j + 1)]);
+                        } else if fields[j].data_type == "实数" || fields[j].data_type == "整数"
+                        {
+                            sql += &format!("{}={},", fields[j].field_name, r[(i + 1, j + 1)]);
+                        } else {
+                            let op: Vec<&str> = fields[j].option_value.split("_").collect();
+                            let value = format!("{}", r[(i + 1, j + 1)]);
+                            let val = if value == op[0] { true } else { false };
+                            sql += &format!("{}={},", fields[j].field_name, val);
+                        }
                     }
-                }
-                let name = &format!("{}", r[(i + 1, 1)]);
-                let id = format!("{}", r[(i + 1, 0)]);
-                let py = pinyin::get_pinyin(name);
-                sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, id);
+                    let name = &format!("{}", r[(i + 1, 1)]);
+                    let id = format!("{}", r[(i + 1, 0)]);
+                    let py = pinyin::get_pinyin(name);
+                    sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, id);
 
-                &conn.query(sql.as_str(), &[]).await.unwrap();
+                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                }
             }
         }
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
-}
-
-//获取显示字段
-async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(
-            r#"SELECT field_name, show_name, data_type, option_value, show_width 
-                    FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
-            &[&table_name],
-        )
-        .await
-        .unwrap();
-
-    let mut fields: Vec<FieldsData> = Vec::new();
-    for row in rows {
-        let data = FieldsData {
-            field_name: row.get("field_name"),
-            show_name: row.get("show_name"),
-            data_type: row.get("data_type"),
-            option_value: row.get("option_value"),
-            show_width: row.get("show_width"),
-        };
-
-        fields.push(data);
-    }
-
-    fields
 }

@@ -1,4 +1,4 @@
-use crate::service::{get_user, save_file};
+use crate::service::*;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
@@ -34,12 +34,12 @@ pub async fn fetch_product(
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
 
-        let fields = get_fields(db.clone()).await;
+        let fields = get_fields(db.clone(), "商品规格").await;
 
         let mut sql_fields = r#"SELECT "ID","#.to_owned();
 
         for f in &fields {
-            sql_fields += &format!("{},", &*f.0);
+            sql_fields += &format!("{},", &*f.field_name);
         }
 
         let sql = format!(
@@ -50,36 +50,7 @@ pub async fn fetch_product(
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let mut products = Vec::new();
-        let split = "<`*_*`>";
-        for row in rows {
-            let mut product = "".to_owned();
-            let num: i32 = row.get("ID");
-            product += &format!("{}{}", num, split);
-            let num: i64 = row.get("序号");
-            product += &format!("{}{}", num, split);
-
-            for f in &fields {
-                if f.2 == "文本" {
-                    let s: String = row.get(&*f.0);
-                    product += &format!("{}{}", s, split);
-                } else if f.2 == "整数" {
-                    let num: i32 = row.get(&*f.0);
-                    product += &format!("{}{}", num, split);
-                } else if f.2 == "实数" {
-                    let num: f32 = row.get(&*f.0);
-                    product += &format!("{}{}", num, split);
-                } else {
-                    let op: Vec<&str> = f.3.split("_").collect();
-                    let b: bool = row.get(&*f.0);
-                    let val = if b == true { op[0] } else { op[1] };
-                    product += &format!("{}{}", val, split);
-                }
-            }
-
-            products.push(product);
-        }
-
+        let products = build_string_from_base(rows, fields);
         let rows = &conn
             .query(
                 r#"SELECT count("ID") as 记录数 FROM products WHERE "商品ID"=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
@@ -109,22 +80,12 @@ pub async fn update_product(
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone()).await;
+        let fields = get_fields(db.clone(), "商品规格").await;
 
-        let product: Vec<&str> = p.data.split("<`*_*`>").collect();
-        let mut sql = r#"UPDATE products SET "#.to_owned();
+        let product: Vec<&str> = p.data.split(SPLITER).collect();
+        let init = r#"UPDATE products SET "#.to_owned();
 
-        for i in 0..fields.len() {
-            if fields[i].2 == "文本" {
-                sql += &format!("{}='{}',", fields[i].0, product[i + 2]);
-            } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                sql += &format!("{}={},", fields[i].0, product[i + 2]);
-            } else {
-                let op: Vec<&str> = fields[i].3.split("_").collect();
-                let val = if product[i + 2] == op[0] { true } else { false };
-                sql += &format!("{}={},", fields[i].0, val);
-            }
-        }
+        let mut sql = build_sql_for_update(product.clone(), init, fields);
 
         sql += &format!(r#""商品ID"='{}' WHERE "ID"={}"#, product[1], product[0]);
 
@@ -142,28 +103,17 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone()).await;
-        let mut sql = r#"INSERT INTO products ("#.to_owned();
+        let fields = get_fields(db.clone(), "商品规格").await;
+        let mut init = r#"INSERT INTO products ("#.to_owned();
 
         for f in &fields {
-            sql += &format!("{},", &*f.0);
+            init += &format!("{},", &*f.field_name);
         }
 
-        sql += r#""商品ID") VALUES("#;
+        init += r#""商品ID") VALUES("#;
 
-        let product: Vec<&str> = p.data.split("<`*_*`>").collect();
-
-        for i in 0..fields.len() {
-            if fields[i].2 == "文本" {
-                sql += &format!("'{}',", product[i + 2]);
-            } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                sql += &format!("{},", product[i + 2]);
-            } else {
-                let op: Vec<&str> = fields[i].3.split("_").collect();
-                let val = if product[i + 2] == op[0] { true } else { false };
-                sql += &format!("{},", val);
-            }
-        }
+        let product: Vec<&str> = p.data.split(SPLITER).collect();
+        let mut sql = build_sql_for_insert(product.clone(), init, fields);
 
         sql += &format!("'{}')", product[1]);
 
@@ -196,27 +146,14 @@ pub async fn product_auto(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
-        let conn = db.get().await.unwrap();
-        let s = ("%".to_owned() + &search.s + "%").to_lowercase();
-        let rows = &conn
-            .query(
-                r#"SELECT "ID" AS id, 规格型号 AS label FROM products WHERE "商品ID"=$2 AND LOWER(规格型号) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
-                &[&s, &search.cate],
-            )
-            .await
-            .unwrap();
+        let sql = &format!(
+            r#"SELECT "ID" AS id, 规格型号 AS label FROM products 
+               WHERE "商品ID"='{}' AND LOWER(规格型号) LIKE '%{}%' LIMIT 10"#,
+            search.cate,
+            search.s.to_lowercase()
+        );
 
-        let mut data: Vec<Message> = vec![];
-        for row in rows {
-            let message = Message {
-                id: row.get("id"),
-                label: row.get("label"),
-            };
-
-            data.push(message);
-        }
-
-        HttpResponse::Ok().json(data)
+        autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -237,7 +174,7 @@ pub async fn product_out(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
-        let fields = get_fields(db.clone()).await;
+        let fields = get_fields(db.clone(), "商品规格").await;
 
         let file_name = format!("./download/{}.xlsx", product.name);
         let wb = Workbook::new(&file_name);
@@ -259,54 +196,44 @@ pub async fn product_out(
 
         let mut n = 2;
         for f in &fields {
-            sheet.write_string(0, n, &f.1, Some(&format1)).unwrap();
-            sheet.set_column(n, n, (f.4 * 2.5).into(), None).unwrap();
+            sheet
+                .write_string(0, n, &f.show_name, Some(&format1))
+                .unwrap();
+            sheet
+                .set_column(n, n, (f.show_width * 2.5).into(), None)
+                .unwrap();
 
             n += 1;
         }
 
-        let mut sql = r#"SELECT "ID"::float8 as 编号,"#.to_owned();
-        for f in &fields {
-            if f.2 == "文本" {
-                let txt = format!("{},", f.0);
-                sql += &txt;
-            } else if f.2 == "整数" || f.2 == "实数" {
-                let num = format!("{}::float8,", f.0);
-                sql += &num;
-            } else {
-                let op: Vec<&str> = f.3.split("_").collect();
-                let bl = format!(
-                    "case when {} then '{}' else '{}' end as {},",
-                    f.0, op[0], op[1], f.0
-                );
-                sql += &bl;
-            }
-        }
+        let init = r#"SELECT "ID" as 编号,"#.to_owned();
+        let mut sql = build_sql_for_excel(init, &fields);
 
-        let tail = format!(r#""商品ID" FROM products WHERE "商品ID"='{}'"#, product.id);
-        sql += &tail;
+        sql += &format!(
+            r#""商品ID" FROM products WHERE "商品ID"='{}' ORDER BY 规格型号"#,
+            product.id
+        );
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut n = 1u32;
         for row in rows {
-            sheet
-                .write_number(n, 0, row.get("编号"), Some(&format2))
-                .unwrap();
+            let id: i32 = row.get("编号");
+            sheet.write_number(n, 0, id as f64, Some(&format2)).unwrap();
             sheet
                 .write_string(n, 1, row.get("商品ID"), Some(&format2))
                 .unwrap();
 
             let mut m = 2u16;
             for f in &fields {
-                if f.2 == "整数" || f.2 == "实数" {
-                    sheet.write_number(n, m, row.get(&*f.0), None).unwrap();
-                } else if f.2 == "文本" {
-                    sheet.write_string(n, m, row.get(&*f.0), None).unwrap();
+                if f.data_type == "布尔" {
+                    sheet
+                        .write_string(n, m, row.get(&*f.field_name), Some(&format2))
+                        .unwrap();
                 } else {
                     sheet
-                        .write_string(n, m, row.get(&*f.0), Some(&format2))
+                        .write_string(n, m, row.get(&*f.field_name), None)
                         .unwrap();
                 }
 
@@ -332,64 +259,55 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
 
         let mut p_id = "".to_owned(); //商品ID
         let mut total_rows = 0;
-        let fields = get_fields(db.clone()).await;
+        let fields = get_fields(db.clone(), "商品规格").await;
         let mut records = Vec::new();
         let mut excel: Xlsx<_> = open_workbook(path).unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let mut n = 0;
             let mut num = 1;
             let total_coloum = r.get_size().1;
+            total_rows = r.get_size().0 - 1;
 
             if total_coloum - 2 != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
-            for row in r.rows() {
+            if total_rows > 0 {
+                p_id = format!("{}", r[(1, 1)]); //r[] 实现了 Display trait, 可以通过 format! 将其转换成字符串
+
+                //制作表头数据
                 let mut rec = "".to_owned();
-                let split = "<`*_*`>";
-                if n == 0 {
-                    rec += &format!("{}{}", row[0].get_string().unwrap(), split);
-                    rec += &format!("{}{}", row[1].get_string().unwrap(), split);
-                    for f in &fields {
-                        rec += &format!("{}{}", &*f.1, split);
-                    }
-
-                    records.push(rec);
-                    n = n + 1;
-                    continue;
-                }
-
-                rec += &format!("{}{}", row[0].get_float().unwrap(), split);
-                rec += &format!("{}{}", row[1].get_string().unwrap(), split);
-                p_id = row[1].get_string().unwrap().to_owned();
-
-                for i in 0..fields.len() {
-                    if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                        rec += &format!("{}{}", row[i + 2].get_float().unwrap_or(0f64), split);
-                    } else {
-                        rec += &format!("{}{}", row[i + 2].get_string().unwrap_or(""), split);
-                    }
+                rec += &format!("{}{}", "编号", SPLITER);
+                rec += &format!("{}{}", "商品ID", SPLITER);
+                for f in &fields {
+                    rec += &format!("{}{}", &*f.show_name, SPLITER);
                 }
 
                 records.push(rec);
 
-                num += 1;
-                if num == 50 {
-                    break;
+                for j in 0..total_rows {
+                    let mut rec = "".to_owned();
+                    for i in 0..total_coloum {
+                        rec += &format!("{}{}", r[(j + 1, i)], SPLITER);
+                    }
+
+                    records.push(rec);
+
+                    num += 1;
+                    if num == 50 {
+                        break;
+                    }
                 }
-            }
 
-            total_rows = r.get_size().0 - 1;
+                let conn = db.get().await.unwrap();
+                let rows = &conn
+                    .query(r#"SELECT node_name FROM tree WHERE num=$1"#, &[&p_id])
+                    .await
+                    .unwrap();
 
-            let conn = db.get().await.unwrap();
-            let rows = &conn
-                .query(r#"SELECT node_name FROM tree WHERE num=$1"#, &[&p_id])
-                .await
-                .unwrap();
-
-            for row in rows {
-                p_id = row.get("node_name");
+                for row in rows {
+                    p_id = row.get("node_name");
+                }
             }
         }
         HttpResponse::Ok().json((records, p_id, total_rows))
@@ -406,43 +324,44 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let fields = get_fields(db.clone()).await;
+            let fields = get_fields(db.clone(), "商品规格").await;
             let conn = db.get().await.unwrap();
-            let mut init = r#"INSERT INTO products ("#.to_owned();
 
-            for f in &fields {
-                init += &format!("{},", &*f.0);
-            }
+            let total_rows = r.get_size().0 - 1;
 
-            init += r#""商品ID") VALUES("#;
+            if total_rows > 0 {
+                let mut init = r#"INSERT INTO products ("#.to_owned();
 
-            let mut n = 0u8;
-            for row in r.rows() {
-                if n == 0 {
-                    n = n + 1;
-                    continue;
+                for f in &fields {
+                    init += &format!("{},", &*f.field_name);
                 }
-                let mut sql = init.clone();
 
-                for i in 0..fields.len() {
-                    if fields[i].2 == "文本" {
-                        sql += &format!("'{}',", row[i + 2].get_string().unwrap_or(""));
-                    } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                        sql += &format!("{},", row[i + 2].get_float().unwrap_or(0f64));
-                    } else {
-                        let op: Vec<&str> = fields[i].3.split("_").collect();
-                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
-                            true
+                init += r#""商品ID") VALUES("#;
+
+                for j in 0..total_rows {
+                    let mut sql = init.clone();
+
+                    for i in 0..fields.len() {
+                        if fields[i].data_type == "文本" {
+                            sql += &format!("'{}',", r[(j + 1, i + 2)]);
+                        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
+                        {
+                            sql += &format!("{},", r[(j + 1, i + 2)]);
                         } else {
-                            false
-                        };
-                        sql += &format!("{},", val);
+                            let op: Vec<&str> = fields[i].option_value.split("_").collect();
+                            let val = if format!("{}", r[(j + 1, i + 2)]) == op[0] {
+                                true
+                            } else {
+                                false
+                            };
+                            sql += &format!("{},", val);
+                        }
                     }
+
+                    sql += &format!("'{}')", r[(j + 1, 1)]);
+
+                    &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
-
-                sql += &format!("'{}')", row[1].get_string().unwrap_or(""));
-
-                &conn.query(sql.as_str(), &[]).await.unwrap();
             }
         }
         HttpResponse::Ok().json(1)
@@ -459,75 +378,40 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
-            let fields = get_fields(db.clone()).await;
+            let fields = get_fields(db.clone(), "商品规格").await;
             let conn = db.get().await.unwrap();
-            let mut n = 0u8;
+            let total_rows = r.get_size().0 - 1;
 
-            for row in r.rows() {
-                if n == 0 {
-                    n = n + 1;
-                    continue;
-                }
-                let mut sql = r#"UPDATE products SET "#.to_owned();
+            if total_rows > 0 {
+                for j in 0..total_rows {
+                    let mut sql = r#"UPDATE products SET "#.to_owned();
 
-                for i in 0..fields.len() {
-                    if fields[i].2 == "文本" {
-                        sql += &format!(
-                            "{}='{}',",
-                            fields[i].0,
-                            row[i + 2].get_string().unwrap_or("")
-                        );
-                    } else if fields[i].2 == "实数" || fields[i].2 == "整数" {
-                        sql += &format!(
-                            "{}={},",
-                            fields[i].0,
-                            row[i + 2].get_float().unwrap_or(0f64)
-                        );
-                    } else {
-                        let op: Vec<&str> = fields[i].3.split("_").collect();
-                        let val = if row[i + 2].get_string().unwrap_or("") == op[0] {
-                            true
+                    for i in 0..fields.len() {
+                        if fields[i].data_type == "文本" {
+                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 2)]);
+                        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
+                        {
+                            sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 2)]);
                         } else {
-                            false
-                        };
-                        sql += &format!("{}={},", fields[i].0, val);
+                            let op: Vec<&str> = fields[i].option_value.split("_").collect();
+                            let val = if format!("{}", r[(j + 1, i + 2)]) == op[0] {
+                                true
+                            } else {
+                                false
+                            };
+                            sql += &format!("{}={},", fields[i].field_name, val);
+                        }
                     }
+
+                    sql = sql.trim_end_matches(',').to_owned();
+                    sql += &format!(r#" WHERE "ID"={}"#, r[(j + 1, 0)]);
+
+                    &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
-
-                sql = sql.trim_end_matches(',').to_owned();
-                sql += &format!(r#" WHERE "ID"={}"#, row[0].get_float().unwrap());
-
-                &conn.query(sql.as_str(), &[]).await.unwrap();
             }
         }
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
-}
-
-//获取显示字段
-async fn get_fields(db: web::Data<Pool>) -> Vec<(String, String, String, String, f32)> {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-            .query(
-                r#"SELECT field_name, show_name, data_type, option_value, show_width 
-                    FROM tableset WHERE table_name='商品规格' AND is_show=true ORDER BY show_order"#,
-                &[],
-            )
-            .await
-            .unwrap();
-
-    let mut fields: Vec<(String, String, String, String, f32)> = Vec::new();
-    for row in rows {
-        fields.push((
-            row.get("field_name"),
-            row.get("show_name"),
-            row.get("data_type"),
-            row.get("option_value"),
-            row.get("show_width"),
-        ));
-    }
-
-    fields
 }

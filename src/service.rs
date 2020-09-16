@@ -168,6 +168,34 @@ pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     Ok(path)
 }
 
+//获取显示的字段，非全部字段
+pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
+    let conn = db.get().await.unwrap();
+    let rows = &conn
+        .query(
+            r#"SELECT field_name, show_name, data_type, option_value, show_width 
+                    FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
+            &[&table_name],
+        )
+        .await
+        .unwrap();
+
+    let mut fields: Vec<FieldsData> = Vec::new();
+    for row in rows {
+        let data = FieldsData {
+            field_name: row.get("field_name"),
+            show_name: row.get("show_name"),
+            data_type: row.get("data_type"),
+            option_value: row.get("option_value"),
+            show_width: row.get("show_width"),
+        };
+
+        fields.push(data);
+    }
+
+    fields
+}
+
 //从数据库读取数据后，按显示字段，组合成字符串数组。以返回给前端
 pub fn build_string_from_base(
     rows: &Vec<tokio_postgres::Row>,

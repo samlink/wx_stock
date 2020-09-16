@@ -106,11 +106,14 @@ fetch("/fetch_fields", {
     });
 
 function table_row(tr) {
-    return service.build_row_from_string(tr, table_fields);
+    let rec = tr.split(SPLITER);
+    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
+    return service.build_row_from_string(rec, row, table_fields);
 }
 
 function blank_row() {
-    return service.build_blank_from_fields(table_fields);
+    let row = "<tr><td></td><td hidden></td>";
+    return service.build_blank_from_fields(row, table_fields);
 }
 
 //搜索规格
@@ -153,7 +156,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     if (id != "") {
         global.row_id = id;
 
-        document.querySelector('.modal-body').innerHTML = service.build_edit_form(table_fields, chosed);
+        document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, table_fields, chosed); //3 是起始位置
 
         document.querySelector('.modal-title').textContent = "编辑" + cate_set.cate;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"

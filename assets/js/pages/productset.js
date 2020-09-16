@@ -3,7 +3,8 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, download_file, checkFileType } from '../parts/tools.mjs';
+import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
+import * as service from '../parts/service.mjs';
 
 let global = {
     row_id: 0,
@@ -64,10 +65,6 @@ document.querySelector(".tree-title").addEventListener('click', () => {
 
 //商品规格表格数据 -------------------------------------------------------------------
 
-let table_name = {
-    name: "商品规格"
-};
-
 let table_fields;
 let header_names = {};
 
@@ -92,7 +89,9 @@ fetch("/fetch_fields", {
     headers: {
         "Content-Type": "application/json",
     },
-    body: JSON.stringify(table_name),
+    body: JSON.stringify({
+        name: "商品规格"
+    }),
 })
     .then(response => response.json())
     .then(content => {
@@ -150,32 +149,14 @@ fetch("/fetch_fields", {
     });
 
 function table_row(tr) {
-    let rec = tr.split('<`*_*`>');
+    let rec = tr.split(SPLITER);
     let row = `<tr><td style="text-align: center;">${rec[1]}</td><td>${rec[0]}</td>`;
-    let n = 2;
-    for (let name of table_fields) {
-        if (name.data_type == "文本") {
-            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
-        } else if (name.data_type == "整数" || name.data_type == "实数") {
-            row += `<td style="text-align: right;">${rec[n]}</td>`;
-        }
-        else {
-            row += `<td>${rec[n]}</td>`;
-        }
-        n++;
-    }
-    row += "</tr>";
-
-    return row;
+    return service.build_row_from_string(rec, row, table_fields);
 }
 
 function blank_row() {
     let row = "<tr><td></td><td></td>";
-    for (let _f of table_fields) {
-        row += "<td></td>";
-    }
-    row += "</tr>";
-    return row;
+    return service.build_blank_from_fields(row, table_fields);
 }
 
 //搜索规格
@@ -201,49 +182,9 @@ document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
 
     if (global.product_name != "") {
-        let form = "<form>";
-
-        for (let name of table_fields) {
-            let control;
-            if (name.ctr_type == "普通输入") {
-                control = `<div class="form-group">
-                                <div class="form-label">
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <input class="form-control input-sm has-value" type="text">
-                            </div>`;
-            } else if (name.ctr_type == "二值选一") {
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox"><span class="checkmark"></span>
-                                </label>
-                            </div>`;
-            } else {
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <select class='select-sm has-value'>`;
-
-                let options = name.option_value.split('_');
-                for (let value of options) {
-                    control += `<option value="${value}">${value}</option>`;
-                }
-                control += "</select></div>";
-
-            }
-
-            form += control;
-        }
-        form += "</form>";
-
-        document.querySelector('.modal-body').innerHTML = form;
-
+        document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
         document.querySelector('.modal-title').textContent = global.product_name;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
-
         document.querySelector('#product-modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
@@ -262,59 +203,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (global.product_name != "" && id != "") {
         global.row_id = id;
-
-        let form = "<form>";
-        let num = 3;
-        for (let name of table_fields) {
-            let control;
-            if (name.ctr_type == "普通输入") {
-                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                control = `<div class="form-group">
-                                <div class="form-label">
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <input class="form-control input-sm has-value" type="text" value="${value}">
-                            </div>`;
-            } else if (name.ctr_type == "二值选一") {
-                let value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                let options = name.option_value.split('_');
-                let check = value == options[0] ? "checked" : "";
-
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox" ${check}><span class="checkmark"></span>
-                                </label>
-                            </div>`;
-            } else {
-                let show_value = chosed.querySelector(`td:nth-child(${num})`).textContent;
-                control = `<div class="form-group">
-                                <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
-                                </div>
-                                <select class='select-sm has-value'>`;
-
-                let options = name.option_value.split('_');
-                for (let value of options) {
-                    if (value == show_value) {
-                        control += `<option value="${value}" selected>${value}</option>`;
-                    }
-                    else {
-                        control += `<option value="${value}">${value}</option>`;
-                    }
-                }
-
-                control += "</select></div>";
-            }
-
-            form += control;
-            num++;
-        }
-        form += "</form>";
-
-        document.querySelector('.modal-body').innerHTML = form;
-
+        document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, table_fields, chosed); //3 是起始位置
         document.querySelector('.modal-title').textContent = global.product_name;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('#product-modal').style.display = "block";
@@ -339,8 +228,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
             num++;
         }
-        let split = "<`*_*`>";
-        let product = `${global.row_id}${split}${global.product_id}${split}`;
+        let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
 
         num = 0;
 
@@ -357,7 +245,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 value = Number(value);
             }
 
-            product += `${value}${split}`;
+            product += `${value}${SPLITER}`;
             num++;
         }
 
@@ -395,6 +283,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     notifier.show('批量操作成功', 'success');
+                    fetch_table();
                     close_modal();
                 }
                 else {

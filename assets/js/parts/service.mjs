@@ -1,9 +1,7 @@
 import { SPLITER } from '../parts/tools.mjs';
 
 //依据显示字段，创建表格内容行
-export function build_row_from_string(tr, table_fields) {
-    let rec = tr.split(SPLITER);
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
+export function build_row_from_string(rec, row, table_fields) {
     let n = 2;
     for (let name of table_fields) {
         if (name.data_type == "文本") {
@@ -22,8 +20,7 @@ export function build_row_from_string(tr, table_fields) {
 }
 
 //依据显示字段，创建表格空行
-export function build_blank_from_fields(table_fields) {
-    let row = "<tr><td></td><td hidden></td>";
+export function build_blank_from_fields(row, table_fields) {
     for (let _f of table_fields) {
         row += "<td></td>";
     }
@@ -32,9 +29,8 @@ export function build_blank_from_fields(table_fields) {
 }
 
 //依据显示字段，建立编辑类型 form
-export function build_edit_form(table_fields, chosed) {
+export function build_edit_form(num, table_fields, chosed) {
     let form = "<form>";
-    let num = 3;
     for (let name of table_fields) {
         let control;
         if (name.ctr_type == "普通输入") {

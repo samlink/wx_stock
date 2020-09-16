@@ -24,7 +24,7 @@ pub struct FieldsPost {
     name: String,
 }
 
-///获取表格字段
+///获取表格全部字段
 #[post("/fetch_fields")]
 pub async fn fetch_fields(
     db: web::Data<Pool>,
