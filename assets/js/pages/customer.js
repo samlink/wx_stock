@@ -142,7 +142,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
     document.querySelector('.modal-title').textContent = "增加" + cate_set.cate;
     document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
-    document.querySelector('#customer-modal').style.display = "block";
+    document.querySelector('.modal').style.display = "block";
     document.querySelector('.modal-body input').focus();
     leave_alert();
 });
@@ -160,7 +160,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         document.querySelector('.modal-title').textContent = "编辑" + cate_set.cate;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
-        document.querySelector('#customer-modal').style.display = "block";
+        document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
@@ -264,11 +264,11 @@ function close_modal() {
         alert_confirm('编辑还未保存，确认退出吗？', {
             confirmCallBack: () => {
                 global.edit = 0;
-                document.querySelector('#customer-modal').style.display = "none";
+                document.querySelector('.modal').style.display = "none";
             }
         });
     } else {
-        document.querySelector('#customer-modal').style.display = "none";
+        document.querySelector('.modal').style.display = "none";
     }
 
     document.querySelector('#modal-info').innerHTML = "";
@@ -276,14 +276,14 @@ function close_modal() {
 
 //编辑离开提醒事件
 function leave_alert() {
-    let all_input = document.querySelectorAll('#customer-modal input');
+    let all_input = document.querySelectorAll('.modal input');
     for (let input of all_input) {
         input.addEventListener('input', () => {
             global.edit = 1;
         });
     }
 
-    let all_select = document.querySelectorAll('#customer-modal select');
+    let all_select = document.querySelectorAll('.modal select');
     for (let select of all_select) {
         select.addEventListener('change', function () {
             global.edit = 1;
@@ -376,7 +376,7 @@ function data_in(fileBtn, info1, info2, cate) {
                     global.eidt_cate = cate;
 
                     document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
-                    document.querySelector('#customer-modal').style.cssText = "display: block";
+                    document.querySelector('.modal').style.cssText = "display: block";
                     fileBtn.value = "";
 
                 } else if (content == -1) {

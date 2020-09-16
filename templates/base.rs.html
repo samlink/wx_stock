@@ -59,8 +59,10 @@
           <div class="sub-menu">
             <b class="caret fa fa-caret-up"></b>
             <ul class="sub-ul">
-              <li class="nav-item"><a class="nav-link" href="/customer_manage"><span class="nav-text">客户管理</span></a></li>
-              <li class="nav-item"><a class="nav-link" href="/supplier_manage"><span class="nav-text">供应商管理</span></a></li>
+              <li class="nav-item"><a class="nav-link" href="/customer_manage"><span class="nav-text">客户管理</span></a>
+              </li>
+              <li class="nav-item"><a class="nav-link" href="/supplier_manage"><span class="nav-text">供应商管理</span></a>
+              </li>
               <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">业务往来</span></a></li>
               <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">债务结算</span></a></li>
               <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">客户消费</span></a></li>
@@ -88,7 +90,7 @@
             <ul class="sub-ul">
               <li class="nav-item"><a class="nav-link" href="/product_set"><span class="nav-text">商品设置</span></a></li>
               <li class="nav-item"><a class="nav-link" href="/user_manage"><span class="nav-text">用户设置</span></a></li>
-              <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">销售人员</span></a></li>
+              <li class="nav-item"><a class="nav-link" href="/sale_person"><span class="nav-text">销售人员</span></a></li>
               <li class="nav-item"><a class="nav-link" href=""><span class="nav-text">仓库设置</span></a></li>
               <li class="nav-item"><a class="nav-link" href="/field_set"><span class="nav-text">字段设置</span></a></li>
               <li class="nav-item"><a class="nav-link" href="/system_set"><span class="nav-text">系统参数</span></a></li>
@@ -120,10 +122,39 @@
     </div>
   </div>
 
+  <div class="modal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <p class="modal-title"></p>
+
+          <button type="button" class="top-close close">
+            <span>&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body"></div>
+
+        <div class="modal-footer">
+          <div id="modal-info"></div>
+          <button type="button" class="btn btn-info" id="modal-sumit-button">
+            提交
+          </button>
+          <button type="button" class="btn btn-second" id="modal-close-button">
+            返回
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <footer>
     <p><a href="http://www.tingtran.top" target="_blank"> 鼎传码行 </a>
       &#169;@now().strftime("%Y").unwrap().to_string()
     </p>
   </footer>
 </body>
+
 </html>

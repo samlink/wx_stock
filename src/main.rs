@@ -1,6 +1,6 @@
 use actix_files as fs;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use config::ConfigError;
 use dotenv::dotenv;
 use serde::Deserialize;
@@ -9,6 +9,7 @@ mod customer;
 mod field_set;
 mod html;
 mod product;
+mod sale_person;
 mod service;
 mod tree;
 mod user_manage;
@@ -51,6 +52,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::field_set)
             .service(html::customer_manage)
             .service(html::supplier_manage)
+            .service(html::sale_person)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
