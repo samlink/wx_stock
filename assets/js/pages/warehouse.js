@@ -168,16 +168,15 @@ function fetch_house() {
         .then(response => response.json())
         .then(data => {
             if (data != -1) {
-                let list = "";
-                for (let d of data) {
-                    list += `<li data='${d.id}'>${d.name}</li>`;
-                }
                 var house = document.querySelector('#house-list');
-                house.innerHTML = list;
 
-                let all_li = house.querySelectorAll('li');
-                for (let li of all_li) {
-                    li.addEventListener('click', function () {
+                for (let d of data) {
+                    var node = document.createElement('li');
+                    node.setAttribute('data', d.id);
+                    node.setAttribute('draggable', 'true');
+                    node.textContent = d.name;
+
+                    node.addEventListener('click', function () {
                         const newLocal = this;
 
                         let lis = document.querySelector('#house-list').querySelectorAll('li');
@@ -186,11 +185,97 @@ function fetch_house() {
                         }
                         newLocal.classList.add('selected');
                     });
+
+                    //以下均为拖拽事件
+                    node.addEventListener('dragstart', function (e) {
+                        e.stopPropagation();
+                        let has_input = this.querySelector('input');
+                        if (!has_input) {
+                            global.drag_id = e.target.id;
+                        }
+                        else {
+                            e.preventDefault();
+                        }
+
+                    });
+
+                    node.addEventListener('dragover', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+                    });
+
+                    node.addEventListener('dragleave', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        this.style.cssText = "";
+                    });
+
+                    node.addEventListener('drop', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        alert_confirm("确认移动到 “" + this.textContent + "” 前吗？", { confirmCallBack: house_drag });
+                    });
+
+                    house.appendChild(node);
+
                 }
+
+
+                // let list = "";
+                // for (let d of data) {
+                //     list += `<li draggable=true data='${d.id}'>${d.name}</li>`;
+                // }
+                // var house = document.querySelector('#house-list');
+                // house.innerHTML = list;
+
+                // let all_li = house.querySelectorAll('li');
+                // for (let li of all_li) {
+                //     li.addEventListener('click', function () {
+                //         const newLocal = this;
+
+                //         let lis = document.querySelector('#house-list').querySelectorAll('li');
+                //         for (let li of lis) {
+                //             li.classList.remove('selected');
+                //         }
+                //         newLocal.classList.add('selected');
+                //     });
+                // }
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
 
         });
+}
+
+//拖拽信息传回后台数据库
+function house_drag() {
+    // let drag = document.getElementById(global.drag_id);
+    // let caret = drag.querySelector('span');
+    // let name = caret ? caret.textContent : drag.textContent;
+
+    // var num = {
+    //     pnum: global.home_id,
+    //     num: global.drag_id,
+    // };
+
+    // fetch("/tree_drag", {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(num),
+    // }).then(res => res.json())
+    //     .then(data => {
+    //         if (data == 1) {
+    //             fetch_tree(() => {
+    //                 tree_search(name);
+    //             });
+    //         }
+    //         else {
+    //             notifier.show('权限不够，无法修改', 'danger');
+    //         }
+    //     });
 }
