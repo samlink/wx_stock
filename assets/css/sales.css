@@ -1118,7 +1118,6 @@ a.roar-alert-message-tbf {
   align-items: flex-start;
   justify-content: space-between;
   border-bottom: 1px solid #dee2e6;
-  border-bottom-color: #dee2e6;
   border-top-left-radius: calc(0.3rem - 1px);
   border-top-right-radius: calc(0.3rem - 1px);
   flex-shrink: 0;
@@ -1479,6 +1478,59 @@ a.roar-alert-message-tbf {
 .sale_person td:nth-last-child(2),
 .sale_person th:nth-last-child(2) {
   border-right: none !important;
+}
+
+.ware-house .house-content {
+  display: flex;
+  height: calc(100vh - 170px);
+}
+.ware-house .house-set {
+  width: 300px;
+  height: inherit;
+  border: 1px solid #e5edf0;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border-radius: 0.25rem;
+}
+.ware-house .house {
+  height: calc(100vh - 230px);
+  overflow-y: auto;
+}
+.ware-house .position-set {
+  height: 100%;
+  flex: auto;
+}
+.ware-house .title {
+  font-size: 14px;
+  color: #106cb6 !important;
+  margin-bottom: 8px;
+  line-height: 1.5;
+  border-bottom: 1px solid #e4e9ee;
+  border-top-left-radius: calc(0.3rem - 1px);
+  border-top-right-radius: calc(0.3rem - 1px);
+  padding: 8px 20px;
+}
+.ware-house ul {
+  list-style-type: none;
+  margin-top: 0;
+  margin-left: 20px;
+  padding: 0;
+}
+.ware-house li {
+  position: relative;
+  padding: 5px 22px;
+  margin: 0;
+  cursor: pointer;
+  width: 80%;
+}
+.ware-house li:hover {
+  font-weight: bold;
+}
+.ware-house .selected {
+  background-color: #51adf6;
+  color: white;
+}
+.ware-house #context-menu li {
+  padding: 0;
 }
 
 /*# sourceMappingURL=sales.css.map */
