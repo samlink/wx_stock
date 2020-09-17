@@ -231,11 +231,14 @@ function fetch_house() {
                         e.stopPropagation();
                         global.to_id = e.target.getAttribute('data');
 
+                        let drag_idx = global.id_arr.indexOf(global.drag_id);
+                        let to_idx = global.id_arr.indexOf(global.to_id);
+                        let position = drag_idx > to_idx ? "前" : "后";
 
-                        alert_confirm(`确认将 “${global.drag_name}” 移动到 “${e.target.textContent}” 前吗？`,
+                        alert_confirm(`确认将 ${global.drag_name} 移动到 ${e.target.textContent} ${position}吗？`,
                             {
                                 confirmCallBack: () => {
-                                    house_drag();
+                                    house_drag(drag_idx, to_idx);
 
                                 }
                             });
@@ -252,9 +255,10 @@ function fetch_house() {
 }
 
 //拖拽信息传回后台数据库
-function house_drag() {
-    let drag_idx = global.id_arr.indexOf(global.drag_id);
-    let to_idx = global.id_arr.indexOf(global.to_id);
+function house_drag(drag_idx, to_idx) {
+    // let drag_idx = global.id_arr.indexOf(global.drag_id);
+    // let to_idx = global.id_arr.indexOf(global.to_id);
+    // position = drag_idx > to_idx ? "前" : "后";
 
     arr_exchange(global.id_arr, drag_idx, to_idx);
 
