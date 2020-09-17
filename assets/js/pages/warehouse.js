@@ -30,26 +30,27 @@ document.oncontextmenu = function (event) {
             li.classList.remove('selected');
         }
         selected_node.classList.add('selected');
-        return show_menu(event, "block");
+        return show_menu(event, 1);
 
     }
     else if (selected_node.classList.contains('tree-title')) {
 
-        return show_menu(event, "none");
+        return show_menu(event, 2);
     }
 }
 
 //显示右键菜单
 function show_menu(event, display) {
     var lis = menu.querySelectorAll('li');
-    lis[1].style.display = display;
-    lis[2].style.display = display;
+    lis[0].style.display = display == 1 ? "none" : "block";
+    lis[1].style.display = display == 1 ? "block" : "none";
+    lis[2].style.display = display == 1 ? "block" : "none";
 
     menu.style.display = 'block';
     zhezhao.style.display = "block";
 
     menu.style.left = event.clientX - 10 + 'px';
-    menu.style.top = event.clientY - 10 + 'px';
+    menu.style.top = event.clientY - 2 + 'px';
 
     return false;
 }
