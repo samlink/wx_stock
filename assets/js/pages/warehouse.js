@@ -4,6 +4,7 @@ import { getHeight } from '../parts/tools.mjs';
 
 let global = {
     edit_cate: '',
+    name_save: '',
 };
 
 var selected_node;
@@ -60,8 +61,15 @@ menu.addEventListener('click', function (event) {
 //文档点击事件
 document.addEventListener('click', function (event) {
     var has_input = document.querySelector('#input_node');
+
     if (has_input && event.target.tagName !== 'INPUT') {
-        house_edit(has_input, selected_node);
+        let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
+        let data = {
+            id: id,
+            name: has_input.value,
+            cate: global.edit_cate,
+        }
+        house_edit(data);
     }
     else if (selected_node && event.target.tagName !== 'INPUT') {
         selected_node.classList.remove('selected');
@@ -70,16 +78,43 @@ document.addEventListener('click', function (event) {
     }
 });
 
+//按键事件
+document.addEventListener('keydown', function (event) {
+    if (event && event.key == "Enter") {
+        var has_input = document.querySelector('#input_node');
+        if (has_input) {
+            let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
+            let data = {
+                id: id,
+                name: has_input.value,
+                cate: global.edit_cate,
+            }
+            house_edit(data);
+        }
+    }
+    else if (event && event.key == "Escape") {
+        var has_input = document.querySelector('#input_node');
+        if (has_input && global.edit_cate == "编辑") {
+            zhezhao.style.display = "none";
+            has_input.parentNode.innerHTML = global.name_save;
+        } else if (has_input && global.edit_cate == "增加") {
+            var parent_node = has_input.parentNode.parentNode;
+            parent_node.removeChild(has_input.parentNode);
+            zhezhao.style.display = "none";
+        }
+    }
+});
+
 //右键菜单增加
 document.querySelector('#context-add').addEventListener('click', function (event) {
     global.edit_cate = "增加";
-    var new_li = document.createElement("li");
-    new_li.innerHTML = input_html;
-    document.querySelector('#house-list').appendChild(new_li);
-    new_li.style.cssText = 'z-index: 1001;';
+    selected_node = document.createElement("li");
+    selected_node.innerHTML = input_html;
+    document.querySelector('#house-list').appendChild(selected_node);
+    selected_node.style.cssText = 'z-index: 1001;';
 
-    new_li.firstChild.focus();
-    new_li.firstChild.select();
+    selected_node.firstChild.focus();
+    selected_node.firstChild.select();
 
     zhezhao.style.display = "block";
 });
@@ -96,52 +131,24 @@ document.querySelector('#context-edit').addEventListener('click', function (even
 
 //右键菜单删除
 document.querySelector('#context-del').addEventListener('click', function (event) {
-    if (selected_node.classList.contains('leaf') ||
-        selected_node.parentNode.querySelector('.leaf') === null) {
-        let options = {
-            confirmCallBack: function () {
-                var num = {
-                    pnum: selected_node.dataset.num,
-                    node_name: ""
-                };
-
-                fetch("/tree_del", {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(num),
-                }).then(res => res.json())
-                    .then(data => {
-                        if (data == 1) {
-                            var parent_node = selected_node.parentNode;
-                            if (parent_node) {
-                                parent_node.removeChild(selected_node);
-                                leaf_caret(parent_node);
-                            }
-                            // document.querySelector('.content').innerHTML = "";
-                        }
-                    });
+    let options = {
+        confirmCallBack: function () {
+            let data = {
+                id: Number(selected_node.getAttribute('data')),
+                name: "",
+                cate: "删除",
             }
-        }
 
-        alert_confirm("删除后无法恢复，确认删除吗？", options);
+            house_edit(data);
+        }
     }
-    else {
-        notifier.show('有子节点，无法删除', 'danger');
-    }
+
+    alert_confirm(`确认删除 ${selected_node.textContent} 吗？`, options);
 
     zhezhao.style.display = "none";
 });
 
-function house_edit(input) {
-    console.log(selected_node);
-    let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
-    let data = {
-        id: id,
-        name: input.value,
-        cate: global.edit_cate,
-    }
+function house_edit(data) {
     fetch('/update_house', {
         method: 'post',
         headers: {
@@ -152,6 +159,7 @@ function house_edit(input) {
         .then(response => response.json())
         .then(data => {
             fetch_house();
+            notifier.show('操作成功', 'success');
         });
 }
 

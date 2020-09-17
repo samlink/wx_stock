@@ -62,11 +62,11 @@ export var tree_init = function (data) {
 
     //按键事件
     document.addEventListener('keydown', function (event) {
-        if (event && event.keyCode == 13) {        //回车键
+        if (event && event.key == "Enter") {        //回车键
             var has_input = document.querySelector('#input_node');
             tree_edit(has_input, selected_node);
         }
-        else if (event && event.keyCode == 27) {         //ESC 键
+        else if (event && event.key == "Escape") {         //ESC 键
             var has_input = document.querySelector('#input_node');
             if (has_input && global.edit_cate == "编辑") {
                 zhezhao.style.display = "none";
