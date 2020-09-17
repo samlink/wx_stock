@@ -94,6 +94,7 @@ async fn main() -> std::io::Result<()> {
             .service(sale_person::edit_saler)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
+            .service(warehouse_set::house_drag)
             .service(service::fetch_blank)
             .service(service::serve_download)
             // .service(web::resource("static/{name}").to(service::serve_static))

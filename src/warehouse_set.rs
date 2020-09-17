@@ -68,3 +68,25 @@ pub async fn update_house(
         HttpResponse::Ok().json(-1)
     }
 }
+
+///仓库拖拽
+#[post("/house_drag")]
+pub async fn house_drag(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let ids: Vec<&str> = data.split(",").collect();
+        for i in 0..ids.len() {
+            let sql = format!("UPDATE warehouse SET show_order={} WHERE id={}", i + 1, ids[i]);
+            &conn.query(sql.as_str(), &[]).await.unwrap();
+        }
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

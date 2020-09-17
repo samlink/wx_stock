@@ -5,6 +5,10 @@ import { getHeight } from '../parts/tools.mjs';
 let global = {
     edit_cate: '',
     name_save: '',
+    drag_id: 0,
+    drag_name: '',
+    to_id: 0,
+    id_arr: [],
 };
 
 var selected_node;
@@ -89,6 +93,8 @@ document.addEventListener('keydown', function (event) {
                 name: has_input.value,
                 cate: global.edit_cate,
             }
+            zhezhao.style.display = "none";
+
             house_edit(data);
         }
     }
@@ -139,7 +145,8 @@ document.querySelector('#context-del').addEventListener('click', function (event
                 cate: "删除",
             }
 
-            house_edit(data);
+            console.log("1");
+            // house_edit(data);
         }
     }
 
@@ -169,6 +176,7 @@ function fetch_house() {
         .then(data => {
             if (data != -1) {
                 var house = document.querySelector('#house-list');
+                house.innerHTML = "";
 
                 for (let d of data) {
                     var node = document.createElement('li');
@@ -179,7 +187,7 @@ function fetch_house() {
                     node.addEventListener('click', function () {
                         const newLocal = this;
 
-                        let lis = document.querySelector('#house-list').querySelectorAll('li');
+                        let lis = document.querySelectorAll('#house-list li');
                         for (let li of lis) {
                             li.classList.remove('selected');
                         }
@@ -191,7 +199,15 @@ function fetch_house() {
                         e.stopPropagation();
                         let has_input = this.querySelector('input');
                         if (!has_input) {
-                            global.drag_id = e.target.id;
+                            global.id_arr = [];
+                            let lists = document.querySelectorAll('#house-list li');
+                            for (let li of lists) {
+                                global.id_arr.push(li.getAttribute('data'));
+                            }
+                            global.drag_id = e.target.getAttribute('data');
+                            global.drag_name = e.target.textContent;
+
+                            console.log(global.id_arr);
                         }
                         else {
                             e.preventDefault();
@@ -214,34 +230,20 @@ function fetch_house() {
                     node.addEventListener('drop', function (e) {
                         e.preventDefault();
                         e.stopPropagation();
+                        global.to_id = e.target.getAttribute('data');
 
-                        alert_confirm("确认移动到 “" + this.textContent + "” 前吗？", { confirmCallBack: house_drag });
+
+                        alert_confirm(`确认将 “${global.drag_name}” 移动到 “${e.target.textContent}” 前吗？`,
+                            {
+                                confirmCallBack: () => {
+                                    console.log("新：" + global.id_arr);
+
+                                }
+                            });
                     });
 
                     house.appendChild(node);
-
                 }
-
-
-                // let list = "";
-                // for (let d of data) {
-                //     list += `<li draggable=true data='${d.id}'>${d.name}</li>`;
-                // }
-                // var house = document.querySelector('#house-list');
-                // house.innerHTML = list;
-
-                // let all_li = house.querySelectorAll('li');
-                // for (let li of all_li) {
-                //     li.addEventListener('click', function () {
-                //         const newLocal = this;
-
-                //         let lis = document.querySelector('#house-list').querySelectorAll('li');
-                //         for (let li of lis) {
-                //             li.classList.remove('selected');
-                //         }
-                //         newLocal.classList.add('selected');
-                //     });
-                // }
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
@@ -252,30 +254,43 @@ function fetch_house() {
 
 //拖拽信息传回后台数据库
 function house_drag() {
-    // let drag = document.getElementById(global.drag_id);
-    // let caret = drag.querySelector('span');
-    // let name = caret ? caret.textContent : drag.textContent;
+    // let drag_idx = global.id_arr.indexOf(global.drag_id);
+    // let to_idx = global.id_arr.indexOf(global.to_id);
 
-    // var num = {
-    //     pnum: global.home_id,
-    //     num: global.drag_id,
-    // };
+    // arr_exchange(global.id_arr, drag_idx, to_idx);
 
-    // fetch("/tree_drag", {
+    console.log("新：" + global.id_arr);
+
+    // let data = global.id_arr.join(',');
+
+    // fetch("/house_drag", {
     //     method: 'post',
     //     headers: {
     //         "Content-Type": "application/json",
     //     },
-    //     body: JSON.stringify(num),
+    //     body: JSON.stringify(data),
     // }).then(res => res.json())
     //     .then(data => {
     //         if (data == 1) {
-    //             fetch_tree(() => {
-    //                 tree_search(name);
-    //             });
+    //             // fetch_house();
     //         }
     //         else {
     //             notifier.show('权限不够，无法修改', 'danger');
     //         }
     //     });
+}
+
+function arr_exchange(arr, index, tindex) {
+    //如果当前元素在拖动目标位置的下方，先将当前元素从数组拿出，数组长度-1，我们直接给数组拖动目标位置的地方新增一个和当前元素值一样的元素，
+    //我们再把数组之前的那个拖动的元素删除掉，所以要len+1
+    if (index > tindex) {
+        arr.splice(tindex, 0, arr[index]);
+        arr.splice(index + 1, 1)
+    }
+    else {
+        //如果当前元素在拖动目标位置的上方，先将当前元素从数组拿出，数组长度-1，我们直接给数组拖动目标位置+1的地方新增一个和当前元素值一样的元素，
+        //这时，数组len不变，我们再把数组之前的那个拖动的元素删除掉，下标还是index
+        arr.splice(tindex + 1, 0, arr[index]);
+        arr.splice(index, 1)
+    }
 }
