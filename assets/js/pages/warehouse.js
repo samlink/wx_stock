@@ -2,22 +2,17 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
+let global = {
+    edit_cate: '',
+};
+
 var selected_node;
+
+fetch_house();
+
 var menu = document.querySelector('#context-menu');
 var zhezhao = document.querySelector('#zhezhao');
 var input_html = '<input type="text" id="input_node" value="新仓库">';
-
-let all_li = document.querySelectorAll('li');
-for (let li of all_li) {
-    li.addEventListener('click', function () {
-        // selected_node = this;
-
-        for (let li of all_li) {
-            li.classList.remove('selected');
-        }
-        this.classList.add('selected');
-    })
-}
 
 //右键菜单
 document.oncontextmenu = function (event) {
@@ -33,7 +28,7 @@ document.oncontextmenu = function (event) {
         return show_menu(event, 1);
 
     }
-    else if (selected_node.classList.contains('tree-title')) {
+    else if (selected_node.classList.contains('title')) {
 
         return show_menu(event, 2);
     }
@@ -66,7 +61,7 @@ menu.addEventListener('click', function (event) {
 document.addEventListener('click', function (event) {
     var has_input = document.querySelector('#input_node');
     if (has_input && event.target.tagName !== 'INPUT') {
-        tree_edit(has_input, selected_node);
+        house_edit(has_input, selected_node);
     }
     else if (selected_node && event.target.tagName !== 'INPUT') {
         selected_node.classList.remove('selected');
@@ -79,53 +74,9 @@ document.addEventListener('click', function (event) {
 document.querySelector('#context-add').addEventListener('click', function (event) {
     global.edit_cate = "增加";
     var new_li = document.createElement("li");
-
-    if (selected_node.classList.contains('leaf')) {
-        selected_node.classList.remove('leaf');
-        selected_node.removeEventListener('click', leaf_click);
-
-        var new_ul = document.createElement("ul");
-        var new_span = document.createElement("SPAN");
-
-        new_span.classList.add('item-down');
-        new_span.setAttribute('data-num', selected_node.dataset.num);
-        // selected_node.removeAttribute('data-num');
-        new_span.innerHTML = selected_node.innerHTML;
-        selected_node.innerHTML = "";
-
-        new_ul.classList.add('nested', 'active');
-
-        new_ul.appendChild(new_li);
-        selected_node.appendChild(new_span);
-        selected_node.appendChild(new_ul);
-
-        new_span.addEventListener('click', function () {
-            this.parentNode.querySelector(".nested").classList.toggle("active");
-            this.classList.toggle("item-down");
-            this.classList.toggle("item");
-        });
-    }
-    else if (selected_node.classList.contains('item') ||
-        selected_node.classList.contains('item-down')) {
-
-        var next_node = selected_node.nextElementSibling;
-        next_node.appendChild(new_li);
-
-        if (!next_node.classList.contains('active')) {
-            selected_node.classList.remove('item');
-            selected_node.classList.add('item-down');
-            next_node.classList.add('active');
-        }
-    }
-    else if (selected_node.classList.contains('tree-title')) {
-
-        var tree = document.querySelector('#tree');
-        tree.appendChild(new_li);
-    }
-
-    new_li.classList.add('leaf');
     new_li.innerHTML = input_html;
-    new_li.addEventListener('click', leaf_click);
+    document.querySelector('#house-list').appendChild(new_li);
+    new_li.style.cssText = 'z-index: 1001;';
 
     new_li.firstChild.focus();
     new_li.firstChild.select();
@@ -135,10 +86,10 @@ document.querySelector('#context-add').addEventListener('click', function (event
 
 //右键菜单编辑
 document.querySelector('#context-edit').addEventListener('click', function (event) {
-    var value = selected_node.innerHTML;
     global.edit_cate = "编辑";
-    global.name_save = value;
-    selected_node.innerHTML = '<input type="text" id="input_node" value="' + value + '">'
+    global.name_save = selected_node.textContent;
+    selected_node.innerHTML = '<input type="text" id="input_node" value="' + selected_node.textContent + '">'
+    selected_node.style.cssText = 'z-index: 1001;';
     selected_node.firstChild.focus();
     zhezhao.style.display = "block";
 });
@@ -183,4 +134,55 @@ document.querySelector('#context-del').addEventListener('click', function (event
     zhezhao.style.display = "none";
 });
 
+function house_edit(input) {
+    console.log(selected_node);
+    let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
+    let data = {
+        id: id,
+        name: input.value,
+        cate: global.edit_cate,
+    }
+    fetch('/update_house', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(data => {
+            fetch_house();
+        });
+}
 
+function fetch_house() {
+    fetch('/fetch_house')
+        .then(response => response.json())
+        .then(data => {
+            if (data != -1) {
+                let list = "";
+                for (let d of data) {
+                    list += `<li data='${d.id}'>${d.name}</li>`;
+                }
+                var house = document.querySelector('#house-list');
+                house.innerHTML = list;
+
+                let all_li = house.querySelectorAll('li');
+                for (let li of all_li) {
+                    li.addEventListener('click', function () {
+                        const newLocal = this;
+
+                        let lis = document.querySelector('#house-list').querySelectorAll('li');
+                        for (let li of lis) {
+                            li.classList.remove('selected');
+                        }
+                        newLocal.classList.add('selected');
+                    });
+                }
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+
+        });
+}
