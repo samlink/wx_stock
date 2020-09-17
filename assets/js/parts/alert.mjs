@@ -4,20 +4,18 @@
  * Copyright (c) 2018 Ciprian Popescu
  * Licensed GPLv3
  */
-export function alert_confirm(message, optionsA) {
-    var options = {
-        cancel: true,
-        confirmText: "确认",
-        cancelText: "取消",
-        cancelCallBack: () => { },
-        confirmCallBack: () => { }
-    }
+var options = {
+    cancel: true,
+    confirmText: "确认",
+    cancelText: "取消",
+    cancelCallBack: () => { },
+    confirmCallBack: () => { }
+}
 
-    if (typeof optionsA === 'object') {
-        Object.assign(options, optionsA);
-    }
+var element;
 
-    let element = document.querySelector('#roar-alert');
+function init() {
+    element = document.querySelector('#roar-alert');
     let cancelElement = document.querySelector('.roar-alert-message-button-cancel');
     let confirmElement = document.querySelector('.roar-alert-message-button-confirm');
 
@@ -38,14 +36,21 @@ export function alert_confirm(message, optionsA) {
         element.style.display = "none";
     });
 
-    document.querySelector('.roar-alert-message-content').innerHTML = message;
-
-    element.style.display = "block";
-
     document.addEventListener('keydown', function (event) {
         var e = event || window.event || arguments.callee.caller.arguments[0];
-        if (e && e.keyCode == 27 && element && element.style.display == "block") {
+        if (e && event.key == "Escape" && element && element.style.display == "block") {
             element.style.display = "none";
         }
     });
+}
+
+export function alert_confirm(message, optionsA) {
+    if (typeof optionsA === 'object') {
+        Object.assign(options, optionsA);
+    }
+
+    if (!element) { init(); }
+
+    document.querySelector('.roar-alert-message-content').innerHTML = message;
+    element.style.display = "block";
 }

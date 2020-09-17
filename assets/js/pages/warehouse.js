@@ -145,8 +145,7 @@ document.querySelector('#context-del').addEventListener('click', function (event
                 cate: "删除",
             }
 
-            console.log("1");
-            // house_edit(data);
+            house_edit(data);
         }
     }
 
@@ -236,7 +235,7 @@ function fetch_house() {
                         alert_confirm(`确认将 “${global.drag_name}” 移动到 “${e.target.textContent}” 前吗？`,
                             {
                                 confirmCallBack: () => {
-                                    console.log("新：" + global.id_arr);
+                                    house_drag();
 
                                 }
                             });
@@ -254,30 +253,30 @@ function fetch_house() {
 
 //拖拽信息传回后台数据库
 function house_drag() {
-    // let drag_idx = global.id_arr.indexOf(global.drag_id);
-    // let to_idx = global.id_arr.indexOf(global.to_id);
+    let drag_idx = global.id_arr.indexOf(global.drag_id);
+    let to_idx = global.id_arr.indexOf(global.to_id);
 
-    // arr_exchange(global.id_arr, drag_idx, to_idx);
+    arr_exchange(global.id_arr, drag_idx, to_idx);
 
     console.log("新：" + global.id_arr);
 
-    // let data = global.id_arr.join(',');
+    let data = global.id_arr.join(',');
 
-    // fetch("/house_drag", {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    // }).then(res => res.json())
-    //     .then(data => {
-    //         if (data == 1) {
-    //             // fetch_house();
-    //         }
-    //         else {
-    //             notifier.show('权限不够，无法修改', 'danger');
-    //         }
-    //     });
+    fetch("/house_drag", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    }).then(res => res.json())
+        .then(data => {
+            if (data == 1) {
+                fetch_house();
+            }
+            else {
+                notifier.show('权限不够，无法修改', 'danger');
+            }
+        });
 }
 
 function arr_exchange(arr, index, tindex) {
