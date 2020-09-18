@@ -1576,13 +1576,14 @@ a.roar-alert-message-tbf {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  height: calc(100vh - 170px);
+  height: calc(100vh - 200px);
 }
 .system-set .system-content > div {
   width: 32%;
   padding-bottom: 10px;
   margin: 20px 10px;
   border: 1px solid #e5edf0;
+  border-radius: 3px;
 }
 .system-set .system-content .title {
   position: relative;
@@ -1594,21 +1595,30 @@ a.roar-alert-message-tbf {
 }
 .system-set .system-content select {
   width: 100px;
+  margin: 0 10px;
 }
-.system-set .system-content #dh {
+.system-set .system-content .form-group {
   display: flex;
   align-items: center;
   padding-left: 40px;
 }
 .system-set .system-content #dh select {
   width: 60px;
-  margin: 0 10px;
 }
 .system-set .system-content #dh .check-radio {
   margin-left: 40px;
 }
-.system-set .system-content #example {
+.system-set .system-content #example-price,
+.system-set .system-content #example-mount {
+  margin-left: 30px;
+}
+.system-set .system-content #example-dh {
   margin-left: 40px;
+  margin-bottom: 15px;
+}
+.system-set .submit-button {
+  width: 100px;
+  margin: 0 auto;
 }
 
 /*# sourceMappingURL=sales.css.map */

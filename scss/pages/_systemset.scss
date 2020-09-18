@@ -3,7 +3,7 @@
         display: flex;
         flex-direction: column;
         flex-wrap: wrap;
-        height: calc(100vh - 170px);
+        height: calc(100vh - 200px);
 
         & > div {
             width: 32%;
@@ -11,6 +11,7 @@
             margin: 20px 10px;
             // margin-bottom: 30px;
             border: 1px solid rgb(229, 237, 240);
+            border-radius: 3px;
         }
 
         .title {
@@ -24,16 +25,22 @@
 
         select {
             width: 100px;
+            margin: 0 10px;
         }
 
-        #dh {
+        .form-group {
             display: flex;
             align-items: center;
             padding-left: 40px;
+        }
+
+        #dh {
+            // display: flex;
+            // align-items: center;
+            // padding-left: 40px;
 
             select {
                 width: 60px;
-                margin: 0 10px;
             }
 
             .check-radio {
@@ -41,8 +48,19 @@
             }
         }
 
-        #example {
-            margin-left: 40px;
+        #example-price,
+        #example-mount {
+            margin-left: 30px;
         }
+
+        #example-dh {
+            margin-left: 40px;
+            margin-bottom: 15px;
+        }
+    }
+
+    .submit-button {
+        width: 100px;
+        margin: 0 auto;
     }
 }

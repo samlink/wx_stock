@@ -12,35 +12,34 @@
         <div class="part">
             <p class="title">小数位数</p>
             <div class="form-group" style="margin-top: -20px;">
-                <div class="form-label">
-                    <label>价格</label>
-                </div>
-                <select class='select-sm'>
+                <p>价格</p>
+                <select class='select-sm' id="price-select">
                     <option value=0>0</option>
                     <option value=1>1</option>
                     <option value=2 selected>2</option>
                     <option value=3>3</option>
                     <option value=4>4</option>
                 </select>
+                <p id="example-price">示例: 3.14</p>
             </div>
             <div class="form-group">
-                <div class="form-label">
-                    <label>金额</label>
-                </div>
-                <select class='select-sm'>
+                <p>金额</p>
+                <select class='select-sm' id="mount-select">
                     <option value=0>0</option>
                     <option value=1>1</option>
                     <option value=2 selected>2</option>
                     <option value=3>3</option>
                     <option value=4>4</option>
                 </select>
+                <p id="example-mount">示例: 385.39</p>
+
             </div>
         </div>
         <div class="part">
             <p class="title">单号格式</p>
             <div class="form-group" id="dh" style="margin-top: -20px;">
                 <p>按</p>
-                <select class='select-sm'>
+                <select class='select-sm' id="date-select">
                     <option value="日" selected>日</option>
                     <option value="月">月</option>
                     <option value="年">年</option>
@@ -48,7 +47,7 @@
                 </select>                
                 <p>循环，</p>
                 <p>预留</p>
-                <select class='select-sm'>
+                <select class='select-sm' id="position-select">
                     <option value=2>2</option>
                     <option value=3 selected>3</option>
                     <option value=4>4</option>
@@ -60,18 +59,18 @@
                 </select>                
                 <p>位 </p>
                 <label class="check-radio">
-                    <input type="checkbox">
+                    <input type="checkbox" checked id="spliter-check">
                     <span class="checkmark"></span>分隔符
                 </label>
             </div>
-            <div id="example">
-                示例：XS2021-03-04-181
+            <div id="example-dh">
+                示例：XS2021-03-04-081
             </div>
         </div>
-        <button class="btn btn-info" type="submit" id="pass-button">提交</button>
 
-        <div class="part2"></div>
-        <div class="part3"></div>
+    </div>
+    <div class="submit-button">
+        <button class="btn btn-info" type="submit" id="pass-button">提交修改</button>
     </div>
 </div>
 <script type="module" src="/assets/js/pages/systemset.js"></script>
