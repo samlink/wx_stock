@@ -3,6 +3,11 @@ export var regInt = /^[+]{0,1}(\d+)$/;
 export var regReal = /^\d+(\.\d+)?$/;
 export var regDate = /^((?:19|20)\d\d)-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/;
 
+//左侧补零
+export function padZero(num, length) {
+    return (Array(length).join('0') + num).slice(-length);
+}
+
 //获得控件的高度
 export function getHeight() {
     let header = document.querySelector('.header');

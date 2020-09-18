@@ -1608,12 +1608,17 @@ a.roar-alert-message-tbf {
 .system-set .system-content #dh .check-radio {
   margin-left: 40px;
 }
+.system-set .system-content .example {
+  margin-left: 40px;
+}
 .system-set .system-content #example-price,
 .system-set .system-content #example-mount {
-  margin-left: 30px;
+  font-size: 15px;
+  color: #0c7cd5;
 }
 .system-set .system-content #example-dh {
-  margin-left: 40px;
+  font-size: 15px;
+  color: #0c7cd5;
   margin-bottom: 15px;
 }
 .system-set .submit-button {
