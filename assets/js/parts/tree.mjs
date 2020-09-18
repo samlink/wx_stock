@@ -62,6 +62,7 @@ export var tree_init = function (data) {
 
     //按键事件
     document.addEventListener('keydown', function (event) {
+        event.preventDefault();
         if (event && event.key == "Enter") {        //回车键
             var has_input = document.querySelector('#input_node');
             tree_edit(has_input, selected_node);
