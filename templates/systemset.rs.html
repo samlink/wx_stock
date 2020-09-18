@@ -9,29 +9,67 @@
         <span class="t1"><i class="fa fa-angle-double-right"></i> 系统参数 </span>
     </div>
     <div class="system-content">
-        <div class="part1">
-            <form>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label>价格金额小数位数</label>
-                    </div>
-                    <input class="form-control" type="text">
+        <div class="part">
+            <p class="title">小数位数</p>
+            <div class="form-group" style="margin-top: -20px;">
+                <div class="form-label">
+                    <label>价格</label>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label for="new-pass">单号格式</label>
-                    </div>
-                    <input class="form-control" type="text">
+                <select class='select-sm'>
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2 selected>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <div class="form-label">
+                    <label>金额</label>
                 </div>
-                <div class="form-group">
-                    <div class="form-label">
-                        <label for="confirm-pass">公司名称</label>
-                    </div>
-                    <input class="form-control" type="text">
-                </div>
-                <button class="btn btn-info" type="submit" id="pass-button">提交</button>
-            </form>
+                <select class='select-sm'>
+                    <option value=0>0</option>
+                    <option value=1>1</option>
+                    <option value=2 selected>2</option>
+                    <option value=3>3</option>
+                    <option value=4>4</option>
+                </select>
+            </div>
         </div>
+        <div class="part">
+            <p class="title">单号格式</p>
+            <div class="form-group" id="dh" style="margin-top: -20px;">
+                <p>按</p>
+                <select class='select-sm'>
+                    <option value="日" selected>日</option>
+                    <option value="月">月</option>
+                    <option value="年">年</option>
+                    <option value="无限">无限</option>
+                </select>                
+                <p>循环，</p>
+                <p>预留</p>
+                <select class='select-sm'>
+                    <option value=2>2</option>
+                    <option value=3 selected>3</option>
+                    <option value=4>4</option>
+                    <option value=5>5</option>
+                    <option value=6>6</option>
+                    <option value=7>7</option>
+                    <option value=8>8</option>
+                    <option value=9>9</option>
+                </select>                
+                <p>位 </p>
+                <label class="check-radio">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>分隔符
+                </label>
+            </div>
+            <div id="example">
+                示例：XS2021-03-04-181
+            </div>
+        </div>
+        <button class="btn btn-info" type="submit" id="pass-button">提交</button>
+
         <div class="part2"></div>
         <div class="part3"></div>
     </div>

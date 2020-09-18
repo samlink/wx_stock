@@ -1,11 +1,48 @@
 .system-set {
     .system-content {
         display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        height: calc(100vh - 170px);
 
         & > div {
             width: 32%;
-            height: calc(100vh - 170px);
-            margin: 0 10px;
+            padding-bottom: 10px;
+            margin: 20px 10px;
+            // margin-bottom: 30px;
+            border: 1px solid rgb(229, 237, 240);
+        }
+
+        .title {
+            position: relative;
+            top: -26px;
+            left: 30px;
+            width: 60px;
+            padding: 0 5px;
+            background-color: white;
+        }
+
+        select {
+            width: 100px;
+        }
+
+        #dh {
+            display: flex;
+            align-items: center;
+            padding-left: 40px;
+
+            select {
+                width: 60px;
+                margin: 0 10px;
+            }
+
+            .check-radio {
+                margin-left: 40px;
+            }
+        }
+
+        #example {
+            margin-left: 40px;
         }
     }
 }
