@@ -4,6 +4,7 @@
  * Copyright (c) 2018 Ciprian Popescu
  * Licensed GPLv3
  */
+
 var options = {
     cancel: true,
     confirmText: "确认",

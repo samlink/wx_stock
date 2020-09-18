@@ -4,11 +4,12 @@
         height: calc(100vh - 170px);
     }
     .house-set {
-        width: 300px;
+        width: 280px;
         height: inherit;
         border: 1px solid rgb(229, 237, 240);
         box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
         border-radius: 0.25rem;
+        flex-shrink: 0;
     }
 
     .house {
@@ -16,10 +17,6 @@
         overflow-y: auto;
     }
 
-    .position-set {
-        height: 100%;
-        flex: auto;
-    }
     .title {
         font-size: 14px;
         color: #106cb6 !important;
@@ -53,6 +50,7 @@
     .selected {
         background-color: $info-300;
         color: white;
+        font-weight: bold;
     }
 
     #context-menu {
@@ -61,7 +59,53 @@
         }
     }
 
-    // #input_node {
-    //     z-index: 1002;
-    // }
+    .position-set {
+        height: 100%;
+        flex: auto;
+        margin-left: 10px;
+        border-bottom: 1px solid rgb(229, 237, 240);
+    }
+
+    .position-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .position-title {
+        margin-left: 10px;
+    }
+
+    .position-edit {
+        min-width: 200px;
+        margin-right: 10px;
+
+        button {
+            margin-right: 10px;
+        }
+    }
+
+    .position-show {
+        max-height: calc(100vh - 230px);
+        overflow-y: auto;
+        border-top: 1px solid rgb(229, 237, 240);
+        padding: 6px 6px;
+
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        p {
+            margin: 8px 15px;
+            cursor: pointer;
+            border: 1px dotted;
+            padding: 8px 16px 0;
+            height: 30px;
+
+            &:hover {
+                font-weight: bold;
+            }
+        }
+    }
 }

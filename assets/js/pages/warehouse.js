@@ -184,13 +184,16 @@ function fetch_house() {
                     node.textContent = d.name;
 
                     node.addEventListener('click', function () {
-                        const newLocal = this;
+                        selected_node = this;
 
                         let lis = document.querySelectorAll('#house-list li');
                         for (let li of lis) {
-                            li.classList.remove('selected');
+                            li.style.cssText = "";
                         }
-                        newLocal.classList.add('selected');
+
+                        this.style.cssText = "background-color: #51adf6; color: white;"
+
+                        house_click();
                     });
 
                     //以下均为拖拽事件
@@ -256,14 +259,7 @@ function fetch_house() {
 
 //拖拽信息传回后台数据库
 function house_drag(drag_idx, to_idx) {
-    // let drag_idx = global.id_arr.indexOf(global.drag_id);
-    // let to_idx = global.id_arr.indexOf(global.to_id);
-    // position = drag_idx > to_idx ? "前" : "后";
-
     arr_exchange(global.id_arr, drag_idx, to_idx);
-
-    console.log("新：" + global.id_arr);
-
     let data = global.id_arr.join(',');
 
     fetch("/house_drag", {
@@ -296,4 +292,48 @@ function arr_exchange(arr, index, tindex) {
         arr.splice(tindex + 1, 0, arr[index]);
         arr.splice(index, 1)
     }
+}
+
+function house_click() {
+    document.querySelector('.position-title').textContent = selected_node.textContent + " - 库位:";
+    let id = Number(selected_node.getAttribute('data'));
+
+    fetch("/fetch_position", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(id),
+    }).then(res => res.json())
+        .then(data => {
+            if (data != -1) {
+                let position = data.split(",").sort(compare);
+                let html = "";
+                for (let p of position) {
+                    html += `<p>${p}</p>`;
+                }
+
+                document.querySelector('.position-show').innerHTML = html;
+
+                let all_p = document.querySelectorAll('.position-show p');
+                for (let p of all_p) {
+                    p.addEventListener('click', function () {
+                        let ps = document.querySelectorAll('.position-show p');
+                        for (let p of ps) {
+                            p.classList.remove('selected');
+                        }
+                        this.classList.add('selected');
+                    })
+                }
+
+
+            }
+            else {
+                notifier.show('权限不够，无法修改', 'danger');
+            }
+        });
+}
+
+function compare(a, b) {
+    return a - b;
 }
