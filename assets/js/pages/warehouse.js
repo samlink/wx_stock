@@ -309,23 +309,25 @@ function house_click() {
         .then(data => {
             if (data != -1) {
                 // 按中文排序
-                let position = data.split(",").sort((a, b) => a.localeCompare(b, 'zh'));
-                let html = "";
-                for (let p of position) {
-                    html += `<p>${p}</p>`;
-                }
+                if (data != "") {
+                    let position = data.split(",").sort((a, b) => a.localeCompare(b, 'zh'));
+                    let html = "";
+                    for (let p of position) {
+                        html += `<p>${p}</p>`;
+                    }
 
-                document.querySelector('.position-show').innerHTML = html;
+                    document.querySelector('.position-show').innerHTML = html;
 
-                let all_p = document.querySelectorAll('.position-show p');
-                for (let p of all_p) {
-                    p.addEventListener('click', function () {
-                        let ps = document.querySelectorAll('.position-show p');
-                        for (let p of ps) {
-                            p.classList.remove('selected');
-                        }
-                        this.classList.add('selected');
-                    });
+                    let all_p = document.querySelectorAll('.position-show p');
+                    for (let p of all_p) {
+                        p.addEventListener('click', function () {
+                            let ps = document.querySelectorAll('.position-show p');
+                            for (let p of ps) {
+                                p.classList.remove('selected');
+                            }
+                            this.classList.add('selected');
+                        });
+                    }
                 }
             }
             else {
