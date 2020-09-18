@@ -98,6 +98,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 240px;"
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
+        document.querySelector('.modal-body input').select();
         leave_alert();
     }
 });
