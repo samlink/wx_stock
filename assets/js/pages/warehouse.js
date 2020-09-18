@@ -33,10 +33,8 @@ document.oncontextmenu = function (event) {
         }
         selected_node.classList.add('selected');
         return show_menu(event, 1);
-
     }
     else if (selected_node.classList.contains('title')) {
-
         return show_menu(event, 2);
     }
 }
@@ -86,6 +84,7 @@ document.addEventListener('click', function (event) {
 
 //按键事件
 document.addEventListener('keydown', function (event) {
+    event.preventDefault();
     if (event && event.key == "Enter") {
         var has_input = document.querySelector('#input_node');
         if (has_input) {
@@ -212,8 +211,6 @@ function fetch_house() {
                             }
                             global.drag_id = e.target.getAttribute('data');
                             global.drag_name = e.target.textContent;
-
-                            console.log(global.id_arr);
                         }
                         else {
                             e.preventDefault();
@@ -313,7 +310,6 @@ function house_click() {
             if (data != -1) {
                 // 按中文排序
                 let position = data.split(",").sort((a, b) => a.localeCompare(b, 'zh'));
-                console.log(position);
                 let html = "";
                 for (let p of position) {
                     html += `<p>${p}</p>`;
