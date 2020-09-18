@@ -84,8 +84,8 @@ document.addEventListener('click', function (event) {
 
 //按键事件
 document.addEventListener('keydown', function (event) {
-    event.preventDefault();
     if (event && event.key == "Enter") {
+        event.preventDefault();
         var has_input = document.querySelector('#input_node');
         if (has_input) {
             let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
