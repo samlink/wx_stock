@@ -1572,4 +1572,13 @@ a.roar-alert-message-tbf {
   font-weight: bold;
 }
 
+.system-set .system-content {
+  display: flex;
+}
+.system-set .system-content > div {
+  width: 32%;
+  height: calc(100vh - 170px);
+  margin: 0 10px;
+}
+
 /*# sourceMappingURL=sales.css.map */

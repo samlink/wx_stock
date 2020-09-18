@@ -1,0 +1,40 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="system-set">
+    <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 系统参数 </span>
+    </div>
+    <div class="system-content">
+        <div class="part1">
+            <form>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label>价格金额小数位数</label>
+                    </div>
+                    <input class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label for="new-pass">单号格式</label>
+                    </div>
+                    <input class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                    <div class="form-label">
+                        <label for="confirm-pass">公司名称</label>
+                    </div>
+                    <input class="form-control" type="text">
+                </div>
+                <button class="btn btn-info" type="submit" id="pass-button">提交</button>
+            </form>
+        </div>
+        <div class="part2"></div>
+        <div class="part3"></div>
+    </div>
+</div>
+<script type="module" src="/assets/js/pages/systemset.js"></script>
+}, user.name.clone())

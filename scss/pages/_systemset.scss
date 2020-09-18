@@ -1,0 +1,11 @@
+.system-set {
+    .system-content {
+        display: flex;
+
+        & > div {
+            width: 32%;
+            height: calc(100vh - 170px);
+            margin: 0 10px;
+        }
+    }
+}
