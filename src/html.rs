@@ -135,3 +135,16 @@ pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+///系统参数
+#[get("/help")]
+pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "".to_owned()).await;
+
+    if user.name != "" {
+        let html = r2s(|o| help_say_html(o, user.name));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}

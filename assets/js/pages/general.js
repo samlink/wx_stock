@@ -56,7 +56,6 @@ document.addEventListener('keydown', function (event) {
 //帮助信息显示时, 点击其它位置关闭
 document.addEventListener('click', function (event) {
     let help = document.querySelector('#help-info');
-    console.log(event.target.id);
     if (event && event.target.id == "for-click-close" && help.hasAttribute('show')) {
         close_help_modal(help);
     }

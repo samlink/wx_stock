@@ -31,7 +31,7 @@ document.oncontextmenu = function (event) {
         for (let li of all_li) {
             li.style.cssText = "";
         }
-        selected_node.style.cssText = "background-color: #51adf6; color: white;";
+        selected_node.style.cssText = "background-color: #51adf6; color: white; z-index: 1001;";
         return show_menu(event, 1);
     }
     else if (selected_node.classList.contains('title')) {
@@ -65,7 +65,6 @@ menu.addEventListener('click', function (event) {
 //文档点击事件
 document.addEventListener('click', function (event) {
     var has_input = document.querySelector('#input_node');
-
     if (has_input && event.target.tagName !== 'INPUT') {
         let id = global.edit_cate == "增加" ? 0 : Number(selected_node.getAttribute('data'));
         let data = {
@@ -133,7 +132,7 @@ document.querySelector('#context-edit').addEventListener('click', function (even
     global.edit_cate = "编辑";
     global.name_save = selected_node.textContent;
     selected_node.innerHTML = '<input type="text" id="input_node" value="' + selected_node.textContent + '">'
-    selected_node.style.cssText = 'z-index: 1001;';
+    // selected_node.style.cssText = 'z-index: 1001;';
     selected_node.firstChild.focus();
     zhezhao.style.display = "block";
 });
@@ -186,17 +185,19 @@ function fetch_house() {
                     node.setAttribute('draggable', 'true');
                     node.textContent = d.name;
 
-                    node.addEventListener('click', function () {
-                        selected_node = this;
+                    node.addEventListener('click', function (e) {
+                        if (e.target.tagName != "INPUT") {
+                            selected_node = this;
 
-                        let lis = document.querySelectorAll('#house-list li');
-                        for (let li of lis) {
-                            li.style.cssText = "";
+                            let lis = document.querySelectorAll('#house-list li');
+                            for (let li of lis) {
+                                li.style.cssText = "";
+                            }
+
+                            this.style.cssText = "background-color: #51adf6; color: white; z-index: 1001;"
+
+                            house_click();
                         }
-
-                        this.style.cssText = "background-color: #51adf6; color: white;"
-
-                        house_click();
                     });
 
                     //以下均为拖拽事件
