@@ -29,9 +29,9 @@ document.oncontextmenu = function (event) {
     if (selected_node.tagName == "LI") {
         let all_li = document.querySelectorAll('li');
         for (let li of all_li) {
-            li.classList.remove('selected');
+            li.style.cssText = "";
         }
-        selected_node.classList.add('selected');
+        selected_node.style.cssText = "background-color: #51adf6; color: white;";
         return show_menu(event, 1);
     }
     else if (selected_node.classList.contains('title')) {
