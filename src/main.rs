@@ -102,6 +102,7 @@ async fn main() -> std::io::Result<()> {
             .service(systemset::fetch_system)
             .service(systemset::update_system)
             .service(service::fetch_blank)
+            .service(service::fetch_help)
             .service(service::serve_download)
             // .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))

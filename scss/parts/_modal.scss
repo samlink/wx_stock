@@ -110,6 +110,22 @@
     scrollbar-width: thin;
     scrollbar-color: #9dbad5 #dce3ea;
     overscroll-behavior: none;
+
+    ol {
+        list-style-type: none;
+        counter-reset: sectioncounter;
+        width: 90%;
+        margin-top: 0;
+
+        li {
+            margin: 5px 0;
+
+            &:before {
+                content: counter(sectioncounter) "、";
+                counter-increment: sectioncounter;
+            }
+        }
+    }
 }
 
 .modal-footer {

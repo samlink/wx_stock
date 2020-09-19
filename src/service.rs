@@ -297,3 +297,33 @@ pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String 
     }
     sql
 }
+
+//获取帮助信息
+#[post("/fetch_help")]
+pub async fn fetch_help(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let mut information: Vec<String> = Vec::new();
+
+        let sql = format!(
+            "SELECT tips FROM help WHERE page_name='{}' ORDER BY show_order",
+            data
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        for row in rows {
+            let info: String = row.get("tips");
+            information.push(info);
+        }
+
+        HttpResponse::Ok().json(information)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

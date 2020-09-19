@@ -278,6 +278,14 @@ footer {
   margin-left: 5px;
   margin-right: 5px;
 }
+.top-title p {
+  font-size: 16px;
+  float: right;
+  padding: 0;
+  margin-right: 10px;
+  margin-top: 3px;
+  cursor: pointer;
+}
 
 button {
   cursor: pointer;
@@ -1157,6 +1165,19 @@ a.roar-alert-message-tbf {
   scrollbar-width: thin;
   scrollbar-color: #9dbad5 #dce3ea;
   overscroll-behavior: none;
+}
+.modal-body ol {
+  list-style-type: none;
+  counter-reset: sectioncounter;
+  width: 90%;
+  margin-top: 0;
+}
+.modal-body ol li {
+  margin: 5px 0;
+}
+.modal-body ol li:before {
+  content: counter(sectioncounter) "、";
+  counter-increment: sectioncounter;
 }
 
 .modal-footer {
