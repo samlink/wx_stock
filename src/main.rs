@@ -15,6 +15,7 @@ mod tree;
 mod user_manage;
 mod user_set;
 mod warehouse_set;
+mod systemset;
 
 #[derive(Deserialize)]
 struct Config {
@@ -98,6 +99,7 @@ async fn main() -> std::io::Result<()> {
             .service(warehouse_set::house_drag)
             .service(warehouse_set::fetch_position)
             .service(warehouse_set::edit_position)
+            .service(systemset::fetch_system)
             .service(service::fetch_blank)
             .service(service::serve_download)
             // .service(web::resource("static/{name}").to(service::serve_static))

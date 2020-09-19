@@ -1,4 +1,4 @@
-use crate::service::{get_user, PostData};
+use crate::service::get_user;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
