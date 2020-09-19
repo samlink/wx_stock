@@ -29,6 +29,22 @@ document.querySelector('#help-info').addEventListener('click', function () {
         });
 });
 
+//返回建
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    let help = document.querySelector('#help-info');
+    if (help.hasAttribute('show')) {
+        close_help_modal(help);
+    }
+});
+
+//右上角关闭键
+document.querySelector('.top-close').addEventListener('click', function () {
+    let help = document.querySelector('#help-info');
+    if (help.hasAttribute('show')) {
+        close_help_modal(help);
+    }
+});
+
 //帮助信息显示时处理 esc 键
 document.addEventListener('keydown', function (event) {
     let help = document.querySelector('#help-info');
