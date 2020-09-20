@@ -6,6 +6,7 @@ let global = {
     drag_id: "",
     drag_tr: "",
     edit: 0,
+    edit2: 0,
 }
 
 let top = document.querySelector('.table-top').clientHeight;
@@ -20,19 +21,13 @@ sumit_button.disabled = true;
 sumit_button2.disabled = true;
 
 //显示表格数据 ---------------------------------------
-// var data = {
-//     name: '商品规格'
-// };
-
-// fetch_data(data);
+var table_name = {};
 
 document.querySelector('#table-choose').addEventListener('change', function () {
-    let data = {
-        name: this.value,
-    };
+    table_name.name = this.value;
     document.querySelector('#choose-info').classList.add('hide');
-    fetch_data(data);
-    fetch_data2(data);
+    fetch_data(table_name);
+    fetch_data2(table_name);
 })
 
 function row_fn(tr) {
@@ -162,7 +157,7 @@ function fetch_data2(data) {
                 for (let input of all_input) {
                     input.addEventListener('input', () => {
                         sumit_button2.disabled = false;
-                        global.edit = 1;
+                        global.edit2 = 1;
                     });
                 }
             }
@@ -185,7 +180,7 @@ function blank_row_fn2() {
     return `<tr><td width=20%></td><td></td><td width=20%></td></tr>`;
 }
 
-function row_drag(table_body, sumit_button) {
+function row_drag(table_body, sumit_button, bz) {
     for (let tr of table_body.children) {
         tr.addEventListener('dragstart', function (e) {
             e.stopPropagation();
@@ -211,7 +206,12 @@ function row_drag(table_body, sumit_button) {
             this.style.cssText = "";
             table_body.insertBefore(global.drag_tr, this);
             sumit_button.disabled = false;
-            global.edit = 1;
+            if (bz == 1) {
+                global.edit = 1;
+            }
+            else {
+                global.edit2 = 1;
+            }
         });
     }
 }
@@ -262,7 +262,7 @@ sumit_button.addEventListener('click', () => {
         .then(content => {
             if (content == 1) {
                 global.edit = 0;
-                // fetch_data2(data)
+                fetch_data2(table_name);
                 document.querySelector('#sumit-button').disabled = true;
                 notifier.show('字段修改成功', 'success');
             }
@@ -270,11 +270,47 @@ sumit_button.addEventListener('click', () => {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
+});
 
+sumit_button2.addEventListener('click', () => {
+    let data = [];
+    let order = 1;
+    let table_body = document.querySelector('.table-inout tbody');
+
+    for (let tr of table_body.children) {
+        if (tr.querySelector('td:nth-child(1)').textContent != "") {
+            let tr_data = {
+                id: Number(tr.querySelector('td:nth-child(1)').textContent),
+                inout_show: tr.querySelector('td:nth-child(4) input').checked,
+                inout_order: order,
+            }
+            order++;
+            data.push(tr_data);
+        }
+    }
+
+    fetch("/update_tableset2", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                global.edit2 = 0;
+                document.querySelector('#sumit-button2').disabled = true;
+                notifier.show('字段修改成功', 'success');
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
 });
 
 window.onbeforeunload = function (e) {
-    if (global.edit == 1) {
+    if (global.edit == 1 || global.edit2 == 1) {
         var e = window.event || e;
         e.returnValue = ("编辑未保存提醒");
     }

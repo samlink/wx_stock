@@ -84,6 +84,7 @@ async fn main() -> std::io::Result<()> {
             .service(field_set::fetch_fields)
             .service(field_set::fetch_fields2)
             .service(field_set::update_tableset)
+            .service(field_set::update_tableset2)
             .service(customer::fetch_customer)
             .service(customer::update_customer)
             .service(customer::add_customer)

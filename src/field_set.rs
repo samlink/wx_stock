@@ -178,3 +178,39 @@ pub async fn update_tableset(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct FieldsData2 {
+    pub id: i32,
+    pub inout_show: bool,
+    pub inout_order: i32,
+}
+
+///更新表格字段数据, 出入库相关
+#[post("/update_tableset2")]
+pub async fn update_tableset2(
+    db: web::Data<Pool>,
+    post_data: web::Json<Vec<FieldsData2>>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "字段设置".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        //加 into_inner() 方法，否则会出现错误：Cannot move out of dereference of ...
+        let post_data = post_data.into_inner();
+        for data in post_data {
+            let sql = format!(
+                r#"UPDATE tableset SET inout_show={}, inout_order={} WHERE "ID"={}"#,
+                data.inout_show,
+                data.inout_order,
+                data.id
+            );
+
+            &conn.execute(sql.as_str(), &[]).await.unwrap();
+        }
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
