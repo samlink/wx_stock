@@ -16,7 +16,6 @@ pub struct FieldsReturn {
     pub option_value: String,
     pub is_show: bool,
     pub show_order: i32,
-    // pub rust_name: String,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -64,6 +63,62 @@ pub async fn fetch_fields(
         let rows = &conn
             .query(
                 r#"SELECT count("ID") as 记录数 FROM tableset WHERE table_name=$1"#,
+                &[&post_data.name],
+            )
+            .await
+            .unwrap();
+
+        let mut count: i64 = 0;
+        for row in rows {
+            count = row.get("记录数");
+        }
+        HttpResponse::Ok().json((fields, count))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct FieldsReturn2 {
+    pub id: i32,
+    pub num: i64,
+    pub show_name: String,
+    pub inout_show: bool,
+}
+
+///获取出入库显示字段
+#[post("/fetch_fields2")]
+pub async fn fetch_fields2(
+    db: web::Data<Pool>,
+    post_data: web::Json<FieldsPost>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"SELECT "ID",show_name,inout_show, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+                    FROM tableset WHERE table_name='{}' AND is_show=true ORDER BY inout_order"#,
+            post_data.name
+        );
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut fields: Vec<FieldsReturn2> = Vec::new();
+
+        for row in rows {
+            let field = FieldsReturn2 {
+                id: row.get("ID"),
+                num: row.get("序号"),
+                show_name: row.get("show_name"),
+                inout_show: row.get("inout_show"),
+            };
+
+            fields.push(field);
+        }
+
+        let rows = &conn
+            .query(
+                r#"SELECT count("ID") as 记录数 FROM tableset WHERE table_name=$1 AND is_show=true"#,
                 &[&post_data.name],
             )
             .await

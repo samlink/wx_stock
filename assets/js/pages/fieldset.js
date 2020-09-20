@@ -12,9 +12,12 @@ let top = document.querySelector('.table-top').clientHeight;
 let ctrl = document.querySelector('.table-ctrl').clientHeight;
 let get_height = getHeight(top, ctrl) - 70;
 document.querySelector('.table-product tbody').style.height = get_height;
+document.querySelector('.table-inout tbody').style.height = get_height;
 
 let sumit_button = document.querySelector('#sumit-button');
+let sumit_button2 = document.querySelector('#sumit-button2');
 sumit_button.disabled = true;
+sumit_button2.disabled = true;
 
 //显示表格数据 ---------------------------------------
 // var data = {
@@ -29,6 +32,7 @@ document.querySelector('#table-choose').addEventListener('change', function () {
     };
     document.querySelector('#choose-info').classList.add('hide');
     fetch_data(data);
+    fetch_data2(data);
 })
 
 function row_fn(tr) {
@@ -50,17 +54,17 @@ function row_fn(tr) {
 
     let checked = tr.is_show ? "checked" : "";
 
-    return `<tr draggable="true"><td class='hide'>${tr.id}</td><td width=6%>${tr.num}</td><td>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
+    return `<tr draggable="true"><td class='hide'>${tr.id}</td><td width=6%>${tr.num}</td><td class='hide'>${tr.field_name}</td><td width=10%>${tr.data_type}</td><td>
             <input class='form-control input-sm' type="text" value=${tr.show_name}></td>
             <td width=8%><input class='form-control input-sm' type="text" value=${tr.show_width}></td>
             <td>${select}</td>
-            <td width=20%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
+            <td width=30%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
             <td width=8%><label class="check-radio"><input type="checkbox" ${checked}>
             <span class="checkmark"></span></td></tr>`;
 }
 
 function blank_row_fn() {
-    return `<tr><td width=6%></td><td></td><td width=10%></td><td></td><td width=8%></td><td></td><td width=20%></td><td width=8%></td></tr>`;
+    return `<tr><td width=6%></td><td class='hide'></td><td width=10%></td><td></td><td width=8%></td><td></td><td width=30%></td><td width=8%></td></tr>`;
 }
 
 function fetch_data(data) {
@@ -91,35 +95,7 @@ function fetch_data(data) {
                 document.querySelector('#total-records').textContent = content[1];
 
                 //拖拽功能
-                for (let tr of table_body.children) {
-                    tr.addEventListener('dragstart', function (e) {
-                        e.stopPropagation();
-                        global.drag_tr = e.target;
-                        console.log(global.drag_tr);
-                    });
-
-                    tr.addEventListener('dragover', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
-
-                    });
-
-                    tr.addEventListener('dragleave', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.style.cssText = "";
-                    });
-
-                    tr.addEventListener('drop', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        this.style.cssText = "";
-                        table_body.insertBefore(global.drag_tr, this);
-                        sumit_button.disabled = false;
-                        global.edit = 1;
-                    });
-                }
+                row_drag(table_body, sumit_button);
 
                 //编辑时离开提醒
                 let all_input = document.querySelectorAll('.table-product tbody input');
@@ -149,6 +125,95 @@ function fetch_data(data) {
                 alert("无此操作权限");
             }
         });
+}
+
+function fetch_data2(data) {
+    fetch("/fetch_fields2", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                let rows = "";
+                let count = 0;
+                for (let tr of content[0]) {
+                    rows += row_fn2(tr);
+                    count++;
+                }
+
+                //多输入两个空行，便于拖拽操作
+                for (let i = 0; i < 2; i++) {
+                    rows += blank_row_fn2();
+                }
+
+                let table_body = document.querySelector('.table-inout tbody');
+                table_body.innerHTML = rows;
+                document.querySelector('#total-records2').textContent = content[1];
+
+                //拖拽功能
+                row_drag(table_body, sumit_button2);
+
+                //编辑时离开提醒
+                let all_input = document.querySelectorAll('.table-inout tbody input');
+                for (let input of all_input) {
+                    input.addEventListener('input', () => {
+                        sumit_button2.disabled = false;
+                        global.edit = 1;
+                    });
+                }
+            }
+            else {
+                alert("无此操作权限");
+            }
+        });
+}
+
+function row_fn2(tr) {
+    let checked = tr.inout_show ? "checked" : "";
+
+    return `<tr draggable="true"><td class='hide'>${tr.id}</td>
+            <td width=20%>${tr.num}</td><td>${tr.show_name}</td>
+            <td width=20%><label class="check-radio"><input type="checkbox" ${checked}>
+            <span class="checkmark"></span></td></tr>`;
+}
+
+function blank_row_fn2() {
+    return `<tr><td width=20%></td><td></td><td width=20%></td></tr>`;
+}
+
+function row_drag(table_body, sumit_button) {
+    for (let tr of table_body.children) {
+        tr.addEventListener('dragstart', function (e) {
+            e.stopPropagation();
+            global.drag_tr = e.target;
+        });
+
+        tr.addEventListener('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.style.cssText = "color: red; background-color: lightyellow; font-weight: 600;";
+
+        });
+
+        tr.addEventListener('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.style.cssText = "";
+        });
+
+        tr.addEventListener('drop', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            this.style.cssText = "";
+            table_body.insertBefore(global.drag_tr, this);
+            sumit_button.disabled = false;
+            global.edit = 1;
+        });
+    }
 }
 
 sumit_button.addEventListener('click', () => {
@@ -197,6 +262,7 @@ sumit_button.addEventListener('click', () => {
         .then(content => {
             if (content == 1) {
                 global.edit = 0;
+                // fetch_data2(data)
                 document.querySelector('#sumit-button').disabled = true;
                 notifier.show('字段修改成功', 'success');
             }

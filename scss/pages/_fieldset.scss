@@ -1,6 +1,15 @@
 .fields-set {
+    .system-content {
+        display: flex;
+
+    }
     #product-show {
-        width: 70%;
+        width: 68%;
+    }
+
+    #inout-show {
+        width: 30%;
+        margin-left: 30px;
     }
 
     .table-top {
@@ -22,6 +31,10 @@
         &:hover {
             border-color: $info-50;
         }
+    }
+
+    .cate-title {
+        margin-left: -40%;
     }
 
     table tbody {
@@ -66,10 +79,14 @@
         margin-left: 20px;
     }
 
+    .table-inout tr {
+        height: 31.2px;
+    }
+
     #choose-info {
         position: fixed;
         top: 40%;
-        left: 29%;
+        left: 24%;
         width: 200px;
         height: 60px;
         font-size: large;
@@ -80,4 +97,8 @@
         background-color: antiquewhite;
         text-align: center;
     }
+
+    // #inout-show .table-top {
+    //     justify-content: right;
+    // }
 }

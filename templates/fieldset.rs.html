@@ -21,6 +21,7 @@
 
                     </select>
                 </div>
+                <div class="cate-title">编辑显示</div>
                 <div class="table-tools">
                     <div class="table-edit">
                         <button class="btn btn-info btn-sm" id="sumit-button" disabled=true>提交修改</button>
@@ -34,12 +35,12 @@
                         <tr>
                             <th class="hide"></th>
                             <th width=6%>序号</th>
-                            <th>字段</th>
+                            <th hidden>字段</th>
                             <th width=10%>数据类型</th>
                             <th>显示名称</th>
                             <th width=8%>宽度</th>
                             <th>控件类型</th>
-                            <th width=20%>可选值</th>
+                            <th width=30%>可选值</th>
                             <th width=8%>显示</th>
                         </tr>
                     </thead>
@@ -53,6 +54,39 @@
 
                     <div class="table-info">
                         共 <span id="total-records"></span> 条记录
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="inout-show">
+            <div class="table-top">
+                <div>出入库显示</div>
+                <div class="table-tools">
+                    <div class="table-edit">
+                        <button class="btn btn-info btn-sm" id="sumit-button2" disabled=true>提交修改</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-container table-inout">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="hide"></th>
+                            <th width=20%>序号</th>
+                            <th>显示名称</th>
+                            <th width=20%>显示</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="table-ctrl">
+                    <div class="table-tip">提示：按住鼠标拖拽，改变字段显示顺序</div>
+                    <div class="table-button">
+                    </div>
+
+                    <div class="table-info">
+                        共 <span id="total-records2"></span> 条记录
                     </div>
                 </div>
             </div>

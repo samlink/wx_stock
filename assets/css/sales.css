@@ -1384,8 +1384,15 @@ a.roar-alert-message-tbf {
   padding: 0;
 }
 
+.fields-set .system-content {
+  display: flex;
+}
 .fields-set #product-show {
-  width: 70%;
+  width: 68%;
+}
+.fields-set #inout-show {
+  width: 30%;
+  margin-left: 30px;
 }
 .fields-set .table-top {
   display: flex;
@@ -1404,6 +1411,9 @@ a.roar-alert-message-tbf {
 }
 .fields-set #table-choose:hover {
   border-color: #9acffa;
+}
+.fields-set .cate-title {
+  margin-left: -40%;
 }
 .fields-set table tbody {
   display: block;
@@ -1438,10 +1448,13 @@ a.roar-alert-message-tbf {
 .fields-set .table-tip {
   margin-left: 20px;
 }
+.fields-set .table-inout tr {
+  height: 31.2px;
+}
 .fields-set #choose-info {
   position: fixed;
   top: 40%;
-  left: 29%;
+  left: 24%;
   width: 200px;
   height: 60px;
   font-size: large;
