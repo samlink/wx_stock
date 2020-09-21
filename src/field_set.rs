@@ -34,7 +34,7 @@ pub async fn fetch_fields(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT "ID",field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,show_order,
+            r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,show_order,
                     ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
                     FROM tableset WHERE table_name='{}' ORDER BY show_order"#,
             post_data.name
@@ -45,7 +45,7 @@ pub async fn fetch_fields(
 
         for row in rows {
             let field = FieldsReturn {
-                id: row.get("ID"),
+                id: row.get("id"),
                 num: row.get("序号"),
                 field_name: row.get("field_name"),
                 data_type: row.get("data_type"),
@@ -62,7 +62,7 @@ pub async fn fetch_fields(
 
         let rows = &conn
             .query(
-                r#"SELECT count("ID") as 记录数 FROM tableset WHERE table_name=$1"#,
+                r#"SELECT count(id) as 记录数 FROM tableset WHERE table_name=$1"#,
                 &[&post_data.name],
             )
             .await
@@ -97,7 +97,7 @@ pub async fn fetch_fields2(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT "ID",show_name,inout_show, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+            r#"SELECT id,show_name,inout_show, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
                     FROM tableset WHERE table_name='{}' AND is_show=true ORDER BY inout_order"#,
             post_data.name
         );
@@ -107,7 +107,7 @@ pub async fn fetch_fields2(
 
         for row in rows {
             let field = FieldsReturn2 {
-                id: row.get("ID"),
+                id: row.get("id"),
                 num: row.get("序号"),
                 show_name: row.get("show_name"),
                 inout_show: row.get("inout_show"),
@@ -118,7 +118,7 @@ pub async fn fetch_fields2(
 
         let rows = &conn
             .query(
-                r#"SELECT count("ID") as 记录数 FROM tableset WHERE table_name=$1 AND is_show=true"#,
+                r#"SELECT count(id) as 记录数 FROM tableset WHERE table_name=$1 AND is_show=true"#,
                 &[&post_data.name],
             )
             .await
@@ -160,7 +160,7 @@ pub async fn update_tableset(
         for data in post_data {
             let sql = format!(
                 r#"UPDATE tableset SET show_name='{}', show_width={}, ctr_type='{}', option_value='{}', is_show={}, 
-                show_order={} WHERE "ID"={}"#,
+                show_order={} WHERE id={}"#,
                 data.show_name,
                 data.show_width,
                 data.ctr_type,
@@ -200,7 +200,7 @@ pub async fn update_tableset2(
         let post_data = post_data.into_inner();
         for data in post_data {
             let sql = format!(
-                r#"UPDATE tableset SET inout_show={}, inout_order={} WHERE "ID"={}"#,
+                r#"UPDATE tableset SET inout_show={}, inout_order={} WHERE id={}"#,
                 data.inout_show,
                 data.inout_order,
                 data.id
