@@ -52,6 +52,16 @@ pub struct FieldsData {
     pub show_width: f32,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct FieldsInout {
+    pub field_name: String,
+    pub show_name: String,
+    pub data_type: String,
+    pub ctr_type: String,
+    pub option_value: String,
+    pub show_width: f32,
+}
+
 ///静态文件服务
 // pub fn serve_static(file: web::Path<File>) -> HttpResponse {
 //     if let Some(data) = statics::StaticFile::get(&file.name) {
@@ -198,23 +208,24 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
 }
 
 //获取出入库显示的字段，非全部字段
-pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
+pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsInout> {
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, option_value, show_width 
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, show_width 
                 FROM tableset WHERE table_name=$1 AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )
         .await
         .unwrap();
 
-    let mut fields: Vec<FieldsData> = Vec::new();
+    let mut fields: Vec<FieldsInout> = Vec::new();
     for row in rows {
-        let data = FieldsData {
+        let data = FieldsInout {
             field_name: row.get("field_name"),
             show_name: row.get("show_name"),
             data_type: row.get("data_type"),
+            ctr_type: row.get("ctr_type"),
             option_value: row.get("option_value"),
             show_width: row.get("show_width"),
         };

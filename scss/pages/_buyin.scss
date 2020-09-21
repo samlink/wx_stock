@@ -7,6 +7,18 @@
 
     .fields-show {
         margin-left: 20px;
+        display: flex;
+        flex-wrap: wrap;
+        // justify-content: center;
+
+        .form-group {
+            display: flex;
+            justify-content: center;
+        }
+
+        .form-label {
+            width: 80px;
+        }
     }
 
     #supplier-info {
@@ -16,7 +28,7 @@
         margin-bottom: 3px;
         background-color: lighten($color-success, 50%);
     }
-    
+
     .buy-buttons {
         width: 160px;
         margin-left: 20px;
@@ -24,6 +36,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
+        flex-shrink: 0;
 
         .buttons {
             margin-bottom: 6px;
