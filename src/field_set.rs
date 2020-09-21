@@ -14,6 +14,7 @@ pub struct FieldsReturn {
     pub show_width: f32,
     pub ctr_type: String,
     pub option_value: String,
+    pub default_value: String,
     pub is_show: bool,
     pub show_order: i32,
 }
@@ -34,9 +35,9 @@ pub async fn fetch_fields(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,show_order,
-                    ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
-                    FROM tableset WHERE table_name='{}' ORDER BY show_order"#,
+            r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,default_value,
+                is_show,show_order, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+                FROM tableset WHERE table_name='{}' ORDER BY show_order"#,
             post_data.name
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -53,6 +54,7 @@ pub async fn fetch_fields(
                 show_width: row.get("show_width"),
                 ctr_type: row.get("ctr_type"),
                 option_value: row.get("option_value"),
+                default_value: row.get("default_value"),
                 is_show: row.get("is_show"),
                 show_order: row.get("show_order"),
             };
@@ -141,6 +143,7 @@ pub struct FieldsData {
     pub show_width: f32,
     pub ctr_type: String,
     pub option_value: String,
+    pub default_value: String,
     pub is_show: bool,
     pub show_order: i32,
 }
@@ -159,12 +162,13 @@ pub async fn update_tableset(
         let post_data = post_data.into_inner();
         for data in post_data {
             let sql = format!(
-                r#"UPDATE tableset SET show_name='{}', show_width={}, ctr_type='{}', option_value='{}', is_show={}, 
-                show_order={} WHERE id={}"#,
+                r#"UPDATE tableset SET show_name='{}', show_width={}, ctr_type='{}', option_value='{}', 
+                default_value='{}', is_show={}, show_order={} WHERE id={}"#,
                 data.show_name,
                 data.show_width,
                 data.ctr_type,
                 data.option_value,
+                data.default_value,
                 data.is_show,
                 data.show_order,
                 data.id

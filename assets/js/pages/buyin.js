@@ -11,9 +11,19 @@ fetch("/fetch_buyin_fields", {
     .then(content => {
         if (content != -1) {
             table_fields = content;
-            let html = build_inout_form(table_fields);
+            let html = `<div class="form-group">
+                            <div class="form-label">
+                                <label>供应商</label>
+                            </div>
+                            <input class="form-control input-sm has-value" type="text" id="supplier-input">
+                            <button class="btn btn-info btn-sm" id="supplier-serach">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>`;
 
-            console.log(html);
+            html += build_inout_form(table_fields);
+
+
             document.querySelector('.fields-show').innerHTML = html;
 
         }

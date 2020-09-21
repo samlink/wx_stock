@@ -59,6 +59,7 @@ pub struct FieldsInout {
     pub data_type: String,
     pub ctr_type: String,
     pub option_value: String,
+    pub default_value: String,
     pub show_width: f32,
 }
 
@@ -212,8 +213,8 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, show_width 
-                FROM tableset WHERE table_name=$1 AND inout_show=true ORDER BY inout_order"#,
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width 
+                FROM tableset WHERE table_name=$1 AND is_show=true AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )
         .await
@@ -227,6 +228,7 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
             data_type: row.get("data_type"),
             ctr_type: row.get("ctr_type"),
             option_value: row.get("option_value"),
+            default_value: row.get("default_value"),
             show_width: row.get("show_width"),
         };
 

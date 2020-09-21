@@ -96,11 +96,14 @@ export function build_add_form(table_fields) {
                                 <input class="form-control input-sm has-value" type="text">
                             </div>`;
         } else if (name.ctr_type == "二值选一") {
+            let checked = name.option_value.split('_')[0] == name.default_value ? 'checked' : '';
             control = `<div class="form-group">
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox"><span class="checkmark"></span>
+                                <label class="check-radio">
+                                    <input class="has-value" type="checkbox" ${checked}>
+                                    <span class="checkmark"></span>
                                 </label>
                             </div>`;
         } else {
@@ -112,7 +115,8 @@ export function build_add_form(table_fields) {
 
             let options = name.option_value.split('_');
             for (let value of options) {
-                control += `<option value="${value}">${value}</option>`;
+                let selected = value == name.default_value? 'selected': '';
+                control += `<option value="${value}" ${selected}>${value}</option>`;
             }
             control += "</select></div>";
         }
@@ -137,11 +141,14 @@ export function build_inout_form(table_fields) {
                                 <input class="form-control input-sm has-value" type="text" style="width: ${name.show_width * 20};">
                             </div>`;
         } else if (name.ctr_type == "二值选一") {
+            let checked = name.option_value.split('_')[0] == name.default_value ? 'checked' : '';
             control = `<div class="form-group">
                                 <div class="form-label">                                    
-                                    <label>${name.show_name}</label>
+                                    <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
                                 </div>
-                                <label class="check-radio"><input class="has-value" type="checkbox"><span class="checkmark"></span>
+                                <label class="check-radio">
+                                    <input class="has-value" id='${name.show_name}' type="checkbox" ${checked}>
+                                    <span class="checkmark"></span>
                                 </label>
                             </div>`;
         } else {
@@ -153,7 +160,8 @@ export function build_inout_form(table_fields) {
 
             let options = name.option_value.split('_');
             for (let value of options) {
-                control += `<option value="${value}">${value}</option>`;
+                let selected = value == name.default_value? 'selected': '';
+                control += `<option value="${value}" ${selected}>${value}</option>`;
             }
             control += "</select></div>";
         }

@@ -449,6 +449,10 @@ input:focus {
   text-align: right;
 }
 
+.check-label {
+  cursor: pointer;
+}
+
 .input-sm {
   height: 28px;
   padding: 3px 5px;
@@ -1662,14 +1666,16 @@ a.roar-alert-message-tbf {
 }
 
 .buy-in .buy-top {
-  height: 140px;
+  height: 100px;
   display: flex;
   justify-content: space-between;
 }
 .buy-in .fields-show {
-  margin-left: 20px;
+  padding-top: 3px;
+  margin-top: 10px;
   display: flex;
   flex-wrap: wrap;
+  overflow-y: auto;
 }
 .buy-in .fields-show .form-group {
   display: flex;
@@ -1677,6 +1683,13 @@ a.roar-alert-message-tbf {
 }
 .buy-in .fields-show .form-label {
   width: 80px;
+  flex-shrink: 0;
+}
+.buy-in .fields-show .input-sm {
+  margin-top: -2.6px;
+}
+.buy-in .fields-show .select-sm {
+  margin-top: -3px;
 }
 .buy-in #supplier-info {
   height: 25px;
@@ -1686,9 +1699,9 @@ a.roar-alert-message-tbf {
   background-color: #e9fcfa;
 }
 .buy-in .buy-buttons {
-  width: 160px;
-  margin-left: 20px;
+  width: 220px;
   margin-right: 20px;
+  margin-bottom: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1698,15 +1711,28 @@ a.roar-alert-message-tbf {
   margin-bottom: 6px;
 }
 .buy-in .buy-buttons button {
-  padding: 5px 20px;
+  padding: 5px 16px;
   margin: 4px 4px;
 }
 .buy-in .has-dh {
   margin-top: 6px;
+  margin-left: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #363636;
 }
 .buy-in #dh {
   font-size: 15px;
-  font-weight: bold;
+}
+.buy-in #supplier-input {
+  width: 260px;
+}
+.buy-in #supplier-serach {
+  margin-top: -3.5px;
+  margin-left: -10px;
+  height: 28.8px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /*# sourceMappingURL=sales.css.map */
