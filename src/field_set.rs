@@ -17,6 +17,7 @@ pub struct FieldsReturn {
     pub default_value: String,
     pub is_show: bool,
     pub show_order: i32,
+    pub all_edit: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -36,7 +37,7 @@ pub async fn fetch_fields(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,default_value,
-                is_show,show_order, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+                is_show,show_order,all_edit, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
                 FROM tableset WHERE table_name='{}' ORDER BY show_order"#,
             post_data.name
         );
@@ -57,6 +58,7 @@ pub async fn fetch_fields(
                 default_value: row.get("default_value"),
                 is_show: row.get("is_show"),
                 show_order: row.get("show_order"),
+                all_edit: row.get("all_edit"),
             };
 
             fields.push(field);
@@ -86,6 +88,7 @@ pub struct FieldsReturn2 {
     pub num: i64,
     pub show_name: String,
     pub inout_show: bool,
+    pub all_edit: bool,
 }
 
 ///获取出入库显示字段
@@ -99,7 +102,7 @@ pub async fn fetch_fields2(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT id,show_name,inout_show, ROW_NUMBER () OVER (ORDER BY inout_order) as 序号 
+            r#"SELECT id,show_name,inout_show,all_edit, ROW_NUMBER () OVER (ORDER BY inout_order) as 序号 
                     FROM tableset WHERE table_name='{}' AND is_show=true ORDER BY inout_order"#,
             post_data.name
         );
@@ -113,6 +116,7 @@ pub async fn fetch_fields2(
                 num: row.get("序号"),
                 show_name: row.get("show_name"),
                 inout_show: row.get("inout_show"),
+                all_edit: row.get("all_edit"),
             };
 
             fields.push(field);

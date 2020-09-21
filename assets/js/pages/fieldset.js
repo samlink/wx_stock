@@ -48,6 +48,8 @@ function row_fn(tr) {
 
 
     let checked = tr.is_show ? "checked" : "";
+    let disabled = tr.all_edit ? "" : "disabled";
+    let style = tr.all_edit ? "" : "style='background: lightgrey;border: none;'";
 
     return `<tr draggable="true"><td class='hide'>${tr.id}</td><td width=6%>${tr.num}</td><td class='hide'>${tr.field_name}</td>
             <td width=10%>${tr.data_type}</td><td width=15%><input class='form-control input-sm' type="text" value=${tr.show_name}></td>
@@ -55,8 +57,8 @@ function row_fn(tr) {
             <td width=15%>${select}</td>
             <td width=20%><input class='form-control input-sm' type="text" ${read_only} value=${tr.option_value}></td>
             <td width=10%><input class='form-control input-sm' type="text" ${read_only} value=${tr.default_value}></td>
-            <td width=8%><label class="check-radio"><input type="checkbox" ${checked}>
-            <span class="checkmark"></span></td></tr>`;
+            <td width=8%><label class="check-radio"><input type="checkbox" ${checked} ${disabled}>
+            <span class="checkmark" ${style}></span></td></tr>`;
 }
 
 function blank_row_fn() {
@@ -170,11 +172,13 @@ function fetch_data2(data) {
 
 function row_fn2(tr) {
     let checked = tr.inout_show ? "checked" : "";
+    let disabled = tr.all_edit ? "" : "disabled";
+    let style = tr.all_edit ? "" : "style='background: lightgrey;border: none;'";
 
     return `<tr draggable="true"><td class='hide'>${tr.id}</td>
             <td width=20%>${tr.num}</td><td>${tr.show_name}</td>
-            <td width=20%><label class="check-radio"><input type="checkbox" ${checked}>
-            <span class="checkmark"></span></td></tr>`;
+            <td width=20%><label class="check-radio"><input type="checkbox" ${checked} ${disabled}>
+            <span class="checkmark" ${style}></span></td></tr>`;
 }
 
 function blank_row_fn2() {
