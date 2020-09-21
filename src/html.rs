@@ -148,3 +148,16 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+///系统参数
+#[get("/buy_in")]
+pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "".to_owned()).await;
+
+    if user.name != "" {
+        let html = r2s(|o| buyin(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}

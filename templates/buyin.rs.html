@@ -1,0 +1,59 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData)
+
+@:base({
+<div class="buy-in">
+    <div class="top-title"><span><i class="fa fa-caret-up"></i> 商品入库 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 采购进货 </span>
+        <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
+    </div>
+    <div class="buy-content">
+        <div class="buy-top">
+            <div class="fields-show">
+            </div>
+            <div class="buy-button">
+                <div id="dh">显示单号</div>
+                <div class="buttons">
+                    <button class="btn btn-info btn-sm" id="sumit-button" disabled=true>保存</button>
+                    <button class="btn btn-info btn-sm" id="sumit-button" disabled=true>打印</button>
+                    <button class="btn btn-info btn-sm" id="sumit-button" disabled=true>审核</button>
+                </div>
+            </div>
+        </div>
+        <div class="buy-items">
+            <div class="table-container table-product">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="hide"></th>
+                            <th width=6%>序号</th>
+                            <th>名称</th>
+                            <th width=10%>单位</th>
+                            <th>规格型号</th>
+                            <th width=8%>品牌</th>
+                            <th width=8%>材质</th>
+                            <th width=8%>单价</th>
+                            <th width=8%>数量</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="table-ctrl">
+                    <div class="table-tip">提示：按住鼠标拖拽，改变字段显示顺序。“可选值”用下划线 _ 隔开</div>
+                    <div class="table-button">
+                    </div>
+
+                    <div class="table-info">
+                        共 <span id="total-records"></span> 条记录
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script type="module" src="/assets/js/pages/buyin.js"></script>
+}, user.name.clone())
