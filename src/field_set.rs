@@ -97,7 +97,7 @@ pub async fn fetch_fields2(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT id,show_name,inout_show, ROW_NUMBER () OVER (ORDER BY show_order) as 序号 
+            r#"SELECT id,show_name,inout_show, ROW_NUMBER () OVER (ORDER BY inout_order) as 序号 
                     FROM tableset WHERE table_name='{}' AND is_show=true ORDER BY inout_order"#,
             post_data.name
         );

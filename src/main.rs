@@ -5,17 +5,18 @@ use config::ConfigError;
 use dotenv::dotenv;
 use serde::Deserialize;
 
+mod buyin;
 mod customer;
 mod field_set;
 mod html;
 mod product;
 mod sale_person;
 mod service;
+mod systemset;
 mod tree;
 mod user_manage;
 mod user_set;
 mod warehouse_set;
-mod systemset;
 
 #[derive(Deserialize)]
 struct Config {
@@ -59,6 +60,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::system_set)
             .service(html::help)
             .service(html::buy_in)
+            .service(buyin::fetch_buyin_fields)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)

@@ -43,6 +43,7 @@ pub struct Message {
 }
 
 //存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
+#[derive(Deserialize, Serialize)]
 pub struct FieldsData {
     pub field_name: String,
     pub show_name: String,
@@ -175,6 +176,34 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
         .query(
             r#"SELECT field_name, show_name, data_type, option_value, show_width 
                     FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
+            &[&table_name],
+        )
+        .await
+        .unwrap();
+
+    let mut fields: Vec<FieldsData> = Vec::new();
+    for row in rows {
+        let data = FieldsData {
+            field_name: row.get("field_name"),
+            show_name: row.get("show_name"),
+            data_type: row.get("data_type"),
+            option_value: row.get("option_value"),
+            show_width: row.get("show_width"),
+        };
+
+        fields.push(data);
+    }
+
+    fields
+}
+
+//获取出入库显示的字段，非全部字段
+pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
+    let conn = db.get().await.unwrap();
+    let rows = &conn
+        .query(
+            r#"SELECT field_name, show_name, data_type, option_value, show_width 
+                FROM tableset WHERE table_name=$1 AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )
         .await

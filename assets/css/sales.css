@@ -1661,4 +1661,42 @@ a.roar-alert-message-tbf {
   margin: 0 auto;
 }
 
+.buy-in .buy-top {
+  height: 140px;
+  display: flex;
+  justify-content: space-between;
+}
+.buy-in .fields-show {
+  margin-left: 20px;
+}
+.buy-in #supplier-info {
+  height: 25px;
+  width: 99.8%;
+  margin-left: 1px;
+  margin-bottom: 3px;
+  background-color: #e9fcfa;
+}
+.buy-in .buy-buttons {
+  width: 160px;
+  margin-left: 20px;
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.buy-in .buy-buttons .buttons {
+  margin-bottom: 6px;
+}
+.buy-in .buy-buttons button {
+  padding: 5px 20px;
+  margin: 4px 4px;
+}
+.buy-in .has-dh {
+  margin-top: 6px;
+}
+.buy-in #dh {
+  font-size: 15px;
+  font-weight: bold;
+}
+
 /*# sourceMappingURL=sales.css.map */
