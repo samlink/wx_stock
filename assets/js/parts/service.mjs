@@ -138,7 +138,10 @@ export function build_inout_form(table_fields) {
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
-                                <input class="form-control input-sm has-value" type="text" style="width: ${name.show_width * 20};">
+                                <div class="form-input">
+                                    <input class="form-control input-sm has-value" type="text" 
+                                        style="width: ${name.show_width * 20};" />
+                                </div>
                             </div>`;
         } else if (name.ctr_type == "二值选一") {
             let checked = name.option_value.split('_')[0] == name.default_value ? 'checked' : '';

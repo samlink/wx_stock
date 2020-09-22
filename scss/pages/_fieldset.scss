@@ -40,6 +40,7 @@
     table tbody {
         display: block;
         height: 400px;
+        overflow-x: hidden;
         overflow-y: scroll;
     }
     table thead,

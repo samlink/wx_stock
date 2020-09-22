@@ -6,7 +6,6 @@
     }
 
     .fields-show {
-        // margin-left: 20px;
         padding-top: 3px;
         margin-top: 10px;
         display: flex;
@@ -14,13 +13,18 @@
         overflow-y: auto;
 
         .form-group {
-            // display: flex;
-            // justify-content: center;
+            display: flex;
+            justify-content: center;
+            margin-right: 10px;
         }
 
         .form-label {
             width: 80px;
             flex-shrink: 0;
+        }
+
+        .form-input {
+            display: inline-block;
         }
 
         .input-sm {
@@ -29,10 +33,6 @@
 
         .select-sm {
             margin-top: -3px;
-        }
-
-        .checkmark {
-            top: -13px;
         }
     }
 
@@ -70,7 +70,6 @@
         font-size: 18px;
         font-weight: bold;
         color: $fusion-700;
-
     }
 
     #dh {
@@ -79,16 +78,45 @@
 
     #supplier-input {
         width: 260px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
     }
 
     #supplier-serach {
-        margin-top: -2px;
-        margin-left: -13px;
+        margin-top: -3px;
+        margin-left: -6px;
         height: 28px;
         // border-radius: 3px;
 
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         // border-top-right-radius: 3px;
+    }
+
+    .has-auto {
+        position: absolute;
+        + div {
+            margin-left: 380px;
+        }
+    }
+
+    .autocomplete {
+        position: relative;
+        margin-left: -6.5px;
+        $auto-width: 260px; //按需修改
+        input {
+            width: $auto-width;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            width: $auto-width * 0.99;
+            top: 28;
+            left: 0;
+
+            div {
+                width: $auto-width * 0.94;
+            }
+        }
     }
 }
