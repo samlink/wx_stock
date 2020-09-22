@@ -98,6 +98,7 @@ fetch("/fetch_fields", {
                 let value = th.field_name;
                 header_names[key] = value;
             }
+            
             document.querySelector('.table-customer thead tr').innerHTML = rows;
 
             table_init(init_data);

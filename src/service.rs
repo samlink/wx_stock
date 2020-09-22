@@ -184,22 +184,7 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
         .await
         .unwrap();
 
-    let mut fields: Vec<FieldsData> = Vec::new();
-    for row in rows {
-        let data = FieldsData {
-            field_name: row.get("field_name"),
-            show_name: row.get("show_name"),
-            data_type: row.get("data_type"),
-            ctr_type: row.get("ctr_type"),
-            option_value: row.get("option_value"),
-            default_value: row.get("default_value"),
-            show_width: row.get("show_width"),
-        };
-
-        fields.push(data);
-    }
-
-    fields
+        return_fields(rows)
 }
 
 //获取出入库显示的字段，非全部字段
@@ -214,6 +199,10 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
         .await
         .unwrap();
 
+    return_fields(rows)
+}
+
+fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
     let mut fields: Vec<FieldsData> = Vec::new();
     for row in rows {
         let data = FieldsData {
