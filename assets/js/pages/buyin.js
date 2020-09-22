@@ -21,6 +21,7 @@ fetch("/fetch_buyin_fields", {
             let has_auto = document.querySelector('.has-auto');
             let next_auto = document.querySelector('.has-auto+div');
 
+            //加入滚动事件处理
             fields_show.addEventListener('scroll', function () {
                 if (fields_show.scrollTop != 0) {
                     has_auto.style.cssText = "position: relative;";
@@ -34,6 +35,7 @@ fetch("/fetch_buyin_fields", {
         }
     });
 
+//自动完成
 let search_input = document.querySelector('#supplier-input');
 autocomplete(search_input, "", "/supplier_auto", () => {
     fetch("/fetch_supplier", {
@@ -55,3 +57,12 @@ autocomplete(search_input, "", "/supplier_auto", () => {
         });
 });
 
+document.querySelector('#supplier-serach').addEventListener('click', function(){
+
+    document.querySelector('.modal-body').innerHTML = "";
+
+    document.querySelector('.modal-title').textContent = "选择供应商";
+    document.querySelector('.modal-dialog').style.cssText = "max-width: 600px;"
+
+    document.querySelector('.modal').style.display = "block";
+})

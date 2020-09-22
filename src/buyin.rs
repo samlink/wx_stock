@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 #[post("/fetch_buyin_fields")]
 pub async fn fetch_buyin_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
-
     if user.name != "" {
         let fields = get_inout_fields(db.clone(), "采购单据").await;
         HttpResponse::Ok().json(fields)
