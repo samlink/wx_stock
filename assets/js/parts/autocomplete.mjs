@@ -26,6 +26,7 @@ export function autocomplete(input, cate, url, cb) {
                         b.innerHTML += "<input type='hidden' id='" + arr[i].id + "' value='" + arr[i].label + "'>";
                         b.addEventListener("click", function (e) {
                             input.value = this.querySelector('input').value;
+                            input.setAttribute('data', this.querySelector('input').getAttribute('id'));
                             closeAllLists();
                             cb();       //这里加入其他控件的处理函数
                         });

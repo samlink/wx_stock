@@ -1,0 +1,112 @@
+.inout-top {
+    height: 100px;
+    display: flex;
+    justify-content: space-between;
+
+    .fields-show {
+        padding-top: 3px;
+        margin-top: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        overflow-y: auto;
+
+        .form-group {
+            display: flex;
+            justify-content: center;
+            margin-right: 10px;
+        }
+
+        .form-label {
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .form-input {
+            display: inline-block;
+        }
+
+        .input-sm {
+            margin-top: -2.6px;
+        }
+
+        .select-sm {
+            margin-top: -3px;
+        }
+    }
+
+    .buy-buttons {
+        width: 220px;
+        margin-right: 20px;
+        margin-bottom: 8px;
+
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        flex-shrink: 0;
+
+        .buttons {
+            margin-bottom: 6px;
+        }
+
+        button {
+            padding: 5px 16px;
+            margin: 4px 4px;
+        }
+    }
+
+    .has-dh {
+        margin-top: 6px;
+        margin-left: 6px;
+        font-size: 18px;
+        font-weight: bold;
+        color: $fusion-700;
+    }
+
+    #dh {
+        font-size: 15px;
+    }
+
+    #supplier-input {
+        width: 260px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    #supplier-serach {
+        margin-top: -3px;
+        margin-left: -6px;
+        height: 28px;
+        // border-radius: 3px;
+
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        // border-top-right-radius: 3px;
+    }
+
+    .has-auto {
+        position: absolute;
+        + div {
+            margin-left: 380px;
+        }
+    }
+
+    .autocomplete {
+        position: relative;
+        margin-left: -6.5px;
+        $auto-width: 260px; //按需修改
+        input {
+            width: $auto-width;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            width: $auto-width * 0.998;
+            top: 28;
+            left: 0;
+
+            div {
+                width: $auto-width * 0.94;
+            }
+        }
+    }
+}

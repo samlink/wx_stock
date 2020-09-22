@@ -43,17 +43,9 @@ pub struct Message {
 }
 
 //存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
-#[derive(Deserialize, Serialize)]
-pub struct FieldsData {
-    pub field_name: String,
-    pub show_name: String,
-    pub data_type: String,
-    pub option_value: String,
-    pub show_width: f32,
-}
 
 #[derive(Deserialize, Serialize)]
-pub struct FieldsInout {
+pub struct FieldsData {
     pub field_name: String,
     pub show_name: String,
     pub data_type: String,
@@ -185,7 +177,7 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, option_value, show_width 
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width 
                     FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
             &[&table_name],
         )
@@ -198,7 +190,9 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
             field_name: row.get("field_name"),
             show_name: row.get("show_name"),
             data_type: row.get("data_type"),
+            ctr_type: row.get("ctr_type"),
             option_value: row.get("option_value"),
+            default_value: row.get("default_value"),
             show_width: row.get("show_width"),
         };
 
@@ -209,7 +203,7 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
 }
 
 //获取出入库显示的字段，非全部字段
-pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsInout> {
+pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
@@ -220,9 +214,9 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
         .await
         .unwrap();
 
-    let mut fields: Vec<FieldsInout> = Vec::new();
+    let mut fields: Vec<FieldsData> = Vec::new();
     for row in rows {
-        let data = FieldsInout {
+        let data = FieldsData {
             field_name: row.get("field_name"),
             show_name: row.get("show_name"),
             data_type: row.get("data_type"),
@@ -251,27 +245,33 @@ pub fn build_string_from_base(
         let num: i64 = row.get("序号");
         product += &format!("{}{}", num, SPLITER);
 
-        for f in &fields {
-            if f.data_type == "文本" {
-                let s: String = row.get(&*f.field_name);
-                product += &format!("{}{}", s, SPLITER);
-            } else if f.data_type == "整数" {
-                let num: i32 = row.get(&*f.field_name);
-                product += &format!("{}{}", num, SPLITER);
-            } else if f.data_type == "实数" {
-                let num: f32 = row.get(&*f.field_name);
-                product += &format!("{}{}", num, SPLITER);
-            } else {
-                let op: Vec<&str> = f.option_value.split("_").collect();
-                let b: bool = row.get(&*f.field_name);
-                let val = if b == true { op[0] } else { op[1] };
-                product += &format!("{}{}", val, SPLITER);
-            }
-        }
+        product += &simple_string_from_base(row, &fields);
 
         products.push(product);
     }
     products
+}
+
+pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsData>) -> String {
+    let mut product = "".to_owned();
+    for f in fields {
+        if f.data_type == "文本" {
+            let s: String = row.get(&*f.field_name);
+            product += &format!("{}{}", s, SPLITER);
+        } else if f.data_type == "整数" {
+            let num: i32 = row.get(&*f.field_name);
+            product += &format!("{}{}", num, SPLITER);
+        } else if f.data_type == "实数" {
+            let num: f32 = row.get(&*f.field_name);
+            product += &format!("{}{}", num, SPLITER);
+        } else {
+            let op: Vec<&str> = f.option_value.split("_").collect();
+            let b: bool = row.get(&*f.field_name);
+            let val = if b == true { op[0] } else { op[1] };
+            product += &format!("{}{}", val, SPLITER);
+        }
+    }
+    product
 }
 
 //从前端传过来字符串数组，按显示字段，组合成 update 语句。供更新数据用
