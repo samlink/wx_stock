@@ -17,12 +17,12 @@ fetch("/fetch_buyin_fields", {
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
             let date = document.querySelector('#采购日期');
-            // date.setAttribute('type', 'date');
-            // date.setAttribute('pattern', "yyyy-MM-dd");
+            date.value = new Date().Format("yyyy-MM-dd");            
 
-            // date.value = "2020-09-23";
-            date.value = new Date().Format("yyyy-MM-dd");
-            flatpickr(date, {});
+            //执行一个laydate实例
+            laydate.render({
+                elem: date, //指定元素
+            });
 
             let fields_show = document.querySelector('.fields-show');
             let has_auto = document.querySelector('.has-auto');
