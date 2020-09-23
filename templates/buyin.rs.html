@@ -4,6 +4,7 @@
 @(user: UserData)
 
 @:base({
+<link rel="stylesheet" href="/assets/plugins/flatpickr/flatpickr.css">
 <div class="buy-in">
     <div class="top-title"><span><i class="fa fa-download"></i> 商品入库 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> 采购进货 </span>
@@ -77,5 +78,6 @@
     </div>
 
 </div>
+<script src="/assets/plugins/flatpickr/flatpickr.min.js"></script>
 <script type="module" src="/assets/js/pages/buyin.js"></script>
 }, user.name.clone())

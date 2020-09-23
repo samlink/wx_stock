@@ -16,11 +16,17 @@ fetch("/fetch_buyin_fields", {
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
-            document.querySelector('#采购日期').value = new Date().Format("yyyy-MM-dd");
+            let date = document.querySelector('#采购日期');
+            // date.setAttribute('type', 'date');
+            // date.setAttribute('pattern', "yyyy-MM-dd");
+
+            // date.value = "2020-09-23";
+            date.value = new Date().Format("yyyy-MM-dd");
+            flatpickr(date, {});
 
             let fields_show = document.querySelector('.fields-show');
             let has_auto = document.querySelector('.has-auto');
-            let next_auto = document.querySelector('.has-auto+div');            
+            let next_auto = document.querySelector('.has-auto+div');
 
             //加入滚动事件处理
             fields_show.addEventListener('scroll', function () {
