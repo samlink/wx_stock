@@ -593,7 +593,7 @@ input:focus {
 }
 
 .notifier-container {
-  z-index: 999;
+  z-index: 9999;
   position: fixed;
   top: 65px;
   right: 0;

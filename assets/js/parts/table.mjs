@@ -1,4 +1,6 @@
 
+var cb_function;
+
 export var table_data = {};
 
 export var table_init = function (data) {
@@ -67,7 +69,7 @@ export var table_init = function (data) {
                     Object.assign(table_data.post_data, { page: 1, sort: sort });
                     table_data.page_input.value = 1;
 
-                    fetch_table();
+                    fetch_table(cb_function);
                 }
             })
         }
@@ -129,6 +131,7 @@ export var fetch_table = function (cb) {
                 }
 
                 if (typeof cb == "function") {
+                    cb_function = cb;
                     cb();
                 }
             }
@@ -141,7 +144,7 @@ export var fetch_table = function (cb) {
 function change_page(value) {
     table_data.page_input.value = value > Number(table_data.total_pages.textContent) ? Number(table_data.total_pages.textContent) : (value < 1 ? 1 : value);
     Object.assign(table_data.post_data, { page: Number(table_data.page_input.value) });
-    fetch_table();
+    fetch_table(cb_function);
 }
 
 function button_change(input, first, pre, aft, last, pages) {

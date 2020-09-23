@@ -7,21 +7,6 @@ import { SPLITER } from '../parts/tools.mjs';
 
 let table_fields;
 
-let init_data = {
-    container: '.table-customer',
-    url: "/fetch_inout_customer",
-    post_data: {
-        id: "",
-        name: '',
-        sort: "名称 ASC",
-        cate: "供应商",
-    },
-    edit: false,
-
-    row_fn: table_row,
-    blank_row_fn: blank_row,
-};
-
 fetch("/fetch_buyin_fields", {
     method: 'post',
 })
@@ -50,37 +35,15 @@ fetch("/fetch_buyin_fields", {
     });
 
 //供应商自动完成
-let search_input = document.querySelector('#supplier-input');
-autocomplete(search_input, "", "/supplier_auto", () => {
+autocomplete(document.querySelector('#supplier-input'), "", "/supplier_auto", () => {
     supplier_auto_show();
 });
-
-function supplier_auto_show() {
-    fetch("/fetch_supplier", {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(search_input.getAttribute('data')),
-    })
-        .then(response => response.json())
-        .then(content => {
-            let supplier = content[1].split(SPLITER);
-            let join_sup = "";
-            for (let i = 0; i < content[0].length; i++) {
-                join_sup += `${content[0][i].show_name}：${supplier[i]}； `;
-            }
-
-            document.querySelector('#supplier-info').textContent = join_sup;
-        });
-}
 
 //供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
     let width = document.querySelector('body').clientWidth * 0.8;
     let height = document.querySelector('body').clientHeight * 0.8;
     let customer_height = height - 270;
-    init_data.post_data.rec = Math.floor(customer_height / 30);
 
     let html = `<div id="customer-show">
                     <div class="table-top">
@@ -139,10 +102,28 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             let data = service.build_table_header(table, table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
             table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
-            init_data.header_names = data.header_names;
+
+            let init_data = {
+                container: '.table-customer',
+                url: "/fetch_inout_customer",
+                header_names: data.header_names,
+                post_data: {
+                    id: "",
+                    name: '',
+                    sort: "名称 ASC",
+                    rec: Math.floor(customer_height / 30),
+                    cate: "供应商",
+                },
+                edit: false,
+
+                row_fn: table_row,
+                blank_row_fn: blank_row,
+            };
 
             table_init(init_data);
-            fetch_table();
+            fetch_table(() => {
+                row_dbclick(table);
+            });
         });
 
     autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
@@ -160,23 +141,6 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
     document.querySelector('.modal').style.display = "block";
 });
 
-function search_table() {
-    let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, { name: search, page: 1 });
-    fetch_table();
-}
-
-function table_row(tr) {
-    let rec = tr.split(SPLITER);
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
-    return service.build_row_from_string(rec, row, table_fields);
-}
-
-function blank_row() {
-    let row = "<tr><td></td><td hidden></td>";
-    return service.build_blank_from_fields(row, table_fields);
-}
-
 //关闭按键
 document.querySelector('#modal-close-button').addEventListener('click', function () {
     close_modal();
@@ -187,9 +151,91 @@ document.querySelector('.top-close').addEventListener('click', function () {
     close_modal();
 });
 
+//点击提交按钮
+document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+    let selected_row = document.querySelector('table .focus');
+    if (selected_row) {
+        chose_exit(selected_row);
+    }
+    else {
+        notifier.show('请先选择供应商', 'danger');
+    }
+
+});
+
+//自动完成点击后，展示数据
+function supplier_auto_show() {
+    fetch("/fetch_supplier", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(document.querySelector('#supplier-input').getAttribute('data')),
+    })
+        .then(response => response.json())
+        .then(content => {
+            let supplier = content[1].split(SPLITER);
+            let join_sup = "";
+            for (let i = 0; i < content[0].length; i++) {
+                join_sup += `${content[0][i].show_name}：${supplier[i]}； `;
+            }
+
+            document.querySelector('#supplier-info').textContent = join_sup;
+        });
+}
+
+//显示行数据
+function table_row(tr) {
+    let rec = tr.split(SPLITER);
+    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
+    return service.build_row_from_string(rec, row, table_fields);
+}
+
+//显示空行数据
+function blank_row() {
+    let row = "<tr><td></td><td hidden></td>";
+    return service.build_blank_from_fields(row, table_fields);
+}
+
+//给行加上双击事件
+function row_dbclick(table) {
+    let rows = table.querySelectorAll('body tr');
+    for (let row of rows) {
+        row.addEventListener('dblclick', function () {
+            chose_exit(this);
+        });
+    }
+}
+
+//按搜索按钮后的辅助函数
+function search_table() {
+    let table = document.querySelector('.table-customer');
+    let search = document.querySelector('#search-input').value;
+    Object.assign(table_data.post_data, { name: search, page: 1 });
+    fetch_table(() => {
+        row_dbclick(table);
+    });
+}
+
 //关闭函数
 function close_modal() {
     document.querySelector('.modal').style.display = "none";
     document.querySelector('.modal-content').style.cssText = "";
     document.querySelector('#modal-info').innerHTML = "";
+}
+
+//选择行数据并退出
+function chose_exit(selected_row) {
+    let id = selected_row.children[1].textContent;
+    if (id) {
+        let name = selected_row.children[2].textContent;
+        let supplier = document.querySelector('#supplier-input');
+        supplier.value = name;
+        supplier.setAttribute('data', id);
+        supplier_auto_show();
+        close_modal();
+    }
+    else {
+        notifier.show('请先选择供应商', 'danger');
+    }
 }
