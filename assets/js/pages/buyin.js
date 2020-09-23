@@ -1,22 +1,20 @@
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
 
-var customer_fields;
-let header_names = {};
-let row_num;
+let table_fields;
 
 let init_data = {
     container: '.table-customer',
-    header_names: header_names,
-    url: "/fetch_customer",
+    url: "/fetch_inout_customer",
     post_data: {
         id: "",
         name: '',
         sort: "名称 ASC",
-        rec: row_num,
+        cate: "供应商",
     },
     edit: false,
 
@@ -30,8 +28,7 @@ fetch("/fetch_buyin_fields", {
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            let table_fields = content;
-            let html = service.build_inout_form(table_fields);
+            let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
             let fields_show = document.querySelector('.fields-show');
@@ -78,8 +75,8 @@ autocomplete(search_input, "", "/supplier_auto", () => {
 document.querySelector('#supplier-serach').addEventListener('click', function () {
     let width = document.querySelector('body').clientWidth * 0.8;
     let height = document.querySelector('body').clientHeight * 0.8;
-    let customer_height = height - 100;
-    row_num = Math.floor(customer_height / 30);
+    let customer_height = height - 270;
+    init_data.post_data.rec = Math.floor(customer_height / 30);
 
     let html = `<div id="customer-show">
                     <div class="table-top">
@@ -92,9 +89,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                     <div class="table-container table-customer">
                         <table>
                             <thead>
-                                <tr>
-                                    <th></th>
-                                </tr>
+                                <tr></tr>
                             </thead>
                             <tbody>
                             </tbody>
@@ -135,11 +130,15 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
     })
         .then(response => response.json())
         .then(content => {
+            table_fields = content;
             let table = document.querySelector('.table-customer');
-            let data = service.build_table_header(table, content);
+            let data = service.build_table_header(table, table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
-            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');            
-            header_names = data.header_names;
+            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+            init_data.header_names = data.header_names;
+
+            table_init(init_data);
+            fetch_table();
         });
 
     document.querySelector('.modal-title').textContent = "选择供应商";

@@ -1,7 +1,6 @@
 .fields-set {
     .system-content {
         display: flex;
-
     }
     #product-show {
         width: 68%;
@@ -37,12 +36,6 @@
         margin-left: -40%;
     }
 
-    table tbody {
-        display: block;
-        height: 400px;
-        overflow-x: hidden;
-        overflow-y: scroll;
-    }
     table thead,
     tbody tr {
         display: table;
@@ -58,6 +51,11 @@
     }
 
     table tbody {
+        display: block;
+        height: calc(100vh - 290px);
+        overflow-x: hidden;
+        overflow-y: scroll;
+
         td:nth-child(2),
         td:nth-last-child(1) {
             text-align: center;

@@ -12,11 +12,7 @@ let global = {
 document.querySelector('#function-set').classList.add('show-bottom');
 
 //设置表格行数、高度
-let top_table = document.querySelector('.table-top').clientHeight;
-let th_table = document.querySelector('.table-users thead').clientHeight;
-let bottom_table = document.querySelector('.table-ctrl').clientHeight;
-
-let get_height = getHeight(top_table, th_table, bottom_table) - 30;
+let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
 
 //显示表格数据 ---------------------------------------

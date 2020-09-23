@@ -1,7 +1,11 @@
 .product-content {
     display: flex;
     align-items: flex-start;
-    height: 95%;
+    // height: 95%;
+
+    .tree-container {
+        height: calc(100vh - 240px);
+    }
 
     #product-show {
         flex: 1;
@@ -59,5 +63,4 @@
     table th {
         padding: 0;
     }
-
 }

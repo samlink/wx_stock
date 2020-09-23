@@ -59,7 +59,7 @@ pub async fn fetch_supplier_fields(db: web::Data<Pool>, id: Identity) -> HttpRes
     }
 }
 
-///获取客户
+///进出库获取客户供应商信息
 #[post("/fetch_inout_customer")]
 pub async fn fetch_inout_customer(
     db: web::Data<Pool>,
@@ -77,7 +77,7 @@ pub async fn fetch_inout_customer(
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
 
-        let fields = get_fields(db.clone(), &post_data.cate).await;
+        let fields = get_inout_fields(db.clone(), &post_data.cate).await;
 
         let mut sql_fields = "SELECT id,".to_owned();
 

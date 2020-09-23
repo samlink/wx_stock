@@ -16,15 +16,8 @@ let global = {
 
 //配置自动完成和树的显示 ---------------------------------------------------
 
-let auto = document.querySelector('.autocomplete');
-let title = document.querySelector('.tree-title');
-let tree = document.querySelector('.tree-container');
-
-let get_height = getHeight(auto.clientHeight, title.clientHeight) - 35;
-tree.style.height = get_height + "px";
-
-let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
-let row_num = Math.floor((get_height - ctrl_height) / 30);
+let tree_height = document.querySelector('.tree-container').clientHeight;
+let row_num = Math.floor((tree_height - 50) / 30);
 
 let tree_data = {
     leaf_click: (id, name) => {
@@ -101,7 +94,7 @@ fetch("/fetch_fields", {
             });
 
             let table = document.querySelector('.table-product');
-            let header = service.build_table_header(table, table_fields);            
+            let header = service.build_table_header(table, table_fields);
             table.querySelector('thead tr').innerHTML = header.th_row;
 
             init_data.header_names = header.header_names;

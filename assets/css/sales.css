@@ -1429,7 +1429,9 @@ a.roar-alert-message-tbf {
 .product-content {
   display: flex;
   align-items: flex-start;
-  height: 95%;
+}
+.product-content .tree-container {
+  height: calc(100vh - 240px);
 }
 .product-content #product-show {
   flex: 1;
@@ -1510,12 +1512,6 @@ a.roar-alert-message-tbf {
 .fields-set .cate-title {
   margin-left: -40%;
 }
-.fields-set table tbody {
-  display: block;
-  height: 400px;
-  overflow-x: hidden;
-  overflow-y: scroll;
-}
 .fields-set table thead,
 .fields-set tbody tr {
   display: table;
@@ -1527,6 +1523,12 @@ a.roar-alert-message-tbf {
 }
 .fields-set table thead th {
   cursor: default;
+}
+.fields-set table tbody {
+  display: block;
+  height: calc(100vh - 290px);
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 .fields-set table tbody td:nth-child(2),
 .fields-set table tbody td:nth-last-child(1) {

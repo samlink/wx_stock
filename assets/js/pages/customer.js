@@ -23,20 +23,14 @@ let global = {
     eidt_cate: "",
 }
 
-let table_top = document.querySelector('.table-top').clientHeight;
-let table_head = document.querySelector('table thead').clientHeight;
-
-let get_height = getHeight(table_top, table_head) - 35;
-
-let ctrl_height = document.querySelector('.table-ctrl').clientHeight;
-let row_num = Math.floor((get_height - ctrl_height) / 30);
+let get_height = getHeight() - 138;
+let row_num = Math.floor(get_height / 30);
 
 let table_name = {
     name: cate_set.cate,
 };
 
 let table_fields;
-let header_names = {};
 
 let init_data = {
     container: '.table-customer',
