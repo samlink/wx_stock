@@ -173,13 +173,14 @@ export function build_inout_form(table_fields) {
     let form = "";
     for (let name of table_fields) {
         let control;
+        let id = name.all_edit ? "" : `id="${name.field_name}"`;
         if (name.ctr_type == "普通输入") {
             control = `<div class="form-group">
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
                                 <div class="form-input">
-                                    <input class="form-control input-sm has-value" type="text" 
+                                    <input class="form-control input-sm has-value" type="text" ${id}
                                         style="width: ${name.show_width * 20};" />
                                 </div>
                             </div>`;
@@ -190,7 +191,7 @@ export function build_inout_form(table_fields) {
                                     <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
                                 </div>
                                 <label class="check-radio">
-                                    <input class="has-value" id='${name.show_name}' type="checkbox" ${checked}>
+                                    <input class="has-value" id='${name.show_name}' type="checkbox" ${id} ${checked}>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>`;
@@ -199,7 +200,7 @@ export function build_inout_form(table_fields) {
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <select class='select-sm has-value' style="width: ${name.show_width * 20};">`;
+                                <select class='select-sm has-value' style="width: ${name.show_width * 20};" ${id}>`;
 
             let options = name.option_value.split('_');
             for (let value of options) {

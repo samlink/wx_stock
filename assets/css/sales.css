@@ -1769,6 +1769,13 @@ a.roar-alert-message-tbf {
   margin-bottom: 3px;
   background-color: #ecf6fe;
 }
+.buy-in #buy-cate {
+  margin-left: 15px;
+  cursor: pointer;
+}
+.buy-in .has-auto {
+  left: 142;
+}
 .buy-in .autocomplete {
   position: relative;
   margin-left: -6.5px;

@@ -56,6 +56,7 @@ pub struct FieldsData {
     pub option_value: String,
     pub default_value: String,
     pub show_width: f32,
+    pub all_edit: bool,
 }
 
 ///静态文件服务
@@ -180,7 +181,7 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width 
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
                     FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
             &[&table_name],
         )
@@ -195,7 +196,7 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width 
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit 
                 FROM tableset WHERE table_name=$1 AND is_show=true AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )
@@ -217,6 +218,7 @@ fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
             option_value: row.get("option_value"),
             default_value: row.get("default_value"),
             show_width: row.get("show_width"),
+            all_edit: row.get("all_edit"),
         };
 
         fields.push(data);

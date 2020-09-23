@@ -9,6 +9,15 @@
         background-color: lighten($color-info, 42%);
     }
 
+    #buy-cate {
+        margin-left: 15px;
+        cursor: pointer;
+    }
+
+    .has-auto {
+        left: 142;
+    }
+
     .autocomplete {
         position: relative;
         margin-left: -6.5px;
@@ -28,4 +37,3 @@
         }
     }
 }
-

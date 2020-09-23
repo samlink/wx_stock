@@ -9,12 +9,6 @@ let global = {
     edit2: 0,
 }
 
-// let top = document.querySelector('.table-top').clientHeight;
-// let ctrl = document.querySelector('.table-ctrl').clientHeight;
-// let get_height = getHeight(top, ctrl) - 70;
-// document.querySelector('.table-product tbody').style.height = get_height;
-// document.querySelector('.table-inout tbody').style.height = get_height;
-
 let sumit_button = document.querySelector('#sumit-button');
 let sumit_button2 = document.querySelector('#sumit-button2');
 sumit_button.disabled = true;

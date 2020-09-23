@@ -16,14 +16,16 @@ fetch("/fetch_buyin_fields", {
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
+            document.querySelector('#采购日期').value = new Date().Format("yyyy-MM-dd");
+
             let fields_show = document.querySelector('.fields-show');
             let has_auto = document.querySelector('.has-auto');
-            let next_auto = document.querySelector('.has-auto+div');
+            let next_auto = document.querySelector('.has-auto+div');            
 
             //加入滚动事件处理
             fields_show.addEventListener('scroll', function () {
                 if (fields_show.scrollTop != 0) {
-                    has_auto.style.cssText = "position: relative;";
+                    has_auto.style.cssText = "position: relative; left: -5;";
                     next_auto.style.cssText = "margin-left: -3px;"
                 }
                 else {
