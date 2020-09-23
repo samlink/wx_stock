@@ -27,12 +27,15 @@ pub struct UserData {
     pub confirm: bool,
 }
 
+//表格分页、搜索和分类参数
 #[derive(Deserialize, Serialize)]
-pub struct PostData {
+pub struct TablePager {
+    pub id: String,
     pub name: String,
     pub page: i32,
     pub sort: String,
     pub rec: i32,
+    pub cate: String,
 }
 
 //自动完成使用
@@ -172,7 +175,7 @@ pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     Ok(path)
 }
 
-//获取显示的字段，非全部字段
+//获取编辑用的显示字段，非全部字段
 pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();
     let rows = &conn
@@ -184,10 +187,10 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
         .await
         .unwrap();
 
-        return_fields(rows)
+    return_fields(rows)
 }
 
-//获取出入库显示的字段，非全部字段
+//获取出入库用的显示字段，非全部字段
 pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();
     let rows = &conn
@@ -202,6 +205,7 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
     return_fields(rows)
 }
 
+//返回字段数组，内部辅助函数
 fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
     let mut fields: Vec<FieldsData> = Vec::new();
     for row in rows {
@@ -241,6 +245,7 @@ pub fn build_string_from_base(
     products
 }
 
+//将数据库查询结果字段组合成字符串，即是内部辅助函数，也可外部调用
 pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsData>) -> String {
     let mut product = "".to_owned();
     for f in fields {
@@ -329,7 +334,7 @@ pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String 
     sql
 }
 
-//获取帮助信息
+//各个功能页面获取帮助信息
 #[post("/fetch_help")]
 pub async fn fetch_help(
     db: web::Data<Pool>,

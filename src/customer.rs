@@ -7,15 +7,7 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use xlsxwriter::*;
 
-#[derive(Deserialize, Serialize)]
-pub struct FrontData {
-    pub id: String,
-    pub name: String,
-    pub page: i32,
-    pub sort: String,
-    pub rec: i32,
-    pub cate: String,
-}
+
 
 #[derive(Deserialize, Serialize)]
 pub struct Customer {
@@ -27,7 +19,7 @@ pub struct Customer {
 #[post("/fetch_customer")]
 pub async fn fetch_customer(
     db: web::Data<Pool>,
-    post_data: web::Json<FrontData>,
+    post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;

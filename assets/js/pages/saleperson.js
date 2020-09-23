@@ -29,9 +29,11 @@ var data = {
     },
     url: "/pull_salers",
     post_data: {
+        id: '',
         name: '',
         sort: "name ASC",
         rec: row_num,
+        cate:'',
     },
     edit: false,
 
@@ -226,7 +228,6 @@ document.querySelector('#del-button').addEventListener('click', function () {
         notifier.show('请选择用户', 'danger');
     }
     else {
-
         alert_confirm('确认删除 ' + focus.children[1].textContent + ' 吗？', {
             confirmCallBack: () => {
                 let data = {

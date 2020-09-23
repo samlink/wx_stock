@@ -1,4 +1,4 @@
-use crate::service::{PostData, get_user};
+use crate::service::{TablePager, get_user};
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
@@ -17,7 +17,7 @@ pub struct UsersReturn {
 #[post("/pull_users")]
 pub async fn pull_users(
     db: web::Data<Pool>,
-    post_data: web::Json<PostData>,
+    post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "用户设置".to_owned()).await;

@@ -138,7 +138,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             let table = document.querySelector('.table-customer');
             let data = service.build_table_header(table, content);
             table.querySelector('thead tr').innerHTML = data.th_row;
-            table.querySelector('thead tr th:nth-child(2)').addAttribute('hidden');
+            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');            
             header_names = data.header_names;
         });
 

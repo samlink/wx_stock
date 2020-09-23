@@ -76,6 +76,7 @@ let init_data = {
         name: '',
         sort: "规格型号 ASC",
         rec: row_num,
+        cate: '',
     },
     edit: false,
 

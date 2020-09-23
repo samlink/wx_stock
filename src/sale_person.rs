@@ -1,4 +1,4 @@
-use crate::service::{get_user, PostData, SPLITER};
+use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
@@ -17,7 +17,7 @@ pub struct UsersReturn {
 #[post("/pull_salers")]
 pub async fn pull_salers(
     db: web::Data<Pool>,
-    post_data: web::Json<PostData>,
+    post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "销售人员".to_owned()).await;
@@ -92,10 +92,7 @@ pub async fn edit_saler(
                 saler[0], saler[1], saler[2], saler[3]
             )
         } else {
-            format!(
-                r#"DELETE FROM salers WHERE id={}"#,
-                saler[0]
-            )
+            format!(r#"DELETE FROM salers WHERE id={}"#, saler[0])
         };
         &conn.execute(sql.as_str(), &[]).await.unwrap();
         HttpResponse::Ok().json(1)
@@ -103,4 +100,3 @@ pub async fn edit_saler(
         HttpResponse::Ok().json(-1)
     }
 }
-

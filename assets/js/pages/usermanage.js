@@ -26,9 +26,11 @@ var data = {
     },
     url: "/pull_users",
     post_data: {
+        id: '',
         name: '',
         sort: "confirm ASC",
         rec: row_num,
+        cate: '',
     },
     edit: false,
 

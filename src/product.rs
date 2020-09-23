@@ -8,15 +8,6 @@ use serde::{Deserialize, Serialize};
 use xlsxwriter::*;
 
 #[derive(Deserialize, Serialize)]
-pub struct FrontData {
-    pub id: String,
-    pub name: String,
-    pub page: i32,
-    pub sort: String,
-    pub rec: i32,
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct Product {
     pub data: String,
 }
@@ -25,7 +16,7 @@ pub struct Product {
 #[post("/fetch_product")]
 pub async fn fetch_product(
     db: web::Data<Pool>,
-    post_data: web::Json<FrontData>,
+    post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
