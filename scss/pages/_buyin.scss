@@ -8,10 +8,24 @@
         margin-bottom: 3px;
         background-color: lighten($color-info, 42%);
     }
-}
 
-.modal {
-    .table-top {
-        height: 30px;
+    .autocomplete {
+        position: relative;
+        margin-left: -6.5px;
+        $auto-width: 260px; //按需修改
+        input {
+            width: $auto-width;
+        }
+
+        .autocomplete-items {
+            width: $auto-width * 0.998;
+            top: 28;
+            left: 0;
+
+            div {
+                width: $auto-width * 0.94;
+            }
+        }
     }
 }
+

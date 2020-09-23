@@ -1,6 +1,6 @@
 .autocomplete {
   position: absolute;
-  display: inline-block;
+  display: flex;
   z-index: 20;
 
   $auto-width: 200px; //按需修改
@@ -20,8 +20,8 @@
   }
 
   .autocomplete-items {
-    position: relative;
-    font-size: 12px;
+    position: absolute;
+    font-size: 14px;
     width: $auto-width * 0.99;
     top: 100%;
     left: 0;

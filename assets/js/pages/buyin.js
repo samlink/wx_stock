@@ -49,9 +49,13 @@ fetch("/fetch_buyin_fields", {
         }
     });
 
-//自动完成
+//供应商自动完成
 let search_input = document.querySelector('#supplier-input');
 autocomplete(search_input, "", "/supplier_auto", () => {
+    supplier_auto_show();
+});
+
+function supplier_auto_show() {
     fetch("/fetch_supplier", {
         method: 'post',
         headers: {
@@ -69,7 +73,7 @@ autocomplete(search_input, "", "/supplier_auto", () => {
 
             document.querySelector('#supplier-info').textContent = join_sup;
         });
-});
+}
 
 //供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
@@ -141,12 +145,26 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             fetch_table();
         });
 
+    autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
+        search_table();
+    });
+
+    document.querySelector('#serach-button').onclick = function () {
+        search_table();
+    };
+
     document.querySelector('.modal-title').textContent = "选择供应商";
     document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
     document.querySelector('.modal-content').style.cssText = `height: 100%;`
 
     document.querySelector('.modal').style.display = "block";
 });
+
+function search_table() {
+    let search = document.querySelector('#search-input').value;
+    Object.assign(table_data.post_data, { name: search, page: 1 });
+    fetch_table();
+}
 
 function table_row(tr) {
     let rec = tr.split(SPLITER);

@@ -591,22 +591,6 @@ input:focus {
 .inout-top .has-auto + div {
   margin-left: 380px;
 }
-.inout-top .autocomplete {
-  position: relative;
-  margin-left: -6.5px;
-}
-.inout-top .autocomplete input {
-  width: 260px;
-}
-.inout-top .autocomplete .autocomplete-items {
-  position: absolute;
-  width: 259.48px;
-  top: 28;
-  left: 0;
-}
-.inout-top .autocomplete .autocomplete-items div {
-  width: 244.4px;
-}
 
 .notifier-container {
   z-index: 999;
@@ -1110,7 +1094,7 @@ a.roar-alert-message-tbf {
 
 .autocomplete {
   position: absolute;
-  display: inline-block;
+  display: flex;
   z-index: 20;
 }
 .autocomplete input {
@@ -1126,8 +1110,8 @@ a.roar-alert-message-tbf {
   right: -5px;
 }
 .autocomplete .autocomplete-items {
-  position: relative;
-  font-size: 12px;
+  position: absolute;
+  font-size: 14px;
   width: 198px;
   top: 100%;
   left: 0;
@@ -1186,6 +1170,23 @@ a.roar-alert-message-tbf {
 }
 .modal .check-radio {
   margin-top: -17px;
+}
+.modal .table-top {
+  height: 30px;
+}
+.modal .autocomplete {
+  position: relative;
+}
+.modal .autocomplete input {
+  width: 260px;
+}
+.modal .autocomplete .autocomplete-items {
+  width: 259.48px;
+  top: 32;
+  left: 0;
+}
+.modal .autocomplete .autocomplete-items div {
+  width: 244.4px;
 }
 
 .modal-dialog {
@@ -1768,9 +1769,20 @@ a.roar-alert-message-tbf {
   margin-bottom: 3px;
   background-color: #ecf6fe;
 }
-
-.modal .table-top {
-  height: 30px;
+.buy-in .autocomplete {
+  position: relative;
+  margin-left: -6.5px;
+}
+.buy-in .autocomplete input {
+  width: 260px;
+}
+.buy-in .autocomplete .autocomplete-items {
+  width: 259.48px;
+  top: 28;
+  left: 0;
+}
+.buy-in .autocomplete .autocomplete-items div {
+  width: 244.4px;
 }
 
 /*# sourceMappingURL=sales.css.map */

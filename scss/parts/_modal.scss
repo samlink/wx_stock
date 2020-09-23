@@ -32,6 +32,28 @@
     .check-radio {
         margin-top: -17px;
     }
+
+    .table-top {
+        height: 30px;
+    }
+
+    .autocomplete {
+        position: relative;
+        $auto-width: 260px; //按需修改
+        input {
+            width: $auto-width;
+        }
+
+        .autocomplete-items {
+            width: $auto-width * 0.998;
+            top: 32;
+            left: 0;
+
+            div {
+                width: $auto-width * 0.94;
+            }
+        }
+    }
 }
 
 .modal-dialog {
