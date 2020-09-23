@@ -43,7 +43,7 @@ pub async fn fetch_customer(
 
         let fields = get_fields(db.clone(), &post_data.cate).await;
 
-        let mut sql_fields = r#"SELECT "ID","#.to_owned();
+        let mut sql_fields = "SELECT id,".to_owned();
 
         for f in &fields {
             sql_fields += &format!("{},", f.field_name);
@@ -60,7 +60,7 @@ pub async fn fetch_customer(
         let products = build_string_from_base(rows, fields);
 
         let count_sql = format!(
-            r#"SELECT count("ID") as 记录数 FROM {} WHERE LOWER(名称) LIKE '%{}%'"#,
+            r#"SELECT count(id) as 记录数 FROM {} WHERE LOWER(名称) LIKE '%{}%'"#,
             database, name
         );
 
@@ -97,7 +97,7 @@ pub async fn update_customer(
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
         let init = format!("UPDATE {} SET ", database);
         let mut sql = build_sql_for_update(field_names.clone(), init, fields);
-        sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, field_names[0]);
+        sql += &format!(r#"助记码='{}' WHERE id={}"#, py, field_names[0]);
 
         &conn.execute(sql.as_str(), &[]).await.unwrap();
 
@@ -160,7 +160,7 @@ pub async fn customer_auto(
     if user_name != "" {
         let s = search.s.to_lowercase();
         let sql = &format!(
-            r#"SELECT "ID" AS id, 名称 AS label FROM customers WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
+            r#"SELECT id, 名称 AS label FROM customers WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
             s, s
         );
 
@@ -181,7 +181,7 @@ pub async fn supplier_auto(
     if user_name != "" {
         let s = search.s.to_lowercase();
         let sql = &format!(
-            r#"SELECT "ID" AS id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
+            r#"SELECT id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
             s, s
         );
 
@@ -239,7 +239,7 @@ pub async fn customer_out(
             n += 1;
         }
 
-        let init = r#"SELECT "ID" as 编号,"#.to_owned();
+        let init = r#"SELECT id as 编号,"#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields);
         sql = sql.trim_end_matches(",").to_owned();
 
@@ -456,7 +456,7 @@ pub async fn customer_updatein(
                     let name = &format!("{}", r[(i + 1, 1)]);
                     let id = format!("{}", r[(i + 1, 0)]);
                     let py = pinyin::get_pinyin(name);
-                    sql += &format!(r#"助记码='{}' WHERE "ID"={}"#, py, id);
+                    sql += &format!(r#"助记码='{}' WHERE id={}"#, py, id);
 
                     &conn.query(sql.as_str(), &[]).await.unwrap();
                 }

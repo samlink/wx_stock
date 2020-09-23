@@ -36,14 +36,14 @@ pub async fn fetch_product(
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let mut sql_fields = r#"SELECT "ID","#.to_owned();
+        let mut sql_fields = r#"SELECT id,"#.to_owned();
 
         for f in &fields {
             sql_fields += &format!("{},", &*f.field_name);
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products WHERE "商品ID"='{}' AND 
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products WHERE 商品id='{}' AND 
             LOWER(规格型号) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, post_data.id, name, post_data.sort, skip, post_data.rec
         );
@@ -53,7 +53,7 @@ pub async fn fetch_product(
         let products = build_string_from_base(rows, fields);
         let rows = &conn
             .query(
-                r#"SELECT count("ID") as 记录数 FROM products WHERE "商品ID"=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
+                r#"SELECT count(id) as 记录数 FROM products WHERE 商品id=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
                 &[&post_data.id, &name],
             )
             .await
@@ -87,7 +87,7 @@ pub async fn update_product(
 
         let mut sql = build_sql_for_update(product.clone(), init, fields);
 
-        sql += &format!(r#""商品ID"='{}' WHERE "ID"={}"#, product[1], product[0]);
+        sql += &format!(r#"商品id='{}' WHERE id={}"#, product[1], product[0]);
 
         &conn.execute(sql.as_str(), &[]).await.unwrap();
 
@@ -110,7 +110,7 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
             init += &format!("{},", &*f.field_name);
         }
 
-        init += r#""商品ID") VALUES("#;
+        init += r#"商品id) VALUES("#;
 
         let product: Vec<&str> = p.data.split(SPLITER).collect();
         let mut sql = build_sql_for_insert(product.clone(), init, fields);
@@ -147,8 +147,8 @@ pub async fn product_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let sql = &format!(
-            r#"SELECT "ID" AS id, 规格型号 AS label FROM products 
-               WHERE "商品ID"='{}' AND LOWER(规格型号) LIKE '%{}%' LIMIT 10"#,
+            r#"SELECT id, 规格型号 AS label FROM products 
+               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' LIMIT 10"#,
             search.cate,
             search.s.to_lowercase()
         );
@@ -192,7 +192,7 @@ pub async fn product_out(
         sheet.set_column(1, 1, 12.0, None).unwrap();
 
         sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
-        sheet.write_string(0, 1, "商品ID", Some(&format1)).unwrap();
+        sheet.write_string(0, 1, "商品id", Some(&format1)).unwrap();
 
         let mut n = 2;
         for f in &fields {
@@ -206,11 +206,11 @@ pub async fn product_out(
             n += 1;
         }
 
-        let init = r#"SELECT "ID" as 编号,"#.to_owned();
+        let init = r#"SELECT id as 编号,"#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields);
 
         sql += &format!(
-            r#""商品ID" FROM products WHERE "商品ID"='{}' ORDER BY 规格型号"#,
+            r#"商品id FROM products WHERE 商品id='{}' ORDER BY 规格型号"#,
             product.id
         );
 
@@ -222,7 +222,7 @@ pub async fn product_out(
             let id: i32 = row.get("编号");
             sheet.write_number(n, 0, id as f64, Some(&format2)).unwrap();
             sheet
-                .write_string(n, 1, row.get("商品ID"), Some(&format2))
+                .write_string(n, 1, row.get("商品id"), Some(&format2))
                 .unwrap();
 
             let mut m = 2u16;
@@ -278,7 +278,7 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                 //制作表头数据
                 let mut rec = "".to_owned();
                 rec += &format!("{}{}", "编号", SPLITER);
-                rec += &format!("{}{}", "商品ID", SPLITER);
+                rec += &format!("{}{}", "商品id", SPLITER);
                 for f in &fields {
                     rec += &format!("{}{}", &*f.show_name, SPLITER);
                 }
@@ -336,7 +336,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                     init += &format!("{},", &*f.field_name);
                 }
 
-                init += r#""商品ID") VALUES("#;
+                init += r#"商品id) VALUES("#;
 
                 for j in 0..total_rows {
                     let mut sql = init.clone();
@@ -404,7 +404,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     }
 
                     sql = sql.trim_end_matches(',').to_owned();
-                    sql += &format!(r#" WHERE "ID"={}"#, r[(j + 1, 0)]);
+                    sql += &format!(r#" WHERE id={}"#, r[(j + 1, 0)]);
 
                     &conn.query(sql.as_str(), &[]).await.unwrap();
                 }

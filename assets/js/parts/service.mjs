@@ -1,5 +1,45 @@
 import { SPLITER } from '../parts/tools.mjs';
 
+//根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
+export function build_table_header(table_container, table_fields) {
+    let all_width = 0;
+    for (let item of table_fields) {
+        all_width += item.show_width;
+    }
+
+    all_width += 3;  //序号列的宽度
+    let table_width = table_container.clientWidth;
+    let width_raio = table_width / all_width;
+    let row = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
+
+    //当可用屏幕宽度小于字段总宽度的18倍时，则按实际px显示，这样会横向滚动
+    if (width_raio < 18) {
+        row = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
+        table_container.style.width = table_width;
+        table_container.querySelector('.table-ctrl').style.cssText = `
+            position: absolute;
+            width: ${table_width + 2}px;
+            margin-top: 11px;
+            border: 1px solid #edf5fb;
+            margin-left: -2px;`;
+    }
+
+    let header_names = {};
+    for (let th of table_fields) {
+        row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
+            `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
+
+        let key = th.show_name;
+        let value = th.field_name;
+        header_names[key] = value;
+    }
+
+    return {
+        th_row: row,
+        header_names: header_names,
+    };
+}
+
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields) {
     let n = 2;
@@ -115,7 +155,7 @@ export function build_add_form(table_fields) {
 
             let options = name.option_value.split('_');
             for (let value of options) {
-                let selected = value == name.default_value? 'selected': '';
+                let selected = value == name.default_value ? 'selected' : '';
                 control += `<option value="${value}" ${selected}>${value}</option>`;
             }
             control += "</select></div>";
@@ -163,7 +203,7 @@ export function build_inout_form(table_fields) {
 
             let options = name.option_value.split('_');
             for (let value of options) {
-                let selected = value == name.default_value? 'selected': '';
+                let selected = value == name.default_value ? 'selected' : '';
                 control += `<option value="${value}" ${selected}>${value}</option>`;
             }
             control += "</select></div>";

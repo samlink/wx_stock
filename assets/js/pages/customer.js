@@ -40,7 +40,6 @@ let header_names = {};
 
 let init_data = {
     container: '.table-customer',
-    header_names: header_names,
     url: "/fetch_customer",
     post_data: {
         id: "",
@@ -69,37 +68,12 @@ fetch("/fetch_fields", {
                 return item.is_show;
             });
 
-            let all_width = 0;
-            for (let item of table_fields) {
-                all_width += item.show_width;
-            }
+            let table = document.querySelector('.table-customer');
+            let data = service.build_table_header(table, table_fields);
+            table.querySelector('thead tr').innerHTML = data.th_row;
+            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
-            all_width += 3;  //序号列的宽度
-            let table_width = document.querySelector('.table-customer').clientWidth;
-            let width = table_width / all_width;
-            let rows = `<th width='${300 / all_width}%'>序号</th><th hidden>编号</th>`;
-
-            if (width < 18) {
-                rows = `<th width='${3 * 18}px'>序号</th><th hidden>编号</th>`;
-                document.querySelector('.table-customer').style.width = table_width;
-                document.querySelector('.table-customer .table-ctrl').style.cssText = `
-                position: absolute;
-                width: ${table_width + 2}px;
-                margin-top: 11px;
-                border: 1px solid #edf5fb;
-                margin-left: -2px;`;
-            }
-
-            for (let th of table_fields) {
-                rows += width > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
-                    `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
-
-                let key = th.show_name;
-                let value = th.field_name;
-                header_names[key] = value;
-            }
-            
-            document.querySelector('.table-customer thead tr').innerHTML = rows;
+            init_data.header_names = data.header_names;
 
             table_init(init_data);
             fetch_table();

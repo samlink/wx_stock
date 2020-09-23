@@ -25,7 +25,7 @@ pub async fn pull_salers(
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let sql = format!(
-            r#"SELECT "ID", name, phone, note, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
+            r#"SELECT id, name, phone, note, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
                     FROM salers WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
         );
@@ -35,7 +35,7 @@ pub async fn pull_salers(
 
         for row in rows {
             let saler = UsersReturn {
-                id: row.get("ID"),
+                id: row.get("id"),
                 name: row.get("name"),
                 phone: row.get("phone"),
                 note: row.get("note"),
@@ -88,12 +88,12 @@ pub async fn edit_saler(
             )
         } else if post_data.cate == "edit" {
             format!(
-                r#"UPDATE salers SET name='{}', phone='{}', note='{}' WHERE "ID"={}"#,
+                r#"UPDATE salers SET name='{}', phone='{}', note='{}' WHERE id={}"#,
                 saler[0], saler[1], saler[2], saler[3]
             )
         } else {
             format!(
-                r#"DELETE FROM salers WHERE "ID"={}"#,
+                r#"DELETE FROM salers WHERE id={}"#,
                 saler[0]
             )
         };
@@ -104,27 +104,3 @@ pub async fn edit_saler(
     }
 }
 
-// #[derive(Deserialize, Serialize)]
-// pub struct SalerDel {
-//     pub id: i32,
-// }
-
-// ///用户删除
-// #[post("/del_user")]
-// pub async fn del_user(
-//     db: web::Data<Pool>,
-//     post_data: web::Json<SalerDel>,
-//     id: Identity,
-// ) -> HttpResponse {
-//     let user = get_user(db.clone(), id, "销售人员".to_owned()).await;
-//     if user.name != "" {
-//         let conn = db.get().await.unwrap();
-//         &conn
-//             .execute(r#"DELETE FROM salers WHERE name=$1"#, &[&post_data.name])
-//             .await
-//             .unwrap();
-//         HttpResponse::Ok().json(1)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }

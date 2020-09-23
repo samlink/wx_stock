@@ -4,7 +4,7 @@ use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
-///获取出入库显示字段
+///获取采购进货单显示字段
 #[post("/fetch_buyin_fields")]
 pub async fn fetch_buyin_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
@@ -16,7 +16,7 @@ pub async fn fetch_buyin_fields(db: web::Data<Pool>, id: Identity) -> HttpRespon
     }
 }
 
-///获取出入库显示字段
+///获取指定 id 的供应商
 #[post("/fetch_supplier")]
 pub async fn fetch_supplier(
     db: web::Data<Pool>,
@@ -34,7 +34,7 @@ pub async fn fetch_supplier(
 
         sql = sql.trim_end_matches(",").to_owned();
 
-        sql += &format!(r#" FROM supplier WHERE "ID"={}"#, supplier_id);
+        sql += &format!(r#" FROM supplier WHERE id={}"#, supplier_id);
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut supplier = "".to_owned();
@@ -42,6 +42,18 @@ pub async fn fetch_supplier(
             supplier += &simple_string_from_base(row, &fields);
         }
         HttpResponse::Ok().json((fields, supplier))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取供应商显示字段
+#[post("/fetch_supplier_fields")]
+pub async fn fetch_supplier_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
+    if user.name != "" {
+        let fields = get_inout_fields(db.clone(), "供应商").await;
+        HttpResponse::Ok().json(fields)
     } else {
         HttpResponse::Ok().json(-1)
     }

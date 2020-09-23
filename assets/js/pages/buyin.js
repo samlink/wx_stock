@@ -1,10 +1,10 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
-import { build_inout_form } from '../parts/service.mjs'
+import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
 
-var table_fields;
+var customer_fields;
 let header_names = {};
 let row_num;
 
@@ -30,10 +30,9 @@ fetch("/fetch_buyin_fields", {
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            table_fields = content;
-            let html = build_inout_form(table_fields);
+            let table_fields = content;
+            let html = service.build_inout_form(table_fields);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
-
 
             let fields_show = document.querySelector('.fields-show');
             let has_auto = document.querySelector('.has-auto');
@@ -75,6 +74,7 @@ autocomplete(search_input, "", "/supplier_auto", () => {
         });
 });
 
+//供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
     let width = document.querySelector('body').clientWidth * 0.8;
     let height = document.querySelector('body').clientHeight * 0.8;
@@ -126,47 +126,20 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
     document.querySelector('.modal-body').innerHTML = html;
 
-    fetch("/fetch_fields", {
+    fetch("/fetch_supplier_fields", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(table_name),
+        body: JSON.stringify("供应商"),
     })
         .then(response => response.json())
         .then(content => {
-            let table_fields = content[0];
-            let all_width = 0;
-            for (let item of table_fields) {
-                all_width += item.show_width;
-            }
-
-            all_width += 3;  //序号列的宽度
-            let table_width = document.querySelector('.table-customer').clientWidth;
-            let width_raio = table_width / all_width;
-            let rows = `<th width='${300 / all_width}%'>序号</th><th hidden>编号</th>`;
-
-            if (width_raio < 18) {
-                rows = `<th width='${3 * 18}px'>序号</th><th hidden>编号</th>`;
-                document.querySelector('.table-customer').style.width = table_width;
-                document.querySelector('.table-customer .table-ctrl').style.cssText = `
-                        position: absolute;
-                        width: ${table_width + 2}px;
-                        margin-top: 11px;
-                        border: 1px solid #edf5fb;
-                        margin-left: -2px;`;
-            }
-
-            for (let th of table_fields) {
-                rows += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
-                    `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
-
-                let key = th.show_name;
-                let value = th.field_name;
-                header_names[key] = value;
-            }
-
-            document.querySelector('.table-customer thead tr').innerHTML = rows;
+            let table = document.querySelector('.table-customer');
+            let data = service.build_table_header(table, content);
+            table.querySelector('thead tr').innerHTML = data.th_row;
+            table.querySelector('thead tr th:nth-child(2)').addAttribute('hidden');
+            header_names = data.header_names;
         });
 
     document.querySelector('.modal-title').textContent = "选择供应商";
