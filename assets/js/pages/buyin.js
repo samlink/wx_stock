@@ -160,7 +160,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let ware_house;
+let ware_house_select;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -226,11 +226,7 @@ fetch("/fetch_inout_fields", {
                     <div class="form-input">
                         <input class="form-control input-sm has-value" type="text" />
                     </div>
-                </td><td>
-                    <div class="form-input">
-                        <input class="form-control input-sm has-value" type="text" />
-                    </div>
-                </td><td>
+                </td><td></td><td>
                     <div class="form-input">
                         <input class="form-control input-sm has-value" type="text" />
                     </div>
@@ -257,10 +253,24 @@ fetch("/fetch_inout_fields", {
 
         document.querySelector('.auto-input').focus();
 
+        //构造仓库下拉选单
         fetch("/fetch_house")
             .then(response => response.json())
             .then(content => {
-                console.log(content);
+                ware_house_select = ` <select class='select-sm has-value'>`;
+
+                for (let house of content) {
+                    ware_house_select += `<option value="${house.id}">${house.name}</option>`;
+                }
+
+                ware_house_select += "</select>";
+
+                document.querySelector('.inputting td:nth-last-child(2)').innerHTML = ware_house_select;
+
+            });
+
+            autocomplete(document.querySelector('.auto-input'), "", "/supplier_auto", () => {
+                // search_table();
             });
 
     });
