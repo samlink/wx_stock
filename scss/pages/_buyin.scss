@@ -18,9 +18,43 @@
         left: 142;
     }
 
-    .table-items {
-        overflow: auto;
+    .buy-items > div {
+        // display: flex;
+        display: inline-block;
     }
+
+    .table-items {
+        width: 78%;
+        overflow: auto;
+
+        th {
+            cursor: default;
+        }
+
+        tr {
+            height: 32px;
+        }
+    }
+
+    .table-history {
+        width: 296px;
+        margin-left: 5px;
+        float: right;
+        th {
+            cursor: default;
+        }
+
+        tr {
+            height: 32px;
+        }
+
+        .table-info {
+            width: 100%;
+            text-align: center;
+            padding: 0;
+        }
+    }
+
     .autocomplete {
         position: relative;
         margin-left: -6.5px;

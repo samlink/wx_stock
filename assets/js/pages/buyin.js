@@ -169,26 +169,32 @@ fetch("/fetch_inout_fields", {
 })
     .then(response => response.json())
     .then(content => {
+        let line_height = 32; //行高，与 css 设置一致
         let all_width = 0;
         for (let item of content) {
             all_width += item.show_width;
         }
         let table_container = document.querySelector('.table-items');
-        let table_width = table_container.clientWidth;
+        let table_width = document.querySelector('.content').clientWidth -
+            document.querySelector('.table-history').clientWidth - 15;
 
-        if (all_width * 18 + 934 > table_width) {
-            table_container.style.width = table_width;
+        table_container.style.width = table_width;
+
+        if (all_width * 23 + 680 > table_width) {
             table_container.querySelector('.table-ctrl').style.cssText = `
                 position: absolute;
                 width: ${table_width + 2}px;
                 margin-top: 11px;
                 border: 1px solid #edf5fb;
                 margin-left: -2px;`;
+
+            document.querySelector('.table-history .table-ctrl').style.height = "61px";
+
         }
 
-        let th_row = `<th width='54px'>序号</th><th width='120px'>名称</th>`;
+        let th_row = `<th width=54px>序号</th><th width=120px>名称</th>`;
         for (let th of content) {
-            th_row += `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
+            th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
         }
         table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
 
@@ -199,17 +205,24 @@ fetch("/fetch_inout_fields", {
         }
 
         row += "</tr>";
+        let row2 = "<tr><td></td><td></td><td></td></tr>";
 
-        let count = Math.floor((document.querySelector('body').clientHeight - 380) / 30);
+        let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
 
         let rows = "";
+        let rows2 = "";
         for (let i = 0; i < count; i++) {
             rows += row;
+            rows2 += row2;
         }
 
         let tbody = table_container.querySelector('tbody');
-        tbody.style.height = count * 30 + "px";
+        let tbody2 = document.querySelector('.table-history tbody');
+        tbody.style.height = count * line_height + "px";
         tbody.innerHTML = rows;
+        // tbody2.style.height = (count * line_height + t2_add) + "px";
+        tbody2.innerHTML = rows2;
+
 
     });
 

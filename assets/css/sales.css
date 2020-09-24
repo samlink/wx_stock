@@ -1776,8 +1776,34 @@ a.roar-alert-message-tbf {
 .buy-in .has-auto {
   left: 142;
 }
+.buy-in .buy-items > div {
+  display: inline-block;
+}
 .buy-in .table-items {
+  width: 78%;
   overflow: auto;
+}
+.buy-in .table-items th {
+  cursor: default;
+}
+.buy-in .table-items tr {
+  height: 32px;
+}
+.buy-in .table-history {
+  width: 296px;
+  margin-left: 5px;
+  float: right;
+}
+.buy-in .table-history th {
+  cursor: default;
+}
+.buy-in .table-history tr {
+  height: 32px;
+}
+.buy-in .table-history .table-info {
+  width: 100%;
+  text-align: center;
+  padding: 0;
 }
 .buy-in .autocomplete {
   position: relative;
