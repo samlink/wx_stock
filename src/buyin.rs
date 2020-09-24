@@ -5,11 +5,11 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 ///获取采购进货单显示字段
-#[post("/fetch_buyin_fields")]
-pub async fn fetch_buyin_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+#[post("/fetch_inout_fields")]
+pub async fn fetch_inout_fields(db: web::Data<Pool>, name: web::Json<String>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
     if user.name != "" {
-        let fields = get_inout_fields(db.clone(), "采购单据").await;
+        let fields = get_inout_fields(db.clone(), &name).await;
         HttpResponse::Ok().json(fields)
     } else {
         HttpResponse::Ok().json(-1)
@@ -47,17 +47,17 @@ pub async fn fetch_supplier(
     }
 }
 
-///获取供应商显示字段
-#[post("/fetch_supplier_fields")]
-pub async fn fetch_supplier_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
-    if user.name != "" {
-        let fields = get_inout_fields(db.clone(), "供应商").await;
-        HttpResponse::Ok().json(fields)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+// ///获取供应商显示字段
+// #[post("/fetch_supplier_fields")]
+// pub async fn fetch_supplier_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+//     let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
+//     if user.name != "" {
+//         let fields = get_inout_fields(db.clone(), "供应商").await;
+//         HttpResponse::Ok().json(fields)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
 ///进出库获取客户供应商信息
 #[post("/fetch_inout_customer")]

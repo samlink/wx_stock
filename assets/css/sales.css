@@ -1776,6 +1776,9 @@ a.roar-alert-message-tbf {
 .buy-in .has-auto {
   left: 142;
 }
+.buy-in .table-items {
+  overflow: auto;
+}
 .buy-in .autocomplete {
   position: relative;
   margin-left: -6.5px;

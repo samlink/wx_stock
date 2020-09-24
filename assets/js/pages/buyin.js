@@ -7,8 +7,14 @@ import { SPLITER } from '../parts/tools.mjs';
 
 let table_fields;
 
-fetch("/fetch_buyin_fields", {
+//表头构造显示，并添加事件处理 -----------------------------------------------------------
+
+fetch("/fetch_inout_fields", {
     method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("采购单据"),
 })
     .then(response => response.json())
     .then(content => {
@@ -17,11 +23,14 @@ fetch("/fetch_buyin_fields", {
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
             let date = document.querySelector('#采购日期');
-            date.value = new Date().Format("yyyy-MM-dd");            
+            date.value = new Date().Format("yyyy-MM-dd");
 
             //执行一个laydate实例
             laydate.render({
-                elem: date, //指定元素
+                elem: date,
+                showBottom: false,
+                theme: 'molv',
+                // theme: '#62468d',
             });
 
             let fields_show = document.querySelector('.fields-show');
@@ -96,7 +105,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
     document.querySelector('.modal-body').innerHTML = html;
 
-    fetch("/fetch_supplier_fields", {
+    fetch("/fetch_inout_fields", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -148,6 +157,64 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
     document.querySelector('.modal').style.display = "block";
 });
+
+//表格输入部分 -----------------------------------------------------------------------
+
+fetch("/fetch_inout_fields", {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("商品规格"),
+})
+    .then(response => response.json())
+    .then(content => {
+        let all_width = 0;
+        for (let item of content) {
+            all_width += item.show_width;
+        }
+        let table_container = document.querySelector('.table-items');
+        let table_width = table_container.clientWidth;
+
+        if (all_width * 18 + 934 > table_width) {
+            table_container.style.width = table_width;
+            table_container.querySelector('.table-ctrl').style.cssText = `
+                position: absolute;
+                width: ${table_width + 2}px;
+                margin-top: 11px;
+                border: 1px solid #edf5fb;
+                margin-left: -2px;`;
+        }
+
+        let th_row = `<th width='54px'>序号</th><th width='120px'>名称</th>`;
+        for (let th of content) {
+            th_row += `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
+        }
+        table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
+
+        let headers = table_container.querySelectorAll('th');
+        let row = "<tr>";
+        for (let th of headers) {
+            row += "<td></td>";
+        }
+
+        row += "</tr>";
+
+        let count = Math.floor((document.querySelector('body').clientHeight - 380) / 30);
+
+        let rows = "";
+        for (let i = 0; i < count; i++) {
+            rows += row;
+        }
+
+        let tbody = table_container.querySelector('tbody');
+        tbody.style.height = count * 30 + "px";
+        tbody.innerHTML = rows;
+
+    });
+
+
+//共用事件和函数 ---------------------------------------------------------------------
 
 //关闭按键
 document.querySelector('#modal-close-button').addEventListener('click', function () {
