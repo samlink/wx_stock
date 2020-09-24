@@ -1786,8 +1786,57 @@ a.roar-alert-message-tbf {
 .buy-in .table-items th {
   cursor: default;
 }
-.buy-in .table-items tr {
+.buy-in .table-items tbody tr {
   height: 33px;
+}
+.buy-in .table-items tbody tr td:nth-child(1) {
+  text-align: center;
+}
+.buy-in .table-items tbody tr:hover {
+  border-left: 3px solid #2196f3;
+  background-color: transparent;
+}
+.buy-in .table-items tbody tr:hover td:nth-child(1) {
+  font-weight: bold;
+}
+.buy-in .table-items td {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+.buy-in .table-items input {
+  border: none;
+}
+.buy-in .table-items input:focus {
+  background-color: #fffcc8;
+}
+.buy-in .table-items input:focus + button {
+  display: inline-block;
+}
+.buy-in .table-items button {
+  display: none;
+}
+.buy-in .table-items .autocomplete {
+  margin-left: 0;
+}
+.buy-in .table-items .auto-button {
+  width: 20px;
+  height: 28px;
+  padding: 0;
+  background-color: transparent;
+  color: blue;
+  border: 0;
+  box-shadow: none;
+}
+.buy-in .table-items .auto-button:hover {
+  font-weight: bold;
+  box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
+}
+.buy-in .table-items .inputting td:nth-child(2),
+.buy-in .table-items .inputting td:nth-last-child(1),
+.buy-in .table-items .inputting td:nth-last-child(2),
+.buy-in .table-items .inputting td:nth-last-child(3),
+.buy-in .table-items .inputting td:nth-last-child(4) {
+  border-bottom: 1px solid tomato;
 }
 .buy-in .table-history {
   width: 296px;

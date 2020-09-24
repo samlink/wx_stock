@@ -191,7 +191,7 @@ fetch("/fetch_inout_fields", {
             document.querySelector('.table-history .table-ctrl').style.height = "61px";
         }
 
-        let th_row = `<th width=54px>序号</th><th width=120px>名称</th>`;
+        let th_row = `<th width=54px>序号</th><th width=140px>名称</th>`;
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
         }
@@ -205,12 +205,10 @@ fetch("/fetch_inout_fields", {
 
         blank_row += "</tr>";
 
-        let row = `<tr><td>1</td><td>
+        let row = `<tr class='has-input inputting'><td>1</td><td>
                 <div class="form-input autocomplete">
-                    <input class="form-control input-sm has-value auto-input" type="text" />
-                    <button class="btn btn-info btn-sm auto-button">
-                        <i class="fa fa-search"></i>
-                    </button>
+                    <input class="form-control input-sm has-value auto-input" type="text" style='width:100%' />
+                    <button class="btn btn-info btn-sm auto-button" title="搜索"> ... </button>
                 </div>
               </td>`;
 
@@ -255,6 +253,7 @@ fetch("/fetch_inout_fields", {
         tbody.innerHTML = rows;
         tbody2.innerHTML = rows2;
 
+        document.querySelector('.auto-input').focus();
 
     });
 
