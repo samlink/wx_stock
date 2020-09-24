@@ -169,7 +169,7 @@ fetch("/fetch_inout_fields", {
 })
     .then(response => response.json())
     .then(content => {
-        let line_height = 32; //行高，与 css 设置一致
+        let line_height = 33; //行高，与 css 设置一致
         let all_width = 0;
         for (let item of content) {
             all_width += item.show_width;
@@ -189,7 +189,6 @@ fetch("/fetch_inout_fields", {
                 margin-left: -2px;`;
 
             document.querySelector('.table-history .table-ctrl').style.height = "61px";
-
         }
 
         let th_row = `<th width=54px>序号</th><th width=120px>名称</th>`;
@@ -199,28 +198,61 @@ fetch("/fetch_inout_fields", {
         table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
 
         let headers = table_container.querySelectorAll('th');
-        let row = "<tr>";
+        let blank_row = "<tr>";
         for (let th of headers) {
+            blank_row += "<td></td>";
+        }
+
+        blank_row += "</tr>";
+
+        let row = `<tr><td>1</td><td>
+                <div class="form-input autocomplete">
+                    <input class="form-control input-sm has-value auto-input" type="text" />
+                    <button class="btn btn-info btn-sm auto-button">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+              </td>`;
+
+        for (let item of content) {
             row += "<td></td>";
         }
 
-        row += "</tr>";
+        row += `<td>
+                    <div class="form-input">
+                        <input class="form-control input-sm has-value" type="text" />
+                    </div>
+                </td><td>
+                    <div class="form-input">
+                        <input class="form-control input-sm has-value" type="text" />
+                    </div>
+                </td><td>
+                    <div class="form-input">
+                        <input class="form-control input-sm has-value" type="text" />
+                    </div>
+                </td><td>
+                    <div class="form-input">
+                        <input class="form-control input-sm has-value" type="text" />
+                    </div>
+            </td></tr>`;
+
         let row2 = "<tr><td></td><td></td><td></td></tr>";
 
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
 
-        let rows = "";
+        let rows = row;
         let rows2 = "";
-        for (let i = 0; i < count; i++) {
-            rows += row;
+        for (let i = 0; i < count - 1; i++) {
+            rows += blank_row;
             rows2 += row2;
         }
+
+        rows2 += row2;
 
         let tbody = table_container.querySelector('tbody');
         let tbody2 = document.querySelector('.table-history tbody');
         tbody.style.height = count * line_height + "px";
         tbody.innerHTML = rows;
-        // tbody2.style.height = (count * line_height + t2_add) + "px";
         tbody2.innerHTML = rows2;
 
 
