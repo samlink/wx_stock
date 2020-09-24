@@ -14,8 +14,9 @@ pub struct HouseData {
 ///获取仓库
 #[get("/fetch_house")]
 pub async fn fetch_house(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
-    if user.name != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
             .query("SELECT id, name FROM warehouse ORDER BY show_order", &[])

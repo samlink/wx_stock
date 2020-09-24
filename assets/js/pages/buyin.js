@@ -160,6 +160,8 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
+let ware_house;
+
 fetch("/fetch_inout_fields", {
     method: 'post',
     headers: {
@@ -254,6 +256,12 @@ fetch("/fetch_inout_fields", {
         tbody2.innerHTML = rows2;
 
         document.querySelector('.auto-input').focus();
+
+        fetch("/fetch_house")
+            .then(response => response.json())
+            .then(content => {
+                console.log(content);
+            });
 
     });
 
