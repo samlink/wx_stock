@@ -4,6 +4,7 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
+import { auto_complex } from '../parts/autocomplete.mjs';
 
 let table_fields;
 
@@ -176,6 +177,7 @@ fetch("/fetch_inout_fields", {
         for (let item of content) {
             all_width += item.show_width;
         }
+
         let table_container = document.querySelector('.table-items');
         let table_width = document.querySelector('.content').clientWidth -
             document.querySelector('.table-history').clientWidth - 15;
@@ -267,7 +269,7 @@ fetch("/fetch_inout_fields", {
         table_container.addEventListener('scroll', function () {
             auto_input.blur();
             let all_auto = table_container.querySelectorAll('.autocomplete');
-            for (let auto of all_auto){
+            for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
             }
         });
@@ -291,9 +293,12 @@ fetch("/fetch_inout_fields", {
 
             });
 
+        let show_names = [{ name: "名称", width: 140 }];
+        for (let item of content) {
+            show_names.push({ name: item.show_name, width: item.show_width * 18 });
+        }
 
-
-        autocomplete(auto_input, "", "/buyin_auto", () => {
+        auto_complex(auto_input, "", "/buyin_auto", show_names, () => {
             // search_table();
         });
 

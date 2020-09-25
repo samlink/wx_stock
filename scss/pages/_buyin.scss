@@ -41,9 +41,9 @@
                 &:hover {
                     border-left: 3px solid $color-info;
                     background-color: transparent;
-                    td:nth-child(1) {
-                        font-weight: bold;
-                    }
+                    // td:nth-child(1) {
+                    //     font-weight: bold;
+                    // }
                 }
             }
         }
@@ -72,18 +72,11 @@
             display: none;
         }
 
-        // .autocomplete {
-        //     // width: 165px;
-        // }
-
-        // .autocomplete-items {
-        //     position: relative;
-        // }
-
         .auto-edit {
             position: absolute;
             margin-left: -2px;
             margin-top: -15px;
+            z-index: 0;
         }
 
         .auto-button {
@@ -109,6 +102,55 @@
             td:nth-last-child(3),
             td:nth-last-child(4) {
                 border-bottom: 1px solid tomato;
+            }
+        }
+    }
+
+    .table-auto {
+        table {
+            border: 1px solid $success-300;
+        }
+
+        thead {
+            tr {
+                &:hover {
+                    border-left: 0;
+                }
+            }
+
+            th {
+                height: 28px;
+                background-color: $success-600;
+                border: none;
+            }
+        }
+
+        tbody {
+            background-color: white;
+
+            tr {
+                height: 28px;
+                td {
+                    border: none !important;
+                }
+
+                td:nth-child(1) {
+                    text-align: left;
+                }
+
+                &:hover {
+                    border-left: 0;
+                    background-color:lighten($color-success, 42%);
+                    td:nth-child(1) {
+                        font-weight: normal !important;
+                    }
+                }
+            }
+        }
+
+        &:hover {
+            td:nth-child(1) {
+                font-weight: normal !important;
             }
         }
     }

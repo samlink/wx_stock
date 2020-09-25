@@ -1796,9 +1796,6 @@ a.roar-alert-message-tbf {
   border-left: 3px solid #2196f3;
   background-color: transparent;
 }
-.buy-in .table-items tbody tr:hover td:nth-child(1) {
-  font-weight: bold;
-}
 .buy-in .table-items td {
   padding-top: 0;
   padding-bottom: 0;
@@ -1822,6 +1819,7 @@ a.roar-alert-message-tbf {
   position: absolute;
   margin-left: -2px;
   margin-top: -15px;
+  z-index: 0;
 }
 .buy-in .table-items .auto-button {
   width: 20px;
@@ -1843,6 +1841,39 @@ a.roar-alert-message-tbf {
 .buy-in .table-items .inputting td:nth-last-child(3),
 .buy-in .table-items .inputting td:nth-last-child(4) {
   border-bottom: 1px solid tomato;
+}
+.buy-in .table-auto table {
+  border: 1px solid #37e2d0;
+}
+.buy-in .table-auto thead tr:hover {
+  border-left: 0;
+}
+.buy-in .table-auto thead th {
+  height: 28px;
+  background-color: #1ab3a3;
+  border: none;
+}
+.buy-in .table-auto tbody {
+  background-color: white;
+}
+.buy-in .table-auto tbody tr {
+  height: 28px;
+}
+.buy-in .table-auto tbody tr td {
+  border: none !important;
+}
+.buy-in .table-auto tbody tr td:nth-child(1) {
+  text-align: left;
+}
+.buy-in .table-auto tbody tr:hover {
+  border-left: 0;
+  background-color: #c5f7f2;
+}
+.buy-in .table-auto tbody tr:hover td:nth-child(1) {
+  font-weight: normal !important;
+}
+.buy-in .table-auto:hover td:nth-child(1) {
+  font-weight: normal !important;
 }
 .buy-in .table-history {
   width: 296px;
