@@ -251,7 +251,29 @@ fetch("/fetch_inout_fields", {
         tbody.innerHTML = rows;
         tbody2.innerHTML = rows2;
 
-        document.querySelector('.auto-input').focus();
+        let auto_input = document.querySelector('.auto-input');
+        let auto_width = table_container.querySelector('.inputting td:nth-child(2)').clientWidth;
+        auto_input.style.width = auto_width - 24;
+
+        //这部分是解决滚动时， 自动完成功能可正常使用-----
+        auto_input.addEventListener('focus', function () {
+            this.parentNode.classList.add('auto-edit');     //绝对定位
+        });
+
+        auto_input.addEventListener('blur', function () {
+            // this.style.cssText = "";
+        });
+
+        table_container.addEventListener('scroll', function () {
+            auto_input.blur();
+            let all_auto = table_container.querySelectorAll('.autocomplete');
+            for (let auto of all_auto){
+                auto.classList.remove('auto-edit');     //去掉绝对定位
+            }
+        });
+        // ----------------------------------------
+
+        auto_input.focus();
 
         //构造仓库下拉选单
         fetch("/fetch_house")
@@ -269,9 +291,11 @@ fetch("/fetch_inout_fields", {
 
             });
 
-            autocomplete(document.querySelector('.auto-input'), "", "/supplier_auto", () => {
-                // search_table();
-            });
+
+
+        autocomplete(auto_input, "", "/supplier_auto", () => {
+            // search_table();
+        });
 
     });
 

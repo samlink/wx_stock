@@ -15,11 +15,10 @@
     }
 
     .has-auto {
-        left: 142;
+        left: 136;
     }
 
     .buy-items > div {
-        // display: flex;
         display: inline-block;
     }
 
@@ -73,8 +72,15 @@
             display: none;
         }
 
-        .autocomplete {
-            width: 165px;
+        // .autocomplete {
+        //     // width: 165px;
+        // }
+
+        // .autocomplete-items {
+        //     position: relative;
+        // }
+
+        .auto-edit {
             position: absolute;
             margin-left: -2px;
             margin-top: -15px;
@@ -84,13 +90,13 @@
             width: 20px;
             height: 28px;
             padding: 0;
+            margin-left: -1px;
             background-color: transparent;
             color: blue;
             border: 0;
             box-shadow: none;
 
             &:hover {
-                // border: 1px solid $color-info;
                 font-weight: bold;
                 box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
             }
@@ -104,10 +110,6 @@
             td:nth-last-child(4) {
                 border-bottom: 1px solid tomato;
             }
-
-            // td:nth-child(1) {
-            //     font-weight: bold;
-            // }
         }
     }
 

@@ -1774,7 +1774,7 @@ a.roar-alert-message-tbf {
   cursor: pointer;
 }
 .buy-in .has-auto {
-  left: 142;
+  left: 136;
 }
 .buy-in .buy-items > div {
   display: inline-block;
@@ -1818,8 +1818,7 @@ a.roar-alert-message-tbf {
 .buy-in .table-items button {
   display: none;
 }
-.buy-in .table-items .autocomplete {
-  width: 165px;
+.buy-in .table-items .auto-edit {
   position: absolute;
   margin-left: -2px;
   margin-top: -15px;
@@ -1828,6 +1827,7 @@ a.roar-alert-message-tbf {
   width: 20px;
   height: 28px;
   padding: 0;
+  margin-left: -1px;
   background-color: transparent;
   color: blue;
   border: 0;
