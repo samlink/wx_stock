@@ -116,12 +116,6 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
     }
 }
 
-#[derive(Deserialize)]
-pub struct Search {
-    s: String,
-    cate: String,
-}
-
 #[derive(Deserialize, Serialize)]
 pub struct Message {
     id: i32,
@@ -132,7 +126,7 @@ pub struct Message {
 #[get("/product_auto")]
 pub async fn product_auto(
     db: web::Data<Pool>,
-    search: web::Query<Search>,
+    search: web::Query<SearchCate>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());

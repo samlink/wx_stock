@@ -104,6 +104,25 @@
                 border-bottom: 1px solid tomato;
             }
         }
+
+        .autocomplete {
+            //不遮挡供应商自动完成
+            z-index: 18;
+        }
+
+        .position {
+            // //不被下一行的自动完成遮挡
+            // .autocomplete {
+            //     z-index: 30;
+            // }
+
+            .autocomplete-items {
+                width: 130px;
+                div {
+                    width: 115px;
+                }
+            }
+        }
     }
 
     .table-auto {
@@ -141,7 +160,7 @@
 
                 &:hover {
                     border-left: 0;
-                    background-color:lighten($color-success, 42%);
+                    background-color: lighten($color-success, 42%);
                     td:nth-child(1) {
                         font-weight: normal !important;
                     }
@@ -150,9 +169,8 @@
 
             .autocomplete-active {
                 color: black;
-                background-color:lighten($color-success, 42%);
+                background-color: lighten($color-success, 42%);
             }
-
         }
 
         // &:hover {

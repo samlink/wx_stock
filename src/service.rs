@@ -24,6 +24,12 @@ pub struct Search {
     pub s: String,
 }
 
+#[derive(Deserialize)]
+pub struct SearchCate {
+    pub s: String,
+    pub cate: String,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub name: String,
@@ -47,8 +53,8 @@ pub struct TablePager {
 //自动完成使用
 #[derive(Deserialize, Serialize)]
 pub struct Message {
-    id: i32,
-    label: String,
+    pub id: i32,
+    pub label: String,
 }
 
 //存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度

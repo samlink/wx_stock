@@ -117,7 +117,7 @@ pub async fn fetch_inout_customer(
     }
 }
 
-//自动完成
+//商品规格自动完成
 #[get("/buyin_auto")]
 pub async fn buyin_auto(
     db: web::Data<Pool>,
@@ -155,6 +155,54 @@ pub async fn buyin_auto(
         );
 
         autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//库位自动完成
+#[get("/position_auto")]
+pub async fn position_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let s = search.s.to_lowercase();
+
+        let sql = &format!(
+            r#"SELECT position FROM warehouse WHERE id = {}"#,
+            search.cate
+        );
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut postion = "".to_owned();
+
+        for row in rows {
+            postion = row.get("position")
+        }
+
+        let mut p_arr: Vec<&str> = postion.split(",").collect();
+        p_arr.retain(|&x| x.to_lowercase().contains(&s));
+
+        let mut data = Vec::new();
+        let mut n = 1;
+        
+        for p in p_arr {
+            if n > 10 {
+                break;
+            } else {
+                let message = Message {
+                    id: 1,
+                    label: p.to_string(),
+                };
+                data.push(message);
+            }
+            n += 1;
+        }
+
+        HttpResponse::Ok().json(data)
     } else {
         HttpResponse::Ok().json(-1)
     }

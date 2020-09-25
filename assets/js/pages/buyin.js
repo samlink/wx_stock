@@ -1,10 +1,9 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { autocomplete } from '../parts/autocomplete.mjs';
+import { autocomplete, auto_table, cate_element } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
-import { auto_table } from '../parts/autocomplete.mjs';
 
 let table_fields;
 
@@ -236,11 +235,12 @@ fetch("/fetch_inout_fields", {
                     <div class="form-input">
                         <input class="form-control input-sm has-value" type="text" />
                     </div>
-                </td><td></td><td>
-                    <div class="form-input">
-                        <input class="form-control input-sm has-value" type="text" />
+                </td><td></td>
+                <td class="position">
+                    <div class="form-input autocomplete">
+                        <input class="form-control input-sm has-value ware-position" type="text" />
                     </div>
-            </td>`;
+                </td>`;
 
         let input_row = row;    //将 row 存到全局变量，供后面加行时使用
         row = "<tr class='has-input'>" + row + "</tr>";
@@ -299,6 +299,33 @@ fetch("/fetch_inout_fields", {
                 }
                 ware_house_select += "</select>";
                 document.querySelector('.has-input td:nth-last-child(2)').innerHTML = ware_house_select;
+                document.querySelector('.position .autocomplete').style.cssText = `z-index: ${900}`;
+
+
+                //加入自动完成
+                let position_input = document.querySelector('.ware-position');
+                let warehouse = document.querySelector('.has-input .select-sm');
+
+                let id = document.createElement('p');
+                id.textContent = warehouse.value;
+
+                let auto_width2 = table_container.querySelector('.has-input .position').clientWidth;
+                position_input.style.width = (auto_width2 - 10) + "px";
+
+                position_input.addEventListener('focus', function () {
+                    this.parentNode.classList.add('auto-edit');     //绝对定位
+                });
+
+                autocomplete(position_input, id, "/position_auto", () => {
+
+                });
+
+                warehouse.addEventListener('change', function () {
+                    let id = document.createElement('p');
+                    id.textContent = this.value;
+                    cate_element.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+                    console.log(cate_element);
+                });
             });
 
         //构造商品规格自动完成------------
@@ -308,6 +335,7 @@ fetch("/fetch_inout_fields", {
         }
 
         auto_table(auto_input, "", "/buyin_auto", show_names, () => {
+            //自动填入规格数据
             let field_values = auto_input.getAttribute("data").split(SPLITER);
             let n = 3;
             for (let item of content) {
@@ -315,6 +343,7 @@ fetch("/fetch_inout_fields", {
                 n++;
             }
 
+            //追加新行
             let next = document.querySelector(`.inputting + tr`);
             let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
 
@@ -323,6 +352,8 @@ fetch("/fetch_inout_fields", {
                 next.classList.add('has-input');
                 next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
                 next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
+                next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
+
                 next.addEventListener('click', function () {
                     let all_has_input = document.querySelectorAll('.has-input');
                     for (let input of all_has_input) {
@@ -335,7 +366,7 @@ fetch("/fetch_inout_fields", {
                 alert("dd");
             }
 
-            document.querySelector(`.inputting td:nth-child(${n}) input`).focus()
+            document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
         });
         //----------------------------

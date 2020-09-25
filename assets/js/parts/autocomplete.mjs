@@ -1,8 +1,11 @@
 import { SPLITER } from '../parts/tools.mjs';
 
+export var cate_element = {};
+
 /// input: 输入元素；cate: 类别元素，url: 数据地址；cb: 回调函数
 export function autocomplete(input, cate, url, cb) {
     var currentFocus;
+    cate_element.cate = cate;
     input.addEventListener("input", function (e) {
         var a, b, i;
         var val = this.value;
@@ -11,7 +14,7 @@ export function autocomplete(input, cate, url, cb) {
         if (!val) { return false; }
 
         currentFocus = -1;
-        var get_url = cate == "" ? `${url}?s=${val}` : `${url}?s=${val}&cate=${cate.textContent}`;
+        var get_url = cate_element.cate == "" ? `${url}?s=${val}` : `${url}?s=${val}&cate=${cate_element.cate.textContent}`;
 
         fetch(get_url)
             .then(response => response.json())

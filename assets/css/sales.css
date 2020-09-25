@@ -1842,6 +1842,15 @@ a.roar-alert-message-tbf {
 .buy-in .table-items .inputting td:nth-last-child(4) {
   border-bottom: 1px solid tomato;
 }
+.buy-in .table-items .autocomplete {
+  z-index: 18;
+}
+.buy-in .table-items .position .autocomplete-items {
+  width: 130px;
+}
+.buy-in .table-items .position .autocomplete-items div {
+  width: 115px;
+}
 .buy-in .table-auto table {
   border: 1px solid #37e2d0;
 }
