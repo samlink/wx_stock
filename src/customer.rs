@@ -136,11 +136,6 @@ pub async fn add_customer(
     }
 }
 
-#[derive(Deserialize)]
-pub struct Search {
-    s: String,
-}
-
 //自动完成
 #[get("/customer_auto")]
 pub async fn customer_auto(

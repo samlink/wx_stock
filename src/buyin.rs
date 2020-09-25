@@ -1,12 +1,16 @@
 use crate::service::*;
 use actix_identity::Identity;
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
 ///获取采购进货单显示字段
 #[post("/fetch_inout_fields")]
-pub async fn fetch_inout_fields(db: web::Data<Pool>, name: web::Json<String>, id: Identity) -> HttpResponse {
+pub async fn fetch_inout_fields(
+    db: web::Data<Pool>,
+    name: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
     if user.name != "" {
         let fields = get_inout_fields(db.clone(), &name).await;
@@ -108,6 +112,49 @@ pub async fn fetch_inout_customer(
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//自动完成
+#[get("/buyin_auto")]
+pub async fn buyin_auto(
+    db: web::Data<Pool>,
+    search: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let fields = get_inout_fields(db.clone(), "商品规格").await;
+        let mut s: Vec<&str> = search.s.split(" ").collect();
+        if s.len() == 1 {
+            s.push("");
+        }
+
+        let mut sql_fields = "".to_owned();
+        let mut sql_where = "".to_owned();
+        for f in &fields {
+            sql_fields += &format!("{} || '{}' ||", f.field_name, SPLITER);
+            sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s[1])
+        }
+
+        let str_match = format!(" || '{}' ||", SPLITER);
+        sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
+        sql_where = sql_where.trim_end_matches(" OR ").to_owned();
+
+        let sql = &format!(
+            r#"SELECT id, node_name || '{}' || {} AS label FROM products 
+            JOIN tree ON products.商品id = tree.num
+            WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            SPLITER,
+            sql_fields,
+            s[0].to_lowercase(),
+            s[0].to_lowercase(),
+            sql_where,
+        );
+
+        autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }

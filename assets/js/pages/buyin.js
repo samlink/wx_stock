@@ -293,7 +293,7 @@ fetch("/fetch_inout_fields", {
 
 
 
-        autocomplete(auto_input, "", "/supplier_auto", () => {
+        autocomplete(auto_input, "", "/buyin_auto", () => {
             // search_table();
         });
 

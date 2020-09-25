@@ -18,6 +18,12 @@ pub struct File {
     name: String,
 }
 
+//自动完成搜索字符串
+#[derive(Deserialize)]
+pub struct Search {
+    pub s: String,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub name: String,
