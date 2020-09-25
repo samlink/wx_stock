@@ -161,7 +161,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let ware_house_select;
+let input_row, ware_house_select;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -172,6 +172,7 @@ fetch("/fetch_inout_fields", {
 })
     .then(response => response.json())
     .then(content => {
+        //构造表主体结构-----------
         let line_height = 33; //行高，与 css 设置一致
         let all_width = 0;
         for (let item of content) {
@@ -194,13 +195,18 @@ fetch("/fetch_inout_fields", {
 
             document.querySelector('.table-history .table-ctrl').style.height = "61px";
         }
+        //------------------
 
+        //构造表头------------
         let th_row = `<th width=54px>序号</th><th width=140px>名称</th>`;
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
         }
         table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
+        //------------------
 
+
+        //构造空行-----------
         let headers = table_container.querySelectorAll('th');
         let blank_row = "<tr>";
         for (let th of headers) {
@@ -208,8 +214,10 @@ fetch("/fetch_inout_fields", {
         }
 
         blank_row += "</tr>";
+        //-----------------
 
-        let row = `<tr class='has-input inputting'><td>1</td><td>
+        //构造带有输入控件的行----------
+        let row = `<td>1</td><td>
                 <div class="form-input autocomplete">
                     <input class="form-control input-sm has-value auto-input" type="text" style='width:100%' />
                     <button class="btn btn-info btn-sm auto-button" title="搜索"> ... </button>
@@ -232,12 +240,15 @@ fetch("/fetch_inout_fields", {
                     <div class="form-input">
                         <input class="form-control input-sm has-value" type="text" />
                     </div>
-            </td></tr>`;
+            </td>`;
 
+        let input_row = row;    //将 row 存到全局变量，供后面加行时使用
+        row = "<tr class='has-input'>" + row + "</tr>";
+        //----------------------
+
+        //将表格的所有行写入，包括第二张历史记录表----------
         let row2 = "<tr><td></td><td></td><td></td></tr>";
-
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
-
         let rows = row;
         let rows2 = "";
         for (let i = 0; i < count - 1; i++) {
@@ -249,15 +260,16 @@ fetch("/fetch_inout_fields", {
 
         let tbody = table_container.querySelector('tbody');
         let tbody2 = document.querySelector('.table-history tbody');
-        tbody.style.height = count * line_height + "px";
+        tbody.style.height = count * line_height + "px";    //这里设置高度，为了实现Y轴滚动
         tbody.innerHTML = rows;
         tbody2.innerHTML = rows2;
-
-        let auto_input = document.querySelector('.auto-input');
-        let auto_width = table_container.querySelector('.inputting td:nth-child(2)').clientWidth;
-        auto_input.style.width = auto_width - 24;
+        //---------------------------------
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
+        let auto_input = document.querySelector('.auto-input');
+        let auto_width = table_container.querySelector('.has-input td:nth-child(2)').clientWidth;
+        auto_input.style.width = auto_width - 24;
+
         auto_input.addEventListener('focus', function () {
             this.parentNode.classList.add('auto-edit');     //绝对定位
         });
@@ -275,24 +287,21 @@ fetch("/fetch_inout_fields", {
         });
         // ----------------------------------------
 
-        auto_input.focus();
+        // auto_input.focus();
 
-        //构造仓库下拉选单
+        //构造仓库下拉选单，并记住 select 内容
         fetch("/fetch_house")
             .then(response => response.json())
             .then(content => {
                 ware_house_select = ` <select class='select-sm has-value'>`;
-
                 for (let house of content) {
                     ware_house_select += `<option value="${house.id}">${house.name}</option>`;
                 }
-
                 ware_house_select += "</select>";
-
-                document.querySelector('.inputting td:nth-last-child(2)').innerHTML = ware_house_select;
-
+                document.querySelector('.has-input td:nth-last-child(2)').innerHTML = ware_house_select;
             });
 
+        //构造商品规格自动完成------------
         let show_names = [{ name: "名称", width: 140 }];
         for (let item of content) {
             show_names.push({ name: item.show_name, width: item.show_width * 18 });
@@ -305,11 +314,39 @@ fetch("/fetch_inout_fields", {
                 document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[n - 1];
                 n++;
             }
-            
+
+            let next = document.querySelector(`.inputting + tr`);
+            let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
+
+            if (next && next.querySelector('td:nth-child(1)').textContent == "") {
+                next.innerHTML = input_row;
+                next.classList.add('has-input');
+                next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
+                next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
+                next.addEventListener('click', function () {
+                    let all_has_input = document.querySelectorAll('.has-input');
+                    for (let input of all_has_input) {
+                        input.classList.remove("inputting");
+                    }
+                    this.classList.add("inputting");
+                });
+            }
+            else if (!next) {
+                alert("dd");
+            }
+
             document.querySelector(`.inputting td:nth-child(${n}) input`).focus()
 
         });
+        //----------------------------
 
+        document.querySelector('.has-input').addEventListener('click', function () {
+            let all_has_input = document.querySelectorAll('.has-input');
+            for (let input of all_has_input) {
+                input.classList.remove("inputting");
+            }
+            this.classList.add("inputting");
+        });
     });
 
 
@@ -337,7 +374,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
 });
 
-//自动完成点击后，展示数据
+//自动完成点击后，展示供应商数据
 function supplier_auto_show() {
     fetch("/fetch_supplier", {
         method: 'post',
