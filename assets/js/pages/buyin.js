@@ -4,7 +4,7 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
-import { auto_complex } from '../parts/autocomplete.mjs';
+import { auto_table } from '../parts/autocomplete.mjs';
 
 let table_fields;
 
@@ -298,7 +298,7 @@ fetch("/fetch_inout_fields", {
             show_names.push({ name: item.show_name, width: item.show_width * 18 });
         }
 
-        auto_complex(auto_input, "", "/buyin_auto", show_names, () => {
+        auto_table(auto_input, "", "/buyin_auto", show_names, () => {
             // search_table();
         });
 

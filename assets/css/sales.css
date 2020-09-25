@@ -1872,8 +1872,9 @@ a.roar-alert-message-tbf {
 .buy-in .table-auto tbody tr:hover td:nth-child(1) {
   font-weight: normal !important;
 }
-.buy-in .table-auto:hover td:nth-child(1) {
-  font-weight: normal !important;
+.buy-in .table-auto tbody .autocomplete-active {
+  color: black;
+  background-color: #c5f7f2;
 }
 .buy-in .table-history {
   width: 296px;

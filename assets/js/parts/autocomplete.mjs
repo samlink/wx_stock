@@ -42,19 +42,30 @@ export function autocomplete(input, cate, url, cb) {
     input.addEventListener("keydown", function (e) {
         var x = document.querySelectorAll("#autocomplete-list div");
         if (x.length > 0) {
-            if (e.keyCode == 40) {  //down
+            if (e.key == 'ArrowDown') {
                 currentFocus++;
                 addActive(x);
-            } else if (e.keyCode == 38) { //up
+            } else if (e.key == 'ArrowUp') {
                 currentFocus--;
                 addActive(x);
-            } else if (e.keyCode == 13) {   //回车
+            } else if (e.key == 'Enter') {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    x[currentFocus].click();
+                }
+                else {
+                    x[0].click();
+                }
+            } else if (e.key == 'Escape') {  
+                closeAllLists();
+            } else if (e.key == 'Tab') {
                 e.preventDefault();
                 if (currentFocus > -1) {
                     x[currentFocus].click();     //模拟 click 操作
                 }
-            } else if (e.keyCode == 27) {   //esc
-                closeAllLists();
+                else {
+                    x[0].click();
+                }
             }
         }
     });
@@ -86,7 +97,7 @@ export function autocomplete(input, cate, url, cb) {
     }
 }
 
-export function auto_complex(input, cate, url, thead, cb) {
+export function auto_table(input, cate, url, thead, cb) {
     var currentFocus;
     input.addEventListener("input", function (e) {
         var a, b, i;
@@ -142,21 +153,32 @@ export function auto_complex(input, cate, url, thead, cb) {
     });
 
     input.addEventListener("keydown", function (e) {
-        var x = document.querySelectorAll("#autocomplete-list div");
+        var x = document.querySelectorAll("#autocomplete-list tbody tr");
         if (x.length > 0) {
-            if (e.keyCode == 40) {  //down
+            if (e.key == 'ArrowDown') {
                 currentFocus++;
                 addActive(x);
-            } else if (e.keyCode == 38) { //up
+            } else if (e.key == 'ArrowUp') {
                 currentFocus--;
                 addActive(x);
-            } else if (e.keyCode == 13) {   //回车
+            } else if (e.key == 'Enter') {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    x[currentFocus].click();
+                }
+                else {
+                    x[0].click();
+                }
+            } else if (e.key == 'Escape') {  
+                closeAllLists();
+            } else if (e.key == 'Tab') {
                 e.preventDefault();
                 if (currentFocus > -1) {
                     x[currentFocus].click();     //模拟 click 操作
                 }
-            } else if (e.keyCode == 27) {   //esc
-                closeAllLists();
+                else {
+                    x[0].click();
+                }
             }
         }
     });

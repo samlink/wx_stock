@@ -146,13 +146,19 @@
                     }
                 }
             }
+
+            .autocomplete-active {
+                color: black;
+                background-color:lighten($color-success, 42%);
+            }
+
         }
 
-        &:hover {
-            td:nth-child(1) {
-                font-weight: normal !important;
-            }
-        }
+        // &:hover {
+        //     td:nth-child(1) {
+        //         font-weight: normal !important;
+        //     }
+        // }
     }
 
     .table-history {
