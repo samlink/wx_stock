@@ -1858,6 +1858,7 @@ a.roar-alert-message-tbf {
 }
 .buy-in .table-auto tbody tr {
   height: 28px;
+  cursor: pointer;
 }
 .buy-in .table-auto tbody tr td {
   border: none !important;

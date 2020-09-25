@@ -299,7 +299,15 @@ fetch("/fetch_inout_fields", {
         }
 
         auto_table(auto_input, "", "/buyin_auto", show_names, () => {
-            // search_table();
+            let field_values = auto_input.getAttribute("data").split(SPLITER);
+            let n = 3;
+            for (let item of content) {
+                document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[n - 1];
+                n++;
+            }
+            
+            document.querySelector(`.inputting td:nth-child(${n}) input`).focus()
+
         });
 
     });

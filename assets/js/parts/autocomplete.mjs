@@ -56,7 +56,7 @@ export function autocomplete(input, cate, url, cb) {
                 else {
                     x[0].click();
                 }
-            } else if (e.key == 'Escape') {  
+            } else if (e.key == 'Escape') {
                 closeAllLists();
             } else if (e.key == 'Tab') {
                 e.preventDefault();
@@ -97,6 +97,7 @@ export function autocomplete(input, cate, url, cb) {
     }
 }
 
+//thead 是对象数组，其格式：[{ name: "名称", width: 140 }，……];
 export function auto_table(input, cate, url, thead, cb) {
     var currentFocus;
     input.addEventListener("input", function (e) {
@@ -169,7 +170,7 @@ export function auto_table(input, cate, url, thead, cb) {
                 else {
                     x[0].click();
                 }
-            } else if (e.key == 'Escape') {  
+            } else if (e.key == 'Escape') {
                 closeAllLists();
             } else if (e.key == 'Tab') {
                 e.preventDefault();
