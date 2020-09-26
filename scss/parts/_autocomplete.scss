@@ -1,7 +1,7 @@
 .autocomplete {
   position: absolute;
   display: flex;
-  z-index: 20;
+  z-index: 1000;
 
   $auto-width: 200px; //按需修改
   input {

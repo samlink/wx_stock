@@ -328,13 +328,12 @@ fetch("/fetch_inout_fields", {
 
                 });
 
-                autocomplete(position_input, id, "/position_auto");
+                autocomplete(position_input, id, "/position_auto", () => { });
 
                 warehouse.addEventListener('change', function () {
                     let id = document.createElement('p');
                     id.textContent = this.value;
                     cate_element.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
-                    console.log(cate_element);
                 });
             });
 
@@ -389,14 +388,10 @@ fetch("/fetch_inout_fields", {
                 return false;
             }
 
-            if (!document.querySelector('product-content')) {
-
-
+            if (!document.querySelector('.product-content')) {
                 let width = document.querySelector('body').clientWidth * 0.8;
                 let height = document.querySelector('body').clientHeight * 0.8;
                 let tbody_height = height - 270;
-
-
 
                 let html = `
             <div class="product-content">
@@ -466,6 +461,7 @@ fetch("/fetch_inout_fields", {
                 document.querySelector('.tree-container').style.height = height - 240;
 
                 let tree_data = {
+                    node_num: "",
                     leaf_click: (id, name) => {
 
                         document.querySelector('#product-name').textContent = name;

@@ -1095,7 +1095,7 @@ a.roar-alert-message-tbf {
 .autocomplete {
   position: absolute;
   display: flex;
-  z-index: 20;
+  z-index: 1000;
 }
 .autocomplete input {
   width: 200px;
