@@ -1,6 +1,5 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight } from '../parts/tools.mjs';
 
 let global = {
     edit_cate: '',

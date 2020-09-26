@@ -2,7 +2,7 @@ import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
-import { autocomplete } from '../parts/autocomplete.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
@@ -44,9 +44,11 @@ fetch_tree();
 
 let input = document.querySelector('#auto_input');
 
-autocomplete(input, "", "/tree_auto", () => {
+let auto_comp = new AutoInput(input, "", "/tree_auto", () => {
     tree_search(input.value);
 });
+
+auto_comp.init();
 
 document.querySelector("#auto_search").addEventListener('click', () => {
     tree_search(input.value);

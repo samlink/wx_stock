@@ -298,10 +298,6 @@ export function build_product_table(row_num, cb) {
 
     auto_comp.init();
 
-    // autocomplete(search_input, cate, "/product_auto", () => {
-    //     search_table();
-    // });
-
     document.querySelector('#serach-button').addEventListener('click', function () {
         search_table();
     });

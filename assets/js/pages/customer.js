@@ -1,7 +1,7 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { autocomplete } from '../parts/autocomplete.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
@@ -88,9 +88,11 @@ function blank_row() {
 //搜索规格
 let search_input = document.querySelector('#search-input');
 
-autocomplete(search_input, "", cate_set.auto_url, () => {
+let auto_comp = new AutoInput(search_input, "", cate_set.auto_url, () => {
     search_table();
 });
+
+auto_comp.init();
 
 document.querySelector('#serach-button').addEventListener('click', function () {
     search_table();
