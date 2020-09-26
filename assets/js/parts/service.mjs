@@ -219,7 +219,7 @@ export function build_inout_form(table_fields) {
 }
 
 //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
-export function build_product_table(row_num) {
+export function build_product_table(row_num, cb) {
     let table_fields;
 
     let init_data = {
@@ -303,6 +303,16 @@ export function build_product_table(row_num) {
     function search_table() {
         let search = document.querySelector('#search-input').value;
         Object.assign(table_data.post_data, { name: search, page: 1 });
-        fetch_table();
+        
+        //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
+        if (typeof cb == "function") {
+            let table = document.querySelector('.table-product');
+            fetch_table(() => {
+                cb(table);
+            });
+        }
+        else {
+            fetch_table();
+        }
     }
 }

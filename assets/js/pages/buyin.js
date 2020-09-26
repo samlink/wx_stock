@@ -471,7 +471,12 @@ fetch("/fetch_inout_fields", {
                     };
 
                     Object.assign(table_data.post_data, post_data);
-                    fetch_table();
+
+                    let table = document.querySelector('.table-product');
+
+                    fetch_table(() => {
+                        row_dbclick(table);
+                    });
                 }
             }
 
@@ -493,7 +498,7 @@ fetch("/fetch_inout_fields", {
             });
 
             let row_num = Math.floor(tbody_height / 30);
-            service.build_product_table(row_num);
+            service.build_product_table(row_num, row_dbclick);
 
             document.querySelector('.modal-title').textContent = "选择商品";
             document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
@@ -617,10 +622,28 @@ function chose_exit(selected_row) {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(id),
+                body: JSON.stringify(Number(id)),
             })
                 .then(response => response.json())
                 .then(content => {
+                    let name = document.querySelector('#product-name').textContent;
+                    let id = document.querySelector('#product-id').textContent;
+                    let data = ` ${id}${SPLITER}${name}${SPLITER}${content}`;
+                    let input = document.querySelector('.inputting .auto-input');
+                    input.value = name;
+                    input.setAttribute("data", data);
+
+                    let field_values = content.trim(SPLITER).split(SPLITER);
+
+                    let n = 3;
+                    for (let i = 0; i < field_values.length - 1; i++) {
+                        document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
+                        n++;
+                    }
+
+                    document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
+                    close_modal();
+
                 });
         }
 

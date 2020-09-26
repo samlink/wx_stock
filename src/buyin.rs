@@ -210,7 +210,7 @@ pub async fn position_auto(
 }
 
 //获取指定 id 的产品
-#[get("/fetch_one_product")]
+#[post("/fetch_one_product")]
 pub async fn fetch_one_product(
     db: web::Data<Pool>,
     product_id: web::Json<i32>,
