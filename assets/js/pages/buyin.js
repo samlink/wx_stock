@@ -59,11 +59,12 @@ autocomplete(document.querySelector('#supplier-input'), "", "/supplier_auto", ()
 
 //供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
-    let width = document.querySelector('body').clientWidth * 0.8;
-    let height = document.querySelector('body').clientHeight * 0.8;
-    let customer_height = height - 270;
+    if (!document.querySelector('#customer-show')) {
+        let width = document.querySelector('body').clientWidth * 0.8;
+        let height = document.querySelector('body').clientHeight * 0.8;
+        let customer_height = height - 270;
 
-    let html = `<div id="customer-show">
+        let html = `<div id="customer-show">
                     <div class="table-top">
                         <div class="autocomplete customer-search">
                             <input type="text" class="form-control search-input" id="search-input" placeholder="供应商搜索">
@@ -104,57 +105,58 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                     </div>
                 </div>`;
 
-    document.querySelector('.modal-body').innerHTML = html;
+        document.querySelector('.modal-body').innerHTML = html;
 
-    fetch("/fetch_inout_fields", {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify("供应商"),
-    })
-        .then(response => response.json())
-        .then(content => {
-            table_fields = content;
-            let table = document.querySelector('.table-customer');
-            let data = service.build_table_header(table, table_fields);
-            table.querySelector('thead tr').innerHTML = data.th_row;
-            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+        fetch("/fetch_inout_fields", {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify("供应商"),
+        })
+            .then(response => response.json())
+            .then(content => {
+                table_fields = content;
+                let table = document.querySelector('.table-customer');
+                let data = service.build_table_header(table, table_fields);
+                table.querySelector('thead tr').innerHTML = data.th_row;
+                table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
-            let init_data = {
-                container: '.table-customer',
-                url: "/fetch_inout_customer",
-                header_names: data.header_names,
-                post_data: {
-                    id: "",
-                    name: '',
-                    sort: "名称 ASC",
-                    rec: Math.floor(customer_height / 30),
-                    cate: "供应商",
-                },
-                edit: false,
+                let init_data = {
+                    container: '.table-customer',
+                    url: "/fetch_inout_customer",
+                    header_names: data.header_names,
+                    post_data: {
+                        id: "",
+                        name: '',
+                        sort: "名称 ASC",
+                        rec: Math.floor(customer_height / 30),
+                        cate: "供应商",
+                    },
+                    edit: false,
 
-                row_fn: table_row,
-                blank_row_fn: blank_row,
-            };
+                    row_fn: table_row,
+                    blank_row_fn: blank_row,
+                };
 
-            table_init(init_data);
-            fetch_table(() => {
-                row_dbclick(table);
+                table_init(init_data);
+                fetch_table(() => {
+                    row_dbclick(table);
+                });
             });
+
+        autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
+            search_table();
         });
 
-    autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
-        search_table();
-    });
+        document.querySelector('#serach-button').onclick = function () {
+            search_table();
+        };
 
-    document.querySelector('#serach-button').onclick = function () {
-        search_table();
-    };
-
-    document.querySelector('.modal-title').textContent = "选择供应商";
-    document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-    document.querySelector('.modal-content').style.cssText = `height: 100%;`
+        document.querySelector('.modal-title').textContent = "选择供应商";
+        document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
+        document.querySelector('.modal-content').style.cssText = `height: 100%;`
+    }
 
     document.querySelector('.modal').style.display = "block";
 });
