@@ -219,7 +219,7 @@ fetch("/fetch_inout_fields", {
         let row = `<td>1</td><td>
                 <div class="form-input autocomplete">
                     <input class="form-control input-sm has-value auto-input" type="text" style='width:100%' />
-                    <button class="btn btn-info btn-sm auto-button" title="搜索"> ... </button>
+                    <button class="btn btn-info btn-sm product-search-button" title="搜索"> ... </button>
                 </div>
               </td>`;
 
@@ -274,12 +274,12 @@ fetch("/fetch_inout_fields", {
             this.parentNode.classList.add('auto-edit');     //绝对定位
         });
 
-        auto_input.addEventListener('blur', function () {
-            // this.style.cssText = "";
-        });
+        // auto_input.addEventListener('blur', function () {
+        //     // this.style.cssText = "";
+        // });
 
         table_container.addEventListener('scroll', function () {
-            auto_input.blur();
+            // auto_input.blur();
             document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
@@ -372,6 +372,133 @@ fetch("/fetch_inout_fields", {
 
         });
         //----------------------------
+
+        //商品规格查找按钮
+        let bb = table_container.querySelector('.product-search-button');
+        console.log(bb);
+        bb.addEventListener('click', function () {
+            alert('dd')
+            let width = document.querySelector('body').clientWidth * 0.8;
+            let height = document.querySelector('body').clientHeight * 0.8;
+            let customer_height = height - 270;
+
+            let html = `
+            <div class="product-content">
+                <div class="tree-show">
+                    <div class="autocomplete table-top">
+                        <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
+                        <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
+                                width="20px"></button>
+                    </div>
+                    <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
+                    <div class="tree-container">
+                        <ul id="tree">
+                        </ul>
+                    </div>
+                </div>
+                <div id="product-show">
+                    <div class="table-top">
+                        <div class="autocomplete product-search">
+                            <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
+                            <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                            <span id="product-name"></span><span id="product-id"></span>
+                        </div>
+                        <div class="table-tools">
+                        </div>
+                    </div>
+        
+                    <div class="table-container table-product">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="table-ctrl">
+                            <div class="tools-button"></div>
+                            <div class="table-button">
+                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                        width="12px"></button>
+                                <p class="seperator"></p>
+                                <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                                <span>页，共</span><span id="pages"></span><span>页</span>
+                                <p class="seperator"></p>
+                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                        width="12px"></button>
+                            </div>
+        
+                            <div class="table-info">
+                                共 <span id="total-records"></span> 条记录
+                            </div>
+        
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+
+            document.querySelector('.modal-body').innerHTML = html;
+
+            // fetch("/fetch_inout_fields", {
+            //     method: 'post',
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify("商品规格"),
+            // })
+            //     .then(response => response.json())
+            //     .then(content => {
+            //         table_fields = content;
+            //         let table = document.querySelector('.table-customer');
+            //         let data = service.build_table_header(table, table_fields);
+            //         table.querySelector('thead tr').innerHTML = data.th_row;
+            //         table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+
+            //         let init_data = {
+            //             container: '.table-customer',
+            //             url: "/fetch_inout_customer",
+            //             header_names: data.header_names,
+            //             post_data: {
+            //                 id: "",
+            //                 name: '',
+            //                 sort: "名称 ASC",
+            //                 rec: Math.floor(customer_height / 30),
+            //                 cate: "供应商",
+            //             },
+            //             edit: false,
+
+            //             row_fn: table_row,
+            //             blank_row_fn: blank_row,
+            //         };
+
+            //         table_init(init_data);
+            //         fetch_table(() => {
+            //             row_dbclick(table);
+            //         });
+            //     });
+
+            // autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
+            //     search_table();
+            // });
+
+            // document.querySelector('#serach-button').onclick = function () {
+            //     search_table();
+            // };
+
+            document.querySelector('.modal-title').textContent = "选择商品";
+            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
+            document.querySelector('.modal-content').style.cssText = `height: 100%;`
+
+            document.querySelector('.modal').style.display = "block";
+        });
+
+
 
         document.querySelector('.has-input').addEventListener('click', function () {
             let all_has_input = document.querySelectorAll('.has-input');
