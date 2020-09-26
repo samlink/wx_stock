@@ -1,5 +1,5 @@
 import { SPLITER } from '../parts/tools.mjs';
-import { autocomplete } from '../parts/autocomplete.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 
 //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
@@ -292,9 +292,15 @@ export function build_product_table(row_num, cb) {
     let search_input = document.querySelector('#search-input');
     let cate = document.querySelector('#product-id');
 
-    autocomplete(search_input, cate, "/product_auto", () => {
+    let auto_comp = new AutoInput(search_input, cate, "/product_auto", () => {
         search_table();
     });
+
+    auto_comp.init();
+
+    // autocomplete(search_input, cate, "/product_auto", () => {
+    //     search_table();
+    // });
 
     document.querySelector('#serach-button').addEventListener('click', function () {
         search_table();
@@ -303,7 +309,7 @@ export function build_product_table(row_num, cb) {
     function search_table() {
         let search = document.querySelector('#search-input').value;
         Object.assign(table_data.post_data, { name: search, page: 1 });
-        
+
         //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
         if (typeof cb == "function") {
             let table = document.querySelector('.table-product');

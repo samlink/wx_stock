@@ -2,7 +2,7 @@ import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { autocomplete, auto_table, cate_element } from '../parts/autocomplete.mjs';
+import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER } from '../parts/tools.mjs';
 
@@ -53,9 +53,11 @@ fetch("/fetch_inout_fields", {
     });
 
 //供应商自动完成
-autocomplete(document.querySelector('#supplier-input'), "", "/supplier_auto", () => {
+let auto_comp = new AutoInput(document.querySelector('#supplier-input'), "", "/supplier_auto", () => {
     supplier_auto_show();
 });
+
+auto_comp.init();
 
 //供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
@@ -145,9 +147,10 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                 });
             });
 
-        autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
+        let auto_comp = new AutoInput(document.querySelector('#search-input'), "", "/supplier_auto", () => {
             search_table();
         });
+        auto_comp.init();
 
         document.querySelector('#serach-button').onclick = function () {
             search_table();
@@ -328,12 +331,13 @@ fetch("/fetch_inout_fields", {
 
                 });
 
-                autocomplete(position_input, id, "/position_auto", () => { });
+                let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
+                auto_comp.init();
 
                 warehouse.addEventListener('change', function () {
                     let id = document.createElement('p');
                     id.textContent = this.value;
-                    cate_element.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+                    auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
                 });
             });
 
@@ -489,9 +493,11 @@ fetch("/fetch_inout_fields", {
 
                 let input = document.querySelector('#auto_input');
 
-                autocomplete(input, "", "/tree_auto", () => {
+                let auto_comp = new AutoInput(input, "", "/tree_auto", () => {
                     tree_search(input.value);
                 });
+
+                auto_comp.init();
 
                 document.querySelector("#auto_search").addEventListener('click', () => {
                     tree_search(input.value);
