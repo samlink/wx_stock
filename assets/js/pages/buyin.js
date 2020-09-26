@@ -383,14 +383,20 @@ fetch("/fetch_inout_fields", {
         //商品规格查找按钮
         let bb = table_container.querySelector('.product-search-button');
         bb.addEventListener('click', function () {
-            let width = document.querySelector('body').clientWidth * 0.8;
-            let height = document.querySelector('body').clientHeight * 0.8;
-            let tbody_height = height - 270;
-
             if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
                 return false;
             }
-            let html = `
+
+            if (!document.querySelector('product-content')) {
+
+
+                let width = document.querySelector('body').clientWidth * 0.8;
+                let height = document.querySelector('body').clientHeight * 0.8;
+                let tbody_height = height - 270;
+
+
+
+                let html = `
             <div class="product-content">
                 <div class="tree-show">
                     <div class="autocomplete table-top">
@@ -454,55 +460,56 @@ fetch("/fetch_inout_fields", {
                 </div>
             </div>`;
 
-            document.querySelector('.modal-body').innerHTML = html;
-            document.querySelector('.tree-container').style.height = height - 240;
+                document.querySelector('.modal-body').innerHTML = html;
+                document.querySelector('.tree-container').style.height = height - 240;
 
-            let tree_data = {
-                leaf_click: (id, name) => {
+                let tree_data = {
+                    leaf_click: (id, name) => {
 
-                    document.querySelector('#product-name').textContent = name;
-                    document.querySelector('#product-id').textContent = id;
+                        document.querySelector('#product-name').textContent = name;
+                        document.querySelector('#product-id').textContent = id;
 
-                    let post_data = {
-                        id: id,
-                        name: '',
-                        // sort: "规格型号 ASC",
-                        page: 1,
-                    };
+                        let post_data = {
+                            id: id,
+                            name: '',
+                            // sort: "规格型号 ASC",
+                            page: 1,
+                        };
 
-                    Object.assign(table_data.post_data, post_data);
+                        Object.assign(table_data.post_data, post_data);
 
-                    let table = document.querySelector('.table-product');
+                        let table = document.querySelector('.table-product');
 
-                    fetch_table(() => {
-                        row_dbclick(table);
-                    });
+                        fetch_table(() => {
+                            row_dbclick(table);
+                        });
+                    }
                 }
-            }
 
-            tree_init(tree_data);
-            fetch_tree();
-
-            let input = document.querySelector('#auto_input');
-
-            autocomplete(input, "", "/tree_auto", () => {
-                tree_search(input.value);
-            });
-
-            document.querySelector("#auto_search").addEventListener('click', () => {
-                tree_search(input.value);
-            });
-
-            document.querySelector(".tree-title").addEventListener('click', () => {
+                tree_init(tree_data);
                 fetch_tree();
-            });
 
-            let row_num = Math.floor(tbody_height / 30);
-            service.build_product_table(row_num, row_dbclick);
+                let input = document.querySelector('#auto_input');
 
-            document.querySelector('.modal-title').textContent = "选择商品";
-            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-            document.querySelector('.modal-content').style.cssText = `height: 100%;`
+                autocomplete(input, "", "/tree_auto", () => {
+                    tree_search(input.value);
+                });
+
+                document.querySelector("#auto_search").addEventListener('click', () => {
+                    tree_search(input.value);
+                });
+
+                document.querySelector(".tree-title").addEventListener('click', () => {
+                    fetch_tree();
+                });
+
+                let row_num = Math.floor(tbody_height / 30);
+                service.build_product_table(row_num, row_dbclick);
+
+                document.querySelector('.modal-title').textContent = "选择商品";
+                document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
+                document.querySelector('.modal-content').style.cssText = `height: 100%;`
+            }
 
             document.querySelector('.modal').style.display = "block";
         });
@@ -627,7 +634,6 @@ function chose_exit(selected_row) {
                 .then(response => response.json())
                 .then(content => {
                     let name = document.querySelector('#product-name').textContent;
-                    let id = document.querySelector('#product-id').textContent;
                     let data = ` ${id}${SPLITER}${name}${SPLITER}${content}`;
                     let input = document.querySelector('.inputting .auto-input');
                     input.value = name;
