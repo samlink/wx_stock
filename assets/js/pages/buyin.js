@@ -7,7 +7,7 @@ import { SPLITER } from '../parts/tools.mjs';
 
 let table_fields;
 
-//表头构造显示，并添加事件处理 -----------------------------------------------------------
+//单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -280,14 +280,13 @@ fetch("/fetch_inout_fields", {
 
         table_container.addEventListener('scroll', function () {
             auto_input.blur();
+            document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
             }
         });
         // ----------------------------------------
-
-        // auto_input.focus();
 
         //构造仓库下拉选单，并记住 select 内容
         fetch("/fetch_house")
@@ -301,7 +300,6 @@ fetch("/fetch_inout_fields", {
                 document.querySelector('.has-input td:nth-last-child(2)').innerHTML = ware_house_select;
                 document.querySelector('.position .autocomplete').style.cssText = `z-index: ${900}`;
 
-
                 //加入自动完成
                 let position_input = document.querySelector('.ware-position');
                 let warehouse = document.querySelector('.has-input .select-sm');
@@ -309,11 +307,15 @@ fetch("/fetch_inout_fields", {
                 let id = document.createElement('p');
                 id.textContent = warehouse.value;
 
-                let auto_width2 = table_container.querySelector('.has-input .position').clientWidth;
+                let position = table_container.querySelector('.has-input .position');
+                let auto_width2 = position.clientWidth;
                 position_input.style.width = (auto_width2 - 10) + "px";
 
                 position_input.addEventListener('focus', function () {
+                    var pos = position.getBoundingClientRect();     //获取元素的屏幕位置
+                    this.parentNode.style.left = pos.left + 8;
                     this.parentNode.classList.add('auto-edit');     //绝对定位
+
                 });
 
                 autocomplete(position_input, id, "/position_auto", () => {

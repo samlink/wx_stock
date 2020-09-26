@@ -136,7 +136,13 @@ pub async fn buyin_auto(
         let mut sql_where = "".to_owned();
         for f in &fields {
             sql_fields += &format!("{} || '{}' ||", f.field_name, SPLITER);
-            sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s[1])
+            if f.data_type == "文本" {
+                sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s[1])
+            }
+            // else {
+            //     let number = s[1].parse::<f32>().unwrap_or(0.0);
+            //     sql_where += &format!("{}={} OR ", f.field_name, number)
+            // }
         }
 
         let str_match = format!(" || '{}' ||", SPLITER);
