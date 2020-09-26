@@ -139,10 +139,6 @@ pub async fn buyin_auto(
             if f.data_type == "文本" {
                 sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s[1])
             }
-            // else {
-            //     let number = s[1].parse::<f32>().unwrap_or(0.0);
-            //     sql_where += &format!("{}={} OR ", f.field_name, number)
-            // }
         }
 
         let str_match = format!(" || '{}' ||", SPLITER);
@@ -194,7 +190,6 @@ pub async fn position_auto(
 
         let mut data = Vec::new();
         let mut n = 1;
-        
         for p in p_arr {
             if n > 10 {
                 break;
@@ -206,6 +201,39 @@ pub async fn position_auto(
                 data.push(message);
             }
             n += 1;
+        }
+
+        HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//获取指定 id 的产品
+#[get("/fetch_one_product")]
+pub async fn fetch_one_product(
+    db: web::Data<Pool>,
+    product_id: web::Json<i32>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let fields = get_inout_fields(db.clone(), "商品规格").await;
+        let mut sql = "SELECT ".to_owned();
+        for f in &fields {
+            sql += &format!("{},", f.field_name);
+        }
+
+        sql = sql.trim_end_matches(",").to_owned();
+        let sql = &format!(r#"{} FROM products WHERE id = {}"#, sql, product_id);
+        let conn = db.get().await.unwrap();
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut data = "".to_owned();
+        for row in rows {
+            for f in &fields {
+                let name: String = row.get(&*f.field_name);
+                data += &format!("{}{}", name, SPLITER);
+            }
         }
 
         HttpResponse::Ok().json(data)

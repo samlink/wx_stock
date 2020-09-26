@@ -12,11 +12,8 @@ var global = {
     drag_list: [],  //记住拖拽的所有 li，防止放置自身或子类
 };
 
-var selected_node;
+var selected_node, menu, zhezhao;
 var input_html = '<input type="text" id="input_node" value="新节点">';
-
-var menu = document.querySelector('#context-menu');
-var zhezhao = document.querySelector('#zhezhao');
 
 //从数据库获取 tree 数据
 export var fetch_tree = function () {
@@ -47,6 +44,10 @@ export var fetch_tree = function () {
 
 export var tree_init = function (data) {
     Object.assign(global, data);
+
+    menu = document.querySelector('#context-menu');
+    zhezhao = document.querySelector('#zhezhao');
+
     //页面点击事件
     document.addEventListener('click', function (event) {
         var has_input = document.querySelector('#input_node');

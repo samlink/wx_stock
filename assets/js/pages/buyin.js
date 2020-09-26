@@ -1,4 +1,5 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { autocomplete, auto_table, cate_element } from '../parts/autocomplete.mjs';
@@ -268,11 +269,8 @@ fetch("/fetch_inout_fields", {
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         let auto_input = document.querySelector('.auto-input');
         let auto_td = table_container.querySelector('.has-input td:nth-child(2)');
+        auto_input.parentNode.style.cssText = `z-index: ${900}`;
         auto_input.style.width = auto_td.clientWidth - 24;
-
-        // auto_input.addEventListener('focus', function () {
-        //     this.parentNode.classList.add('auto-edit');     //绝对定位
-        // });
 
         auto_td.addEventListener('click', function () {
             auto_input.focus();
@@ -328,9 +326,7 @@ fetch("/fetch_inout_fields", {
 
                 });
 
-                autocomplete(position_input, id, "/position_auto", () => {
-
-                });
+                autocomplete(position_input, id, "/position_auto");
 
                 warehouse.addEventListener('change', function () {
                     let id = document.createElement('p');
@@ -363,6 +359,7 @@ fetch("/fetch_inout_fields", {
                 next.innerHTML = input_row;
                 next.classList.add('has-input');
                 next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
+                next.querySelector('.autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
                 next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
                 next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
 
@@ -388,7 +385,8 @@ fetch("/fetch_inout_fields", {
         bb.addEventListener('click', function () {
             let width = document.querySelector('body').clientWidth * 0.8;
             let height = document.querySelector('body').clientHeight * 0.8;
-            let customer_height = height - 270;
+            let tbody_height = height - 270;
+
             if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
                 return false;
             }
@@ -451,55 +449,51 @@ fetch("/fetch_inout_fields", {
                         </div>
                     </div>
                 </div>
+                <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
+                    <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
+                </div>
             </div>`;
 
             document.querySelector('.modal-body').innerHTML = html;
+            document.querySelector('.tree-container').style.height = height - 240;
 
-            // fetch("/fetch_inout_fields", {
-            //     method: 'post',
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify("商品规格"),
-            // })
-            //     .then(response => response.json())
-            //     .then(content => {
-            //         table_fields = content;
-            //         let table = document.querySelector('.table-customer');
-            //         let data = service.build_table_header(table, table_fields);
-            //         table.querySelector('thead tr').innerHTML = data.th_row;
-            //         table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+            let tree_data = {
+                leaf_click: (id, name) => {
 
-            //         let init_data = {
-            //             container: '.table-customer',
-            //             url: "/fetch_inout_customer",
-            //             header_names: data.header_names,
-            //             post_data: {
-            //                 id: "",
-            //                 name: '',
-            //                 sort: "名称 ASC",
-            //                 rec: Math.floor(customer_height / 30),
-            //                 cate: "供应商",
-            //             },
-            //             edit: false,
+                    document.querySelector('#product-name').textContent = name;
+                    document.querySelector('#product-id').textContent = id;
 
-            //             row_fn: table_row,
-            //             blank_row_fn: blank_row,
-            //         };
+                    let post_data = {
+                        id: id,
+                        name: '',
+                        // sort: "规格型号 ASC",
+                        page: 1,
+                    };
 
-            //         table_init(init_data);
-            //         fetch_table(() => {
-            //             row_dbclick(table);
-            //         });
-            //     });
+                    Object.assign(table_data.post_data, post_data);
+                    fetch_table();
+                }
+            }
 
-            // autocomplete(document.querySelector('#search-input'), "", "/supplier_auto", () => {
-            //     search_table();
-            // });
+            tree_init(tree_data);
+            fetch_tree();
 
-            // document.querySelector('#serach-button').onclick = function () {
-            //     search_table();
-            // };
+            let input = document.querySelector('#auto_input');
+
+            autocomplete(input, "", "/tree_auto", () => {
+                tree_search(input.value);
+            });
+
+            document.querySelector("#auto_search").addEventListener('click', () => {
+                tree_search(input.value);
+            });
+
+            document.querySelector(".tree-title").addEventListener('click', () => {
+                fetch_tree();
+            });
+
+            let row_num = Math.floor(tbody_height / 30);
+            service.build_product_table(row_num);
 
             document.querySelector('.modal-title').textContent = "选择商品";
             document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
@@ -539,7 +533,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         chose_exit(selected_row);
     }
     else {
-        notifier.show('请先选择供应商', 'danger');
+        notifier.show('请先选择再提交', 'danger');
     }
 
 });
@@ -609,14 +603,29 @@ function close_modal() {
 function chose_exit(selected_row) {
     let id = selected_row.children[1].textContent;
     if (id) {
-        let name = selected_row.children[2].textContent;
-        let supplier = document.querySelector('#supplier-input');
-        supplier.value = name;
-        supplier.setAttribute('data', id);
-        supplier_auto_show();
-        close_modal();
+        if (document.querySelector('.modal-title').textContent != "选择商品") {
+            let name = selected_row.children[2].textContent;
+            let supplier = document.querySelector('#supplier-input');
+            supplier.value = name;
+            supplier.setAttribute('data', id);
+            supplier_auto_show();
+            close_modal();
+        }
+        else {
+            fetch("/fetch_one_product", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(id),
+            })
+                .then(response => response.json())
+                .then(content => {
+                });
+        }
+
     }
     else {
-        notifier.show('请先选择供应商', 'danger');
+        notifier.show('请先选择记录', 'danger');
     }
 }

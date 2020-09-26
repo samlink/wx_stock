@@ -1188,6 +1188,9 @@ a.roar-alert-message-tbf {
 .modal .autocomplete .autocomplete-items div {
   width: 244.4px;
 }
+.modal .tree-title {
+  margin-top: 11px;
+}
 
 .modal-dialog {
   position: relative;
