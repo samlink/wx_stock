@@ -219,7 +219,7 @@ fetch("/fetch_inout_fields", {
         let row = `<td>1</td><td>
                 <div class="form-input autocomplete">
                     <input class="form-control input-sm has-value auto-input" type="text" style='width:100%' />
-                    <button class="btn btn-info btn-sm product-search-button" title="搜索"> ... </button>
+                    <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
               </td>`;
 
@@ -267,11 +267,21 @@ fetch("/fetch_inout_fields", {
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         let auto_input = document.querySelector('.auto-input');
-        let auto_width = table_container.querySelector('.has-input td:nth-child(2)').clientWidth;
-        auto_input.style.width = auto_width - 24;
+        let auto_td = table_container.querySelector('.has-input td:nth-child(2)');
+        auto_input.style.width = auto_td.clientWidth - 24;
 
-        auto_input.addEventListener('focus', function () {
-            this.parentNode.classList.add('auto-edit');     //绝对定位
+        // auto_input.addEventListener('focus', function () {
+        //     this.parentNode.classList.add('auto-edit');     //绝对定位
+        // });
+
+        auto_td.addEventListener('click', function () {
+            auto_input.focus();
+            // let all_edit = table_container.querySelectorAll('.auto-edit');
+            // for (let edit of all_edit) {
+            //     edit.classList.remove('auto-edit');
+            // }
+            this.querySelector('.autocomplete').classList.add('auto-edit');
+
         });
 
         // auto_input.addEventListener('blur', function () {
@@ -375,13 +385,13 @@ fetch("/fetch_inout_fields", {
 
         //商品规格查找按钮
         let bb = table_container.querySelector('.product-search-button');
-        console.log(bb);
         bb.addEventListener('click', function () {
-            alert('dd')
             let width = document.querySelector('body').clientWidth * 0.8;
             let height = document.querySelector('body').clientHeight * 0.8;
             let customer_height = height - 270;
-
+            if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
+                return false;
+            }
             let html = `
             <div class="product-content">
                 <div class="tree-show">

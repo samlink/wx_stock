@@ -1807,13 +1807,14 @@ a.roar-alert-message-tbf {
   background-color: #fffcc8;
 }
 .buy-in .table-items input:focus + button {
-  display: inline-block;
+  color: blue;
+}
+.buy-in .table-items input:focus + button:hover {
+  cursor: pointer;
+  box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
 }
 .buy-in .table-items select {
   border: none;
-}
-.buy-in .table-items button {
-  display: none;
 }
 .buy-in .table-items .auto-edit {
   position: absolute;
@@ -1821,19 +1822,17 @@ a.roar-alert-message-tbf {
   margin-top: -15px;
   z-index: 0;
 }
-.buy-in .table-items .auto-button {
+.buy-in .table-items .product-search-button {
   width: 20px;
   height: 28px;
-  padding: 0;
+  font-weight: bold;
   margin-left: -1px;
+  padding: 0;
   background-color: transparent;
-  color: blue;
+  color: transparent;
   border: 0;
   box-shadow: none;
-}
-.buy-in .table-items .auto-button:hover {
-  font-weight: bold;
-  box-shadow: 0 2px 6px 0 rgba(33, 150, 243, 0.5);
+  cursor: default;
 }
 .buy-in .table-items .inputting td:nth-child(2),
 .buy-in .table-items .inputting td:nth-last-child(1),
