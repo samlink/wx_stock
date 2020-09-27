@@ -6,7 +6,7 @@ export class AutoInput {
         this.cate = cate;
         this.url = url;
         this.cb = cb;
-        this.space = 0;
+        this.space = 400;
     }
 
     init() {
@@ -52,7 +52,8 @@ export class AutoInput {
 
                         if (a.clientHeight > space) {
                             a.style.top = -(a.clientHeight - space + 30);
-                            a.style.left = 130;
+                            a.style.left = 120;
+                            a.style.borderTop = "1px solid #9acffa"
                         }
                     }
                 })

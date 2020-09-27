@@ -1779,12 +1779,12 @@ a.roar-alert-message-tbf {
 .buy-in .has-auto {
   left: 136;
 }
-.buy-in .buy-items > div {
-  display: inline-block;
+.buy-in .buy-items {
+  display: flex;
 }
 .buy-in .table-items {
   width: 78%;
-  overflow-x: auto;
+  overflow-x: scroll;
 }
 .buy-in .table-items > table thead,
 .buy-in .table-items > table tbody tr {
@@ -1798,7 +1798,7 @@ a.roar-alert-message-tbf {
 }
 .buy-in .table-items > table tbody {
   display: block;
-  overflow-x: hidden;
+  overflow-x: auto;
   overflow-y: auto;
 }
 .buy-in .table-items > table tbody tr {

@@ -18,13 +18,16 @@
         left: 136;
     }
 
-    .buy-items > div {
-        display: inline-block;
+    // .buy-items > div {
+    //     display: inline-block;
+    // }
+    .buy-items {
+        display: flex;
     }
 
     .table-items {
         width: 78%;
-        overflow-x: auto;
+        overflow-x: scroll;
 
         & > table {
             thead,
@@ -41,7 +44,7 @@
 
             tbody {
                 display: block;
-                overflow-x: hidden;
+                overflow-x: auto;
                 overflow-y: auto;
 
                 tr {
