@@ -1932,5 +1932,10 @@ a.roar-alert-message-tbf {
 .buy-in .autocomplete .autocomplete-items div {
   width: 244.4px;
 }
+.buy-in .autocomplete .table-auto {
+  top: 280;
+  left: 350;
+  position: fixed;
+}
 
 /*# sourceMappingURL=sales.css.map */

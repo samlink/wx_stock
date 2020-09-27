@@ -6,6 +6,7 @@ export class AutoInput {
         this.cate = cate;
         this.url = url;
         this.cb = cb;
+        this.space = 0;
     }
 
     init() {
@@ -16,6 +17,7 @@ export class AutoInput {
         input.addEventListener("input", () => {
             var a, b, i;
             var val = input.value;
+            var space = this.space;
 
             closeAllLists();
             if (!val) { return false; }
@@ -46,6 +48,11 @@ export class AutoInput {
                             });
 
                             a.appendChild(b);
+                        }
+
+                        if (a.clientHeight > space) {
+                            a.style.top = -(a.clientHeight - space + 30);
+                            a.style.left = 130;
                         }
                     }
                 })

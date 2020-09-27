@@ -166,7 +166,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, blank_rw;
+let show_names, blank_rw, ware_house_select;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -515,6 +515,7 @@ function build_input_row(show_names) {
             for (let house of content) {
                 ware_house_select += `<option value="${house.id}">${house.name}</option>`;
             }
+
             ware_house_select += "</select>";
             input_row.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
             input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index - 400};`;  //避免覆盖规格自动菜单
@@ -526,6 +527,11 @@ function build_input_row(show_names) {
 
             position_td.addEventListener('click', function () {
                 element_position(this, 6.5, 16.5);
+                let tbody = document.querySelector('.table-items tbody');
+                let y = getTop(this, tbody);
+                let body_height = document.querySelector('body').clientHeight;
+                auto_comp.space = body_height - y
+                console.log(auto_comp.space);
                 position_input.focus();
             })
 
@@ -545,6 +551,7 @@ function build_input_row(show_names) {
 
     return input_row;
 }
+
 
 //
 function element_position(element, add_x, add_y) {

@@ -222,5 +222,11 @@
                 width: $auto-width * 0.94;
             }
         }
+
+        .table-auto {
+            top: 280;
+            left: 350;
+            position: fixed;
+        }
     }
 }
