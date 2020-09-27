@@ -166,7 +166,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let input_row, ware_house_select;
+// let input_row;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -180,8 +180,11 @@ fetch("/fetch_inout_fields", {
         //构造表主体结构-----------
         let line_height = 33; //行高，与 css 设置一致
         let all_width = 0;
+        let show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
+
         for (let item of content) {
             all_width += item.show_width;
+            show_names.push({ name: item.show_name, width: item.show_width * 18 });
         }
 
         let table_container = document.querySelector('.table-items');
@@ -210,82 +213,46 @@ fetch("/fetch_inout_fields", {
         table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
         //------------------
 
-
         //构造空行-----------
         let headers = table_container.querySelectorAll('th');
         let blank_row = "<tr>";
         for (let th of headers) {
             blank_row += "<td></td>";
         }
-
         blank_row += "</tr>";
         //-----------------
 
         //构造带有输入控件的行----------
-        let row = `<td>1</td><td>
-                <div class="form-input autocomplete">
-                    <input class="form-control input-sm has-value auto-input" type="text" />
-                    <button class="btn btn-info btn-sm product-search-button"> ... </button>
-                </div>
-              </td>`;
-
-        for (let item of content) {
-            row += "<td></td>";
-        }
-
-        row += `<td>
-                    <div class="form-input">
-                        <input class="form-control input-sm has-value" type="text" />
-                    </div>
-                </td><td>
-                    <div class="form-input">
-                        <input class="form-control input-sm has-value" type="text" />
-                    </div>
-                </td><td></td>
-                <td class="position">
-                    <div class="form-input autocomplete">
-                        <input class="form-control input-sm has-value ware-position" type="text" />
-                    </div>
-                </td>`;
-
-        input_row = row;    //将 row 存到全局变量，供后面加行时使用
-        row = "<tr class='has-input'>" + row + "</tr>";
+        let input_row = build_input_row(content, show_names);
         //----------------------
 
-        //将表格的所有行写入，包括第二张历史记录表----------
-        let row2 = "<tr><td></td><td></td><td></td></tr>";
+        console.log(input_row);
+
+        let tbody = table_container.querySelector('tbody');
+        tbody.appendChild(input_row);
+
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
-        let rows = row;
-        let rows2 = "";
+        let rows = "";
         for (let i = 0; i < count - 1; i++) {
-            rows += blank_row;      //只有一行带输入控件，其他行为空行
+            rows += blank_row;
+        }
+
+        tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+
+        tbody.style.height = count * line_height + "px";    //这里设置高度，为了实现Y轴滚动
+
+        //构造第二张历史记录表----------
+        let row2 = "<tr><td></td><td></td><td></td></tr>";
+        let rows2 = "";
+        for (let i = 0; i < count; i++) {
             rows2 += row2;
         }
 
-        rows2 += row2;
-
-        let tbody = table_container.querySelector('tbody');
-        let tbody2 = document.querySelector('.table-history tbody');
-        tbody.style.height = count * line_height + "px";    //这里设置高度，为了实现Y轴滚动
-        tbody.innerHTML = rows;
-        tbody2.innerHTML = rows2;
+        document.querySelector('.table-history tbody').innerHTML = rows2;
         //---------------------------------
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
-        let auto_input = document.querySelector('.auto-input');
-        let auto_td = table_container.querySelector('.has-input td:nth-child(2)');
-        auto_input.parentNode.style.cssText = `z-index: 900;`;
-        auto_input.style.width = auto_td.clientWidth - 24;
 
-        auto_td.addEventListener('click', function () {
-            auto_input.focus();
-            // let all_edit = table_container.querySelectorAll('.auto-edit');
-            // for (let edit of all_edit) {
-            //     edit.classList.remove('auto-edit');
-            // }
-            this.querySelector('.autocomplete').classList.add('auto-edit');
-
-        });
 
         // auto_input.addEventListener('blur', function () {
         //     // this.style.cssText = "";
@@ -300,80 +267,95 @@ fetch("/fetch_inout_fields", {
             }
         });
         // ----------------------------------------
+    });
 
-        //构造仓库下拉选单，并记住 select 内容
-        fetch("/fetch_house")
-            .then(response => response.json())
-            .then(content => {
-                ware_house_select = ` <select class='select-sm has-value'>`;
-                for (let house of content) {
-                    ware_house_select += `<option value="${house.id}">${house.name}</option>`;
-                }
-                ware_house_select += "</select>";
-                document.querySelector('.has-input td:nth-last-child(2)').innerHTML = ware_house_select;
-                document.querySelector('.position .autocomplete').style.cssText = `z-index: 900`;
 
-                //加入自动完成
-                let position_input = document.querySelector('.ware-position');
-                let warehouse = document.querySelector('.has-input .select-sm');
+//共用事件和函数 ---------------------------------------------------------------------
 
-                let id = document.createElement('p');
-                id.textContent = warehouse.value;
 
-                let position = table_container.querySelector('.has-input .position');
-                let auto_width2 = position.clientWidth;
-                position_input.style.width = (auto_width2 - 10) + "px";
+function build_input_row(content, show_names) {
+    let input_row = document.createElement("tr");
+    input_row.classList.add("has-input");
+    let row = `<td>1</td><td>
+                <div class="form-input autocomplete">
+                    <input class="form-control input-sm has-value auto-input" type="text" />
+                    <button class="btn btn-info btn-sm product-search-button"> ... </button>
+                </div>
+              </td>`;
 
-                position_input.addEventListener('focus', function () {
-                    var pos = position.getBoundingClientRect();     //获取元素的屏幕位置
-                    this.parentNode.style.left = pos.left + 8;
-                    this.parentNode.classList.add('auto-edit');     //绝对定位
+    for (let item of content) {
+        row += "<td></td>";
+    }
 
-                });
+    row += `
+        <td>
+            <div class="form-input">
+                <input class="form-control input-sm has-value" type="text" />
+            </div>
+        </td><td>
+            <div class="form-input">
+                <input class="form-control input-sm has-value" type="text" />
+            </div>
+        </td><td></td>
+        <td class="position">
+            <div class="form-input autocomplete">
+                <input class="form-control input-sm has-value ware-position" type="text" />
+            </div>
+        </td>`;
 
-                let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
-                auto_comp.init();
+    input_row.innerHTML = row;
 
-                warehouse.addEventListener('change', function () {
-                    let id = document.createElement('p');
-                    id.textContent = this.value;
-                    auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
-                });
-            });
+    let auto_input = input_row.querySelector('.auto-input');
+    let auto_td = input_row.querySelector('td:nth-child(2)');
+    let auto_th = document.querySelector('.table-items th:nth-child(2)');
+    auto_input.parentNode.style.cssText = `z-index: 900;`;
+    auto_input.style.width = auto_th.clientWidth - 24;
 
-        //构造商品规格自动完成------------
-        let show_names = [{ name: "名称", width: 140 }];
-        for (let item of content) {
-            show_names.push({ name: item.show_name, width: item.show_width * 18 });
+    auto_td.addEventListener('click', function () {
+        auto_input.focus();
+        let all_edit = document.querySelectorAll('.auto-edit');
+        for (let edit of all_edit) {
+            edit.classList.remove('auto-edit');
+        }
+        this.querySelector('.autocomplete').classList.add('auto-edit');
+
+    });
+
+    input_row.addEventListener('click', function () {
+        let all_has_input = document.querySelectorAll('.has-input');
+        for (let input of all_has_input) {
+            input.classList.remove("inputting");
+        }
+        this.classList.add("inputting");
+    });
+
+    //构造商品规格自动完成------------
+    auto_table(auto_input, "", "/buyin_auto", show_names, () => {
+        let field_values = auto_input.getAttribute("data").split(SPLITER);
+        let n = 3;
+        for (let i = 2; i < field_values.length; i++) {
+            document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
+            n++;
         }
 
-        auto_table(auto_input, "", "/buyin_auto", show_names, () => {
-            //自动填入规格数据
-            let field_values = auto_input.getAttribute("data").split(SPLITER);
-            let n = 3;
-            for (let i = 2; i < field_values.length; i++) {
-                document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
-                n++;
-            }
+        document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
-            document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
+        add_line(content, show_names);
+    });
+    //----------------------------
 
-            add_line(input_row);
-        });
-        //----------------------------
+    //商品规格查找按钮
+    input_row.querySelector('.product-search-button').addEventListener('click', function () {
+        if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
+            return false;
+        }
 
-        //商品规格查找按钮
-        table_container.querySelector('.product-search-button').addEventListener('click', function () {
-            if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
-                return false;
-            }
+        if (!document.querySelector('.product-content')) {
+            let width = document.querySelector('body').clientWidth * 0.8;
+            let height = document.querySelector('body').clientHeight * 0.8;
+            let tbody_height = height - 270;
 
-            if (!document.querySelector('.product-content')) {
-                let width = document.querySelector('body').clientWidth * 0.8;
-                let height = document.querySelector('body').clientHeight * 0.8;
-                let tbody_height = height - 270;
-
-                let html = `
+            let html = `
                     <div class="product-content">
                         <div class="tree-show">
                             <div class="autocomplete table-top">
@@ -437,98 +419,121 @@ fetch("/fetch_inout_fields", {
                         </div>
                     </div>`;
 
-                document.querySelector('.modal-body').innerHTML = html;
-                document.querySelector('.tree-container').style.height = height - 240;
+            document.querySelector('.modal-body').innerHTML = html;
+            document.querySelector('.tree-container').style.height = height - 240;
 
-                let tree_data = {
-                    node_num: "",
-                    leaf_click: (id, name) => {
+            let tree_data = {
+                node_num: "",
+                leaf_click: (id, name) => {
 
-                        document.querySelector('#product-name').textContent = name;
-                        document.querySelector('#product-id').textContent = id;
+                    document.querySelector('#product-name').textContent = name;
+                    document.querySelector('#product-id').textContent = id;
 
-                        let post_data = {
-                            id: id,
-                            name: '',
-                            // sort: "规格型号 ASC",
-                            page: 1,
-                        };
+                    let post_data = {
+                        id: id,
+                        name: '',
+                        // sort: "规格型号 ASC",
+                        page: 1,
+                    };
 
-                        Object.assign(table_data.post_data, post_data);
+                    Object.assign(table_data.post_data, post_data);
 
-                        let table = document.querySelector('.table-product');
+                    let table = document.querySelector('.table-product');
 
-                        fetch_table(() => {
-                            row_dbclick(table);
-                        });
-                    }
+                    fetch_table(() => {
+                        row_dbclick(table);
+                    });
                 }
+            }
 
-                tree_init(tree_data);
+            tree_init(tree_data);
+            fetch_tree();
+
+            let input = document.querySelector('#auto_input');
+
+            let auto_comp = new AutoInput(input, "", "/tree_auto", () => {
+                tree_search(input.value);
+            });
+
+            auto_comp.init();
+
+            document.querySelector("#auto_search").addEventListener('click', () => {
+                tree_search(input.value);
+            });
+
+            document.querySelector(".tree-title").addEventListener('click', () => {
                 fetch_tree();
+            });
 
-                let input = document.querySelector('#auto_input');
+            let row_num = Math.floor(tbody_height / 30);
+            service.build_product_table(row_num, row_dbclick);
 
-                let auto_comp = new AutoInput(input, "", "/tree_auto", () => {
-                    tree_search(input.value);
-                });
+            document.querySelector('.modal-title').textContent = "选择商品";
+            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
+            document.querySelector('.modal-content').style.cssText = `height: 100%;`
+        }
 
-                auto_comp.init();
-
-                document.querySelector("#auto_search").addEventListener('click', () => {
-                    tree_search(input.value);
-                });
-
-                document.querySelector(".tree-title").addEventListener('click', () => {
-                    fetch_tree();
-                });
-
-                let row_num = Math.floor(tbody_height / 30);
-                service.build_product_table(row_num, row_dbclick);
-
-                document.querySelector('.modal-title').textContent = "选择商品";
-                document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-                document.querySelector('.modal-content').style.cssText = `height: 100%;`
-            }
-
-            document.querySelector('.modal').style.display = "block";
-        });
-
-
-
-        document.querySelector('.has-input').addEventListener('click', function () {
-            let all_has_input = document.querySelectorAll('.has-input');
-            for (let input of all_has_input) {
-                input.classList.remove("inputting");
-            }
-            this.classList.add("inputting");
-        });
+        document.querySelector('.modal').style.display = "block";
     });
 
 
-//共用事件和函数 ---------------------------------------------------------------------
+    //构造仓库下拉选单，并记住 select 内容
+    fetch("/fetch_house")
+        .then(response => response.json())
+        .then(content => {
+            let ware_house_select = ` <select class='select-sm has-value'>`;
+            for (let house of content) {
+                ware_house_select += `<option value="${house.id}">${house.name}</option>`;
+            }
+            ware_house_select += "</select>";
+            input_row.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
+            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 900;`;
+
+            //加入自动完成
+            let position_input = input_row.querySelector('.ware-position');
+            let warehouse = input_row.querySelector('.select-sm');
+
+            let id = document.createElement('p');
+            id.textContent = warehouse.value;
+
+            let position = input_row.querySelector('.has-input .position');
+            let auto_width2 = position.clientWidth;
+            position_input.style.width = (auto_width2 - 10) + "px";
+
+            position_input.addEventListener('focus', function () {
+                var pos = position.getBoundingClientRect();     //获取元素的屏幕位置
+                this.parentNode.style.left = pos.left + 8;
+                this.parentNode.classList.add('auto-edit');     //绝对定位
+
+            });
+
+            let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
+            auto_comp.init();
+
+            warehouse.addEventListener('change', function () {
+                let id = document.createElement('p');
+                id.textContent = this.value;
+                auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+            });
+        });
+
+    return input_row;
+}
 
 //增加新的输入行
-function add_line(input_row) {
+function add_line(content, show_names) {
     //追加新行
+    let new_row = build_input_row(content, show_names);
     let next = document.querySelector(`.inputting + tr`);
     let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
 
     if (next && next.querySelector('td:nth-child(1)').textContent == "") {
-        next.innerHTML = input_row;
-        next.classList.add('has-input');
+        next.parentNode.replaceChild(new_row, next);
+        next = document.querySelector(`.inputting + tr`);
         next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
         next.querySelector('.autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
-        next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
         next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
 
-        next.addEventListener('click', function () {
-            let all_has_input = document.querySelectorAll('.has-input');
-            for (let input of all_has_input) {
-                input.classList.remove("inputting");
-            }
-            this.classList.add("inputting");
-        });
     }
     else if (!next) {
         alert("dd");
@@ -656,7 +661,7 @@ function chose_exit(selected_row) {
 
                     document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
                     close_modal();
-                    add_line(input_row);
+                    // add_line(input_row);
                 });
         }
 
