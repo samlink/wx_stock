@@ -37,6 +37,8 @@ export class AutoInput {
                             b.innerHTML = arr[i].label;
                             b.innerHTML += "<input type='hidden' id='" + arr[i].id + "' value='" + arr[i].label + "'>";
                             b.addEventListener("click", function (e) {
+                                // e.preventDefault();
+                                // e.stopImmediatePropagation();
                                 input.value = this.querySelector('input').value;
                                 input.setAttribute('data', this.querySelector('input').getAttribute('id'));
                                 closeAllLists();
@@ -152,6 +154,7 @@ export function auto_table(input, cate, url, thead, cb) {
                         tr.innerHTML = row;
 
                         tr.addEventListener("click", function (e) {
+                            e.stopPropagation();
                             input.value = this.querySelector('td:nth-child(1)').textContent;
                             input.setAttribute('data', this.getAttribute("data"));
                             closeAllLists();

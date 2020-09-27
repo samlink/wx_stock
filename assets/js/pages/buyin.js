@@ -224,7 +224,7 @@ fetch("/fetch_inout_fields", {
         //构造带有输入控件的行----------
         let row = `<td>1</td><td>
                 <div class="form-input autocomplete">
-                    <input class="form-control input-sm has-value auto-input" type="text" style='width:100%' />
+                    <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
               </td>`;
@@ -248,7 +248,7 @@ fetch("/fetch_inout_fields", {
                     </div>
                 </td>`;
 
-        let input_row = row;    //将 row 存到全局变量，供后面加行时使用
+        input_row = row;    //将 row 存到全局变量，供后面加行时使用
         row = "<tr class='has-input'>" + row + "</tr>";
         //----------------------
 
@@ -258,7 +258,7 @@ fetch("/fetch_inout_fields", {
         let rows = row;
         let rows2 = "";
         for (let i = 0; i < count - 1; i++) {
-            rows += blank_row;
+            rows += blank_row;      //只有一行带输入控件，其他行为空行
             rows2 += row2;
         }
 
@@ -274,7 +274,7 @@ fetch("/fetch_inout_fields", {
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         let auto_input = document.querySelector('.auto-input');
         let auto_td = table_container.querySelector('.has-input td:nth-child(2)');
-        auto_input.parentNode.style.cssText = `z-index: ${900}`;
+        auto_input.parentNode.style.cssText = `z-index: 900;`;
         auto_input.style.width = auto_td.clientWidth - 24;
 
         auto_td.addEventListener('click', function () {
@@ -311,7 +311,7 @@ fetch("/fetch_inout_fields", {
                 }
                 ware_house_select += "</select>";
                 document.querySelector('.has-input td:nth-last-child(2)').innerHTML = ware_house_select;
-                document.querySelector('.position .autocomplete').style.cssText = `z-index: ${900}`;
+                document.querySelector('.position .autocomplete').style.cssText = `z-index: 900`;
 
                 //加入自动完成
                 let position_input = document.querySelector('.ware-position');
@@ -351,43 +351,19 @@ fetch("/fetch_inout_fields", {
             //自动填入规格数据
             let field_values = auto_input.getAttribute("data").split(SPLITER);
             let n = 3;
-            for (let item of content) {
-                document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[n - 1];
+            for (let i = 2; i < field_values.length; i++) {
+                document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
                 n++;
-            }
-
-            //追加新行
-            let next = document.querySelector(`.inputting + tr`);
-            let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
-
-            if (next && next.querySelector('td:nth-child(1)').textContent == "") {
-                next.innerHTML = input_row;
-                next.classList.add('has-input');
-                next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
-                next.querySelector('.autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
-                next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
-                next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
-
-                next.addEventListener('click', function () {
-                    let all_has_input = document.querySelectorAll('.has-input');
-                    for (let input of all_has_input) {
-                        input.classList.remove("inputting");
-                    }
-                    this.classList.add("inputting");
-                });
-            }
-            else if (!next) {
-                alert("dd");
             }
 
             document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
+            add_line(input_row);
         });
         //----------------------------
 
         //商品规格查找按钮
-        let bb = table_container.querySelector('.product-search-button');
-        bb.addEventListener('click', function () {
+        table_container.querySelector('.product-search-button').addEventListener('click', function () {
             if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
                 return false;
             }
@@ -398,68 +374,68 @@ fetch("/fetch_inout_fields", {
                 let tbody_height = height - 270;
 
                 let html = `
-            <div class="product-content">
-                <div class="tree-show">
-                    <div class="autocomplete table-top">
-                        <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
-                        <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
-                                width="20px"></button>
-                    </div>
-                    <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
-                    <div class="tree-container">
-                        <ul id="tree">
-                        </ul>
-                    </div>
-                </div>
-                <div id="product-show">
-                    <div class="table-top">
-                        <div class="autocomplete product-search">
-                            <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
-                            <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
-                            <span id="product-name"></span><span id="product-id"></span>
-                        </div>
-                        <div class="table-tools">
-                        </div>
-                    </div>
-        
-                    <div class="table-container table-product">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                        <div class="table-ctrl">
-                            <div class="tools-button"></div>
-                            <div class="table-button">
-                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
-                                        width="12px"></button>
-                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
-                                        width="12px"></button>
-                                <p class="seperator"></p>
-                                <span>第</span><input type="text" class="form-control" id="page-input" value="1">
-                                <span>页，共</span><span id="pages"></span><span>页</span>
-                                <p class="seperator"></p>
-                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
-                                        width="12px"></button>
-                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
-                                        width="12px"></button>
+                    <div class="product-content">
+                        <div class="tree-show">
+                            <div class="autocomplete table-top">
+                                <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
+                                <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
+                                        width="20px"></button>
                             </div>
-        
-                            <div class="table-info">
-                                共 <span id="total-records"></span> 条记录
+                            <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
+                            <div class="tree-container">
+                                <ul id="tree">
+                                </ul>
                             </div>
-        
                         </div>
-                    </div>
-                </div>
-                <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
-                    <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
-                </div>
-            </div>`;
+                        <div id="product-show">
+                            <div class="table-top">
+                                <div class="autocomplete product-search">
+                                    <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
+                                    <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                                    <span id="product-name"></span><span id="product-id"></span>
+                                </div>
+                                <div class="table-tools">
+                                </div>
+                            </div>
+                
+                            <div class="table-container table-product">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                                <div class="table-ctrl">
+                                    <div class="tools-button"></div>
+                                    <div class="table-button">
+                                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                                width="12px"></button>
+                                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                                width="12px"></button>
+                                        <p class="seperator"></p>
+                                        <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                                        <span>页，共</span><span id="pages"></span><span>页</span>
+                                        <p class="seperator"></p>
+                                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                                width="12px"></button>
+                                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                                width="12px"></button>
+                                    </div>
+                
+                                    <div class="table-info">
+                                        共 <span id="total-records"></span> 条记录
+                                    </div>
+                
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
+                            <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
+                        </div>
+                    </div>`;
 
                 document.querySelector('.modal-body').innerHTML = html;
                 document.querySelector('.tree-container').style.height = height - 240;
@@ -531,6 +507,33 @@ fetch("/fetch_inout_fields", {
 
 
 //共用事件和函数 ---------------------------------------------------------------------
+
+//增加新的输入行
+function add_line(input_row) {
+    //追加新行
+    let next = document.querySelector(`.inputting + tr`);
+    let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
+
+    if (next && next.querySelector('td:nth-child(1)').textContent == "") {
+        next.innerHTML = input_row;
+        next.classList.add('has-input');
+        next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
+        next.querySelector('.autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
+        next.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
+        next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
+
+        next.addEventListener('click', function () {
+            let all_has_input = document.querySelectorAll('.has-input');
+            for (let input of all_has_input) {
+                input.classList.remove("inputting");
+            }
+            this.classList.add("inputting");
+        });
+    }
+    else if (!next) {
+        alert("dd");
+    }
+}
 
 //关闭按键
 document.querySelector('#modal-close-button').addEventListener('click', function () {
@@ -643,17 +646,17 @@ function chose_exit(selected_row) {
                     input.value = name;
                     input.setAttribute("data", data);
 
-                    let field_values = content.trim(SPLITER).split(SPLITER);
+                    let field_values = content.split(SPLITER);
 
                     let n = 3;
-                    for (let i = 0; i < field_values.length - 1; i++) {
+                    for (let i = 0; i < field_values.length; i++) {
                         document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
                         n++;
                     }
 
                     document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
                     close_modal();
-
+                    add_line(input_row);
                 });
         }
 

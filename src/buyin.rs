@@ -236,6 +236,8 @@ pub async fn fetch_one_product(
             }
         }
 
+        data = data.trim_end_matches(SPLITER).to_owned();
+
         HttpResponse::Ok().json(data)
     } else {
         HttpResponse::Ok().json(-1)
