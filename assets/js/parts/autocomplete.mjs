@@ -38,7 +38,7 @@ export class AutoInput {
                             b.innerHTML += "<input type='hidden' id='" + arr[i].id + "' value='" + arr[i].label + "'>";
                             b.addEventListener("click", function (e) {
                                 // e.preventDefault();
-                                // e.stopImmediatePropagation();
+                                e.stopPropagation();
                                 input.value = this.querySelector('input').value;
                                 input.setAttribute('data', this.querySelector('input').getAttribute('id'));
                                 closeAllLists();

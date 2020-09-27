@@ -207,7 +207,7 @@ fetch("/fetch_inout_fields", {
 
         //构造表头------------
         let th_row = `<th width=54px>序号</th><th width=140px>名称</th>`;
-        let blank_td ="";
+        let blank_td = "";
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
             blank_td += `<td width=${th.show_width * 18}px></td>`;
@@ -232,7 +232,7 @@ fetch("/fetch_inout_fields", {
 
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
         let rows = "";
-        for (let i = 0; i < count -1; i++) {
+        for (let i = 0; i < count - 1; i++) {
             rows += blank_row;
         }
 
@@ -251,15 +251,7 @@ fetch("/fetch_inout_fields", {
         //---------------------------------
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
-
-
-        // auto_input.addEventListener('blur', function () {
-        //     // this.style.cssText = "";
-        // });
-
         table_container.addEventListener('scroll', function () {
-            // auto_input.blur();
-
             document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
@@ -272,6 +264,8 @@ fetch("/fetch_inout_fields", {
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
+                auto.style.left = "";
+                auto.style.top = "";
             }
         });
         // ----------------------------------------
@@ -280,6 +274,31 @@ fetch("/fetch_inout_fields", {
 
 //共用事件和函数 ---------------------------------------------------------------------
 
+//获取距屏幕左边值
+function getLeft(element, parent) {
+    var left = element.offsetLeft;
+    var current = element.offsetParent;
+
+    while (current !== null) {
+        left += current.offsetLeft;
+        current = current.offsetParent;
+    }
+
+    return left - parent.scrollLeft;
+}
+
+//获取距屏幕上边值
+function getTop(element, parent) {
+    var actualTop = element.offsetTop;
+    var current = element.offsetParent;
+
+    while (current !== null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+
+    return actualTop - parent.scrollTop;
+}
 
 function build_input_row(show_names) {
     let input_row = document.createElement("tr");
@@ -293,14 +312,6 @@ function build_input_row(show_names) {
         num = Number(num_node.textContent) + 1;
         z_index = 900 - num;
     }
-
-    // let all_th = document.querySelectorAll('.table-items th');
-    // let width = [];
-    // for (let th of all_th) {
-    //     width.push(th.clientWidth);
-    // }
-
-    // let len = width.length;
 
     let row = `<td width=54>${num}</td><td width=140>
                 <div class="form-input autocomplete" style="z-index: ${z_index};">
@@ -333,19 +344,12 @@ function build_input_row(show_names) {
 
     let auto_input = input_row.querySelector('.auto-input');
     let auto_td = input_row.querySelector('td:nth-child(2)');
-    // let num = Number(input_row.querySelector('td:nth-child(1)').textContent);
     let auto_th = document.querySelector('.table-items th:nth-child(2)');
-    // auto_input.parentNode.style.cssText = `z-index: ${900 - num};`;
     auto_input.style.width = auto_th.clientWidth - 24;
 
     auto_td.addEventListener('click', function () {
+        element_position(this, 7.4, 15.2);
         auto_input.focus();
-        let all_edit = document.querySelectorAll('.auto-edit');
-        for (let edit of all_edit) {
-            edit.classList.remove('auto-edit');
-        }
-        this.querySelector('.autocomplete').classList.add('auto-edit');
-
     });
 
     input_row.addEventListener('click', function () {
@@ -513,25 +517,21 @@ function build_input_row(show_names) {
             }
             ware_house_select += "</select>";
             input_row.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
-            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index};`;
+            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index - 400};`;  //避免覆盖规格自动菜单
 
             //加入自动完成
             let position_input = input_row.querySelector('.ware-position');
-            let warehouse = input_row.querySelector('.select-sm');
+            let position_td = input_row.querySelector('.position');
+            position_input.style.width = (position_td.clientWidth - 12) + "px";
 
+            position_td.addEventListener('click', function () {
+                element_position(this, 6.5, 16.5);
+                position_input.focus();
+            })
+
+            let warehouse = input_row.querySelector('.select-sm');
             let id = document.createElement('p');
             id.textContent = warehouse.value;
-
-            let position = input_row.querySelector('.has-input .position');
-            let auto_width2 = position.clientWidth;
-            position_input.style.width = (auto_width2 - 10) + "px";
-
-            position_input.addEventListener('focus', function () {
-                var pos = position.getBoundingClientRect();     //获取元素的屏幕位置
-                this.parentNode.style.left = pos.left + 8;
-                this.parentNode.classList.add('auto-edit');     //绝对定位
-
-            });
 
             let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
             auto_comp.init();
@@ -544,6 +544,28 @@ function build_input_row(show_names) {
         });
 
     return input_row;
+}
+
+//
+function element_position(element, add_x, add_y) {
+    if (element.querySelector('.autocomplete').classList.contains("auto-edit")) {
+        return false;
+    }
+    let tbody = document.querySelector('.table-items tbody');
+    let x = getLeft(element, tbody);
+    let y = getTop(element, tbody);
+
+    let auto_div = element.querySelector('.autocomplete');
+    auto_div.style.left = x + add_x;
+    auto_div.style.top = y + add_y;
+
+    let all_edit = document.querySelectorAll('.auto-edit');
+    for (let edit of all_edit) {
+        edit.classList.remove('auto-edit');
+        edit.style.left = "";
+        edit.style.top = "";
+    }
+    element.querySelector('.autocomplete').classList.add('auto-edit');
 }
 
 //增加新的输入行
