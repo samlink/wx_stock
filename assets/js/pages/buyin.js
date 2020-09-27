@@ -166,7 +166,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-// let input_row;
+let show_names, blank_rw;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -180,7 +180,7 @@ fetch("/fetch_inout_fields", {
         //构造表主体结构-----------
         let line_height = 33; //行高，与 css 设置一致
         let all_width = 0;
-        let show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
+        show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
 
         for (let item of content) {
             all_width += item.show_width;
@@ -220,20 +220,19 @@ fetch("/fetch_inout_fields", {
             blank_row += "<td></td>";
         }
         blank_row += "</tr>";
+        blank_rw = blank_row;
         //-----------------
 
         //构造带有输入控件的行----------
-        let input_row = build_input_row(content, show_names);
+        let input_row = build_input_row(show_names);
         //----------------------
-
-        console.log(input_row);
 
         let tbody = table_container.querySelector('tbody');
         tbody.appendChild(input_row);
 
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
         let rows = "";
-        for (let i = 0; i < count - 1; i++) {
+        for (let i = 0; i < count + 8; i++) {
             rows += blank_row;
         }
 
@@ -273,31 +272,49 @@ fetch("/fetch_inout_fields", {
 //共用事件和函数 ---------------------------------------------------------------------
 
 
-function build_input_row(content, show_names) {
+function build_input_row(show_names) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
-    let row = `<td>1</td><td>
-                <div class="form-input autocomplete">
+
+    let num_node = document.querySelector(`.inputting td:nth-child(1)`);
+    let num = 1,
+        z_index = 900;
+
+    if (num_node) {
+        num = Number(num_node.textContent) + 1;
+        z_index = 900 - num;
+    }
+
+    let all_th = document.querySelectorAll('.table-items th');
+    let width = [];
+    for (let th of all_th) {
+        width.push(th.clientWidth);
+    }
+
+    let len = width.length;
+
+    let row = `<td width=${width[0]}>${num}</td><td width=${width[1]}>
+                <div class="form-input autocomplete" style="z-index: ${z_index};">
                     <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
               </td>`;
 
-    for (let item of content) {
-        row += "<td></td>";
+    for (let i = 0; i < show_names.length - 1; i++) {
+        row += `<td width=${width[i + 2]}></td>`;
     }
 
     row += `
-        <td>
+        <td width=${width[len - 4]}>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td>
+        </td><td width=${width[len - 3]}>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td></td>
-        <td class="position">
+        </td><td width=${width[len - 2]}></td>
+        <td class="position" width=${width[len - 1]}>
             <div class="form-input autocomplete">
                 <input class="form-control input-sm has-value ware-position" type="text" />
             </div>
@@ -307,8 +324,9 @@ function build_input_row(content, show_names) {
 
     let auto_input = input_row.querySelector('.auto-input');
     let auto_td = input_row.querySelector('td:nth-child(2)');
+    // let num = Number(input_row.querySelector('td:nth-child(1)').textContent);
     let auto_th = document.querySelector('.table-items th:nth-child(2)');
-    auto_input.parentNode.style.cssText = `z-index: 900;`;
+    // auto_input.parentNode.style.cssText = `z-index: ${900 - num};`;
     auto_input.style.width = auto_th.clientWidth - 24;
 
     auto_td.addEventListener('click', function () {
@@ -340,7 +358,7 @@ function build_input_row(content, show_names) {
 
         document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
-        add_line(content, show_names);
+        add_line(show_names);
     });
     //----------------------------
 
@@ -432,7 +450,6 @@ function build_input_row(content, show_names) {
                     let post_data = {
                         id: id,
                         name: '',
-                        // sort: "规格型号 ASC",
                         page: 1,
                     };
 
@@ -487,7 +504,7 @@ function build_input_row(content, show_names) {
             }
             ware_house_select += "</select>";
             input_row.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
-            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 900;`;
+            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index};`;
 
             //加入自动完成
             let position_input = input_row.querySelector('.ware-position');
@@ -521,23 +538,22 @@ function build_input_row(content, show_names) {
 }
 
 //增加新的输入行
-function add_line(content, show_names) {
-    //追加新行
-    let new_row = build_input_row(content, show_names);
+function add_line(show_names) {
+    let new_row = build_input_row(show_names);
     let next = document.querySelector(`.inputting + tr`);
-    let num = document.querySelector(`.inputting td:nth-child(1)`).textContent;
-
-    if (next && next.querySelector('td:nth-child(1)').textContent == "") {
-        next.parentNode.replaceChild(new_row, next);
+    if (!next) {
+        let inputting = document.querySelector(`.inputting`);
+        inputting.insertAdjacentHTML('afterend', blank_rw);
         next = document.querySelector(`.inputting + tr`);
-        next.querySelector('td:nth-child(1)').textContent = Number(num) + 1;
-        next.querySelector('.autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
-        next.querySelector('.position .autocomplete').style.cssText = `z-index: ${900 - (Number(num) + 1)}`;
+    }
 
+    if (next.querySelector('td:nth-child(1)').textContent == "") {
+        next.parentNode.replaceChild(new_row, next);
     }
-    else if (!next) {
-        alert("dd");
-    }
+    // else if (!next) {
+
+    //     // document.querySelector('.table-items tbody').appendChild(new_row);
+    // }
 }
 
 //关闭按键
@@ -661,7 +677,7 @@ function chose_exit(selected_row) {
 
                     document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
                     close_modal();
-                    // add_line(input_row);
+                    add_line(show_names);
                 });
         }
 
