@@ -148,8 +148,8 @@ export function auto_table(input, cate, url, thead, cb) {
                         tr.setAttribute("data", `${arr[i].id}${SPLITER}${arr[i].label}`);
 
                         let row = "";
-                        for (let item of items) {
-                            row += `<td>${item}</td>`;
+                        for (let i = 0; i < items.length; i++) {
+                            row += `<td width=${thead[i].width}>${items[i]}</td>`;
                         }
                         tr.innerHTML = row;
 

@@ -1786,28 +1786,32 @@ a.roar-alert-message-tbf {
   width: 78%;
   overflow-x: auto;
 }
-.buy-in .table-items table thead,
-.buy-in .table-items tbody tr {
+.buy-in .table-items > table thead,
+.buy-in .table-items > table tbody tr {
   display: table;
   width: 100%;
   table-layout: fixed;
 }
-.buy-in .table-items th {
+.buy-in .table-items > table th {
   cursor: default;
+  border: none;
 }
-.buy-in .table-items tbody {
+.buy-in .table-items > table tbody {
   display: block;
-  overflow-x: auto;
+  overflow-x: hidden;
   overflow-y: auto;
 }
-.buy-in .table-items tbody tr td:nth-child(1) {
+.buy-in .table-items > table tbody tr {
+  height: 32px;
+}
+.buy-in .table-items > table tbody tr td:nth-child(1) {
   text-align: center;
 }
-.buy-in .table-items tbody tr:hover {
-  border-left: 3px solid #2196f3;
+.buy-in .table-items > table tbody tr:hover {
+  border-bottom: 2px solid #6ab8f7;
   background-color: transparent;
 }
-.buy-in .table-items td {
+.buy-in .table-items > table td {
   padding-top: 0;
   padding-bottom: 0;
 }
@@ -1862,39 +1866,38 @@ a.roar-alert-message-tbf {
 .buy-in .table-items .position .autocomplete-items div {
   width: 115px;
 }
-.buy-in .table-auto table {
+.buy-in .table-items .table-auto table {
+  width: auto;
   border: 1px solid #37e2d0;
 }
-.buy-in .table-auto thead tr:hover {
+.buy-in .table-items .table-auto thead tr:hover {
   border-left: 0;
 }
-.buy-in .table-auto thead th {
+.buy-in .table-items .table-auto thead th {
   height: 28px;
   background-color: #1ab3a3;
   border: none;
 }
-.buy-in .table-auto tbody {
+.buy-in .table-items .table-auto tbody {
   background-color: white;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
-.buy-in .table-auto tbody tr {
+.buy-in .table-items .table-auto tbody tr {
   height: 28px;
   cursor: pointer;
 }
-.buy-in .table-auto tbody tr td {
+.buy-in .table-items .table-auto tbody tr td {
   border: none !important;
 }
-.buy-in .table-auto tbody tr td:nth-child(1) {
+.buy-in .table-items .table-auto tbody tr td:nth-child(1) {
   text-align: left;
 }
-.buy-in .table-auto tbody tr:hover {
+.buy-in .table-items .table-auto tbody tr:hover {
   border-left: 0;
   background-color: #c5f7f2;
+  border-bottom: none;
 }
-.buy-in .table-auto tbody tr:hover td:nth-child(1) {
-  font-weight: normal !important;
-}
-.buy-in .table-auto tbody .autocomplete-active {
+.buy-in .table-items .table-auto tbody .autocomplete-active {
   color: black;
   background-color: #c5f7f2;
 }

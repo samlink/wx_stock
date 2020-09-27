@@ -26,41 +26,41 @@
         width: 78%;
         overflow-x: auto;
 
-        table thead,
-        tbody tr {
-            display: table;
-            width: 100%;
-            table-layout: fixed;
-        }
+        & > table {
+            thead,
+            tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
 
-        th {
-            cursor: default;
-        }
+            th {
+                cursor: default;
+                border: none;
+            }
 
-        tbody {
-            display: block;
-            overflow-x: auto;
-            overflow-y: auto;
+            tbody {
+                display: block;
+                overflow-x: hidden;
+                overflow-y: auto;
 
+                tr {
+                    height: 32px;
+                    td:nth-child(1) {
+                        text-align: center;
+                    }
 
-            tr {
-                td:nth-child(1) {
-                    text-align: center;
-                }
-
-                &:hover {
-                    border-left: 3px solid $color-info;
-                    background-color: transparent;
-                    // td:nth-child(1) {
-                    //     font-weight: bold;
-                    // }
+                    &:hover {
+                        border-bottom: 2px solid $info-200;
+                        background-color: transparent;
+                    }
                 }
             }
-        }
 
-        td {
-            padding-top: 0;
-            padding-bottom: 0;
+            td {
+                padding-top: 0;
+                padding-bottom: 0;
+            }
         }
 
         input {
@@ -124,11 +124,6 @@
         }
 
         .position {
-            // //不被下一行的自动完成遮挡
-            // .autocomplete {
-            //     z-index: 30;
-            // }
-
             .autocomplete-items {
                 width: 130px;
                 div {
@@ -136,62 +131,59 @@
                 }
             }
         }
-    }
 
-    .table-auto {
-        table {
-            border: 1px solid $success-300;
-        }
-
-        thead {
-            tr {
-                &:hover {
-                    border-left: 0;
-                }
+        .table-auto {
+            table {
+                width: auto;
+                border: 1px solid $success-300;
             }
 
-            th {
-                height: 28px;
-                background-color: $success-600;
-                border: none;
-            }
-        }
-
-        tbody {
-            background-color: white;
-            overflow-y: scroll;
-
-            tr {
-                height: 28px;
-                cursor: pointer;
-                td {
-                    border: none !important;
-                }
-
-                td:nth-child(1) {
-                    text-align: left;
-                }
-
-                &:hover {
-                    border-left: 0;
-                    background-color: lighten($color-success, 42%);
-                    td:nth-child(1) {
-                        font-weight: normal !important;
+            thead {
+                tr {
+                    &:hover {
+                        border-left: 0;
                     }
                 }
+
+                th {
+                    height: 28px;
+                    background-color: $success-600;
+                    border: none;
+                }
             }
 
-            .autocomplete-active {
-                color: black;
-                background-color: lighten($color-success, 42%);
+            tbody {
+                background-color: white;
+                overflow-y: auto;
+
+                tr {
+                    height: 28px;
+                    cursor: pointer;
+
+                    td {
+                        border: none !important;
+                    }
+
+                    td:nth-child(1) {
+                        text-align: left;
+                    }
+
+                    &:hover {
+                        border-left: 0;
+                        background-color: lighten($color-success, 42%);
+                        border-bottom: none;
+                        // td:nth-child(1) {
+                        //     font-weight: normal !important;
+                        // }
+                    }
+                }
+
+                .autocomplete-active {
+                    color: black;
+                    background-color: lighten($color-success, 42%);
+                }
             }
         }
-
-        // &:hover {
-        //     td:nth-child(1) {
-        //         font-weight: normal !important;
-        //     }
-        // }
     }
 
     .table-history {

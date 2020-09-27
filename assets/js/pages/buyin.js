@@ -207,19 +207,19 @@ fetch("/fetch_inout_fields", {
 
         //构造表头------------
         let th_row = `<th width=54px>序号</th><th width=140px>名称</th>`;
+        let blank_td ="";
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
+            blank_td += `<td width=${th.show_width * 18}px></td>`;
         }
         table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
         //------------------
 
         //构造空行-----------
-        let headers = table_container.querySelectorAll('th');
-        let blank_row = "<tr>";
-        for (let th of headers) {
-            blank_row += "<td></td>";
-        }
-        blank_row += "</tr>";
+        // let headers = table_container.querySelectorAll('th');
+        let blank_row = "<tr><td width=54px></td><td width=140px></td>";
+        blank_row += blank_td;
+        blank_row += "<td width=80px></td><td width=80px></td><td width=100px></td><td width=100px></td></tr>";
         blank_rw = blank_row;
         //-----------------
 
@@ -232,7 +232,7 @@ fetch("/fetch_inout_fields", {
 
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
         let rows = "";
-        for (let i = 0; i < count + 8; i++) {
+        for (let i = 0; i < count -1; i++) {
             rows += blank_row;
         }
 
@@ -259,6 +259,15 @@ fetch("/fetch_inout_fields", {
 
         table_container.addEventListener('scroll', function () {
             // auto_input.blur();
+
+            document.querySelector('.position .autocomplete').style.left = 5;
+            let all_auto = table_container.querySelectorAll('.autocomplete');
+            for (let auto of all_auto) {
+                auto.classList.remove('auto-edit');     //去掉绝对定位
+            }
+        });
+
+        table_container.querySelector('tbody').addEventListener('scroll', function () {
             document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
@@ -285,36 +294,36 @@ function build_input_row(show_names) {
         z_index = 900 - num;
     }
 
-    let all_th = document.querySelectorAll('.table-items th');
-    let width = [];
-    for (let th of all_th) {
-        width.push(th.clientWidth);
-    }
+    // let all_th = document.querySelectorAll('.table-items th');
+    // let width = [];
+    // for (let th of all_th) {
+    //     width.push(th.clientWidth);
+    // }
 
-    let len = width.length;
+    // let len = width.length;
 
-    let row = `<td width=${width[0]}>${num}</td><td width=${width[1]}>
+    let row = `<td width=54>${num}</td><td width=140>
                 <div class="form-input autocomplete" style="z-index: ${z_index};">
                     <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
               </td>`;
 
-    for (let i = 0; i < show_names.length - 1; i++) {
-        row += `<td width=${width[i + 2]}></td>`;
+    for (let i = 1; i < show_names.length; i++) {
+        row += `<td width=${show_names[i].width}></td>`;
     }
 
     row += `
-        <td width=${width[len - 4]}>
+        <td width=80}>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td width=${width[len - 3]}>
+        </td><td width=80}>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td width=${width[len - 2]}></td>
-        <td class="position" width=${width[len - 1]}>
+        </td><td width=100></td>
+        <td class="position" width=100>
             <div class="form-input autocomplete">
                 <input class="form-control input-sm has-value ware-position" type="text" />
             </div>
