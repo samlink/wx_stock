@@ -273,7 +273,6 @@ document.querySelector('#row-insert').addEventListener('click', function (e) {
 //删除行
 document.querySelector('#row-del').addEventListener('click', function (e) {
     let edit = document.querySelector('.inputting');
-    console.log(edit.parentNode);
     if (edit) {
         alert_confirm('确认删除行吗？', {
             confirmCallBack: () => {
@@ -285,10 +284,47 @@ document.querySelector('#row-del').addEventListener('click', function (e) {
                 }
                 else {
                     let new_row = build_input_row(show_names, all_width);
-                    document.querySelector('.table-items tbody').appendChild(new_row);
+                    let first_child = document.querySelector('.table-items tbody tr');
+                    if (first_child) {
+                        document.querySelector('.table-items tbody').insertBefore(new_row, first_child);
+                    }
+                    else {
+                        document.querySelector('.table-items tbody').appendChild(new_row);
+                    }
                 }
             }
         });
+    }
+    else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
+//上移行
+document.querySelector('#row-up').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        if (edit.previousElementSibling) {
+            edit.parentNode.insertBefore(edit, edit.previousElementSibling);
+            remove_absolute();
+            rebuild_index();
+        }
+    }
+    else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
+//下移行
+document.querySelector('#row-down').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        if (edit.nextElementSibling &&
+            edit.nextElementSibling.querySelector('td:nth-child(1)').textContent != "") {
+            edit.parentNode.insertBefore(edit.nextElementSibling, edit);
+            remove_absolute();
+            rebuild_index();
+        }
     }
     else {
         notifier.show('请先选择行', 'danger');
