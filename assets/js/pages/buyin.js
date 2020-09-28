@@ -166,7 +166,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_house_select;
+let show_names, all_width, ware_option;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -243,16 +243,64 @@ fetch("/fetch_inout_fields", {
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         table_container.querySelector('tbody').addEventListener('scroll', function () {
-            let all_auto = table_container.querySelectorAll('.autocomplete');
-            for (let auto of all_auto) {
-                auto.classList.remove('auto-edit');     //去掉绝对定位
-                auto.style.left = "";
-                auto.style.top = "";
-            }
+            remove_absolute();
         });
     });
 
+//表格操控 ------------------------------------------------------------------------
+
+//插入行
+document.querySelector('#row-insert').addEventListener('click', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        let table_body = document.querySelector('.table-items tbody');
+        let input_row = build_input_row(show_names, all_width);
+
+        remove_absolute();
+        remove_inputting();
+
+        table_body.insertBefore(input_row, edit);
+
+        rebuild_index();
+
+        input_row.querySelector('td:nth-child(2)').click();
+    }
+    else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
 //共用事件和函数 ---------------------------------------------------------------------
+
+//重建索引
+function rebuild_index() {
+    let all_input = document.querySelectorAll('.has-input');
+    for (let i = 0; i < all_input.length; i++) {
+        all_input[i].querySelector('td:nth-child(1)').textContent = i + 1;
+        all_input[i].querySelector('td:nth-child(2) .autocomplete').style.zIndex = 900 - i;
+        all_input[i].querySelector('td:nth-last-child(2) .autocomplete').style.zIndex = 500 - i;
+    }
+}
+
+//去除绝对定位
+function remove_absolute() {
+    let all_auto = document.querySelectorAll('.table-items .autocomplete');
+    for (let auto of all_auto) {
+        auto.classList.remove('auto-edit');     //去掉绝对定位
+        auto.style.left = "";
+        auto.style.top = "";
+    }
+}
+
+//移除行编辑标记
+function remove_inputting() {
+    let all_has_input = document.querySelectorAll('.has-input');
+    for (let input of all_has_input) {
+        input.classList.remove("inputting");
+    }
+}
 
 //获取距屏幕左边值
 function getLeft(element, parent) {
@@ -280,21 +328,13 @@ function getTop(element, parent) {
     return actualTop - parent.scrollTop;
 }
 
+//创建新的输入行
 function build_input_row(show_names, all_width) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
-    let num_node = document.querySelector(`.inputting td:nth-child(1)`);
-    let num = 1,
-        z_index = 900;
-
-    if (num_node) {
-        num = Number(num_node.textContent) + 1;
-        z_index = 900 - num;
-    }
-
-    let row = `<td width=${54 * 100 / all_width}%>${num}</td><td width=${140 * 100 / all_width}%>
-                <div class="form-input autocomplete" style="z-index: ${z_index};">
+    let row = `<td width=${54 * 100 / all_width}%>1</td><td width=${140 * 100 / all_width}%>
+                <div class="form-input autocomplete" style="z-index: 900;">
                     <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
@@ -337,10 +377,7 @@ function build_input_row(show_names, all_width) {
     });
 
     input_row.addEventListener('click', function () {
-        let all_has_input = document.querySelectorAll('.has-input');
-        for (let input of all_has_input) {
-            input.classList.remove("inputting");
-        }
+        remove_inputting();
         this.classList.add("inputting");
     });
 
@@ -490,51 +527,69 @@ function build_input_row(show_names, all_width) {
         document.querySelector('.modal').style.display = "block";
     });
 
-    //构造仓库下拉选单，并记住 select 内容
-    fetch("/fetch_house")
-        .then(response => response.json())
-        .then(content => {
-            let ware_house_select = ` <select class='select-sm has-value'>`;
-            for (let house of content) {
-                ware_house_select += `<option value="${house.id}">${house.name}</option>`;
-            }
-
-            ware_house_select += "</select>";
-            input_row.querySelector('td:nth-last-child(3)').innerHTML = ware_house_select;
-            input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index - 400};`;  //避免覆盖规格自动菜单
-
-            //加入自动完成
-            let position_input = input_row.querySelector('.ware-position');
-            let position_td = input_row.querySelector('.position');
-            position_input.style.width = (position_td.clientWidth - 12) + "px";
-
-            position_td.addEventListener('click', function () {
-                element_position(this, 6.5, 16.5);
-                let tbody = document.querySelector('.table-items tbody');
-                let y = getTop(this, tbody);
-                let body_height = document.querySelector('body').clientHeight;
-                auto_comp.space = body_height - y
-                position_input.focus();
-            })
-
-            let warehouse = input_row.querySelector('.select-sm');
-            let id = document.createElement('p');
-            id.textContent = warehouse.value;
-
-            let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
-            auto_comp.init();
-
-            warehouse.addEventListener('change', function () {
-                let id = document.createElement('p');
-                id.textContent = this.value;
-                auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
-            });
-        });
+    if (!ware_option) {
+        build_ware_house(input_row);
+    }
+    else {
+        build_ware_position(ware_option, input_row);
+    }
 
     return input_row;
 }
 
-//
+//构造仓库下拉选单，并记住 option 内容
+function build_ware_house(input_row) {
+    fetch("/fetch_house")
+        .then(response => response.json())
+        .then(content => {
+            ware_option = "";
+            for (let house of content) {
+                ware_option += `<option value="${house.id}">${house.name}</option>`;
+            }
+
+            build_ware_position(ware_option, input_row);
+        });
+}
+
+//构建仓库和库位
+function build_ware_position(ware_option, input_row) {
+    let ware_house_select = document.createElement('select');
+    ware_house_select.classList.add("select-sm");
+    ware_house_select.classList.add("has-value");
+    ware_house_select.innerHTML = ware_option;
+
+    ware_house_select.addEventListener('change', function () {
+        let id = document.createElement('p');
+        id.textContent = this.value;
+        auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+    });
+
+    //加入自动完成
+    let id = document.createElement('p');
+    id.textContent = ware_house_select.value;
+    let position_input = input_row.querySelector('.ware-position');
+
+    let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
+    auto_comp.init();
+
+    let position_th = document.querySelector('.table-items thead th:nth-last-child(2)');
+    position_input.style.width = (position_th.clientWidth - 12) + "px";
+
+    let position_td = input_row.querySelector('.position');
+    position_td.addEventListener('click', function () {
+        element_position(this, 6.5, 16.5);
+        let tbody = document.querySelector('.table-items tbody');
+        let y = getTop(this, tbody);
+        let body_height = document.querySelector('body').clientHeight;
+        auto_comp.space = body_height - y
+        position_input.focus();
+    });
+
+    input_row.querySelector('td:nth-last-child(3)').appendChild(ware_house_select);
+    input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
+}
+
+//设置元素的位置
 function element_position(element, add_x, add_y) {
     if (element.querySelector('.autocomplete').classList.contains("auto-edit")) {
         return false;
@@ -547,12 +602,8 @@ function element_position(element, add_x, add_y) {
     auto_div.style.left = x + add_x;
     auto_div.style.top = y + add_y;
 
-    let all_edit = document.querySelectorAll('.auto-edit');
-    for (let edit of all_edit) {
-        edit.classList.remove('auto-edit');
-        edit.style.left = "";
-        edit.style.top = "";
-    }
+    remove_absolute();
+
     element.querySelector('.autocomplete').classList.add('auto-edit');
 }
 
@@ -567,6 +618,8 @@ function add_line(show_names, all_width) {
     else if (!next) {
         document.querySelector('.table-items tbody').appendChild(new_row);
     }
+
+    rebuild_index();
 }
 
 //关闭按键
