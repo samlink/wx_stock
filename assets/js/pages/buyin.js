@@ -251,8 +251,6 @@ fetch("/fetch_inout_fields", {
 
 //插入行
 document.querySelector('#row-insert').addEventListener('click', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
     let edit = document.querySelector('.inputting');
     if (edit) {
         let table_body = document.querySelector('.table-items tbody');
@@ -266,6 +264,31 @@ document.querySelector('#row-insert').addEventListener('click', function (e) {
         rebuild_index();
 
         input_row.querySelector('td:nth-child(2)').click();
+    }
+    else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
+//删除行
+document.querySelector('#row-del').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    console.log(edit.parentNode);
+    if (edit) {
+        alert_confirm('确认删除行吗？', {
+            confirmCallBack: () => {
+                edit.parentNode.removeChild(edit);
+                if (document.querySelector('.has-input')) {
+                    remove_absolute();
+                    remove_inputting();
+                    rebuild_index();
+                }
+                else {
+                    let new_row = build_input_row(show_names, all_width);
+                    document.querySelector('.table-items tbody').appendChild(new_row);
+                }
+            }
+        });
     }
     else {
         notifier.show('请先选择行', 'danger');
@@ -641,7 +664,6 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     else {
         notifier.show('请先选择再提交', 'danger');
     }
-
 });
 
 //自动完成点击后，展示供应商数据
