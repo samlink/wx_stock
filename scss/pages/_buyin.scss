@@ -18,9 +18,6 @@
         left: 136;
     }
 
-    // .buy-items > div {
-    //     display: inline-block;
-    // }
     .buy-items {
         display: flex;
     }
@@ -84,10 +81,6 @@
         select {
             border: none;
         }
-
-        // button {
-        //     display: none;
-        // }
 
         .auto-edit {
             position: absolute;
@@ -175,9 +168,6 @@
                         border-left: 0;
                         background-color: lighten($color-success, 42%);
                         border-bottom: none;
-                        // td:nth-child(1) {
-                        //     font-weight: normal !important;
-                        // }
                     }
                 }
 
@@ -194,6 +184,11 @@
         button {
             margin-left: 10px;
         }
+    }
+
+    #sum-money {
+        min-width: 200px;
+        text-align: right;
     }
 
     .table-history {

@@ -1908,6 +1908,10 @@ a.roar-alert-message-tbf {
 .buy-in .table-button button {
   margin-left: 10px;
 }
+.buy-in #sum-money {
+  min-width: 200px;
+  text-align: right;
+}
 .buy-in .table-history {
   width: 296px;
   margin-left: 5px;
