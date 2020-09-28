@@ -30,12 +30,22 @@
         overflow: auto;
 
         & > table {
+            thead,
+            tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
             th {
                 cursor: default;
                 border: none;
             }
 
             tbody {
+                display: block;
+                overflow-x: hidden;
+                overflow-y: auto;
                 tr {
                     height: 32px;
                     td:nth-child(1) {
@@ -52,21 +62,6 @@
             td {
                 padding-top: 0;
                 padding-bottom: 0;
-            }
-        }
-
-        &.not-scroll-left {
-            thead,
-            tbody tr {
-                display: table;
-                width: 100%;
-                table-layout: fixed;
-            }
-
-            tbody {
-                display: block;
-                overflow-x: hidden;
-                overflow-y: auto;
             }
         }
 
@@ -119,7 +114,8 @@
             td:nth-last-child(1),
             td:nth-last-child(2),
             td:nth-last-child(3),
-            td:nth-last-child(4) {
+            td:nth-last-child(4),
+            td:nth-last-child(5) {
                 border-bottom: 1px solid tomato;
             }
         }
@@ -190,6 +186,13 @@
                     background-color: lighten($color-success, 42%);
                 }
             }
+        }
+    }
+
+    .table-button {
+        margin-left: 20px;
+        button {
+            margin-left: 10px;
         }
     }
 

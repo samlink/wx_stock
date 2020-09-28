@@ -166,7 +166,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, blank_rw, ware_house_select;
+let show_names, all_width, ware_house_select;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -181,7 +181,7 @@ fetch("/fetch_inout_fields", {
         let line_height = 33; //行高，与 css 设置一致
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
 
-        let all_width = 0;
+        all_width = 0;
         show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
 
         for (let item of content) {
@@ -195,44 +195,29 @@ fetch("/fetch_inout_fields", {
 
         table_container.style.width = table_width;
 
-        if (all_width * 23 + 680 > table_width) {
-            table_container.classList.remove("not-scroll-left");
-            table_container.parentNode.style.display = "block";
-            table_container.style.display = "inline-block";
-            document.querySelector('.table-history').style.display = "inline-block";
-            table_container.style.height = (count * line_height + 30) + "px";
-            table_container.querySelector('.table-ctrl').style.cssText = `
-                position: absolute;
-                width: ${table_width + 2}px;
-                margin-top: 11px;
-                border: 1px solid #edf5fb;
-                margin-left: -2px;`;
+        //构造表头和空行------------
 
-            document.querySelector('.table-history .table-ctrl').style.height = "61px";
-        }
-        //------------------
+        all_width = all_width * 18 + 54 + 140 + 80 + 80 + 100 + 80 + 100;
 
-        //构造表头------------
-        let th_row = `<th width=54px>序号</th><th width=140px>名称</th>`;
-        let blank_td = "";
+        let th_row = `<tr><th width=${54 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
+        let blank_row = `<tr><td width=${54 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
+
         for (let th of content) {
-            th_row += `<th width=${th.show_width * 18}px>${th.show_name}</th>`;
-            blank_td += `<td width=${th.show_width * 18}px></td>`;
+            th_row += `<th width=${th.show_width * 18 * 100 / all_width}%>${th.show_name}</th>`;
+            blank_row += `<td width=${th.show_width * 18 * 100 / all_width}%></td>`;
         }
-        table_container.querySelector('#price').insertAdjacentHTML('beforebegin', th_row);
-        //------------------
 
-        //构造空行-----------
-        // let headers = table_container.querySelectorAll('th');
-        let blank_row = "<tr><td width=54px></td><td width=140px></td>";
-        blank_row += blank_td;
-        blank_row += "<td width=80px></td><td width=80px></td><td width=100px></td><td width=100px></td></tr>";
-        blank_rw = blank_row;
-        //-----------------
+        th_row += `<th width=${80 * 100 / all_width}%>单价</th><th width=${80 * 100 / all_width}%>数量</th>
+                    <th width=${100 * 100 / all_width}%>仓库</th><th width=${80 * 100 / all_width}%>库位</th>
+                    <th width=${100 * 100 / all_width}%>备注</th></tr>`;
 
-        //构造带有输入控件的行----------
-        let input_row = build_input_row(show_names);
-        //----------------------
+        table_container.querySelector('thead').innerHTML = th_row;
+
+        blank_row += `<td width=${80 * 100 / all_width}%></td><td width=${80 * 100 / all_width}%></td>
+                    <td width=${100 * 100 / all_width}%></td><td width=${80 * 100 / all_width}%></td>
+                    <td width=${100 * 100 / all_width}%></td></tr>`;
+
+        let input_row = build_input_row(show_names, all_width);
 
         let tbody = table_container.querySelector('tbody');
         tbody.appendChild(input_row);
@@ -257,28 +242,7 @@ fetch("/fetch_inout_fields", {
         //---------------------------------
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
-        table_container.addEventListener('scroll', function () {
-            document.querySelector('.position .autocomplete').style.left = 5;
-
-            if (this.scrollLeft > 0) {
-                this.classList.remove("not-scroll-left");
-            }
-
-            // if (this.scrollTop > 0) {
-            //     this.querySelector("thead").style.position = "absolute";
-            // }
-
-            let all_auto = table_container.querySelectorAll('.autocomplete');
-
-            for (let auto of all_auto) {
-                auto.classList.remove('auto-edit');     //去掉绝对定位
-                auto.style.left = "";
-                auto.style.top = "";
-            }
-        });
-
         table_container.querySelector('tbody').addEventListener('scroll', function () {
-            // document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
@@ -286,9 +250,7 @@ fetch("/fetch_inout_fields", {
                 auto.style.top = "";
             }
         });
-        // ----------------------------------------
     });
-
 
 //共用事件和函数 ---------------------------------------------------------------------
 
@@ -318,7 +280,7 @@ function getTop(element, parent) {
     return actualTop - parent.scrollTop;
 }
 
-function build_input_row(show_names) {
+function build_input_row(show_names, all_width) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
@@ -331,7 +293,7 @@ function build_input_row(show_names) {
         z_index = 900 - num;
     }
 
-    let row = `<td width=54>${num}</td><td width=140>
+    let row = `<td width=${54 * 100 / all_width}%>${num}</td><td width=${140 * 100 / all_width}%>
                 <div class="form-input autocomplete" style="z-index: ${z_index};">
                     <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
@@ -339,22 +301,26 @@ function build_input_row(show_names) {
               </td>`;
 
     for (let i = 1; i < show_names.length; i++) {
-        row += `<td width=${show_names[i].width}></td>`;
+        row += `<td width=${show_names[i].width * 100 / all_width}%></td>`;
     }
 
     row += `
-        <td width=80}>
+        <td width=${80 * 100 / all_width}%>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td width=80}>
+        </td><td width=${80 * 100 / all_width}%}>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
-        </td><td width=100></td>
-        <td class="position" width=100>
+        </td><td width=${100 * 100 / all_width}%></td>
+        <td class="position" width=${80 * 100 / all_width}%>
             <div class="form-input autocomplete">
                 <input class="form-control input-sm has-value ware-position" type="text" />
+            </div>
+        </td><td width=${100 * 100 / all_width}%>
+            <div class="form-input">
+                <input class="form-control input-sm has-value" type="text" />
             </div>
         </td>`;
 
@@ -389,7 +355,7 @@ function build_input_row(show_names) {
 
         document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
-        add_line(show_names);
+        add_line(show_names, all_width);
     });
     //----------------------------
 
@@ -524,7 +490,6 @@ function build_input_row(show_names) {
         document.querySelector('.modal').style.display = "block";
     });
 
-
     //构造仓库下拉选单，并记住 select 内容
     fetch("/fetch_house")
         .then(response => response.json())
@@ -535,7 +500,7 @@ function build_input_row(show_names) {
             }
 
             ware_house_select += "</select>";
-            input_row.querySelector('td:nth-last-child(2)').innerHTML = ware_house_select;
+            input_row.querySelector('td:nth-last-child(3)').innerHTML = ware_house_select;
             input_row.querySelector('.position .autocomplete').style.cssText = `z-index: ${z_index - 400};`;  //避免覆盖规格自动菜单
 
             //加入自动完成
@@ -569,7 +534,6 @@ function build_input_row(show_names) {
     return input_row;
 }
 
-
 //
 function element_position(element, add_x, add_y) {
     if (element.querySelector('.autocomplete').classList.contains("auto-edit")) {
@@ -593,26 +557,16 @@ function element_position(element, add_x, add_y) {
 }
 
 //增加新的输入行
-function add_line(show_names) {
-    let new_row = build_input_row(show_names);
+function add_line(show_names, all_width) {
+    let new_row = build_input_row(show_names, all_width);
     let next = document.querySelector(`.inputting + tr`);
-    if (!next) {
-        let inputting = document.querySelector(`.inputting`);
-        inputting.insertAdjacentHTML('afterend', blank_rw);
-        next = document.querySelector(`.inputting + tr`);
-    }
 
-    if (next.querySelector('td:nth-child(1)').textContent == "") {
+    if (next && next.querySelector('td:nth-child(1)').textContent == "") {
         next.parentNode.replaceChild(new_row, next);
-        let table = document.querySelector('.table-items');
-        table.classList.add('not-scroll-left');
-        table.scrollTop = 0;
-
     }
-    // else if (!next) {
-
-    //     // document.querySelector('.table-items tbody').appendChild(new_row);
-    // }
+    else if (!next) {
+        document.querySelector('.table-items tbody').appendChild(new_row);
+    }
 }
 
 //关闭按键
@@ -736,10 +690,9 @@ function chose_exit(selected_row) {
 
                     document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
                     close_modal();
-                    add_line(show_names);
+                    add_line(show_names, all_width);
                 });
         }
-
     }
     else {
         notifier.show('请先选择记录', 'danger');
