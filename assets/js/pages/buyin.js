@@ -179,6 +179,8 @@ fetch("/fetch_inout_fields", {
     .then(content => {
         //构造表主体结构-----------
         let line_height = 33; //行高，与 css 设置一致
+        let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
+
         let all_width = 0;
         show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
 
@@ -194,6 +196,11 @@ fetch("/fetch_inout_fields", {
         table_container.style.width = table_width;
 
         if (all_width * 23 + 680 > table_width) {
+            table_container.classList.remove("not-scroll-left");
+            table_container.parentNode.style.display = "block";
+            table_container.style.display = "inline-block";
+            document.querySelector('.table-history').style.display = "inline-block";
+            table_container.style.height = (count * line_height + 30) + "px";
             table_container.querySelector('.table-ctrl').style.cssText = `
                 position: absolute;
                 width: ${table_width + 2}px;
@@ -230,7 +237,6 @@ fetch("/fetch_inout_fields", {
         let tbody = table_container.querySelector('tbody');
         tbody.appendChild(input_row);
 
-        let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
         let rows = "";
         for (let i = 0; i < count - 1; i++) {
             rows += blank_row;
@@ -253,14 +259,26 @@ fetch("/fetch_inout_fields", {
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         table_container.addEventListener('scroll', function () {
             document.querySelector('.position .autocomplete').style.left = 5;
+
+            if (this.scrollLeft > 0) {
+                this.classList.remove("not-scroll-left");
+            }
+
+            // if (this.scrollTop > 0) {
+            //     this.querySelector("thead").style.position = "absolute";
+            // }
+
             let all_auto = table_container.querySelectorAll('.autocomplete');
+
             for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
+                auto.style.left = "";
+                auto.style.top = "";
             }
         });
 
         table_container.querySelector('tbody').addEventListener('scroll', function () {
-            document.querySelector('.position .autocomplete').style.left = 5;
+            // document.querySelector('.position .autocomplete').style.left = 5;
             let all_auto = table_container.querySelectorAll('.autocomplete');
             for (let auto of all_auto) {
                 auto.classList.remove('auto-edit');     //去掉绝对定位
@@ -531,7 +549,6 @@ function build_input_row(show_names) {
                 let y = getTop(this, tbody);
                 let body_height = document.querySelector('body').clientHeight;
                 auto_comp.space = body_height - y
-                console.log(auto_comp.space);
                 position_input.focus();
             })
 
@@ -587,6 +604,10 @@ function add_line(show_names) {
 
     if (next.querySelector('td:nth-child(1)').textContent == "") {
         next.parentNode.replaceChild(new_row, next);
+        let table = document.querySelector('.table-items');
+        table.classList.add('not-scroll-left');
+        table.scrollTop = 0;
+
     }
     // else if (!next) {
 

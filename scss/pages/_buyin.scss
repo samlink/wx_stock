@@ -27,26 +27,15 @@
 
     .table-items {
         width: 78%;
-        overflow-x: scroll;
+        overflow: auto;
 
         & > table {
-            thead,
-            tbody tr {
-                display: table;
-                width: 100%;
-                table-layout: fixed;
-            }
-
             th {
                 cursor: default;
                 border: none;
             }
 
             tbody {
-                display: block;
-                overflow-x: auto;
-                overflow-y: auto;
-
                 tr {
                     height: 32px;
                     td:nth-child(1) {
@@ -63,6 +52,21 @@
             td {
                 padding-top: 0;
                 padding-bottom: 0;
+            }
+        }
+
+        &.not-scroll-left {
+            thead,
+            tbody tr {
+                display: table;
+                width: 100%;
+                table-layout: fixed;
+            }
+
+            tbody {
+                display: block;
+                overflow-x: hidden;
+                overflow-y: auto;
             }
         }
 

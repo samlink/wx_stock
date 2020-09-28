@@ -1784,22 +1784,11 @@ a.roar-alert-message-tbf {
 }
 .buy-in .table-items {
   width: 78%;
-  overflow-x: scroll;
-}
-.buy-in .table-items > table thead,
-.buy-in .table-items > table tbody tr {
-  display: table;
-  width: 100%;
-  table-layout: fixed;
+  overflow: auto;
 }
 .buy-in .table-items > table th {
   cursor: default;
   border: none;
-}
-.buy-in .table-items > table tbody {
-  display: block;
-  overflow-x: auto;
-  overflow-y: auto;
 }
 .buy-in .table-items > table tbody tr {
   height: 32px;
@@ -1814,6 +1803,17 @@ a.roar-alert-message-tbf {
 .buy-in .table-items > table td {
   padding-top: 0;
   padding-bottom: 0;
+}
+.buy-in .table-items.not-scroll-left thead,
+.buy-in .table-items.not-scroll-left tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.buy-in .table-items.not-scroll-left tbody {
+  display: block;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 .buy-in .table-items input {
   border: none;
