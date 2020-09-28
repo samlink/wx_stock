@@ -4,7 +4,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER } from '../parts/tools.mjs';
+import { SPLITER, regReal } from '../parts/tools.mjs';
 
 let table_fields;
 
@@ -262,6 +262,7 @@ document.querySelector('#row-insert').addEventListener('click', function (e) {
         table_body.insertBefore(input_row, edit);
 
         rebuild_index();
+        sum_records();
 
         input_row.querySelector('td:nth-child(2)').click();
     }
@@ -292,6 +293,9 @@ document.querySelector('#row-del').addEventListener('click', function (e) {
                         document.querySelector('.table-items tbody').appendChild(new_row);
                     }
                 }
+
+                sum_records();
+                sum_money();
             }
         });
     }
@@ -331,7 +335,37 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
     }
 });
 
+
 //共用事件和函数 ---------------------------------------------------------------------
+
+//计算合计金额
+function sum_money() {
+    let all_input = document.querySelectorAll('.has-input');
+    let sum = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        let price = all_input[i].querySelector('.price').value;
+        let mount = all_input[i].querySelector('.mount').value;
+        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
+            price && regReal.test(price) && mount && regReal.test(mount)) {
+            sum += price * mount;
+        }
+    }
+
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum} 元`;
+}
+
+//计算记录数
+function sum_records() {
+    let all_input = document.querySelectorAll('.has-input');
+    let num = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "") {
+            num++;
+        }
+    }
+
+    document.querySelector('#total-records').innerHTML = num;
+}
 
 //重建索引
 function rebuild_index() {
@@ -406,11 +440,11 @@ function build_input_row(show_names, all_width) {
     row += `
         <td width=${80 * 100 / all_width}%>
             <div class="form-input">
-                <input class="form-control input-sm has-value" type="text" />
+                <input class="form-control input-sm has-value price" type="text" />
             </div>
         </td><td width=${80 * 100 / all_width}%}>
             <div class="form-input">
-                <input class="form-control input-sm has-value" type="text" />
+                <input class="form-control input-sm has-value mount" type="text" />
             </div>
         </td><td width=${100 * 100 / all_width}%></td>
         <td class="position" width=${80 * 100 / all_width}%>
@@ -679,6 +713,7 @@ function add_line(show_names, all_width) {
     }
 
     rebuild_index();
+    sum_records();
 }
 
 //关闭按键
