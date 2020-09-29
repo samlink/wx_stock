@@ -11,6 +11,7 @@ let get_height = getHeight() - 166;
 let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
 
 //显示表格数据 ---------------------------------------
+
 var data = {
     container: '.table-users',
     header_names: {
@@ -84,9 +85,9 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 });
 
 //用户权限显示 ---------------------------------------
+
 var rights = {
-    goods_in: ['采购进货', '销售退货', '库存调入', '库存盘盈', '入库查询', '库存查询'],
-    goods_out: ['库存销售', '商品直销', '采购退货', '库存调出', '库存盘亏', '出库查询'],
+    goods_in_out: ['商品采购', '商品销售', '库存调整', '入库单查询', '出库单查询', '库存状态查询'],
     customers: ['客户管理', '供应商管理', '业务往来', '债务结算', '客户消费'],
     statics: ['综合分析', '商品统计', '月度销售', '费用统计'],
     setup: ['商品设置', '用户设置', '销售人员', '仓库设置', '字段设置', '系统参数'],
@@ -95,18 +96,14 @@ var rights = {
 
 let rows = "";
 for (let i = 0; i < row_num; i++) {
-    let goods_in = rights.goods_in.hasOwnProperty(i) ? rights.goods_in[i] : "";
-    let goods_out = rights.goods_out.hasOwnProperty(i) ? rights.goods_out[i] : "";
+    let goods_in_out = rights.goods_in_out.hasOwnProperty(i) ? rights.goods_in_out[i] : "";
     let customers = rights.customers.hasOwnProperty(i) ? rights.customers[i] : "";
     let statics = rights.statics.hasOwnProperty(i) ? rights.statics[i] : "";
     let setup = rights.setup.hasOwnProperty(i) ? rights.setup[i] : "";
     let other = rights.other.hasOwnProperty(i) ? rights.other[i] : "";
 
-    let goods_in_chk = goods_in != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_in" value="${goods_in}">
-                            <span class="checkmark"></span>${goods_in}</label>` : "";
-
-    let goods_out_chk = goods_out != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_out" value="${goods_out}">
-                            <span class="checkmark"></span>${goods_out}</label>` : "";
+    let goods_in_out_chk = goods_in_out != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_in_out" value="${goods_in_out}">
+                            <span class="checkmark"></span>${goods_in_out}</label>` : "";
 
     let customers_chk = customers != "" ? `<label class="check-radio"><input type="checkbox" class="um_customers" value="${customers}">
                             <span class="checkmark"></span>${customers}</label>` : "";
@@ -121,7 +118,7 @@ for (let i = 0; i < row_num; i++) {
                             <span class="checkmark"></span>${other}</label>` : "";
 
 
-    rows += `<tr><td>${goods_in_chk}</td><td>${goods_out_chk}</td><td>${customers_chk}</td><td>${statics_chk}</td>
+    rows += `<tr><td>${goods_in_out_chk}</td></td><td>${customers_chk}</td><td>${statics_chk}</td>
         <td>${setup_chk}</td><td>${other_chk}</td></tr>`;
 }
 
@@ -147,7 +144,8 @@ for (let mark of marks) {
     mark.setAttribute("style", "background: lightgrey; border: none;")
 }
 
-//编辑用户数据 ------------------------------------
+//编辑用户数据 -----------------------------------------------------------
+
 let confirm_save;  //取消时，恢复数据用
 
 //编辑按钮

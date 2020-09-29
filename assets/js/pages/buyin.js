@@ -7,6 +7,7 @@ import * as service from '../parts/service.mjs'
 import { SPLITER, regReal } from '../parts/tools.mjs';
 
 let table_fields;
+let num_position = document.querySelector('#num_position').textContent.split(",");
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
@@ -351,8 +352,8 @@ function sum_money() {
         }
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum} 元`;
-    document.querySelector('#应结金额').value = sum;
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
+    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
 }
 
 //计算记录数
@@ -490,11 +491,11 @@ function build_input_row(show_names, all_width) {
     });
 
     //添加价格和数量变化事件
-    input_row.querySelector('.price').addEventListener('blur', function() {
+    input_row.querySelector('.price').addEventListener('blur', function () {
         sum_money();
     });
 
-    input_row.querySelector('.mount').addEventListener('blur', function() {
+    input_row.querySelector('.mount').addEventListener('blur', function () {
         sum_money();
     });
 

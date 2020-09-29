@@ -1,7 +1,7 @@
 @use super::base;
 @use crate::service::UserData;
 @use super::statics::*;
-@(user: UserData)
+@(user: UserData, num_position: String)
 
 @:base({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
@@ -9,6 +9,7 @@
     <div class="top-title"><span><i class="fa fa-retweet"></i> 商品出入库 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> 商品采购 </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
+        <span id="num_position" hidden>@num_position</span>
     </div>
     <div class="buy-content">
         <div class="inout-top">

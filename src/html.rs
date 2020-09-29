@@ -112,7 +112,7 @@ pub async fn sale_person(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///销售人员
+///仓库设置
 #[get("/warehouse_set")]
 pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "仓库设置".to_owned()).await;
@@ -136,7 +136,7 @@ pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///系统参数
+///帮助信息
 #[get("/help")]
 pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
@@ -149,13 +149,24 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///系统参数
+///商品采购
 #[get("/buy_in")]
 pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db, id, "".to_owned()).await;
-
+    let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| buyin(o, user));
+        let conn = db.get().await.unwrap();
+        let rows = &conn
+            .query(r#"SELECT value FROM system WHERE id=1 OR id=2"#, &[])
+            .await
+            .unwrap();
+
+        let mut num_position = "".to_owned();
+        for row in rows {
+            let s: String = row.get("value");
+            num_position += &format!("{},", s);
+        }
+
+        let html = r2s(|o| buyin(o, user, num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
