@@ -1853,8 +1853,8 @@ a.roar-alert-message-tbf {
 .buy-in .table-items .inputting td:nth-last-child(1),
 .buy-in .table-items .inputting td:nth-last-child(2),
 .buy-in .table-items .inputting td:nth-last-child(3),
-.buy-in .table-items .inputting td:nth-last-child(4),
-.buy-in .table-items .inputting td:nth-last-child(5) {
+.buy-in .table-items .inputting td:nth-last-child(5),
+.buy-in .table-items .inputting td:nth-last-child(6) {
   border-bottom: 1px solid tomato;
 }
 .buy-in .table-items .autocomplete {

@@ -198,25 +198,25 @@ fetch("/fetch_inout_fields", {
 
         //构造表头和空行------------
 
-        all_width = all_width * 18 + 54 + 140 + 80 + 80 + 100 + 80 + 100;
+        all_width = all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 80 + 100;
 
-        let th_row = `<tr><th width=${54 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
-        let blank_row = `<tr><td width=${54 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
+        let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
+        let blank_row = `<tr><td width=${40 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
 
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18 * 100 / all_width}%>${th.show_name}</th>`;
             blank_row += `<td width=${th.show_width * 18 * 100 / all_width}%></td>`;
         }
 
-        th_row += `<th width=${80 * 100 / all_width}%>单价</th><th width=${80 * 100 / all_width}%>数量</th>
-                    <th width=${100 * 100 / all_width}%>仓库</th><th width=${80 * 100 / all_width}%>库位</th>
-                    <th width=${100 * 100 / all_width}%>备注</th></tr>`;
+        th_row += `<th width=${60 * 100 / all_width}%>单价</th><th width=${60 * 100 / all_width}%>数量</th>
+                <th width=${80 * 100 / all_width}%>金额</th><th width=${100 * 100 / all_width}%>仓库</th>
+                <th width=${80 * 100 / all_width}%>库位</th><th width=${100 * 100 / all_width}%>备注</th></tr>`;
 
         table_container.querySelector('thead').innerHTML = th_row;
 
-        blank_row += `<td width=${80 * 100 / all_width}%></td><td width=${80 * 100 / all_width}%></td>
-                    <td width=${100 * 100 / all_width}%></td><td width=${80 * 100 / all_width}%></td>
-                    <td width=${100 * 100 / all_width}%></td></tr>`;
+        blank_row += `<td width=${60 * 100 / all_width}%></td><td width=${60 * 100 / all_width}%></td>
+                    <td width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
+                    <td width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td></tr>`;
 
         let input_row = build_input_row(show_names, all_width);
 
@@ -339,6 +339,17 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
 
 //共用事件和函数 ---------------------------------------------------------------------
 
+function calc_money(input_row) {
+    let price = input_row.querySelector('.price').value;
+    let mount = input_row.querySelector('.mount').value;
+    let money = "";
+    if (price && regReal.test(price) && mount && regReal.test(mount)) {
+        money = (price * mount).toFixed(Number(num_position[1]));
+    }
+
+    input_row.querySelector('.money').textContent = money;
+}
+
 //计算合计金额
 function sum_money() {
     let all_input = document.querySelectorAll('.has-input');
@@ -428,7 +439,7 @@ function build_input_row(show_names, all_width) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
-    let row = `<td width=${54 * 100 / all_width}%>1</td><td width=${140 * 100 / all_width}%>
+    let row = `<td width=${40 * 100 / all_width}%>1</td><td width=${140 * 100 / all_width}%>
                 <div class="form-input autocomplete" style="z-index: 900;">
                     <input class="form-control input-sm has-value auto-input" type="text" />
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
@@ -440,15 +451,15 @@ function build_input_row(show_names, all_width) {
     }
 
     row += `
-        <td width=${80 * 100 / all_width}%>
+        <td width=${60 * 100 / all_width}%>
             <div class="form-input">
                 <input class="form-control input-sm has-value price" type="text" />
             </div>
-        </td><td width=${80 * 100 / all_width}%}>
+        </td><td width=${60 * 100 / all_width}%}>
             <div class="form-input">
                 <input class="form-control input-sm has-value mount" type="text" />
             </div>
-        </td><td width=${100 * 100 / all_width}%></td>
+        </td><td class="money" width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
         <td class="position" width=${80 * 100 / all_width}%>
             <div class="form-input autocomplete">
                 <input class="form-control input-sm has-value ware-position" type="text" />
@@ -492,10 +503,13 @@ function build_input_row(show_names, all_width) {
 
     //添加价格和数量变化事件
     input_row.querySelector('.price').addEventListener('blur', function () {
+        calc_money(input_row);
         sum_money();
+
     });
 
     input_row.querySelector('.mount').addEventListener('blur', function () {
+        calc_money(input_row);
         sum_money();
     });
 
