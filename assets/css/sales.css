@@ -1767,7 +1767,7 @@ a.roar-alert-message-tbf {
   color: darkgreen;
   padding: 3px 10px;
   height: 25px;
-  width: 98%;
+  width: 100%;
   margin-left: 1px;
   margin-bottom: 3px;
   background-color: #ecf6fe;
@@ -1779,11 +1779,20 @@ a.roar-alert-message-tbf {
 .buy-in .has-auto {
   left: 136;
 }
+.buy-in .info-and-choose {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.buy-in #choose-div {
+  width: 290px;
+  padding-top: 1px;
+  margin-left: 20px;
+}
 .buy-in .buy-items {
   display: flex;
 }
 .buy-in .table-items {
-  width: 78%;
   overflow: auto;
 }
 .buy-in .table-items > table thead,
@@ -1913,7 +1922,7 @@ a.roar-alert-message-tbf {
   text-align: right;
 }
 .buy-in .table-history {
-  width: 296px;
+  width: 280px;
   margin-left: 5px;
   float: right;
 }

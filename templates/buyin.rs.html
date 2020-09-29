@@ -41,7 +41,16 @@
                 </div>
             </div>
         </div>
-        <div id="supplier-info"></div>
+        <div class="info-and-choose">
+            <div id="supplier-info"></div>
+            <div id="choose-div">
+                <select class="select-sm" name="print-choose" id="print-choose">
+                    <option value selected disabled hidden>选择打印模板</option>
+                    <option value="含税">含税模板</option>
+                    <option value="无税">无税模板</option>
+                </select>
+            </div>
+        </div>
         <div class="buy-items">
             <div class="table-container table-items not-scroll-left">
                 <table>
@@ -74,9 +83,9 @@
                 <table>
                     <thead>
                         <tr>
-                            <th width=100>近期采购</th>
-                            <th width=80>单价</th>
-                            <th width=80>数量</th>
+                            <th width=10%>近期采购</th>
+                            <th width=8%>单价</th>
+                            <th width=6%>数量</th>
                         </tr>
                     </thead>
                     <tbody>
