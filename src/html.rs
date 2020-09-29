@@ -152,7 +152,7 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///商品采购
 #[get("/buy_in")]
 pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "采购进货".to_owned()).await;
+    let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
