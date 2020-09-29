@@ -352,6 +352,7 @@ function sum_money() {
     }
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum} 元`;
+    document.querySelector('#应结金额').value = sum;
 }
 
 //计算记录数
@@ -474,7 +475,7 @@ function build_input_row(show_names, all_width) {
         this.classList.add("inputting");
     });
 
-    //构造商品规格自动完成------------
+    //构造商品规格自动完成
     auto_table(auto_input, "", "/buyin_auto", show_names, () => {
         let field_values = auto_input.getAttribute("data").split(SPLITER);
         let n = 3;
@@ -487,7 +488,15 @@ function build_input_row(show_names, all_width) {
 
         add_line(show_names, all_width);
     });
-    //----------------------------
+
+    //添加价格和数量变化事件
+    input_row.querySelector('.price').addEventListener('blur', function() {
+        sum_money();
+    });
+
+    input_row.querySelector('.mount').addEventListener('blur', function() {
+        sum_money();
+    });
 
     //商品规格查找按钮
     input_row.querySelector('.product-search-button').addEventListener('click', function () {
