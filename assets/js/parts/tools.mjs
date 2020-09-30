@@ -10,9 +10,15 @@ export function padZero(num, length) {
 
 //获得控件的高度
 export function getHeight() {
-    // let header = document.querySelector('.header');
-    // let footer = document.querySelector('footer');
-    // let title = document.querySelector('.top-title');
+    let header = document.querySelector('.header');
+    let footer = document.querySelector('footer');
+    let title = document.querySelector('.top-title');
+
+    console.log(header.clientHeight);
+    console.log(footer.clientHeight);
+    console.log(title.clientHeight);
+    console.log(document.body.clientHeight);
+
 
     let content_height = document.body.clientHeight - 138;  //138 是 header，footer 和 top-title 的高度和
     var sum = 0;

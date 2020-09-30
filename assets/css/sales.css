@@ -35,6 +35,11 @@ input {
   outline: none;
 }
 
+html,
+body {
+  height: 100%;
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -503,7 +508,7 @@ input:focus {
 }
 
 .search-input {
-  height: 30px;
+  height: 14px;
   display: inline-block;
   width: 200px;
   margin-right: 3px;
@@ -1364,7 +1369,7 @@ a.roar-alert-message-tbf {
 }
 .user-manage #users-show #search-input {
   width: 180px;
-  height: 30px;
+  height: 26px;
   padding: 2px 8px;
   border-color: #e8e8e8;
 }
@@ -1415,7 +1420,7 @@ a.roar-alert-message-tbf {
   margin-top: 8.5px;
 }
 .user-manage #user-rights .rights-show {
-  height: 560px;
+  height: auto;
 }
 .user-manage #user-rights .check-radio {
   padding-left: 24px;

@@ -25,7 +25,7 @@
 
         #search-input {
             width: 180px;
-            height: 30px;
+            height: 26px;
             padding: 2px 8px;
             border-color: #e8e8e8;
 
@@ -44,6 +44,10 @@
                 background-color: $info-700;
             }
         }
+
+        // .table-users {
+        //     height: 560px;
+        // }
 
         tbody tr td:nth-child(1),
         tbody tr td:nth-last-child(1) {
@@ -93,7 +97,7 @@
         }
 
         .rights-show {
-            height: 560px;
+            height: auto;
         }
 
         .check-radio {

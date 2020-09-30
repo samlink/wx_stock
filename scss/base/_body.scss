@@ -21,6 +21,11 @@ input {
     outline: none;
 }
 
+html,
+body {
+    height: 100%;
+}
+
 html {
     scroll-behavior: smooth;
     body {

@@ -2,6 +2,8 @@ import { SPLITER } from '../parts/tools.mjs';
 import { AutoInput } from '../parts/autocomplete.mjs';
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 
+export var table_fields;
+
 //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
 export function build_table_header(table_container, table_fields) {
     let all_width = 0;
@@ -220,8 +222,6 @@ export function build_inout_form(table_fields) {
 
 //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
 export function build_product_table(row_num, cb) {
-    let table_fields;
-
     let init_data = {
         container: '.table-product',
         url: "/fetch_blank",
