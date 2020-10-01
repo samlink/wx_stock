@@ -912,7 +912,7 @@ a.roar-alert-message-tbf {
 }
 .tree-show {
   height: 95%;
-  min-width: 305px;
+  width: 305px;
 }
 .tree-show button {
   color: white;
@@ -1158,8 +1158,7 @@ a.roar-alert-message-tbf {
   outline: 0;
   overscroll-behavior: none;
   padding: 0 !important;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden;
   transition: opacity 0.15s linear;
   background: rgba(0, 0, 0, 0.3);
 }
@@ -1442,12 +1441,18 @@ a.roar-alert-message-tbf {
   display: flex;
   align-items: flex-start;
 }
+.product-content .tree-show {
+  flex-grow: 0;
+  flex-shrink: 0;
+  height: calc(100% - 200px);
+}
 .product-content .tree-container {
   height: calc(100vh - 240px);
 }
 .product-content #product-show {
-  flex: 1;
+  flex-grow: 1;
   margin-left: 20px;
+  width: calc(100% - 340px);
 }
 .product-content .table-product {
   overflow-x: auto;
@@ -1857,7 +1862,7 @@ a.roar-alert-message-tbf {
 .buy-in .table-items .auto-edit {
   position: absolute;
   margin-left: -2px;
-  margin-top: -15px;
+  margin-top: -14px;
   z-index: 0;
 }
 .buy-in .table-items .product-search-button {
@@ -1973,8 +1978,8 @@ a.roar-alert-message-tbf {
   width: 244.4px;
 }
 .buy-in .autocomplete .table-auto {
-  top: 280;
-  left: 350;
+  top: 280px;
+  left: 350px;
   position: fixed;
 }
 

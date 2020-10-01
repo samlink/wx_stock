@@ -230,10 +230,8 @@ pub async fn fetch_one_product(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut data = "".to_owned();
         for row in rows {
-            for f in &fields {
-                let name: String = row.get(&*f.field_name);
-                data += &format!("{}{}", name, SPLITER);
-            }
+            let field_str = simple_string_from_base(row, &fields);
+            data += &field_str;
         }
 
         data = data.trim_end_matches(SPLITER).to_owned();

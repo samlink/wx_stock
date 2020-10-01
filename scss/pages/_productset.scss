@@ -1,15 +1,21 @@
 .product-content {
     display: flex;
     align-items: flex-start;
-    // height: 95%;
+
+    .tree-show {
+        flex-grow: 0;
+        flex-shrink: 0;
+        height: calc(100% - 200px);
+    }
 
     .tree-container {
         height: calc(100vh - 240px);
     }
 
     #product-show {
-        flex: 1;
+        flex-grow: 1;
         margin-left: 20px;
+        width: calc(100% - 340px);
     }
 
     .table-product {

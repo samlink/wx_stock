@@ -9,8 +9,7 @@
     outline: 0;
     overscroll-behavior: none;
     padding: 0 !important;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     transition: opacity 0.15s linear;
 
     background: rgba(0, 0, 0, 0.3); //这种背景色和透明度设置方式，才能不会使子元素也透明，起到遮罩作用

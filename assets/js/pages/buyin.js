@@ -589,7 +589,7 @@ function build_input_row(show_names, all_width) {
                     </div>`;
 
             document.querySelector('.modal-body').innerHTML = html;
-            document.querySelector('.tree-container').style.height = height - 240;
+            document.querySelector('.tree-container').style.height = (height - 240) + "px";
 
             let tree_data = {
                 node_num: "",
@@ -694,7 +694,8 @@ function build_ware_position(ware_option, input_row) {
 
     let position_td = input_row.querySelector('.position');
     position_td.addEventListener('click', function () {
-        element_position(this, 6.5, 16.5);
+        this.querySelector('.autocomplete').classList.add('auto-edit');
+        // element_position(this, 6.5, 100.5);
         let tbody = document.querySelector('.table-items tbody');
         let y = getTop(this, tbody);
         let body_height = document.querySelector('body').clientHeight;
@@ -703,7 +704,7 @@ function build_ware_position(ware_option, input_row) {
     });
 
     input_row.querySelector('td:nth-last-child(3)').appendChild(ware_house_select);
-    input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
+    // input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
 }
 
 //设置元素的位置
@@ -711,15 +712,15 @@ function element_position(element, add_x, add_y) {
     if (element.querySelector('.autocomplete').classList.contains("auto-edit")) {
         return false;
     }
-    let tbody = document.querySelector('.table-items tbody');
-    let x = getLeft(element, tbody);
-    let y = getTop(element, tbody);
+    // let tbody = document.querySelector('.table-items tbody');
+    // let x = getLeft(element, tbody);
+    // let y = getTop(element, tbody);
 
-    let auto_div = element.querySelector('.autocomplete');
-    auto_div.style.left = x + add_x;
-    auto_div.style.top = y + add_y;
+    // let auto_div = element.querySelector('.autocomplete');
+    // auto_div.style.left = (x + add_x) + "px";
+    // auto_div.style.top = (y + add_y) + "px";
 
-    remove_absolute();
+    // remove_absolute();
 
     element.querySelector('.autocomplete').classList.add('auto-edit');
 }

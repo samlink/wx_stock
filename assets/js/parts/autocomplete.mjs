@@ -51,8 +51,8 @@ export class AutoInput {
                         }
 
                         if (a.clientHeight > space) {
-                            a.style.top = -(a.clientHeight - space + 30);
-                            a.style.left = 120;
+                            a.style.top = -(a.clientHeight - space + 30) + "px";
+                            a.style.left = "120px";
                             a.style.borderTop = "1px solid #9acffa"
                         }
                     }
