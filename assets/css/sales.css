@@ -2023,8 +2023,14 @@ a.roar-alert-message-tbf {
   border-color: lightgray;
 }
 .report-design .build-model .model-div #default-label {
-  width: 120px;
+  width: 80px;
   margin-left: 20px;
+}
+.report-design .build-model .model-div #default-label:hover {
+  font-weight: normal;
+}
+.report-design .build-model .model-div #default-check {
+  width: 2px;
 }
 .report-design .build-model .model-div button {
   padding: 0 20px;

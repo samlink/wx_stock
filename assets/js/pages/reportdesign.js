@@ -48,7 +48,7 @@ var getJsonTid = function () {
 
 document.addEventListener('keydown', function (e) {
     if (e.key == "Delete") {
-        document.querySelector('#PrintElementOptionSetting .hiprint-option-item-deleteBtn').click();
+        document.querySelector('#del').click();
     }
 })
 

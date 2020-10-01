@@ -66,29 +66,18 @@
                                 "textType": "qrcode"
                             }
                         },
-
+                    ]),
+                    new hiprint.PrintElementTypeGroup("自定义", [
                         { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
                         { tid: 'configModule.image', title: '图片', data: '/Content/assets/hi.png', type: 'image' },
                         {
                             tid: 'configModule.tableCustom',
                             title: '表格',
                             type: 'tableCustom',
-                            // type: 'table',
                             field: 'table',
-                            columns: [
-
-                                [{ title: '序号', align: 'center', field: '序号', width: 30 },
-                                { title: '名称', align: 'center', field: '名称', width: 60 },
-                                { title: '规格', align: 'center', field: '规格', width: 100 },
-                                { title: '单位', align: 'center', field: '单位', width: 30 },
-                                { title: '单价', align: 'center', field: '单价', width: 30 },
-                                { title: '数量', align: 'center', field: '数量', width: 30 },
-                                { title: '金额', align: 'center', field: '金额', width: 50 },
-                                ]
-                            ]
                         },
-
                     ]),
+
                     new hiprint.PrintElementTypeGroup("辅助", [
                         {
                             tid: 'configModule.hline',
