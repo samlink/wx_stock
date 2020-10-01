@@ -7,7 +7,6 @@ $(document).ready(function () {
         providers: [new configElementTypeProvider()]
     });
 
-    // hiprint.PrintElementTypeManager.build('.hiprintEpContainer', 'testModule');
     //设置左侧拖拽事件
     hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
 
@@ -16,6 +15,7 @@ $(document).ready(function () {
         settingContainer: '#PrintElementOptionSetting',
         // paginationContainer: '.hiprint-printPagination'
     });
+
     //打印设计
     hiprintTemplate.design('#hiprint-printTemplate');
 

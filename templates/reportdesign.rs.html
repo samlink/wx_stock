@@ -7,13 +7,16 @@
 <link href="/assets/plugins/hiprint/css/hiprint.css" rel="stylesheet" />
 <link href="/assets/plugins/hiprint/css/print-lock.css" rel="stylesheet" />
 
-<div class="top-title"><span><i class="fa fa-retweet"></i> 商品出入库 </span>
-    <span class="t1"><i class="fa fa-angle-double-right"></i> 商品采购 </span>
+<div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
+    <span class="t1"><i class="fa fa-angle-double-right"></i> 报表设计 </span>
     <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
 </div>
+<div class="layout-choose">
+
+</div>
 <layout class="layout hinnn-layout hinnn-layout-has-sider height-100-per" style="background:#fff;">
-    <content class="hinnn-layout-content" style="border-left:1px solid #e8e8e8;">
-        <div class="container-fluid height-100-per print-content" style="min-width: 240px;">
+    <content class="hinnn-layout-content">
+        <div class="container-fluid height-100-per print-content" style="width: 240px;">
             <div class="rect-printElement-types hiprintEpContainer">
                 <ul class="hiprint-printElement-type">
                     <li>
@@ -122,22 +125,16 @@
 
     <sider class="hinnn-layout-sider">
         <div class="hiprint-option-item hiprint-option-item-row">
-            <button class="hiprint-option-item-settingBtn hiprint-option-item-submitBtn" id="sumit"
-                type="button">确定</button>
-            <button class="hiprint-option-item-settingBtn hiprint-option-item-deleteBtn" id="del"
-                type="button">删除</button>
+            <button class="btn btn-info btn-normal" id="sumit" type="button">确定</button>
+            <button class="btn btn-second btn-normal" id="del" type="button">删除</button>
         </div>
-        <div class="container height-100-per" style="width:250px;">
-            <div class="row">
-                <div class="col-sm-12">
-                    <div id="PrintElementOptionSetting" style="margin-top:10px;"></div>
-                </div>
-            </div>
+        <div class="container height-100-per" >
+            <div id="PrintElementOptionSetting"></div>
         </div>
     </sider>
 </layout>
 
-<script src="/assets/plugins/jquery/jquery.1.24.min.js"></script>
+<script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
 
 <script src="/assets/plugins/hiprint/js/config-etype-provider.js"></script>
 <script src="/assets/plugins/hiprint/js/config-print-json.js"></script>

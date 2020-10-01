@@ -342,6 +342,11 @@ button.btn-second:hover {
   border-color: #fc077a;
   text-decoration: none;
 }
+button.btn-normal {
+  height: 30px;
+  font-size: 0.9rem;
+  padding: 3px 20px;
+}
 button.btn-sm {
   height: 30px;
   font-size: 0.9rem;
@@ -1559,6 +1564,7 @@ a.roar-alert-message-tbf {
 }
 .fields-set table tbody tr:hover {
   background-color: transparent;
+  border-left: 3px solid #39a1f4;
 }
 .fields-set .table-button {
   display: none;

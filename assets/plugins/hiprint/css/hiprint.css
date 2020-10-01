@@ -7,6 +7,27 @@ content {
     display: flex;
 }
 
+.hinnn-layout-sider {
+    padding-top: 18px;
+    margin-left: 10px;
+}
+
+.hinnn-layout-sider .container {
+    padding: 0 8px;
+    margin-top: 10px;
+    width: 260px;
+    height: calc(100vh - 230px);
+    overflow-y: auto;
+}
+
+#sumit {
+    margin-left: 30px;
+}
+
+#del {
+    margin-left: 15px;
+}
+
 #PrintElementOptionSetting .hiprint-option-item-submitBtn,
 #PrintElementOptionSetting .hiprint-option-item-deleteBtn {
     display: none;
