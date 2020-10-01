@@ -56,6 +56,14 @@
         overflow-x: hidden;
         overflow-y: scroll;
 
+        td {
+            text-overflow: unset;
+        }
+
+        input {
+            width: 90%;
+        }
+
         td:nth-child(2),
         td:nth-last-child(1) {
             text-align: center;
@@ -71,7 +79,7 @@
     }
 
     .checkmark {
-        top: -8px;
+        top: -14px;
     }
 
     .table-tip {
@@ -79,7 +87,7 @@
     }
 
     .table-inout tr {
-        height: 31.2px;
+        height: 32.75px;
     }
 
     #choose-info {

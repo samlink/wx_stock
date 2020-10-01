@@ -75,6 +75,8 @@
   }
 
   .page-button {
+    width: 30px;
+    height: 30px;
     background-color: $info-400;
     padding: 0.4rem 0.6rem !important;
     margin: 0 3px;
@@ -101,7 +103,7 @@
 
   #page-input {
     width: 40px;
-    height: 28px;
+    height: 15px;
     text-align: center;
     padding: 0.5rem 0.2rem;
     margin: 0 3px;

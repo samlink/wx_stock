@@ -211,7 +211,7 @@ footer {
   margin-left: -4px;
 }
 .nav-item:not(:last-child) {
-  margin-bottom: 10px;
+  margin-bottom: 7px;
 }
 .nav-item:hover {
   background-color: #6e4e9e;
@@ -459,9 +459,9 @@ input:focus {
 }
 
 .input-sm {
-  height: 28px;
+  height: 20px;
   padding: 3px 5px;
-  width: 100%;
+  width: 90%;
   border: 1px solid #9acffa;
 }
 .input-sm:focus {
@@ -747,6 +747,8 @@ input:focus {
   margin-left: 20px;
 }
 .table-container .page-button {
+  width: 30px;
+  height: 30px;
   background-color: #39a1f4;
   padding: 0.4rem 0.6rem !important;
   margin: 0 3px;
@@ -768,7 +770,7 @@ input:focus {
 }
 .table-container #page-input {
   width: 40px;
-  height: 28px;
+  height: 15px;
   text-align: center;
   padding: 0.5rem 0.2rem;
   margin: 0 3px;
@@ -1539,6 +1541,12 @@ a.roar-alert-message-tbf {
   overflow-x: hidden;
   overflow-y: scroll;
 }
+.fields-set table tbody td {
+  text-overflow: unset;
+}
+.fields-set table tbody input {
+  width: 90%;
+}
 .fields-set table tbody td:nth-child(2),
 .fields-set table tbody td:nth-last-child(1) {
   text-align: center;
@@ -1550,13 +1558,13 @@ a.roar-alert-message-tbf {
   display: none;
 }
 .fields-set .checkmark {
-  top: -8px;
+  top: -14px;
 }
 .fields-set .table-tip {
   margin-left: 20px;
 }
 .fields-set .table-inout tr {
-  height: 31.2px;
+  height: 32.75px;
 }
 .fields-set #choose-info {
   position: fixed;

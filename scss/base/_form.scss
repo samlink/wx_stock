@@ -36,9 +36,9 @@ input {
 }
 
 .input-sm {
-    height: 28px;
+    height: 20px;
     padding: 3px 5px;
-    width: 100%;
+    width: 90%;
     border: 1px solid $info-50;
     &:focus {
         border-color: $info-400;
