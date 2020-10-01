@@ -2002,6 +2002,9 @@ a.roar-alert-message-tbf {
 .report-design .build-model div {
   margin: 0 10px;
 }
+.report-design .build-model .check-radio:hover {
+  font-weight: bold;
+}
 .report-design .build-model .model-select {
   height: 30px !important;
 }
@@ -2019,10 +2022,13 @@ a.roar-alert-message-tbf {
 .report-design .build-model .model-div input:disabled {
   border-color: lightgray;
 }
+.report-design .build-model .model-div #default-label {
+  width: 120px;
+  margin-left: 20px;
+}
 .report-design .build-model .model-div button {
   padding: 0 20px;
-  width: 100px;
-  margin-left: 20px;
+  width: 90px;
 }
 
 /*# sourceMappingURL=sales.css.map */

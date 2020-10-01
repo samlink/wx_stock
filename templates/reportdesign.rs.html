@@ -14,7 +14,7 @@
 <div class="report-design">
     <div class="build-model">
         <div>
-            <label class="check-radio">新建模板<input type="radio" checked="checked" name="model-choose">
+            <label class="check-radio">新建模板<input type="radio" checked="checked" name="model-choose" id="choose-new">
                 <span class="radiomark"></span></label>
         </div>
         <div>
@@ -35,7 +35,7 @@
     </div>
     <div class="build-model">
         <div>
-            <label class="check-radio">修改模板<input type="radio" name="model-choose">
+            <label class="check-radio">修改模板<input type="radio" name="model-choose" id="choose-edit">
                 <span class="radiomark"></span></label>
         </div>
         <div>
@@ -50,11 +50,15 @@
             </select>
         </div>
         <div class="model-div">
-            <select class="select-sm model-select" name="model-select" id="editmodel-select" disabled>
+            <select class="select-sm model-select" name="model-select" id="edit-select" disabled>
                 <option value="含税">含税采购单</option>
                 <option value="无税">无税采购单</option>
             </select>
-            <button class="btn btn-info btn-sm" id="save-button">保存</button>
+            <div class="model-div">
+                <label class="check-radio" id="default-label">设为默认<input type="checkbox" id="default-check">
+                    <span class="checkmark"></span></label>
+                <button class="btn btn-info btn-sm" id="save-button">保存</button>
+            </div>
         </div>
     </div>
 </div>

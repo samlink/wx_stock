@@ -58,8 +58,29 @@ document.querySelector('#sumit').addEventListener('click', function () {
 
 document.querySelector('#del').addEventListener('click', function () {
     document.querySelector('#PrintElementOptionSetting .hiprint-option-item-deleteBtn').click();
+    document.querySelector('.hiprint-printPanel').click();
 });
 
 setTimeout(() => {
     document.querySelector('.hiprint-printPanel').click();
 }, 200);
+
+document.querySelector('#choose-new').addEventListener('click', function() {
+    document.querySelector('#newmodel-select').disabled = false;
+    document.querySelector('#newmodel-name').disabled = false;
+    document.querySelector('#editmodel-select').disabled = true;
+    document.querySelector('#edit-select').disabled = true;
+    document.querySelector('#choose-edit').parentNode.style.cssText = "";
+    this.parentNode.style.fontWeight = "bold";
+    
+});
+
+document.querySelector('#choose-edit').addEventListener('click', function() {
+    document.querySelector('#newmodel-select').disabled = true;
+    document.querySelector('#newmodel-name').disabled = true;
+    document.querySelector('#editmodel-select').disabled = false;
+    document.querySelector('#edit-select').disabled = false;
+    document.querySelector('#choose-new').parentNode.style.cssText = "";
+    this.parentNode.style.fontWeight = "bold";
+    
+});

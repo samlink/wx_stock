@@ -12,6 +12,12 @@
             margin: 0 10px;
         }
 
+        .check-radio {
+            &:hover {
+                font-weight: bold;
+            }
+        }
+
         .model-select {
             height: 30px !important;
 
@@ -33,10 +39,15 @@
                 }
             }
 
+            #default-label {
+                width: 120px;
+                margin-left: 20px;
+            }
+
             button {
                 padding: 0 20px;
-                width: 100px;
-                margin-left: 20px;
+                width: 90px;
+                // margin-left: 20px;
             }
         }
     }
