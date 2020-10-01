@@ -185,7 +185,7 @@ export function build_inout_form(table_fields) {
                                 </div>
                                 <div class="form-input">
                                     <input class="form-control input-sm has-value" type="text" ${id}
-                                        style="width: ${name.show_width * 20};" />
+                                        style="width: ${name.show_width * 20}px;" />
                                 </div>
                             </div>`;
         } else if (name.ctr_type == "二值选一") {
@@ -204,7 +204,7 @@ export function build_inout_form(table_fields) {
                                 <div class="form-label">                                    
                                     <label>${name.show_name}</label>
                                 </div>
-                                <select class='select-sm has-value' style="width: ${name.show_width * 20};" ${id}>`;
+                                <select class='select-sm has-value' style="width: ${name.show_width * 20}px;" ${id}>`;
 
             let options = name.option_value.split('_');
             for (let value of options) {

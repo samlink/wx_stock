@@ -15,12 +15,12 @@
     }
 
     .has-auto {
-        left: 136;
+        left: 136px;
     }
 
     .info-and-choose {
-        display: flex;    
-        justify-content: space-between;    
+        display: flex;
+        justify-content: space-between;
         align-items: flex-start;
     }
 
@@ -32,7 +32,7 @@
 
     .buy-items {
         display: flex;
-    }    
+    }
 
     .table-items {
         // width: 78%;
@@ -126,9 +126,10 @@
         }
 
         .autocomplete {
-            //不遮挡供应商自动完成
-            z-index: 18;
             margin-left: 2px;
+            input {
+                width: 100%;
+            }
         }
 
         .position {
@@ -203,10 +204,16 @@
         text-align: right;
     }
 
+    #print-choose {
+        width: 98%;
+    }
+
     .table-history {
-        width: 280px;
+        width: 240px;
         margin-left: 5px;
-        float: right;
+        flex-grow: 0;
+        flex-shrink: 0;
+        // float: right;
         th {
             cursor: default;
         }
@@ -232,7 +239,7 @@
 
         .autocomplete-items {
             width: $auto-width * 0.998;
-            top: 28;
+            top: 28px;
             left: 0;
 
             div {

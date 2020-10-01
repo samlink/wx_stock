@@ -42,7 +42,7 @@ fetch("/fetch_inout_fields", {
             //加入滚动事件处理
             fields_show.addEventListener('scroll', function () {
                 if (fields_show.scrollTop != 0) {
-                    has_auto.style.cssText = "position: relative; left: -5;";
+                    has_auto.style.cssText = "position: relative; left: 5px;";
                     next_auto.style.cssText = "margin-left: -3px;"
                 }
                 else {
@@ -475,7 +475,7 @@ function build_input_row(show_names, all_width) {
     let auto_input = input_row.querySelector('.auto-input');
     let auto_td = input_row.querySelector('td:nth-child(2)');
     let auto_th = document.querySelector('.table-items th:nth-child(2)');
-    auto_input.style.width = auto_th.clientWidth - 24;
+    auto_input.style.width = (auto_th.clientWidth - 36) + "px";
 
     auto_td.addEventListener('click', function () {
         element_position(this, 7.4, 15.2);
@@ -690,7 +690,7 @@ function build_ware_position(ware_option, input_row) {
     auto_comp.init();
 
     let position_th = document.querySelector('.table-items thead th:nth-last-child(2)');
-    position_input.style.width = (position_th.clientWidth - 12) + "px";
+    position_input.style.width = (position_th.clientWidth - 24) + "px";
 
     let position_td = input_row.querySelector('.position');
     position_td.addEventListener('click', function () {

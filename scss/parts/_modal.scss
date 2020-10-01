@@ -42,11 +42,12 @@
         $auto-width: 260px; //按需修改
         input {
             width: $auto-width;
+            height: 30px;
         }
 
         .autocomplete-items {
             width: $auto-width * 0.998;
-            top: 32;
+            top: 33px;
             left: 0;
 
             div {

@@ -537,7 +537,6 @@ input:focus {
 .inout-top .fields-show .form-group {
   display: flex;
   justify-content: center;
-  margin-right: 10px;
 }
 .inout-top .fields-show .form-label {
   width: 80px;
@@ -1102,6 +1101,7 @@ a.roar-alert-message-tbf {
 .autocomplete {
   position: absolute;
   display: flex;
+  align-items: center;
   z-index: 1000;
 }
 .autocomplete input {
@@ -1186,10 +1186,11 @@ a.roar-alert-message-tbf {
 }
 .modal .autocomplete input {
   width: 260px;
+  height: 30px;
 }
 .modal .autocomplete .autocomplete-items {
   width: 259.48px;
-  top: 32;
+  top: 33px;
   left: 0;
 }
 .modal .autocomplete .autocomplete-items div {
@@ -1790,7 +1791,7 @@ a.roar-alert-message-tbf {
   cursor: pointer;
 }
 .buy-in .has-auto {
-  left: 136;
+  left: 136px;
 }
 .buy-in .info-and-choose {
   display: flex;
@@ -1880,8 +1881,10 @@ a.roar-alert-message-tbf {
   border-bottom: 1px solid tomato;
 }
 .buy-in .table-items .autocomplete {
-  z-index: 18;
   margin-left: 2px;
+}
+.buy-in .table-items .autocomplete input {
+  width: 100%;
 }
 .buy-in .table-items .position .autocomplete-items {
   width: 130px;
@@ -1934,10 +1937,14 @@ a.roar-alert-message-tbf {
   min-width: 200px;
   text-align: right;
 }
+.buy-in #print-choose {
+  width: 98%;
+}
 .buy-in .table-history {
-  width: 280px;
+  width: 240px;
   margin-left: 5px;
-  float: right;
+  flex-grow: 0;
+  flex-shrink: 0;
 }
 .buy-in .table-history th {
   cursor: default;
@@ -1959,7 +1966,7 @@ a.roar-alert-message-tbf {
 }
 .buy-in .autocomplete .autocomplete-items {
   width: 259.48px;
-  top: 28;
+  top: 28px;
   left: 0;
 }
 .buy-in .autocomplete .autocomplete-items div {
