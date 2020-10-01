@@ -1,0 +1,43 @@
+.report-design {
+    display: flex;
+    padding: 6px 20px;
+    margin: 14px 0;
+    background-color: lighten($info-400, 38%);
+
+    .build-model {
+        display: flex;
+        align-items: center;
+
+        div {
+            margin: 0 10px;
+        }
+
+        .model-select {
+            height: 30px !important;
+
+            &:disabled {
+                border-color: lightgray;
+            }
+        }
+
+        .model-div {
+            display: flex;
+            align-items: center;
+
+            input {
+                width: 160px;
+                height: 22px;
+
+                &:disabled {
+                    border-color: lightgray;
+                }
+            }
+
+            button {
+                padding: 0 20px;
+                width: 100px;
+                margin-left: 20px;
+            }
+        }
+    }
+}

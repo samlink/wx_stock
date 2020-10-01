@@ -4,7 +4,7 @@
   position: relative; //为使 checkmark 元素实现绝对定位，这个祖先元素需要设置 position 属性，非 static 即可
   padding-left: 25px; //调整字与框的间距
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
 
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -75,8 +75,8 @@
       position: absolute;
       display: none;
 
-      top: 6.7px;
-      left: 6.8px;
+      top: 4px;
+      left: 4px;
       width: 8px;
       height: 8px;
       border-radius: 50%;   //这样就是圆

@@ -11,8 +11,52 @@
     <span class="t1"><i class="fa fa-angle-double-right"></i> 报表设计 </span>
     <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
 </div>
-<div class="layout-choose">
+<div class="report-design">
+    <div class="build-model">
+        <div>
+            <label class="check-radio">新建模板<input type="radio" checked="checked" name="model-choose">
+                <span class="radiomark"></span></label>
+        </div>
+        <div>
+            <select class="select-sm model-select" name="model-select" id="newmodel-select">
+                <option value="" selected hidden>请选择打印单类型</option>
+                <option value="采购入库单">采购入库单</option>
+                <option value="采购退货单">采购退货单</option>
+                <option value="销售出库单">销售出库单</option>
+                <option value="销售退货单">销售退货单</option>
+                <option value="库存调整单">库存调整单</option>
+                <option value="财务单据">财务单据</option>
+            </select>
+        </div>
+        <div class="model-div">
+            <input type="text" class="form-control input-sm" id="newmodel-name" placeholder="名称">
+        </div>
 
+    </div>
+    <div class="build-model">
+        <div>
+            <label class="check-radio">修改模板<input type="radio" name="model-choose">
+                <span class="radiomark"></span></label>
+        </div>
+        <div>
+            <select class="select-sm model-select" name="model-select" id="editmodel-select" disabled>
+                <option value="" selected hidden>请选择打印单类型</option>
+                <option value="采购入库单">采购入库单</option>
+                <option value="采购退货单">采购退货单</option>
+                <option value="销售出库单">销售出库单</option>
+                <option value="销售退货单">销售退货单</option>
+                <option value="库存调整单">库存调整单</option>
+                <option value="财务单据">财务单据</option>
+            </select>
+        </div>
+        <div class="model-div">
+            <select class="select-sm model-select" name="model-select" id="editmodel-select" disabled>
+                <option value="含税">含税采购单</option>
+                <option value="无税">无税采购单</option>
+            </select>
+            <button class="btn btn-info btn-sm" id="save-button">保存</button>
+        </div>
+    </div>
 </div>
 <layout class="layout hinnn-layout hinnn-layout-has-sider height-100-per" style="background:#fff;">
     <content class="hinnn-layout-content">
@@ -128,7 +172,7 @@
             <button class="btn btn-info btn-normal" id="sumit" type="button">确定</button>
             <button class="btn btn-second btn-normal" id="del" type="button">删除</button>
         </div>
-        <div class="container height-100-per" >
+        <div class="container height-100-per">
             <div id="PrintElementOptionSetting"></div>
         </div>
     </sider>

@@ -36,9 +36,9 @@
                                 { title: '金额', align: 'center', field: '金额', width: 50 },
                                 ]
                             ],
-                            footerFormatter: function () {
-                                return `<tr><td style='text-align: center;'>合计</td><td colspan="4"></td><td style='text-align: center;'>89</td><td style='text-align: center;'>1450.67</td></tr>`
-                            }
+                            // footerFormatter: function () {
+                            //     return `<tr><td style='text-align: center;'>合计</td><td colspan="4"></td><td style='text-align: center;'>89</td><td style='text-align: center;'>1450.67</td></tr>`
+                            // }
                         },
 
                         { tid: 'configModule.maker', title: '制单人', field: 'maker', data: '字段数据', type: 'text' },

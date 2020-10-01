@@ -366,7 +366,7 @@ button:disabled:hover {
   position: relative;
   padding-left: 25px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 14px;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -419,8 +419,8 @@ button:disabled:hover {
   content: "";
   position: absolute;
   display: none;
-  top: 6.7px;
-  left: 6.8px;
+  top: 4px;
+  left: 4px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -1987,6 +1987,42 @@ a.roar-alert-message-tbf {
   top: 280px;
   left: 350px;
   position: fixed;
+}
+
+.report-design {
+  display: flex;
+  padding: 6px 20px;
+  margin: 14px 0;
+  background-color: #f1f8fe;
+}
+.report-design .build-model {
+  display: flex;
+  align-items: center;
+}
+.report-design .build-model div {
+  margin: 0 10px;
+}
+.report-design .build-model .model-select {
+  height: 30px !important;
+}
+.report-design .build-model .model-select:disabled {
+  border-color: lightgray;
+}
+.report-design .build-model .model-div {
+  display: flex;
+  align-items: center;
+}
+.report-design .build-model .model-div input {
+  width: 160px;
+  height: 22px;
+}
+.report-design .build-model .model-div input:disabled {
+  border-color: lightgray;
+}
+.report-design .build-model .model-div button {
+  padding: 0 20px;
+  width: 100px;
+  margin-left: 20px;
 }
 
 /*# sourceMappingURL=sales.css.map */
