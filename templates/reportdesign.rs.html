@@ -124,24 +124,24 @@
                 </ul>
             </div>
         </div>
-        <div>
 
+        <div>
             <div class="hiprint-toolbar" style="margin-top:15px;">
                 <ul>
-                    <li><a class="hiprint-toolbar-item" onclick="setPaper('A4')">A4</a></li>
-                    <li><a class="hiprint-toolbar-item" onclick="setPaper('A5')">A5</a></li>
+                    <li><a class="hiprint-toolbar-item" id="paper-a4">A4</a></li>
+                    <li><a class="hiprint-toolbar-item" id="paper-a5">A5</a></li>
 
                     <li><a class="hiprint-toolbar-item"><input type="text" id="customWidth"
-                                style="width: 50px;height: 19px;border: 0px;" placeholder="宽/mm" /></a></li>
+                                style="width: 50px;height: 19px;border: 0px;" placeholder="宽/mm" value="190" /></a></li>
                     <li><a class="hiprint-toolbar-item"><input type="text" id="customHeight"
-                                style="width: 50px;height: 19px;border: 0px;" placeholder="高/mm" /></a></li>
-
-                    <li><a class="hiprint-toolbar-item"
-                            onclick="setPaper($('#customWidth').val(),$('#customHeight').val())">自定义</a>
+                                style="width: 50px;height: 19px;border: 0px;" placeholder="高/mm" value="93.1" /></a>
                     </li>
-                    <li><a class="hiprint-toolbar-item" onclick="clearTemplate()">清空</a></li>
+
+                    <li><a class="hiprint-toolbar-item" id="paper-custom">自定义</a></li>
+                    <li><a class="hiprint-toolbar-item"><input type="text" id="paper-type"
+                                style="width: 190px;height: 19px;border: 0px;" readonly /></a></li>
                     <li>
-                        <a id="A4_directPrint" class="btn hiprint-toolbar-item "
+                        <a id="paper-directPrint" class="btn hiprint-toolbar-item "
                             style="color: #fff; background-color: #d9534f; border-color: #d43f3a;">打印预览</a>
                     </li>
 
@@ -174,7 +174,6 @@
 <script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
 
 <script src="/assets/plugins/hiprint/js/config-etype-provider.js"></script>
-<script src="/assets/plugins/hiprint/js/config-print-json.js"></script>
 <script src="/assets/plugins/hiprint/js/config-print-data.js"></script>
 
 <script src="/assets/plugins/jquery/jquery.minicolors.min.js"></script>

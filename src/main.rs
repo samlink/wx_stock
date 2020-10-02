@@ -115,6 +115,7 @@ async fn main() -> std::io::Result<()> {
             .service(systemset::fetch_system)
             .service(systemset::update_system)
             .service(report_design::fetch_print_documents)
+            .service(report_design::fetch_provider)
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
