@@ -7,52 +7,19 @@ fetch('/fetch_print_documents')
     .then(content => {
         if (content != -1) {
             let options = "";
-            for (let data of content[0]) {
+            for (let data of content) {
                 options += `<option value="${data.id}">${data.name}</option>`;
             }
             document.querySelector('#newmodel-select').innerHTML = options;
             document.querySelector('#editmodel-select').innerHTML = options;
-
-            var configPrintJson = JSON.parse(content[1]);
-
-            print_inti(configPrintJson);
+            document.querySelector('.about-this').textContent = "当前设计框中的模板是样板示例，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
         }
     });
 
-function print_inti(configPrintJson) {
-    //初始化打印插件
-    hiprint.init({
-        providers: [new configElementTypeProvider()]
-    });
-
-    //设置左侧拖拽事件
-    hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
-
-    hiprintTemplate = new hiprint.PrintTemplate({
-        template: configPrintJson,
-        settingContainer: '#PrintElementOptionSetting',
-        paginationContainer: '.hiprint-printPagination'
-    });
-
-    //打印设计
-    hiprintTemplate.design('#hiprint-printTemplate');
-    document.querySelector('#paper-custom').click();
-
-    let paper_type = configPrintJson.panels[0].paperType;
-    let width = configPrintJson.panels[0].width;
-    let height = configPrintJson.panels[0].height;
-
-    document.querySelector('#paper-type').value = paper_type ? `当前纸张：${paper_type}` :
-        `当前纸张：${width}mm * ${height}mm`;
-
-    setTimeout(() => {
-        document.querySelector('.hiprint-printPanel').click();
-    }, 100);
-}
-
+fetch_provider(1);
 
 $('#paper-directPrint').click(function () {
     hiprintTemplate.print(printData);
@@ -80,9 +47,9 @@ document.querySelector('#paper-custom').addEventListener('click', function () {
     document.querySelector('#paper-type').value = `当前纸张：${width}mm * ${height}mm`;
 });
 
-var clearTemplate = function () {
-    hiprintTemplate.clear();
-}
+// var clearTemplate = function () {
+//     hiprintTemplate.clear();
+// }
 
 document.addEventListener('keydown', function (e) {
     if (e.key == "Delete" && e.target.tagName != 'INPUT' && e.target.tagName != 'TEXTAREA') {
@@ -106,7 +73,6 @@ document.querySelector('#choose-new').addEventListener('click', function () {
     document.querySelector('#edit-select').disabled = true;
     document.querySelector('#choose-edit').parentNode.style.cssText = "";
     this.parentNode.style.fontWeight = "bold";
-
 });
 
 document.querySelector('#choose-edit').addEventListener('click', function () {
@@ -116,16 +82,19 @@ document.querySelector('#choose-edit').addEventListener('click', function () {
     document.querySelector('#edit-select').disabled = false;
     document.querySelector('#choose-new').parentNode.style.cssText = "";
     this.parentNode.style.fontWeight = "bold";
-
 });
 
 document.querySelector('#newmodel-select').addEventListener("change", function () {
+    fetch_provider(this.value);
+});
+
+function fetch_provider(id) {
     fetch('/fetch_provider', {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
         },
-        body: Number(this.value),
+        body: Number(id),
     })
         .then(response => response.json())
         .then(content => {
@@ -143,6 +112,9 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
                     return function (options) {
 
                         var addElementTypes = function (context) {
+                            context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
+                            context.testModule = [];
+
                             context.addPrintElementTypes(
                                 "testModule",
                                 [
@@ -187,7 +159,6 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
                         return {
                             addElementTypes: addElementTypes
                         };
-
                     };
                 })();
 
@@ -196,11 +167,36 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
                 document.querySelector('#hiprint-printTemplate').innerHTML = "";
                 document.querySelector('#PrintElementOptionSetting').innerHTML = "";
 
-                print_inti(configPrintJson);
+                //初始化打印插件
+                hiprint.init({
+                    providers: [new configElementTypeProvider()]
+                });
 
+                //设置左侧拖拽事件
+                hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
+
+                hiprintTemplate = new hiprint.PrintTemplate({
+                    template: configPrintJson,
+                    settingContainer: '#PrintElementOptionSetting',
+                    paginationContainer: '.hiprint-printPagination'
+                });
+
+                //打印设计
+                hiprintTemplate.design('#hiprint-printTemplate');
+
+                let paper_type = configPrintJson.panels[0].paperType;
+                let width = configPrintJson.panels[0].width;
+                let height = configPrintJson.panels[0].height;
+
+                document.querySelector('#paper-type').value = paper_type ? `当前纸张：${paper_type}` :
+                    `当前纸张：${width}mm * ${height}mm`;
+
+                setTimeout(() => {
+                    document.querySelector('.hiprint-printPanel').click();
+                }, 100);
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
-});
+}

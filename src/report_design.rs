@@ -35,17 +35,7 @@ pub async fn fetch_print_documents(db: web::Data<Pool>, id: Identity) -> HttpRes
             documents.push(doc);
         }
 
-        let rows = &conn
-            .query(r#"SELECT 示例模板 FROM print_documents WHERE id=1"#, &[])
-            .await
-            .unwrap();
-
-        let mut example = "".to_owned();
-        for row in rows {
-            example = row.get("示例模板");
-        }
-
-        HttpResponse::Ok().json((documents, example))
+        HttpResponse::Ok().json(documents)
     } else {
         HttpResponse::Ok().json(-1)
     }

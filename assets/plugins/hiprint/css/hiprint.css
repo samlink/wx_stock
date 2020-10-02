@@ -28,6 +28,15 @@ content {
     margin-left: 15px;
 }
 
+.about-this {
+    color: green;
+    background-color: #f1f8fe;
+    height: 30px;
+    padding-top: 5px;
+    padding-left: 10px;
+    margin-top: 10px;
+}
+
 #PrintElementOptionSetting .hiprint-option-item-submitBtn,
 #PrintElementOptionSetting .hiprint-option-item-deleteBtn {
     display: none;

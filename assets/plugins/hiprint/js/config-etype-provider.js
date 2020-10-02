@@ -7,7 +7,7 @@
                 [
                     new hiprint.PrintElementTypeGroup("常规", [
                         {
-                            tid: 'configModule.name', title: '单据标题', data: '标题（点击后，右侧工具栏修改）', type: 'text',
+                            tid: 'configModule.name', title: '标题（点击后，右侧工具栏修改）', data: '标题（点击后，右侧工具栏修改）', type: 'text',
                             "options": {
                                 "height": 42,
                                 "width": 312,
@@ -18,7 +18,12 @@
                                 "hideTitle": true
                             }
                         },
-                        { tid: 'configModule.customer', title: '客户供应商', field: 'customer', data: '字段数据（点击后，右侧工具栏配置）', type: 'text' },
+                        {
+                            tid: 'configModule.customer', title: '客户', field: 'customer', data: '字段数据（点击后，右侧工具栏配置）', type: 'text',
+                            "options": {
+                                "width": 220,
+                            }
+                        },
                         { tid: 'configModule.date', title: '日期', field: 'date', data: '字段数据', type: 'text' },
                         { tid: 'configModule.dateTime', title: '日期时间', field: 'dateTime', data: '字段数据', type: 'text' },
                         { tid: 'configModule.dh', title: '单号', field: 'dh', data: '字段数据', type: 'text' },

@@ -59,18 +59,7 @@
                     <li>
                         <span class="title"><code>预设</code></span>
                         <ul id="pre-set">
-                            <li><a class="ep-draggable-item" tid="configModule.name"> 单据标题 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.customer"> 客户名称 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.date"> 日期 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.dateTime"> 日期时间 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.dh"> 普通单号 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.table"> 销售表格 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.maker"> 制单人 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.chinese"> 金额大写 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.allMoney"> 应结金额 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.partMoney"> 已结金额 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.barCode"> 条码单号 </a></li>
-                            <li><a class="ep-draggable-item" tid="configModule.qrcode"> 二维码 </a></li>
+
                         </ul>
                     </li>
                     <li>
@@ -132,9 +121,9 @@
                     <li><a class="hiprint-toolbar-item" id="paper-a5">A5</a></li>
 
                     <li><a class="hiprint-toolbar-item"><input type="text" id="customWidth"
-                                style="width: 50px;height: 19px;border: 0px;" placeholder="宽/mm" value="190" /></a></li>
+                                style="width: 50px;height: 19px;border: 0px;" placeholder="宽/mm" /></a></li>
                     <li><a class="hiprint-toolbar-item"><input type="text" id="customHeight"
-                                style="width: 50px;height: 19px;border: 0px;" placeholder="高/mm" value="93.1" /></a>
+                                style="width: 50px;height: 19px;border: 0px;" placeholder="高/mm" /></a>
                     </li>
 
                     <li><a class="hiprint-toolbar-item" id="paper-custom">自定义</a></li>
@@ -151,6 +140,7 @@
             <div id="hiprint-printTemplate" class="hiprint-printTemplate" style="margin-top:20px;">
 
             </div>
+            <div class="about-this"></div>
             <div class="gener-code">
                 <div style="padding-top:15px;">
                     <button type="button" class="btn btn-primary" id="A4_getJson_toTextarea">生成json到textarea</button>
@@ -173,7 +163,6 @@
 
 <script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
 
-<script src="/assets/plugins/hiprint/js/config-etype-provider.js"></script>
 <script src="/assets/plugins/hiprint/js/config-print-data.js"></script>
 
 <script src="/assets/plugins/jquery/jquery.minicolors.min.js"></script>
