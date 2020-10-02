@@ -115,6 +115,8 @@ function fetch_provider(id) {
                             context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
                             context.testModule = [];
 
+                            console.log(JSON.parse(content[0]));
+
                             context.addPrintElementTypes(
                                 "testModule",
                                 [
