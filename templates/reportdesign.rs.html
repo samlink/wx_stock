@@ -19,13 +19,7 @@
         </div>
         <div>
             <select class="select-sm model-select" name="model-select" id="newmodel-select">
-                <option value="" selected hidden>请选择打印单类型</option>
-                <option value="采购入库单">采购入库单</option>
-                <option value="采购退货单">采购退货单</option>
-                <option value="销售出库单">销售出库单</option>
-                <option value="销售退货单">销售退货单</option>
-                <option value="库存调整单">库存调整单</option>
-                <option value="财务单据">财务单据</option>
+
             </select>
         </div>
         <div class="model-div">
@@ -39,13 +33,7 @@
         </div>
         <div>
             <select class="select-sm model-select" name="model-select" id="editmodel-select" disabled>
-                <option value="" selected hidden>请选择打印单类型</option>
-                <option value="采购入库单">采购入库单</option>
-                <option value="采购退货单">采购退货单</option>
-                <option value="销售出库单">销售出库单</option>
-                <option value="销售退货单">销售退货单</option>
-                <option value="库存调整单">库存调整单</option>
-                <option value="财务单据">财务单据</option>
+
             </select>
         </div>
         <div class="model-div">
@@ -70,7 +58,7 @@
                 <ul class="hiprint-printElement-type">
                     <li>
                         <span class="title"><code>预设</code></span>
-                        <ul>
+                        <ul id="pre-set">
                             <li><a class="ep-draggable-item" tid="configModule.name"> 单据标题 </a></li>
                             <li><a class="ep-draggable-item" tid="configModule.customer"> 客户名称 </a></li>
                             <li><a class="ep-draggable-item" tid="configModule.date"> 日期 </a></li>
@@ -195,6 +183,6 @@
 <script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
 <script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
 
-<script src="/assets/js/pages/reportdesign.js"></script>
+<script type="module" src="/assets/js/pages/reportdesign.js"></script>
 
 }, user.name.clone())

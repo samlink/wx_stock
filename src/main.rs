@@ -17,6 +17,7 @@ mod tree;
 mod user_manage;
 mod user_set;
 mod warehouse_set;
+mod report_design;
 
 #[derive(Deserialize)]
 struct Config {
@@ -113,6 +114,7 @@ async fn main() -> std::io::Result<()> {
             .service(warehouse_set::edit_position)
             .service(systemset::fetch_system)
             .service(systemset::update_system)
+            .service(report_design::fetch_print_documents)
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
