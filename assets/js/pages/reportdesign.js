@@ -7,20 +7,22 @@ fetch('/fetch_print_documents')
     .then(content => {
         if (content != -1) {
             let options = "";
-            for (let data of content) {
+            for (let data of content[0]) {
                 options += `<option value="${data.id}">${data.name}</option>`;
             }
             document.querySelector('#newmodel-select').innerHTML = options;
             document.querySelector('#editmodel-select').innerHTML = options;
 
-            print_inti();
+            var configPrintJson = JSON.parse(content[1]);
+
+            print_inti(configPrintJson);
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
         }
     });
 
-function print_inti(template) {
+function print_inti(configPrintJson) {
     //初始化打印插件
     hiprint.init({
         providers: [new configElementTypeProvider()]
@@ -29,22 +31,22 @@ function print_inti(template) {
     //设置左侧拖拽事件
     hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
 
-    if (template) {
-        hiprintTemplate = new hiprint.PrintTemplate({
-            template: template, //configPrintJson
-            settingContainer: '#PrintElementOptionSetting',
-            // paginationContainer: '.hiprint-printPagination'
-        });
-    }
-    else {
-        hiprintTemplate = new hiprint.PrintTemplate({
-            settingContainer: '#PrintElementOptionSetting',
-        });
-    }
+    hiprintTemplate = new hiprint.PrintTemplate({
+        template: configPrintJson,
+        settingContainer: '#PrintElementOptionSetting',
+        paginationContainer: '.hiprint-printPagination'
+    });
 
     //打印设计
-    hiprintTemplate.design('#hiprint-printTemplate');    
+    hiprintTemplate.design('#hiprint-printTemplate');
     document.querySelector('#paper-custom').click();
+
+    let paper_type = configPrintJson.panels[0].paperType;
+    let width = configPrintJson.panels[0].width;
+    let height = configPrintJson.panels[0].height;
+
+    document.querySelector('#paper-type').value = paper_type ? `当前纸张：${paper_type}` :
+        `当前纸张：${width}mm * ${height}mm`;
 
     setTimeout(() => {
         document.querySelector('.hiprint-printPanel').click();
@@ -189,10 +191,12 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
                     };
                 })();
 
+                var configPrintJson = JSON.parse(content[2]);
+
                 document.querySelector('#hiprint-printTemplate').innerHTML = "";
                 document.querySelector('#PrintElementOptionSetting').innerHTML = "";
 
-                print_inti();
+                print_inti(configPrintJson);
 
             }
             else {

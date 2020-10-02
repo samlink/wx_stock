@@ -35,7 +35,17 @@ pub async fn fetch_print_documents(db: web::Data<Pool>, id: Identity) -> HttpRes
             documents.push(doc);
         }
 
-        HttpResponse::Ok().json(documents)
+        let rows = &conn
+            .query(r#"SELECT 示例模板 FROM print_documents WHERE id=1"#, &[])
+            .await
+            .unwrap();
+
+        let mut example = "".to_owned();
+        for row in rows {
+            example = row.get("示例模板");
+        }
+
+        HttpResponse::Ok().json((documents, example))
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -51,20 +61,22 @@ pub async fn fetch_provider(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT 预定设置, 预定html FROM print_documents WHERE id={}"#,
+            r#"SELECT 预定设置, 预定html, 示例模板 FROM print_documents WHERE id={}"#,
             data
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut pre_set = "".to_owned();
         let mut pre_html = "".to_owned();
+        let mut example = "".to_owned();
 
         for row in rows {
             pre_set = row.get("预定设置");
             pre_html = row.get("预定html");
+            example = row.get("示例模板");
         }
 
-        HttpResponse::Ok().json((pre_set, pre_html))
+        HttpResponse::Ok().json((pre_set, pre_html, example))
     } else {
         HttpResponse::Ok().json(-1)
     }
