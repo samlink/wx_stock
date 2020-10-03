@@ -47,6 +47,8 @@ fetch('/fetch_print_documents')
             });
 
             template_init(configPrintJson);
+
+            document.querySelector('.about-this').textContent = "样板示例，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');

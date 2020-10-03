@@ -6,7 +6,7 @@ import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regReal } from '../parts/tools.mjs';
 
-let table_fields;
+let customer_table_fields;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
@@ -119,9 +119,9 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
         })
             .then(response => response.json())
             .then(content => {
-                table_fields = content;
+                customer_table_fields = content;
                 let table = document.querySelector('.table-customer');
-                let data = service.build_table_header(table, table_fields);
+                let data = service.build_table_header(table, customer_table_fields);
                 table.querySelector('thead tr').innerHTML = data.th_row;
                 table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -138,8 +138,8 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                     },
                     edit: false,
 
-                    row_fn: table_row,
-                    blank_row_fn: blank_row,
+                    row_fn: customer_table_row,
+                    blank_row_fn: customer_blank_row,
                 };
 
                 table_init(init_data);
@@ -455,7 +455,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     { 序号: '合计', 名称: '', 规格: '', 单位: '', 单价: '', 数量: 60, 金额: 1410.56 },
                 ],
             };
-            
+
             hiprintTemplate.print(printData);
         });
 
@@ -908,16 +908,16 @@ function supplier_auto_show() {
 }
 
 //显示行数据
-function table_row(tr) {
+function customer_table_row(tr) {
     let rec = tr.split(SPLITER);
     let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
-    return service.build_row_from_string(rec, row, table_fields);
+    return service.build_row_from_string(rec, row, customer_table_fields);
 }
 
 //显示空行数据
-function blank_row() {
+function customer_blank_row() {
     let row = "<tr><td></td><td hidden></td>";
-    return service.build_blank_from_fields(row, table_fields);
+    return service.build_blank_from_fields(row, customer_table_fields);
 }
 
 //给行加上双击事件
