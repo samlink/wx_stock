@@ -306,7 +306,6 @@ document.querySelector('#del-button').addEventListener('click', function () {
     }
     else {
         notifier.show('请先选择模板', 'danger');
-
     }
 });
 
