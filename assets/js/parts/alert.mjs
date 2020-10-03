@@ -13,12 +13,12 @@ var options = {
     confirmCallBack: () => { }
 }
 
-var element;
+var element, cancelElement, confirmElement;
 
 function init() {
     element = document.querySelector('#roar-alert');
-    let cancelElement = document.querySelector('.roar-alert-message-button-cancel');
-    let confirmElement = document.querySelector('.roar-alert-message-button-confirm');
+    cancelElement = document.querySelector('.roar-alert-message-button-cancel');
+    confirmElement = document.querySelector('.roar-alert-message-button-confirm');
 
     if (!options.cancel) {
         cancelElement.style.display = 'none';
@@ -50,7 +50,23 @@ export function alert_confirm(message, optionsA) {
         Object.assign(options, optionsA);
     }
 
-    if (!element) { init(); }
+    if (!element) {
+        init();
+    }
+    else {
+        if (!options.cancel) {
+            cancelElement.style.display = 'none';
+        }
+        else {
+            cancelElement.innerHTML = options.cancelText;
+            cancelElement.addEventListener('click', function () {
+                options.cancelCallBack();
+                element.style.display = "none";
+            });
+        }
+
+        confirmElement.innerHTML = options.confirmText;
+    }
 
     document.querySelector('.roar-alert-message-content').innerHTML = message;
     element.style.display = "block";

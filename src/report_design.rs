@@ -197,3 +197,22 @@ pub async fn fetch_one_model(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/del_model")]
+pub async fn del_model(
+    db: web::Data<Pool>,
+    model_id: web::Json<i32>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(r#"DELETE FROM print_model WHERE id={}"#, model_id);
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

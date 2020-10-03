@@ -149,7 +149,7 @@ function reset_content(info) {
     document.querySelector('#default-check').checked = false;
     document.querySelector('#newmodel-select').innerHTML = options;
     document.querySelector('#editmodel-select').innerHTML = options;
-    document.querySelector('#edit-select').innerHTML = "<option value=0 selected hidden>请选择单据</option>";
+    document.querySelector('#edit-select').innerHTML = "<option value=0 selected hidden>请选择模板</option>";
     document.querySelector('.about-this').textContent = info;
     hiprintTemplate.clear();
 }
@@ -166,27 +166,29 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
 });
 
 document.querySelector('#editmodel-select').addEventListener("change", function () {
-    let model_json = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": "修改报表模板，请选择具体单据", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
-    fetch_provider(this.value, model_json);
+    change_alert("", () => {
+        changed = 0;
+        let model_json = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": "修改报表模板，请选择打印模板", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
+        fetch_provider(this.value, model_json);
 
-    let id = Number(document.querySelector('#editmodel-select').value);
-    fetch('/fetch_models', {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: id,
-    })
-        .then(response => response.json())
-        .then(content => {
-            let model_options = "<option value=0 selected hidden>请选择单据</option>";
-            for (let data of content) {
-                model_options += `<option value="${data.id}" data=${data.default}>${data.name}</option>`;
-            }
+        let id = Number(document.querySelector('#editmodel-select').value);
+        fetch('/fetch_models', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: id,
+        })
+            .then(response => response.json())
+            .then(content => {
+                let model_options = "<option value=0 selected hidden>请选择模板</option>";
+                for (let data of content) {
+                    model_options += `<option value="${data.id}" data=${data.default}>${data.name}</option>`;
+                }
 
-            document.querySelector('#edit-select').innerHTML = model_options;
-        });
-
+                document.querySelector('#edit-select').innerHTML = model_options;
+            });
+    });
 });
 
 document.querySelector('#edit-select').addEventListener("change", function () {
@@ -270,6 +272,41 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
     else {
         notifier.show('模板不能为空', 'danger');
+    }
+});
+
+document.querySelector('#del-button').addEventListener('click', function () {
+    let id = document.querySelector('#edit-select').value;
+    if (id != 0) {
+        alert_confirm('模板删除后无法恢复，确认删除吗？', {
+            confirmText: "确认",
+            cancelText: "取消",
+            confirmCallBack: () => {
+                fetch('/del_model', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: Number(id),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content == 1) {
+                            changed = 0;
+                            edit_mode = "新增";
+                            document.querySelector('#choose-edit').click();
+                            notifier.show('模板删除成功', 'success');
+                        }
+                        else {
+                            notifier.show('权限不够，操作失败', 'danger');
+                        }
+                    });
+            }
+        });
+    }
+    else {
+        notifier.show('请先选择模板', 'danger');
+
     }
 });
 
