@@ -20,6 +20,13 @@ pub struct PrintModel {
     pub cate: String,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct ModelData {
+    pub id: i32,
+    pub name: String,
+    pub default: bool,
+}
+
 ///获取打印单据
 #[get("/fetch_print_documents")]
 pub async fn fetch_print_documents(db: web::Data<Pool>, id: Identity) -> HttpResponse {
@@ -115,6 +122,40 @@ pub async fn save_model(
         &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/fetch_models")]
+pub async fn fetch_models(
+    db: web::Data<Pool>,
+    print_id: web::Json<i32>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"SELECT id, 名称, 默认 FROM print_model WHERE 打印单据id={} ORDER BY 默认 desc"#,
+            print_id
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut models: Vec<ModelData> = Vec::new();
+
+        for row in rows {
+            let m = ModelData {
+                id: row.get("id"),
+                name: row.get("名称"),
+                default: row.get("默认"),
+            };
+
+            models.push(m);
+        }
+
+        HttpResponse::Ok().json(models)
     } else {
         HttpResponse::Ok().json(-1)
     }

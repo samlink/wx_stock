@@ -117,6 +117,7 @@ async fn main() -> std::io::Result<()> {
             .service(report_design::fetch_print_documents)
             .service(report_design::fetch_provider)
             .service(report_design::save_model)
+            .service(report_design::fetch_models)
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
