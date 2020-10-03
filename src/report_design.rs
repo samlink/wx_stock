@@ -10,6 +10,16 @@ pub struct PrintDocument {
     pub name: String,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct PrintModel {
+    pub id: i32,
+    pub print_id: i32,
+    pub name: String,
+    pub model: String,
+    pub default: bool,
+    pub cate: String,
+}
+
 ///获取打印单据
 #[get("/fetch_print_documents")]
 pub async fn fetch_print_documents(db: web::Data<Pool>, id: Identity) -> HttpResponse {
@@ -67,6 +77,44 @@ pub async fn fetch_provider(
         }
 
         HttpResponse::Ok().json((pre_set, pre_html, example))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/save_model")]
+pub async fn save_model(
+    db: web::Data<Pool>,
+    data: web::Json<PrintModel>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let mut sql;
+        if data.default == true {
+            sql = format!(
+                r#"UPDATE print_model SET 默认=false WHERE 打印单据id={}"#,
+                data.print_id
+            );
+            &conn.execute(sql.as_str(), &[]).await.unwrap();
+        }
+
+        if data.cate == "新增" {
+            sql = format!(
+                r#"INSERT INTO print_model (打印单据id, 名称, 模板, 默认) VALUES({},'{}','{}',{})"#,
+                data.print_id, data.name, data.model, data.default
+            );
+        } else {
+            sql = format!(
+                r#"UPDATE print_model SET 模板='{}', 默认={} WHERE id={}"#,
+                data.model, data.default, data.id
+            );
+        }
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

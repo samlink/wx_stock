@@ -2036,5 +2036,9 @@ a.roar-alert-message-tbf {
   padding: 0 20px;
   width: 90px;
 }
+.report-design .build-model .model-div #del-button:disabled {
+  background-color: #d3d3d3;
+  box-shadow: none;
+}
 
 /*# sourceMappingURL=sales.css.map */
