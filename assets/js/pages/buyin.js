@@ -336,6 +336,130 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
     }
 });
 
+//保存、打印和记账 -------------------------------------------------------------------
+//获取打印模板
+fetch('/fetch_models', {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: 3,    //3 是采购入库打印单的 id
+})
+    .then(response => response.json())
+    .then(content => {
+        let model_options = "";
+        for (let data of content) {
+            model_options += `<option value="${data.id}">打印模板 - ${data.name}</option>`;
+        }
+
+        document.querySelector('#print-choose').innerHTML = model_options;
+    });
+
+document.querySelector('#print-button').addEventListener('click', function () {
+    let id = document.querySelector('#print-choose').value;
+    fetch('/fetch_provider_model', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: Number(id),
+    })
+        .then(response => response.json())
+        .then(content => {
+            var configElementTypeProvider = (function () {
+                return function (options) {
+
+                    var addElementTypes = function (context) {
+                        context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
+                        context.testModule = [];
+
+                        context.addPrintElementTypes(
+                            "testModule",
+                            [
+                                new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
+                                new hiprint.PrintElementTypeGroup("自定义", [
+                                    { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
+                                    { tid: 'configModule.image', title: '图片', data: '/assets/img/book.jpg', type: 'image' },
+                                    {
+                                        tid: 'configModule.tableCustom',
+                                        title: '表格',
+                                        type: 'tableCustom',
+                                        field: 'table',
+                                        options: {
+                                            width: 500,
+                                        }
+                                    },
+                                ]),
+
+                                new hiprint.PrintElementTypeGroup("辅助", [
+                                    {
+                                        tid: 'configModule.hline',
+                                        title: '横线',
+                                        type: 'hline'
+                                    },
+                                    {
+                                        tid: 'configModule.vline',
+                                        title: '竖线',
+                                        type: 'vline'
+                                    },
+                                    {
+                                        tid: 'configModule.rect',
+                                        title: '矩形',
+                                        type: 'rect'
+                                    },
+                                    {
+                                        tid: 'configModule.oval',
+                                        title: '椭圆',
+                                        type: 'oval'
+                                    }
+                                ])
+                            ]
+                        );
+                    };
+
+                    return {
+                        addElementTypes: addElementTypes
+                    };
+                };
+            })();
+
+            hiprint.init({
+                providers: [new configElementTypeProvider()]
+            });
+
+            let hiprintTemplate = new hiprint.PrintTemplate({
+                template: JSON.parse(content[1]),
+            });
+
+            var printData = {
+                customer: '北京宇德信息技术有限公司',
+                date: "2021-03-04",
+                dateTime: '2021-03-04 12:32',
+                dh: 'XS2021-03-04-181',
+                maker: '刘同星',
+                chinese: '壹仟肆佰壹拾元伍角陆分',
+                barCode: 'XS2021-03-04-181',
+                应结金额: '1410.56 元',
+                已结金额: '1000.00 元',
+                table: [
+                    { 序号: '1', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '2', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '3', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '4', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '5', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '6', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '7', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '8', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '9', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '10', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                    { 序号: '合计', 名称: '', 规格: '', 单位: '', 单价: '', 数量: 60, 金额: 1410.56 },
+                ],
+            };
+            
+            hiprintTemplate.print(printData);
+        });
+
+});
 
 //共用事件和函数 ---------------------------------------------------------------------
 

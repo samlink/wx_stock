@@ -140,8 +140,8 @@ pub async fn fetch_models(
     print_id: web::Json<i32>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
-    if user.name != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT id, 名称, 默认 FROM print_model WHERE 打印单据id={} ORDER BY 默认 desc"#,
@@ -174,8 +174,8 @@ pub async fn fetch_one_model(
     model_id: web::Json<i32>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
-    if user.name != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT 默认, 模板 FROM print_model WHERE id={}"#,
@@ -193,6 +193,37 @@ pub async fn fetch_one_model(
         }
 
         HttpResponse::Ok().json((default, model))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/fetch_provider_model")]
+pub async fn fetch_provider_model(
+    db: web::Data<Pool>,
+    model_id: web::Json<i32>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"SELECT 预定设置, 模板 FROM print_model 
+                JOIN print_documents ON print_model.打印单据id = print_documents.id WHERE print_model.id={}"#,
+            model_id
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut pre_set = "".to_owned();
+        let mut model = "".to_owned();
+
+        for row in rows {
+            pre_set = row.get("预定设置");
+            model = row.get("模板");
+        }
+
+        HttpResponse::Ok().json((pre_set, model))
     } else {
         HttpResponse::Ok().json(-1)
     }

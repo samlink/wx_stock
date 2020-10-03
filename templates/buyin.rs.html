@@ -5,6 +5,8 @@
 
 @:base({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
+<link rel="stylesheet" href="/assets/plugins/hiprint/css/print-lock.css">
+
 <div class="buy-in">
     <div class="top-title"><span><i class="fa fa-retweet"></i> 商品出入库 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> 商品采购 </span>
@@ -35,9 +37,9 @@
             <div class="buy-buttons">
                 <div class="has-dh">№: <span id="dh">CG2021-03-04-18134</span></div>
                 <div class="buttons">
-                    <button class="btn btn-info btn-sm" id="sumit-button">保存</button>
-                    <button class="btn btn-info btn-sm" id="sumit-button">打印</button>
-                    <button class="btn btn-info btn-sm" id="sumit-button">记账</button>
+                    <button class="btn btn-info btn-sm" id="save-button">保存</button>
+                    <button class="btn btn-info btn-sm" id="print-button">打印</button>
+                    <button class="btn btn-info btn-sm" id="remember-button">记账</button>
                 </div>
             </div>
         </div>
@@ -45,9 +47,7 @@
             <div id="supplier-info"></div>
             <div id="choose-div">
                 <select class="select-sm" name="print-choose" id="print-choose">
-                    <option value selected disabled hidden>选择打印模板</option>
-                    <option value="含税">含税模板</option>
-                    <option value="无税">无税模板</option>
+
                 </select>
             </div>
         </div>
@@ -100,6 +100,12 @@
         </div>
     </div>
 </div>
+<script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
+<script src="/assets/plugins/barcode/JsBarcode.all.min.js"></script>
+<script src="/assets/plugins/qrcode/qrcode.js"></script>
+<script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
+<script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
+
 <script src="/assets/plugins/laydate/laydate.js"></script>
 <script type="module" src="/assets/js/pages/buyin.js"></script>
 }, user.name.clone())

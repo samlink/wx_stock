@@ -1908,7 +1908,7 @@ a.roar-alert-message-tbf {
   border: 1px solid #37e2d0;
 }
 .buy-in .table-items .table-auto thead tr:hover {
-  border-left: 0;
+  border-bottom: 0;
 }
 .buy-in .table-items .table-auto thead th {
   height: 28px;
