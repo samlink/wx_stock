@@ -113,10 +113,17 @@ pub async fn save_model(
                 data.print_id, data.name, data.model, data.default
             );
         } else {
-            sql = format!(
-                r#"UPDATE print_model SET 模板='{}', 默认={} WHERE id={}"#,
-                data.model, data.default, data.id
-            );
+            if data.name != "" {
+                sql = format!(
+                    r#"UPDATE print_model SET 名称='{}', 模板='{}', 默认={} WHERE id={}"#,
+                    data.name, data.model, data.default, data.id
+                );
+            } else {
+                sql = format!(
+                    r#"UPDATE print_model SET 模板='{}', 默认={} WHERE id={}"#,
+                    data.model, data.default, data.id
+                );
+            }
         }
 
         &conn.execute(sql.as_str(), &[]).await.unwrap();

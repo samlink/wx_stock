@@ -10,7 +10,7 @@ fetch('/fetch_print_documents')
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            options = "<option selected hidden>请选择单据</option>";
+            options = "<option value=0 selected hidden>请选择单据</option>";
             for (let data of content) {
                 options += `<option value="${data.id}">${data.name}</option>`;
             }
@@ -149,7 +149,7 @@ function reset_content(info) {
     document.querySelector('#default-check').checked = false;
     document.querySelector('#newmodel-select').innerHTML = options;
     document.querySelector('#editmodel-select').innerHTML = options;
-    document.querySelector('#edit-select').innerHTML = "<option selected hidden>请选择单据</option>";
+    document.querySelector('#edit-select').innerHTML = "<option value=0 selected hidden>请选择单据</option>";
     document.querySelector('.about-this').textContent = info;
     hiprintTemplate.clear();
 }
@@ -179,7 +179,7 @@ document.querySelector('#editmodel-select').addEventListener("change", function 
     })
         .then(response => response.json())
         .then(content => {
-            let model_options = "<option selected hidden>请选择单据</option>";
+            let model_options = "<option value=0 selected hidden>请选择单据</option>";
             for (let data of content) {
                 model_options += `<option value="${data.id}" data=${data.default}>${data.name}</option>`;
             }
@@ -217,45 +217,59 @@ document.querySelector('#edit-select').addEventListener("change", function () {
 });
 
 document.querySelector('#save-button').addEventListener('click', function () {
-    let name = edit_mode == "新增" ? document.querySelector('#newmodel-name').value :
-        document.querySelector('#editmodel-name').value;
-
-    if (name != "") {
-        let model = hiprintTemplate.getJsonTid();
-        if (model.panels.length != 0) {
-            let id = edit_mode == "新增" ? 0 : Number(document.querySelector('#edit-select').value);
-            let data = {
-                id: id,
-                print_id: Number(document.querySelector('#newmodel-select').value),
-                name: name,
-                model: JSON.stringify(model),
-                default: document.querySelector('#default-check').checked,
-                cate: edit_mode,
-            }
-
-            fetch('/save_model', {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content == 1) {
-                        notifier.show('模板保存成功', 'success');
-                    }
-                    else {
-                        notifier.show('权限不够，操作失败', 'danger');
-                    }
-                });
-        }
-        else {
-            notifier.show('模板不能为空', 'danger');
-        }
+    let id, name, print_id;
+    if (edit_mode == "新增") {
+        id = 0;
+        name = document.querySelector('#newmodel-name').value;
+        print_id = document.querySelector('#newmodel-select').value;
     }
     else {
-        notifier.show('名称不能为空', 'danger');
+        id = document.querySelector('#edit-select').value;
+        name = document.querySelector('#editmodel-name').value;
+        print_id = document.querySelector('#editmodel-select').value;
+    }
+
+    if (edit_mode == "新增" && (print_id == 0 || name == "")) {
+        notifier.show('单据或名称不能为空', 'danger');
+        return false;
+    }
+
+    if (edit_mode == "编辑" && id == 0) {
+        notifier.show('编辑单据不能为空', 'danger');
+        return false;
+    }
+
+    let model = hiprintTemplate.getJsonTid();
+
+    if (model.panels.length != 0) {
+        let data = {
+            id: Number(id),
+            print_id: Number(print_id),
+            name: name,
+            model: JSON.stringify(model),
+            default: document.querySelector('#default-check').checked,
+            cate: edit_mode,
+        }
+
+        fetch('/save_model', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    notifier.show('模板保存成功', 'success');
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
+    }
+    else {
+        notifier.show('模板不能为空', 'danger');
     }
 });
 
@@ -298,6 +312,9 @@ function fetch_provider(id, model_json) {
                                             title: '表格',
                                             type: 'tableCustom',
                                             field: 'table',
+                                            options: {
+                                                width: 500,
+                                            }
                                         },
                                     ]),
 
@@ -353,7 +370,7 @@ function fetch_provider(id, model_json) {
 }
 
 function template_init(configPrintJson) {
-    document.querySelector('#hiprint-printTemplate').innerHTML = "";
+    document.querySelector('#hiprint-printTemplate').innerHTML = "";        //清空一下，否则会出现多个设计框
     document.querySelector('#PrintElementOptionSetting').innerHTML = "";
 
     hiprintTemplate = new hiprint.PrintTemplate({
