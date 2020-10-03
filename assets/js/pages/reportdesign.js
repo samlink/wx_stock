@@ -46,17 +46,7 @@ fetch('/fetch_print_documents')
                 providers: [new configElementTypeProvider()]
             });
 
-            hiprintTemplate = new hiprint.PrintTemplate({
-                template: configPrintJson,
-                settingContainer: '#PrintElementOptionSetting',
-            });
-
-            hiprintTemplate.design('#hiprint-printTemplate');
-
-            setTimeout(() => {
-                document.querySelector('.hiprint-printPanel').click();
-            }, 100);
-
+            template_init(configPrintJson);
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
@@ -176,6 +166,9 @@ document.querySelector('#newmodel-select').addEventListener("change", function (
 });
 
 document.querySelector('#editmodel-select').addEventListener("change", function () {
+    let model_json = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": "修改报表模板，请选择具体单据", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
+    fetch_provider(this.value, model_json);
+
     let id = Number(document.querySelector('#editmodel-select').value);
     fetch('/fetch_models', {
         method: 'post',
@@ -198,10 +191,26 @@ document.querySelector('#editmodel-select').addEventListener("change", function 
 
 document.querySelector('#edit-select').addEventListener("change", function () {
     change_alert("", () => {
-        fetch_provider(this.value);
-        document.querySelector('#newmodel-name').value = "";
-        document.querySelector('#editmodel-name').value = "";
-        document.querySelector('#default-check').checked = false;
+        fetch('/fetch_one_model', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: Number(this.value),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    document.querySelector('#default-check').checked = content[0];
+                    document.querySelector('#newmodel-name').value = "";
+                    document.querySelector('#editmodel-name').value = "";
+
+                    template_init(JSON.parse(content[1]));
+                }
+                else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
     });
 
     changed = 1;
@@ -250,7 +259,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 });
 
-function fetch_provider(id) {
+function fetch_provider(id, model_json) {
     fetch('/fetch_provider', {
         method: 'post',
         headers: {
@@ -324,10 +333,8 @@ function fetch_provider(id) {
                     };
                 })();
 
-                var configPrintJson = JSON.parse(content[2]);
 
-                document.querySelector('#hiprint-printTemplate').innerHTML = "";
-                document.querySelector('#PrintElementOptionSetting').innerHTML = "";
+                var configPrintJson = model_json ? model_json : JSON.parse(content[2]);
 
                 //初始化打印插件
                 hiprint.init({
@@ -337,28 +344,35 @@ function fetch_provider(id) {
                 //设置左侧拖拽事件
                 hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
 
-                hiprintTemplate = new hiprint.PrintTemplate({
-                    template: configPrintJson,
-                    settingContainer: '#PrintElementOptionSetting',
-                    paginationContainer: '.hiprint-printPagination'
-                });
-
-                //打印设计
-                hiprintTemplate.design('#hiprint-printTemplate');
-
-                let paper_type = configPrintJson.panels[0].paperType;
-                let width = configPrintJson.panels[0].width;
-                let height = configPrintJson.panels[0].height;
-
-                document.querySelector('#paper-type').value = paper_type ? `当前纸张：${paper_type}` :
-                    `当前纸张：${width}mm * ${height}mm`;
-
-                setTimeout(() => {
-                    document.querySelector('.hiprint-printPanel').click();
-                }, 100);
+                template_init(configPrintJson);
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
+}
+
+function template_init(configPrintJson) {
+    document.querySelector('#hiprint-printTemplate').innerHTML = "";
+    document.querySelector('#PrintElementOptionSetting').innerHTML = "";
+
+    hiprintTemplate = new hiprint.PrintTemplate({
+        template: configPrintJson,
+        settingContainer: '#PrintElementOptionSetting',
+        paginationContainer: '.hiprint-printPagination'
+    });
+
+    //设计
+    hiprintTemplate.design('#hiprint-printTemplate');
+
+    let paper_type = configPrintJson.panels[0].paperType;
+    let width = configPrintJson.panels[0].width;
+    let height = configPrintJson.panels[0].height;
+
+    document.querySelector('#paper-type').value = paper_type ? `当前纸张：${paper_type}` :
+        `当前纸张：${width}mm * ${height}mm`;
+
+    setTimeout(() => {
+        document.querySelector('.hiprint-printPanel').click();
+    }, 100);
 }

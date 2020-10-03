@@ -160,3 +160,33 @@ pub async fn fetch_models(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/fetch_one_model")]
+pub async fn fetch_one_model(
+    db: web::Data<Pool>,
+    model_id: web::Json<i32>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"SELECT 默认, 模板 FROM print_model WHERE id={}"#,
+            model_id
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut default = false;
+        let mut model = "".to_owned();
+
+        for row in rows {
+            default = row.get("默认");
+            model = row.get("模板");
+        }
+
+        HttpResponse::Ok().json((default, model))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
