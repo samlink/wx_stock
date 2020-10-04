@@ -6,7 +6,7 @@ import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regReal } from '../parts/tools.mjs';
 
-let customer_table_fields;
+let customer_table_fields, document_table_fields;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
@@ -21,6 +21,7 @@ fetch("/fetch_inout_fields", {
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
+            document_table_fields = content;
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
@@ -432,29 +433,40 @@ document.querySelector('#print-button').addEventListener('click', function () {
             });
 
             var printData = {
-                customer: '北京宇德信息技术有限公司',
-                date: "2021-03-04",
-                dateTime: '2021-03-04 12:32',
-                dh: 'XS2021-03-04-181',
-                maker: '刘同星',
+                供应商: document.querySelector('#supplier-input').value,
+                日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
+                dh: document.querySelector('#dh').textContent,
+                maker: document.querySelector('#user-name').textContent,
                 chinese: '壹仟肆佰壹拾元伍角陆分',
-                barCode: 'XS2021-03-04-181',
-                应结金额: '1410.56 元',
-                已结金额: '1000.00 元',
-                table: [
-                    { 序号: '1', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '2', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '3', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '4', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '5', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '6', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '7', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '8', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '9', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '10', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                    { 序号: '合计', 名称: '', 规格: '', 单位: '', 单价: '', 数量: 60, 金额: 1410.56 },
-                ],
+                barCode: document.querySelector('#dh').textContent,
+                // table: [
+                //     { 序号: '1', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '2', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '3', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '4', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '5', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '6', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '7', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '8', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '9', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '10', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
+                //     { 序号: '合计', 名称: '', 规格: '', 单位: '', 单价: '', 数量: 60, 金额: 1410.56 },
+                // ],
             };
+            let show_fields = document.querySelectorAll('.has-value');
+            let n = 1;
+            for (let field of document_table_fields) {
+                if (field.data_type == "布尔") {
+                    printData[field.show_name] = show_fields[n].checked ? "是" : "否";
+                }
+                else {
+                    printData[field.show_name] = show_fields[n].value;      //从1开始，0 是供应商
+                }
+                n++;
+
+            }
+            console.log(document_table_fields);
+            console.log(printData);
 
             hiprintTemplate.print(printData);
         });
