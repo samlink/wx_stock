@@ -496,8 +496,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
             printData['chinese'] = moneyUppercase(Number(row_data['金额'])) 
             printData["table"] = table_data;
 
-            console.log(printData);
-
             hiprintTemplate.print(printData);
         });
 

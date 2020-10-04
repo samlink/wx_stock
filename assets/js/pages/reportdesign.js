@@ -103,7 +103,8 @@ document.querySelector('#choose-new').addEventListener('click', function () {
         this.parentNode.style.fontWeight = "bold";
 
         let info = "样板示例，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
-        change_alert(info, reset_content);
+        alert_clear();
+        reset_content(info);
     }
 });
 
@@ -114,7 +115,8 @@ document.querySelector('#choose-edit').addEventListener('click', function () {
         this.parentNode.style.fontWeight = "bold";
 
         let info = "已保存的模板，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
-        change_alert(info, reset_content);
+        alert_clear();
+        reset_content(info);
     }
 });
 
@@ -127,6 +129,22 @@ function reset_ctrol(yes) {
     document.querySelector('#editmodel-name').disabled = no;
     document.querySelector('#del-button').disabled = no;
     document.querySelector('#choose-edit').parentNode.style.cssText = "";
+}
+
+
+function alert_clear() {
+    if (changed != 0) {
+        alert_confirm('设计框内容将被重置，确认重置吗？', {
+            confirmText: "是",
+            cancelText: "否",
+            confirmCallBack: () => {
+                hiprintTemplate.clear();
+            }
+        });
+    }
+    else {
+        hiprintTemplate.clear();
+    }
 }
 
 function change_alert(info, funcall) {
@@ -153,7 +171,6 @@ function reset_content(info) {
     document.querySelector('#editmodel-select').innerHTML = options;
     document.querySelector('#edit-select').innerHTML = "<option value=0 selected hidden>请选择模板</option>";
     document.querySelector('.about-this').textContent = info;
-    hiprintTemplate.clear();
 }
 
 document.querySelector('#newmodel-select').addEventListener("change", function () {
