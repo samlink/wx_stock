@@ -465,8 +465,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 n++;
 
             }
-            console.log(document_table_fields);
-            console.log(printData);
 
             hiprintTemplate.print(printData);
         });
