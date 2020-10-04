@@ -4,7 +4,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER, regReal } from '../parts/tools.mjs';
+import { SPLITER, regReal, moneyUppercase } from '../parts/tools.mjs';
 
 let customer_table_fields, document_table_fields;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -168,7 +168,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option;
+let show_names, all_width, ware_option, product_table_fields;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -180,6 +180,7 @@ fetch("/fetch_inout_fields", {
     .then(response => response.json())
     .then(content => {
         //构造表主体结构-----------
+        product_table_fields = content;
         let line_height = 33; //行高，与 css 设置一致
         let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
 
@@ -437,21 +438,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
                 dh: document.querySelector('#dh').textContent,
                 maker: document.querySelector('#user-name').textContent,
-                chinese: '壹仟肆佰壹拾元伍角陆分',
                 barCode: document.querySelector('#dh').textContent,
-                // table: [
-                //     { 序号: '1', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '2', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '3', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '4', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '5', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '6', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '7', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '8', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '9', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '10', 名称: '锥柄加长钻', 规格: 'M-6543', 单位: '支', 单价: 23.50, 数量: 6, 金额: '141.00' },
-                //     { 序号: '合计', 名称: '', 规格: '', 单位: '', 单价: '', 数量: 60, 金额: 1410.56 },
-                // ],
             };
             let show_fields = document.querySelectorAll('.has-value');
             let n = 1;
@@ -463,8 +450,53 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     printData[field.show_name] = show_fields[n].value;      //从1开始，0 是供应商
                 }
                 n++;
-
             }
+
+            let table_data = [];
+            let all_rows = document.querySelectorAll('.table-items .has-input');
+            let count = 0;
+            let sum = 0;
+            for (let row of all_rows) {
+                if (row.querySelector('td:nth-child(2) input').value != "") {
+
+                    let row_data = {};
+                    row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
+                    row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
+
+                    let n = 3;
+                    for (let f of product_table_fields) {
+                        row_data[f.show_name] = row.querySelector(`td:nth-child(${n})`).textContent;
+                        n++
+                    }
+
+                    row_data["单价"] = row.querySelector(`td:nth-child(${n}) input`).value;
+                    row_data["数量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
+
+                    let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
+                    row_data["仓库"] = ware_select.options[ware_select.selectedIndex].textContent;
+
+                    row_data["库位"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+
+                    table_data.push(row_data);
+
+                    count += Number(row_data["数量"]);
+                    sum += Number(row_data["金额"]);
+                }
+            }
+
+            let row_data = {};
+            row_data["序号"] = '合计';
+            row_data["数量"] = count;
+            row_data["金额"] = sum.toFixed(Number(num_position[1]));
+
+            table_data.push(row_data);            
+
+            printData['chinese'] = moneyUppercase(Number(row_data['金额'])) 
+            printData["table"] = table_data;
+
+            console.log(printData);
 
             hiprintTemplate.print(printData);
         });
