@@ -1646,6 +1646,7 @@ a.roar-alert-message-tbf {
 .ware-house .house-content {
   display: flex;
   height: calc(100vh - 170px);
+  justify-content: center;
 }
 .ware-house .house-set {
   width: 280px;
@@ -1692,47 +1693,6 @@ a.roar-alert-message-tbf {
 }
 .ware-house #context-menu li {
   padding: 0;
-}
-.ware-house .position-set {
-  height: 100%;
-  flex: auto;
-  margin-left: 10px;
-  border-bottom: 1px solid #e5edf0;
-}
-.ware-house .position-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.ware-house .position-title {
-  margin-left: 10px;
-}
-.ware-house .position-edit {
-  min-width: 200px;
-  margin-right: 10px;
-}
-.ware-house .position-edit button {
-  margin-right: 10px;
-}
-.ware-house .position-show {
-  max-height: calc(100vh - 230px);
-  overflow-y: auto;
-  border-top: 1px solid #e5edf0;
-  padding: 6px 6px;
-  display: flex;
-  justify-content: flex-start;
-  flex-wrap: wrap;
-}
-.ware-house .position-show p {
-  margin: 8px 15px;
-  cursor: pointer;
-  border: 1px dotted;
-  padding: 8px 16px 0;
-  height: 30px;
-}
-.ware-house .position-show p:hover {
-  font-weight: bold;
 }
 
 .system-set .system-content {

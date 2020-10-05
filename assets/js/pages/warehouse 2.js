@@ -195,7 +195,7 @@ function fetch_house() {
 
                             this.style.cssText = "background-color: #51adf6; color: white; z-index: 1001;"
 
-                            // house_click();
+                            house_click();
                         }
                     });
 
@@ -293,4 +293,208 @@ function arr_exchange(arr, index, tindex) {
         arr.splice(tindex + 1, 0, arr[index]);
         arr.splice(index, 1)
     }
+}
+
+function house_click() {
+    document.querySelector('.position-title').textContent = selected_node.textContent + " - 库位:";
+    let id = Number(selected_node.getAttribute('data'));
+
+    fetch("/fetch_position", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(id),
+    }).then(res => res.json())
+        .then(data => {
+            if (data != -1) {
+                // 按中文排序
+                if (data != "") {
+                    let position = data.split(",").sort((a, b) => a.localeCompare(b, 'zh'));
+                    let html = "";
+                    for (let p of position) {
+                        html += `<p>${p}</p>`;
+                    }
+
+                    document.querySelector('.position-show').innerHTML = html;
+
+                    let all_p = document.querySelectorAll('.position-show p');
+                    for (let p of all_p) {
+                        p.addEventListener('click', function () {
+                            let ps = document.querySelectorAll('.position-show p');
+                            for (let p of ps) {
+                                p.classList.remove('selected');
+                            }
+                            this.classList.add('selected');
+                        });
+                    }
+                }
+            }
+            else {
+                notifier.show('权限不够，无法修改', 'danger');
+            }
+        });
+}
+
+//库位部分----------------------------------------------------------------------------
+
+//增加按钮
+document.querySelector('#add-button').addEventListener('click', function () {
+    global.edit_cate = "add";
+    if (selected_node) {
+
+        let form = `<form>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>库位</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text">
+                    </div>
+                </form>`;
+
+        document.querySelector('.modal-body').innerHTML = form;
+        document.querySelector('.modal-title').textContent = "增加库位";
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 240px;"
+
+        document.querySelector('.modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+    }
+    else {
+        notifier.show('请先选择仓库', 'danger');
+    }
+
+});
+
+//编辑按钮
+document.querySelector('#edit-button').addEventListener('click', function () {
+    global.edit_cate = "edit";
+    let selected = document.querySelector('.position-show .selected');
+    if (selected) {
+
+        let form = `<form>
+                    <div class="form-group">
+                        <div class="form-label">
+                            <label>库位</label>
+                        </div>
+                        <input class="form-control input-sm has-value" type="text" value=${selected.textContent}>
+                    </div>
+                </form>`;
+
+        document.querySelector('.modal-body').innerHTML = form;
+        document.querySelector('.modal-title').textContent = "编辑库位";
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px; margin-top: 240px;"
+
+        document.querySelector('.modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+        document.querySelector('.modal-body input').select();
+
+    }
+    else {
+        notifier.show('请先选择库位', 'danger');
+    }
+});
+
+//提交按键
+document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+    let input = document.querySelector('.has-value');
+    if (input && input.value != "") {
+        if (global.edit_cate == "edit") {
+            document.querySelector('.position-show .selected').textContent = input.value;
+        } else if (global.edit_cate == "add") {
+            let new_p = document.createElement("p");
+            new_p.textContent = input.value;
+
+            new_p.addEventListener('click', function () {
+                let ps = document.querySelectorAll('.position-show p');
+                for (let p of ps) {
+                    p.classList.remove('selected');
+                }
+                this.classList.add('selected');
+            })
+
+            document.querySelector('.position-show').appendChild(new_p);
+        }
+
+        position_edit();
+    }
+    else {
+        notifier.show('输入不能为空', 'danger');
+    }
+});
+
+//删除按钮
+document.querySelector('#del-button').addEventListener('click', function () {
+    global.edit_cate = "del";
+    let selected = document.querySelector('.position-show .selected');
+    if (selected) {
+        alert_confirm('确认删除 ' + selected.textContent + ' 吗？', {
+            confirmCallBack: () => {
+                selected.parentNode.removeChild(selected);
+                position_edit();
+            }
+        });
+    }
+    else {
+        notifier.show('请先选择库位', 'danger');
+    }
+});
+
+function position_edit() {
+    let all_position = document.querySelectorAll('.position-show p');
+    let position = "";
+
+    for (let p of all_position) {
+        position += `${p.textContent},`
+    }
+
+    let data = {
+        id: Number(selected_node.getAttribute("data")),
+        name: position,
+        cate: "",
+    };
+
+    fetch('/edit_position', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                notifier.show('操作成功', 'success');
+                if (global.edit_cate == "add") {
+                    let input = document.querySelector('.has-value');
+                    input.value = "";
+                    input.focus();
+                }
+                else {
+                    close_modal();
+                }
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+}
+
+//关闭按键
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    close_modal();
+});
+
+//关闭按键
+document.querySelector('.top-close').addEventListener('click', function () {
+    close_modal();
+});
+
+//关闭函数
+function close_modal() {
+    document.querySelector('.modal').style.display = "none";
+    document.querySelector('#modal-info').innerHTML = "";
+}
+
+window.onbeforeunload = function (e) {
+    document.querySelector('.modal-dialog').style.cssText = "";
 }

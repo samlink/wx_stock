@@ -2,7 +2,6 @@
     .house-content {
         display: flex;
         height: calc(100vh - 170px);
-        justify-content: center;
     }
     .house-set {
         width: 280px;
@@ -58,5 +57,55 @@
         li {
             padding: 0;
         }
-    }   
+    }
+
+    .position-set {
+        height: 100%;
+        flex: auto;
+        margin-left: 10px;
+        border-bottom: 1px solid rgb(229, 237, 240);
+    }
+
+    .position-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .position-title {
+        margin-left: 10px;
+    }
+
+    .position-edit {
+        min-width: 200px;
+        margin-right: 10px;
+
+        button {
+            margin-right: 10px;
+        }
+    }
+
+    .position-show {
+        max-height: calc(100vh - 230px);
+        overflow-y: auto;
+        border-top: 1px solid rgb(229, 237, 240);
+        padding: 6px 6px;
+
+        display: flex;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+
+        p {
+            margin: 8px 15px;
+            cursor: pointer;
+            border: 1px dotted;
+            padding: 8px 16px 0;
+            height: 30px;
+
+            &:hover {
+                font-weight: bold;
+            }
+        }
+    }
 }
