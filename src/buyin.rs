@@ -38,7 +38,7 @@ pub async fn fetch_supplier(
 
         sql = sql.trim_end_matches(",").to_owned();
 
-        sql += &format!(r#" FROM supplier WHERE id={}"#, supplier_id);
+        sql += &format!(r#" FROM customers WHERE id={}"#, supplier_id);
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut supplier = "".to_owned();
@@ -72,11 +72,6 @@ pub async fn fetch_inout_customer(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;
     if user.name != "" {
-        let database = if post_data.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
@@ -90,9 +85,9 @@ pub async fn fetch_inout_customer(
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM {} WHERE 
-            LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, database, name, post_data.sort, skip, post_data.rec
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM customers WHERE 
+            类别='{}' AND LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields, post_data.sort, post_data.cate, name, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -100,8 +95,8 @@ pub async fn fetch_inout_customer(
         let products = build_string_from_base(rows, fields);
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM {} WHERE LOWER(名称) LIKE '%{}%'"#,
-            database, name
+            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%'"#,
+            post_data.cate, name
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

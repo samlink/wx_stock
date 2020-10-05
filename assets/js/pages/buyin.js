@@ -55,9 +55,10 @@ fetch("/fetch_inout_fields", {
     });
 
 //供应商自动完成
-let auto_comp = new AutoInput(document.querySelector('#supplier-input'), "", "/supplier_auto", () => {
-    supplier_auto_show();
-});
+let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
+    document.querySelector('#customer-suplier'), "/customer_auto", () => {
+        supplier_auto_show();
+    });
 
 auto_comp.init();
 
@@ -149,9 +150,11 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                 });
             });
 
-        let auto_comp = new AutoInput(document.querySelector('#search-input'), "", "/supplier_auto", () => {
-            search_table();
-        });
+        let auto_comp = new AutoInput(document.querySelector('#search-input'),
+            document.querySelector('#customer-suplier'), "/customer_auto", () => {
+                search_table();
+            });
+            
         auto_comp.init();
 
         document.querySelector('#serach-button').onclick = function () {
@@ -491,9 +494,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
             row_data["数量"] = count;
             row_data["金额"] = sum.toFixed(Number(num_position[1]));
 
-            table_data.push(row_data);            
+            table_data.push(row_data);
 
-            printData['chinese'] = moneyUppercase(Number(row_data['金额'])) 
+            printData['chinese'] = moneyUppercase(Number(row_data['金额']))
             printData["table"] = table_data;
 
             hiprintTemplate.print(printData);
@@ -926,7 +929,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     }
 });
 
-//自动完成点击后，展示供应商数据
+//自动完成点击后，展示供应商（客户）数据
 function supplier_auto_show() {
     fetch("/fetch_supplier", {
         method: 'post',

@@ -140,27 +140,6 @@ pub async fn customer_auto(
     }
 }
 
-// //自动完成
-// #[get("/supplier_auto")]
-// pub async fn supplier_auto(
-//     db: web::Data<Pool>,
-//     search: web::Query<Search>,
-//     id: Identity,
-// ) -> HttpResponse {
-//     let user_name = id.identity().unwrap_or("".to_owned());
-//     if user_name != "" {
-//         let s = search.s.to_lowercase();
-//         let sql = &format!(
-//             r#"SELECT id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
-//             s, s
-//         );
-
-//         autocomplete(db, sql).await
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
-
 #[derive(Deserialize)]
 pub struct OutCate {
     cate: String,
