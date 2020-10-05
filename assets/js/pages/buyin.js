@@ -25,7 +25,7 @@ fetch("/fetch_inout_fields", {
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 
-            let date = document.querySelector('#采购日期');
+            let date = document.querySelector('#日期');
             date.value = new Date().Format("yyyy-MM-dd");
 
             //执行一个laydate实例
@@ -154,7 +154,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             document.querySelector('#customer-suplier'), "/customer_auto", () => {
                 search_table();
             });
-            
+
         auto_comp.init();
 
         document.querySelector('#serach-button').onclick = function () {
@@ -171,7 +171,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, product_table_fields;
+let show_names, all_width, ware_option, ware_value, product_table_fields;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -203,7 +203,7 @@ fetch("/fetch_inout_fields", {
 
         //构造表头和空行------------
 
-        all_width = all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 80 + 100;
+        all_width = all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
 
         let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
         let blank_row = `<tr><td width=${40 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
@@ -215,13 +215,13 @@ fetch("/fetch_inout_fields", {
 
         th_row += `<th width=${60 * 100 / all_width}%>单价</th><th width=${60 * 100 / all_width}%>数量</th>
                 <th width=${80 * 100 / all_width}%>金额</th><th width=${100 * 100 / all_width}%>仓库</th>
-                <th width=${80 * 100 / all_width}%>库位</th><th width=${100 * 100 / all_width}%>备注</th></tr>`;
+                <th width=${100 * 100 / all_width}%>备注</th></tr>`;
 
         table_container.querySelector('thead').innerHTML = th_row;
 
         blank_row += `<td width=${60 * 100 / all_width}%></td><td width=${60 * 100 / all_width}%></td>
                     <td width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
-                    <td width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td></tr>`;
+                    <td width=${100 * 100 / all_width}%></td></tr>`;
 
         let input_row = build_input_row(show_names, all_width);
 
@@ -479,7 +479,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
                     row_data["仓库"] = ware_select.options[ware_select.selectedIndex].textContent;
 
-                    row_data["库位"] = row.querySelector(`td:nth-child(${++n}) input`).value;
                     row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
 
                     table_data.push(row_data);
@@ -553,7 +552,6 @@ function rebuild_index() {
     for (let i = 0; i < all_input.length; i++) {
         all_input[i].querySelector('td:nth-child(1)').textContent = i + 1;
         all_input[i].querySelector('td:nth-child(2) .autocomplete').style.zIndex = 900 - i;
-        all_input[i].querySelector('td:nth-last-child(2) .autocomplete').style.zIndex = 500 - i;
     }
 }
 
@@ -627,11 +625,7 @@ function build_input_row(show_names, all_width) {
                 <input class="form-control input-sm has-value mount" type="text" />
             </div>
         </td><td class="money" width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
-        <td class="position" width=${80 * 100 / all_width}%>
-            <div class="form-input autocomplete">
-                <input class="form-control input-sm has-value ware-position" type="text" />
-            </div>
-        </td><td width=${100 * 100 / all_width}%>
+        <td width=${100 * 100 / all_width}%>
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
@@ -645,7 +639,7 @@ function build_input_row(show_names, all_width) {
     auto_input.style.width = (auto_th.clientWidth - 36) + "px";
 
     auto_td.addEventListener('click', function () {
-        element_position(this, 7.4, 15.2);
+        element_position(this, 7.4, 1);
         auto_input.focus();
     });
 
@@ -664,6 +658,10 @@ function build_input_row(show_names, all_width) {
         }
 
         document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
+
+        if (ware_value) {
+            input_row.querySelector('select').value = ware_value;
+        }
 
         add_line(show_names, all_width);
     });
@@ -842,35 +840,43 @@ function build_ware_position(ware_option, input_row) {
     ware_house_select.classList.add("has-value");
     ware_house_select.innerHTML = ware_option;
 
+    if (ware_value) {
+        ware_house_select.value = ware_value;
+    }
+
     ware_house_select.addEventListener('change', function () {
-        let id = document.createElement('p');
-        id.textContent = this.value;
-        auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+        ware_value = this.value;
     });
+
+    // ware_house_select.addEventListener('change', function () {
+    //     let id = document.createElement('p');
+    //     id.textContent = this.value;
+    //     auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
+    // });
 
     //加入自动完成
-    let id = document.createElement('p');
-    id.textContent = ware_house_select.value;
-    let position_input = input_row.querySelector('.ware-position');
+    // let id = document.createElement('p');
+    // id.textContent = ware_house_select.value;
+    // let position_input = input_row.querySelector('.ware-position');
 
-    let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
-    auto_comp.init();
+    // let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
+    // auto_comp.init();
 
-    let position_th = document.querySelector('.table-items thead th:nth-last-child(2)');
-    position_input.style.width = (position_th.clientWidth - 24) + "px";
+    // let position_th = document.querySelector('.table-items thead th:nth-last-child(2)');
+    // position_input.style.width = (position_th.clientWidth - 24) + "px";
 
-    let position_td = input_row.querySelector('.position');
-    position_td.addEventListener('click', function () {
-        this.querySelector('.autocomplete').classList.add('auto-edit');
-        // element_position(this, 6.5, 100.5);
-        let tbody = document.querySelector('.table-items tbody');
-        let y = getTop(this, tbody);
-        let body_height = document.querySelector('body').clientHeight;
-        auto_comp.space = body_height - y
-        position_input.focus();
-    });
+    // let position_td = input_row.querySelector('.position');
+    // position_td.addEventListener('click', function () {
+    //     this.querySelector('.autocomplete').classList.add('auto-edit');
+    //     // element_position(this, 6.5, 100.5);
+    //     let tbody = document.querySelector('.table-items tbody');
+    //     let y = getTop(this, tbody);
+    //     let body_height = document.querySelector('body').clientHeight;
+    //     auto_comp.space = body_height - y
+    //     position_input.focus();
+    // });
 
-    input_row.querySelector('td:nth-last-child(3)').appendChild(ware_house_select);
+    input_row.querySelector('td:nth-last-child(2)').appendChild(ware_house_select);
     // input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
 }
 
@@ -879,13 +885,13 @@ function element_position(element, add_x, add_y) {
     if (element.querySelector('.autocomplete').classList.contains("auto-edit")) {
         return false;
     }
-    // let tbody = document.querySelector('.table-items tbody');
-    // let x = getLeft(element, tbody);
-    // let y = getTop(element, tbody);
+    let tbody = document.querySelector('.table-items tbody');
+    let x = getLeft(element, tbody);
+    let y = getTop(element, tbody);
 
-    // let auto_div = element.querySelector('.autocomplete');
-    // auto_div.style.left = (x + add_x) + "px";
-    // auto_div.style.top = (y + add_y) + "px";
+    let auto_div = element.querySelector('.autocomplete');
+    auto_div.style.left = (x + add_x) + "px";
+    auto_div.style.top = (y + add_y) + "px";
 
     // remove_absolute();
 

@@ -96,8 +96,8 @@
 
         .auto-edit {
             position: absolute;
-            margin-left: -2px;
-            margin-top: -14px;
+            // margin-left: -2px;
+            // margin-top: -14px;
             z-index: 0;
         }
 
@@ -118,9 +118,9 @@
             td:nth-child(2),
             td:nth-last-child(1),
             td:nth-last-child(2),
-            td:nth-last-child(3),
-            td:nth-last-child(5),
-            td:nth-last-child(6) {
+            // td:nth-last-child(3),
+            td:nth-last-child(4),
+            td:nth-last-child(5) {
                 border-bottom: 1px solid tomato;
             }
         }
