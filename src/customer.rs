@@ -7,8 +7,6 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use xlsxwriter::*;
 
-
-
 #[derive(Deserialize, Serialize)]
 pub struct Customer {
     pub data: String,
@@ -24,11 +22,6 @@ pub async fn fetch_customer(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;
     if user.name != "" {
-        let database = if post_data.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
@@ -42,9 +35,9 @@ pub async fn fetch_customer(
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM {} WHERE 
-            LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, database, name, post_data.sort, skip, post_data.rec
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM customers WHERE 
+            类别='{}' AND LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields, post_data.sort, post_data.cate, name, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -52,8 +45,8 @@ pub async fn fetch_customer(
         let products = build_string_from_base(rows, fields);
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM {} WHERE LOWER(名称) LIKE '%{}%'"#,
-            database, name
+            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%'"#,
+            post_data.cate, name
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -78,16 +71,11 @@ pub async fn update_customer(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, format!("{}管理", p.cate)).await;
     if user.name != "" {
-        let database = if p.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
-        let init = format!("UPDATE {} SET ", database);
+        let init = "UPDATE customers SET ".to_owned();
         let mut sql = build_sql_for_update(field_names.clone(), init, fields);
         sql += &format!(r#"助记码='{}' WHERE id={}"#, py, field_names[0]);
 
@@ -108,25 +96,20 @@ pub async fn add_customer(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, format!("{}管理", p.cate)).await;
     if user.name != "" {
-        let database = if p.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
 
-        let mut init = format!("INSERT INTO {} (", database);
+        let mut init = "INSERT INTO customers (".to_owned();
 
         for f in &fields {
             init += &format!("{},", &*f.field_name);
         }
 
-        init += "助记码) VALUES(";
+        init += "助记码,类别) VALUES(";
         let mut sql = build_sql_for_insert(field_names.clone(), init, fields);
-        sql += &format!("'{}')", py);
+        sql += &format!("'{}', '{}')", py, p.cate);
 
         &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -140,15 +123,15 @@ pub async fn add_customer(
 #[get("/customer_auto")]
 pub async fn customer_auto(
     db: web::Data<Pool>,
-    search: web::Query<Search>,
+    search: web::Query<SearchCate>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let s = search.s.to_lowercase();
         let sql = &format!(
-            r#"SELECT id, 名称 AS label FROM customers WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
-            s, s
+            r#"SELECT id, 名称 AS label FROM customers WHERE 类别='{}' AND (助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%') LIMIT 10"#,
+            search.cate, s, s
         );
 
         autocomplete(db, sql).await
@@ -157,26 +140,26 @@ pub async fn customer_auto(
     }
 }
 
-//自动完成
-#[get("/supplier_auto")]
-pub async fn supplier_auto(
-    db: web::Data<Pool>,
-    search: web::Query<Search>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let s = search.s.to_lowercase();
-        let sql = &format!(
-            r#"SELECT id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
-            s, s
-        );
+// //自动完成
+// #[get("/supplier_auto")]
+// pub async fn supplier_auto(
+//     db: web::Data<Pool>,
+//     search: web::Query<Search>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user_name = id.identity().unwrap_or("".to_owned());
+//     if user_name != "" {
+//         let s = search.s.to_lowercase();
+//         let sql = &format!(
+//             r#"SELECT id, 名称 AS label FROM supplier WHERE 助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%' LIMIT 10"#,
+//             s, s
+//         );
 
-        autocomplete(db, sql).await
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+//         autocomplete(db, sql).await
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
 #[derive(Deserialize)]
 pub struct OutCate {
@@ -192,12 +175,6 @@ pub async fn customer_out(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
-        let database = if out_data.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
-
         let fields = get_fields(db.clone(), &out_data.cate).await;
 
         let file_name = format!("./download/{}.xlsx", out_data.cate);
@@ -230,7 +207,7 @@ pub async fn customer_out(
         let mut sql = build_sql_for_excel(init, &fields);
         sql = sql.trim_end_matches(",").to_owned();
 
-        sql += &format!(" FROM {}", database);
+        sql += &format!(" FROM customers WHERE 类别='{}'", out_data.cate);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -352,11 +329,6 @@ pub async fn customer_addin(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let database = if data_cate.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
@@ -364,12 +336,12 @@ pub async fn customer_addin(
             let conn = db.get().await.unwrap();
             let total_rows = r.get_size().0 - 1;
             if total_rows > 0 {
-                let mut init = format!("INSERT INTO {} (", database);
+                let mut init = "INSERT INTO customers (".to_owned();
 
                 for f in &fields {
                     init += &format!("{},", &*f.field_name);
                 }
-                init += "助记码) VALUES(";
+                init += "助记码, 类别) VALUES(";
 
                 for j in 0..total_rows {
                     let mut sql = init.clone();
@@ -390,7 +362,7 @@ pub async fn customer_addin(
 
                     let name = &format!("{}", r[(j + 1, 1)]);
                     let py = pinyin::get_pinyin(name);
-                    sql += &format!("'{}')", py);
+                    sql += &format!("'{}','{}')", py, data_cate.cate);
 
                     &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
@@ -411,11 +383,6 @@ pub async fn customer_updatein(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
-        let database = if data_cate.cate == "客户" {
-            "customers"
-        } else {
-            "supplier"
-        };
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
 
         if let Some(Ok(r)) = excel.worksheet_range("数据") {
@@ -425,7 +392,7 @@ pub async fn customer_updatein(
 
             if total_rows > 0 {
                 for i in 0..total_rows {
-                    let mut sql = format!("UPDATE {} SET ", database);
+                    let mut sql = "UPDATE customers SET ".to_owned();
 
                     for j in 0..fields.len() {
                         if fields[j].data_type == "文本" {

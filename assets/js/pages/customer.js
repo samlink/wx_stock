@@ -6,16 +6,6 @@ import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } fro
 import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
-let cate_set = cate == "客户" ? {
-    cate: "客户",
-    auto_url: "customer_auto",
-    in_url: "customer_in",
-
-} : {
-        cate: "供应商",
-        auto_url: "supplier_auto",
-        in_url: "supplier_in",
-    };
 
 let global = {
     row_id: 0,
@@ -27,7 +17,7 @@ let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);
 
 let table_name = {
-    name: cate_set.cate,
+    name: cate,
 };
 
 let table_fields;
@@ -40,7 +30,7 @@ let init_data = {
         name: '',
         sort: "名称 ASC",
         rec: row_num,
-        cate: cate_set.cate,
+        cate: cate,
     },
     edit: false,
 
@@ -85,10 +75,11 @@ function blank_row() {
     return service.build_blank_from_fields(row, table_fields);
 }
 
-//搜索规格
+//搜索客户供应商
 let search_input = document.querySelector('#search-input');
 
-let auto_comp = new AutoInput(search_input, "", cate_set.auto_url, () => {
+
+let auto_comp = new AutoInput(search_input, document.querySelector('#category'), "customer_auto", () => {
     search_table();
 });
 
@@ -110,7 +101,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 
     document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
 
-    document.querySelector('.modal-title').textContent = "增加" + cate_set.cate;
+    document.querySelector('.modal-title').textContent = "增加" + cate;
     document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
     document.querySelector('.modal').style.display = "block";
@@ -129,14 +120,14 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, table_fields, chosed); //3 是起始位置
 
-        document.querySelector('.modal-title').textContent = "编辑" + cate_set.cate;
+        document.querySelector('.modal-title').textContent = "编辑" + cate;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
     else {
-        notifier.show('请先选择' + cate_set.cate, 'danger');
+        notifier.show('请先选择' + cate, 'danger');
     }
 });
 
@@ -156,8 +147,6 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
             let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
 
-            // num = 0;
-
             for (let input of all_input) {
                 let value;
                 if (input.parentNode.className.indexOf('check-radio') == -1) {
@@ -168,12 +157,11 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 }
 
                 customer += `${value}${SPLITER}`;
-                // num++;
             }
 
             let data = {
                 data: customer,
-                cate: cate_set.cate,
+                cate: cate,
             };
 
             let url = global.eidt_cate == "edit" ? "/update_customer" : "/add_customer";
@@ -189,7 +177,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
-                        notifier.show(cate_set.cate + '修改成功', 'success');
+                        notifier.show(cate + '修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {
                             for (let input of all_input) {
@@ -202,7 +190,9 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                     }
                 });
         }
-        notifier.show('空值不能提交', 'danger');
+        else {
+            notifier.show('空值不能提交', 'danger');
+        }
     }
     else {
         let url = global.eidt_cate == "批量导入" ? "/customer_addin" : "/customer_updatein";
@@ -211,7 +201,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ cate: cate_set.cate }),
+            body: JSON.stringify({ cate: cate }),
         })
             .then(response => response.json())
             .then(content => {
@@ -278,7 +268,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cate: cate_set.cate }),
+        body: JSON.stringify({ cate: cate }),
     })
         .then(response => response.json())
         .then(content => {
@@ -318,7 +308,8 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        fetch(cate_set.in_url, {
+        let url = cate == "客户" ? "/customer_in" : "/supplier_in";
+        fetch(url, {
             method: 'POST',
             body: fd,
         })
@@ -349,8 +340,8 @@ function data_in(fileBtn, info1, info2, cate) {
                     document.querySelector('.modal-body').innerHTML = rows;
 
                     let message = content[1] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${cate_set.cate}信息${info1} ${content[1]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = `${cate_set.cate}信息${info2}`;
+                    document.querySelector('.modal-title').innerHTML = `${cate}信息${info1} ${content[1]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = `${cate}信息${info2}`;
 
                     global.eidt_cate = cate;
 

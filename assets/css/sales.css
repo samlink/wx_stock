@@ -1174,6 +1174,7 @@ a.roar-alert-message-tbf {
 }
 .modal input {
   padding: 0 8px;
+  height: 30px;
 }
 .modal .form-group {
   display: flex;
