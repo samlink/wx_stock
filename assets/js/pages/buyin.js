@@ -4,7 +4,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER, regReal, moneyUppercase } from '../parts/tools.mjs';
+import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 
 let customer_table_fields, document_table_fields;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -345,8 +345,46 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
-    let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${document.querySelector('#supplier-input').getAttribute('data')}${SPLITER}`;
+    //错误勘察
+    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
+    if (customer_id == null) {
+        notifier.show('客户或供应商不在库中', 'danger');
+        return false;
+    }
+
+    if (!regDate.test(document.querySelector('#日期').value)) {
+        notifier.show('日期输入错误', 'danger');
+        return false;
+    }
+
     let all_values = document.querySelectorAll('.document-value');
+    for (let i = 0; i < document_table_fields.length; i++) {
+        if (document_table_fields[i].data_type == "整数") {
+            if (all_values[i].value && !regInt.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        }
+        else if (document_table_fields[i].data_type == "实数") {
+            if (all_values[i].value && !regReal.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        }
+    }
+
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    for (let row of all_rows) {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
+            if (!regReal(row.querySelector('.price').value) || !regReal(row.querySelector('.mount').value)){
+                notifier.show(`单价或金额输入错误`, 'danger');
+                return false;
+            }
+        }
+    }
+
+    //构建数据字符串
+    let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
     let n = 0;
     for (let f of document_table_fields) {
         if (f.data_type != "布尔") {
@@ -358,7 +396,20 @@ document.querySelector('#save-button').addEventListener('click', function () {
         n++;
     }
 
+    let table_data = [];
+    for (let row of all_rows) {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
+            let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+            row_data += `${row.querySelector('.price').value}${SPLITER}${row.querySelector('.mount').value}${SPLITER}`;
+            row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
+            table_data.push(row_data);
+        }
+    }
+
+
+
     console.log(save_str);
+    console.log(table_data);
 });
 
 //获取打印模板
@@ -463,7 +514,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 maker: document.querySelector('#user-name').textContent,
                 barCode: document.querySelector('#dh').textContent,
             };
-            let show_fields = document.querySelectorAll('.has-value');
+            let show_fields = document.querySelectorAll('.document-value');
             let n = 1;
             for (let field of document_table_fields) {
                 if (field.data_type == "布尔") {

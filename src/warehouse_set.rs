@@ -19,7 +19,7 @@ pub async fn fetch_house(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
-            .query("SELECT id, name FROM warehouse ORDER BY show_order", &[])
+            .query("SELECT id, name FROM warehouse WHERE not_use=false ORDER BY show_order", &[])
             .await
             .unwrap();
 
@@ -59,7 +59,7 @@ pub async fn update_house(
                 data.name, data.id
             )
         } else {
-            format!("DELETE FROM warehouse WHERE id={}", data.id)
+            format!("UPDATE warehouse SET not_use=true WHERE id={}", data.id)
         };
 
         &conn.query(sql.as_str(), &[]).await.unwrap();
