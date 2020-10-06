@@ -260,13 +260,26 @@ pub async fn save_document(
                     } else if dh_format[0] == "年" && length == 2 {
                         dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y");
                     } else if dh_format[0] == "无限" && length == 1 {
-                        if dh_first == format!("{}{}", dh_pre, dh_arr[1]) {
-                            num = dh_arr[1].parse::<i32>().unwrap() + 1;
+                        if let Some(num) = dh_first.get(2..dh_first.len() - 1) {
+                            let num = num.parse::<i32>().unwrap();
+                            let keep = dh_format[1].parse::<usize>().unwrap();
+                            dh = format!("{}{:0pad$}", dh_pre, num, pad = keep);
                         }
                     } else {
-                        //日期不再一致
+                        if dh_format[0] == "日" {
+                            dh = &get_num2(dh_pre, dh_format, "%Y-%m-%d");
+                        } else if dh_format[0] == "月" {
+                            dh = &get_num2(dh_pre, dh_format, "%Y-%m");
+                        } else if dh_format[0] == "年" {
+                            dh = &get_num2(dh_pre, dh_format, "%Y");
+                        } else if dh_format[0] == "无限" {
+                            let num = 1;
+                            let keep = dh_format[1].parse::<usize>().unwrap();
+                            dh = format!("{}{:0pad$}", dh_pre, num, pad = keep);
+                        }
                     }
                 } else {
+                    
                 }
             } else {
             }
@@ -295,6 +308,13 @@ fn get_num(
     if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[length - 1]) {
         num = dh_arr[length - 1].parse::<i32>().unwrap() + 1;
     }
+    let keep = dh_format[1].parse::<usize>().unwrap();
+    format!("{}{}-{:0pad$}", dh_pre, local, num, pad = keep)
+}
+
+fn get_num2(dh_pre: &str, dh_format: Vec<String>, date_str: &str) -> String {
+    let local = now().strftime(date_str).unwrap().to_string();
+    let num = 1;
     let keep = dh_format[1].parse::<usize>().unwrap();
     format!("{}{}-{:0pad$}", dh_pre, local, num, pad = keep)
 }
