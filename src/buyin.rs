@@ -209,7 +209,7 @@ pub async fn save_document(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
-        let mut dh = doc_data[1];
+        let mut dh = doc_data[1].to_owned();
         if dh == "新单据" {
             let dh_pre: &str;
 
@@ -236,6 +236,24 @@ pub async fn save_document(
                 dh_format.push(v);
             }
 
+            let spliter = if dh_format[2] == "true" { "-" } else { "" };
+            let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
+            let local: Vec<&str> = date_string.split("-").collect();
+
+            let date;
+            if dh_format[0] == "日" {
+                date = format!(
+                    "{}{}{}{}{}{}{}",
+                    dh_pre, local[0], spliter, local[1], spliter, local[2], spliter
+                );
+            } else if dh_format[0] == "月" {
+                date = format!("{}{}{}{}{}", dh_pre, local[0], spliter, local[1], spliter);
+            } else if dh_format[0] == "年" {
+                date = format!("{}{}{}", dh_pre, local[0], spliter);
+            } else {
+                date = format!("{}{}", dh_pre, spliter);
+            }
+
             //获取尾号
             let sql = format!(
                 "SELECT 单号 FROM documents WHERE 单号 like '{}%' ORDER BY 单号 DESC LIMIT 1",
@@ -248,73 +266,24 @@ pub async fn save_document(
             for row in rows {
                 dh_first = row.get("单号");
             }
-
+            let keep = dh_format[1].parse::<usize>().unwrap();
+            let len = dh_first.len();
+            let mut num = 1i32;
             if dh_first != "" {
-                if dh_format[2] == "true" {
-                    let dh_arr: Vec<&str> = dh_first.split("-").collect();
-                    let length = dh_arr.len();
-                    if dh_format[0] == "日" && length == 4 {
-                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y-%m-%d");
-                    } else if dh_format[0] == "月" && length == 3 {
-                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y-%m");
-                    } else if dh_format[0] == "年" && length == 2 {
-                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y");
-                    } else if dh_format[0] == "无限" && length == 1 {
-                        if let Some(num) = dh_first.get(2..dh_first.len() - 1) {
-                            let num = num.parse::<i32>().unwrap();
-                            let keep = dh_format[1].parse::<usize>().unwrap();
-                            dh = format!("{}{:0pad$}", dh_pre, num, pad = keep);
-                        }
-                    } else {
-                        if dh_format[0] == "日" {
-                            dh = &get_num2(dh_pre, dh_format, "%Y-%m-%d");
-                        } else if dh_format[0] == "月" {
-                            dh = &get_num2(dh_pre, dh_format, "%Y-%m");
-                        } else if dh_format[0] == "年" {
-                            dh = &get_num2(dh_pre, dh_format, "%Y");
-                        } else if dh_format[0] == "无限" {
-                            let num = 1;
-                            let keep = dh_format[1].parse::<usize>().unwrap();
-                            dh = format!("{}{:0pad$}", dh_pre, num, pad = keep);
-                        }
-                    }
-                } else {
-                    
+                if let Some(n) = dh_first.get(len - 1 - keep..len - 1) {
+                    num = n.parse::<i32>().unwrap() + 1;
                 }
-            } else {
             }
+
+            dh = format!("{}{:0pad$}", date, num, pad = keep);
         }
 
-        let mut sql = format!("INSERT INTO customers (");
+        // let mut sql = format!("INSERT INTO customers (");
 
-        &conn.query(sql.as_str(), &[]).await.unwrap();
+        // &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        HttpResponse::Ok().json(1)
+        HttpResponse::Ok().json(dh)
     } else {
         HttpResponse::Ok().json(-1)
     }
-}
-
-fn get_num(
-    dh_pre: &str,
-    dh_format: Vec<String>,
-    dh_first: String,
-    dh_arr: Vec<&str>,
-    date_str: &str,
-) -> String {
-    let length = dh_arr.len();
-    let local = now().strftime(date_str).unwrap().to_string();
-    let mut num = 1;
-    if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[length - 1]) {
-        num = dh_arr[length - 1].parse::<i32>().unwrap() + 1;
-    }
-    let keep = dh_format[1].parse::<usize>().unwrap();
-    format!("{}{}-{:0pad$}", dh_pre, local, num, pad = keep)
-}
-
-fn get_num2(dh_pre: &str, dh_format: Vec<String>, date_str: &str) -> String {
-    let local = now().strftime(date_str).unwrap().to_string();
-    let num = 1;
-    let keep = dh_format[1].parse::<usize>().unwrap();
-    format!("{}{}-{:0pad$}", dh_pre, local, num, pad = keep)
 }
