@@ -96,47 +96,47 @@ pub async fn house_drag(
     }
 }
 
-///获取库位
-#[post("/fetch_position")]
-pub async fn fetch_position(
-    db: web::Data<Pool>,
-    data: web::Json<i32>,
-    id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
-    if user.name != "" {
-        let conn = db.get().await.unwrap();
-        let sql = format!("SELECT position FROM warehouse WHERE id={}", data);
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut position = "".to_owned();
-        for row in rows {
-            position = row.get("position");
-        }
-        HttpResponse::Ok().json(position)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+// ///获取库位
+// #[post("/fetch_position")]
+// pub async fn fetch_position(
+//     db: web::Data<Pool>,
+//     data: web::Json<i32>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
+//     if user.name != "" {
+//         let conn = db.get().await.unwrap();
+//         let sql = format!("SELECT position FROM warehouse WHERE id={}", data);
+//         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+//         let mut position = "".to_owned();
+//         for row in rows {
+//             position = row.get("position");
+//         }
+//         HttpResponse::Ok().json(position)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
-///编辑库位
-#[post("/edit_position")]
-pub async fn edit_position(
-    db: web::Data<Pool>,
-    data: web::Json<HouseData>,
-    id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
-    if user.name != "" {
-        let conn = db.get().await.unwrap();
-        let position = data.name.trim_end_matches(",").to_owned();
-        let sql = format!(
-            "UPDATE warehouse SET position='{}' WHERE id={}",
-            position, data.id
-        );
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+// ///编辑库位
+// #[post("/edit_position")]
+// pub async fn edit_position(
+//     db: web::Data<Pool>,
+//     data: web::Json<HouseData>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user = get_user(db.clone(), id, "仓库设置".to_owned()).await;
+//     if user.name != "" {
+//         let conn = db.get().await.unwrap();
+//         let position = data.name.trim_end_matches(",").to_owned();
+//         let sql = format!(
+//             "UPDATE warehouse SET position='{}' WHERE id={}",
+//             position, data.id
+//         );
+//         &conn.execute(sql.as_str(), &[]).await.unwrap();
 
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+//         HttpResponse::Ok().json(1)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }

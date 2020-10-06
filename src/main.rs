@@ -109,8 +109,6 @@ async fn main() -> std::io::Result<()> {
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)
-            .service(warehouse_set::fetch_position)
-            .service(warehouse_set::edit_position)
             .service(systemset::fetch_system)
             .service(systemset::update_system)
             .service(report_design::fetch_print_documents)
