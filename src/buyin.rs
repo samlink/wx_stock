@@ -209,7 +209,7 @@ pub async fn save_document(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
-        let dh = doc_data[1];
+        let mut dh = doc_data[1];
         if dh == "新单据" {
             let dh_pre: &str;
 
@@ -237,7 +237,6 @@ pub async fn save_document(
             }
 
             //获取尾号
-            let mut num = 1i32;
             let sql = format!(
                 "SELECT 单号 FROM documents WHERE 单号 like '{}%' ORDER BY 单号 DESC LIMIT 1",
                 dh_pre
@@ -255,22 +254,11 @@ pub async fn save_document(
                     let dh_arr: Vec<&str> = dh_first.split("-").collect();
                     let length = dh_arr.len();
                     if dh_format[0] == "日" && length == 4 {
-                        let local = now().strftime("%Y-%m-%d").unwrap().to_string();
-                        if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[3]) {
-                            num = dh_arr[3].parse::<i32>().unwrap() + 1;
-                        }
-
+                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y-%m-%d");
                     } else if dh_format[0] == "月" && length == 3 {
-                        let local = now().strftime("%Y-%m").unwrap().to_string();
-                        if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[2]) {
-                            num = dh_arr[2].parse::<i32>().unwrap() + 1;
-                        }
-
+                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y-%m");
                     } else if dh_format[0] == "年" && length == 2 {
-                        let local = now().strftime("%Y").unwrap().to_string();
-                        if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[1]) {
-                            num = dh_arr[1].parse::<i32>().unwrap() + 1;
-                        }
+                        dh = &get_num(dh_pre, dh_format, dh_first.clone(), dh_arr, "%Y");
                     } else if dh_format[0] == "无限" && length == 1 {
                         if dh_first == format!("{}{}", dh_pre, dh_arr[1]) {
                             num = dh_arr[1].parse::<i32>().unwrap() + 1;
@@ -278,11 +266,8 @@ pub async fn save_document(
                     } else {
                         //日期不再一致
                     }
-
                 } else {
-                    
                 }
-
             } else {
             }
         }
@@ -297,6 +282,19 @@ pub async fn save_document(
     }
 }
 
-
-
-// async fn get_num(dh_pre: &str, dh_format: Vec<String>) -> String {}
+fn get_num(
+    dh_pre: &str,
+    dh_format: Vec<String>,
+    dh_first: String,
+    dh_arr: Vec<&str>,
+    date_str: &str,
+) -> String {
+    let length = dh_arr.len();
+    let local = now().strftime(date_str).unwrap().to_string();
+    let mut num = 1;
+    if dh_first == format!("{}{}-{}", dh_pre, local, dh_arr[length - 1]) {
+        num = dh_arr[length - 1].parse::<i32>().unwrap() + 1;
+    }
+    let keep = dh_format[1].parse::<usize>().unwrap();
+    format!("{}{}-{:0pad$}", dh_pre, local, num, pad = keep)
+}
