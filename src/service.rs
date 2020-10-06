@@ -239,7 +239,7 @@ fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
     fields
 }
 
-//从数据库读取数据后，按显示字段，组合成字符串数组。以返回给前端
+//从数据库读取数据后，按显示字段，组合成字符串数组。返回给前端
 pub fn build_string_from_base(
     rows: &Vec<tokio_postgres::Row>,
     fields: Vec<FieldsData>,

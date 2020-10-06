@@ -209,21 +209,22 @@ pub async fn save_document(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
+        let mut doc_sql;
+        let mut items_sql;
         let mut dh = doc_data[1].to_owned();
-        if dh == "新单据" {
-            let dh_pre: &str;
 
-            if doc_data[0] == "采购入库" {
-                dh_pre = "CG";
+        if dh == "新单据" {
+            let dh_pre = if doc_data[0] == "采购入库" {
+                "CG"
             } else if doc_data[0] == "采购退货" {
-                dh_pre = "CT";
+                "CT"
             } else if doc_data[0] == "销售出库" {
-                dh_pre = "XS";
+                "XS"
             } else if doc_data[0] == "销售退货" {
-                dh_pre = "XT";
+                "XT"
             } else {
-                dh_pre = "KT";
-            }
+                "KZ"
+            };
 
             let rows = &conn
                 .query("SELECT value FROM system WHERE cate='单号格式'", &[])
@@ -266,6 +267,7 @@ pub async fn save_document(
             for row in rows {
                 dh_first = row.get("单号");
             }
+
             let keep = dh_format[1].parse::<usize>().unwrap();
             let len = dh_first.len();
             let mut num = 1i32;
@@ -276,11 +278,13 @@ pub async fn save_document(
             }
 
             dh = format!("{}{:0pad$}", date, num, pad = keep);
+
+            doc_sql = format!("INSERT INTO documents (");
         }
 
         // let mut sql = format!("INSERT INTO customers (");
 
-        // &conn.query(sql.as_str(), &[]).await.unwrap();
+        &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(dh)
     } else {
