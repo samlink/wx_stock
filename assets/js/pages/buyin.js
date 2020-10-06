@@ -342,6 +342,25 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
 });
 
 //保存、打印和记账 -------------------------------------------------------------------
+
+//保存
+document.querySelector('#save-button').addEventListener('click', function () {
+    let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${document.querySelector('#supplier-input').getAttribute('data')}${SPLITER}`;
+    let all_values = document.querySelectorAll('.document-value');
+    let n = 0;
+    for (let f of document_table_fields) {
+        if (f.data_type != "布尔") {
+            save_str += `${all_values[n].value}${SPLITER}`;
+        }
+        else {
+            save_str += `${all_values[n].checked}${SPLITER}`;
+        }
+        n++;
+    }
+
+    console.log(save_str);
+});
+
 //获取打印模板
 fetch('/fetch_models', {
     method: 'post',
@@ -360,6 +379,7 @@ fetch('/fetch_models', {
         document.querySelector('#print-choose').innerHTML = model_options;
     });
 
+//打印
 document.querySelector('#print-button').addEventListener('click', function () {
     let id = document.querySelector('#print-choose').value;
     fetch('/fetch_provider_model', {
