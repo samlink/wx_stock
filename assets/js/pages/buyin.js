@@ -346,42 +346,9 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
     //错误勘察
-    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
-    if (customer_id == null) {
-        notifier.show('客户或供应商不在库中', 'danger');
+    if (!error_check()) {
         return false;
-    }
-
-    if (!regDate.test(document.querySelector('#日期').value)) {
-        notifier.show('日期输入错误', 'danger');
-        return false;
-    }
-
-    let all_values = document.querySelectorAll('.document-value');
-    for (let i = 0; i < document_table_fields.length; i++) {
-        if (document_table_fields[i].data_type == "整数") {
-            if (all_values[i].value && !regInt.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        }
-        else if (document_table_fields[i].data_type == "实数") {
-            if (all_values[i].value && !regReal.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        }
-    }
-
-    let all_rows = document.querySelectorAll('.table-items .has-input');
-    for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
-            if (!regReal(row.querySelector('.price').value) || !regReal(row.querySelector('.mount').value)){
-                notifier.show(`单价或金额输入错误`, 'danger');
-                return false;
-            }
-        }
-    }
+    };
 
     //构建数据字符串
     let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
@@ -432,6 +399,11 @@ fetch('/fetch_models', {
 
 //打印
 document.querySelector('#print-button').addEventListener('click', function () {
+    //错误勘察
+    if (!error_check()) {
+        return false;
+    };
+
     let id = document.querySelector('#print-choose').value;
     fetch('/fetch_provider_model', {
         method: 'post',
@@ -515,13 +487,13 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 barCode: document.querySelector('#dh').textContent,
             };
             let show_fields = document.querySelectorAll('.document-value');
-            let n = 1;
+            let n = 0;
             for (let field of document_table_fields) {
                 if (field.data_type == "布尔") {
                     printData[field.show_name] = show_fields[n].checked ? "是" : "否";
                 }
                 else {
-                    printData[field.show_name] = show_fields[n].value;      //从1开始，0 是供应商
+                    printData[field.show_name] = show_fields[n].value;
                 }
                 n++;
             }
@@ -532,7 +504,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
             let sum = 0;
             for (let row of all_rows) {
                 if (row.querySelector('td:nth-child(2) input').value != "") {
-
                     let row_data = {};
                     row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
                     row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
@@ -576,6 +547,49 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 //共用事件和函数 ---------------------------------------------------------------------
 
+//保存、打印和记账前的错误检查
+function error_check() {
+    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
+    if (customer_id == null) {
+        notifier.show('客户或供应商不在库中', 'danger');
+        return false;
+    }
+
+    if (!regDate.test(document.querySelector('#日期').value)) {
+        notifier.show('日期输入错误', 'danger');
+        return false;
+    }
+
+    let all_values = document.querySelectorAll('.document-value');
+    for (let i = 0; i < document_table_fields.length; i++) {
+        if (document_table_fields[i].data_type == "整数") {
+            if (all_values[i].value && !regInt.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        }
+        else if (document_table_fields[i].data_type == "实数") {
+            if (all_values[i].value && !regReal.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        }
+    }
+
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    for (let row of all_rows) {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
+            if (!regReal.test(row.querySelector('.price').value) || !regReal.test(row.querySelector('.mount').value)) {
+                notifier.show(`单价或数量输入错误`, 'danger');
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+//计算行金额
 function calc_money(input_row) {
     let price = input_row.querySelector('.price').value;
     let mount = input_row.querySelector('.mount').value;
