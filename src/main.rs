@@ -66,7 +66,6 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
             .service(buyin::buyin_auto)
-            .service(buyin::position_auto)
             .service(buyin::fetch_one_product)
             .service(user_set::login)
             .service(user_set::logon)

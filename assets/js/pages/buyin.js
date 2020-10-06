@@ -350,6 +350,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
         return false;
     };
 
+    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
+    let all_values = document.querySelectorAll('.document-value');
+
     //构建数据字符串
     let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
     let n = 0;
@@ -364,6 +367,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 
     let table_data = [];
+    let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
             let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
@@ -373,10 +377,26 @@ document.querySelector('#save-button').addEventListener('click', function () {
         }
     }
 
+    let data = {
+        rights: '商品采购',
+        document: save_str,
+        items: table_data,
+    }
+
+    fetch('/save_document', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+
+        });
 
 
-    console.log(save_str);
-    console.log(table_data);
+
 });
 
 //获取打印模板
