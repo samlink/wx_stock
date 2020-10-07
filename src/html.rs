@@ -1,4 +1,4 @@
-use crate::service::{get_user, r2s};
+use crate::service::{get_fraction, get_user, r2s};
 use actix_identity::Identity;
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
@@ -154,19 +154,25 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
     if user.name != "" {
-        let conn = db.get().await.unwrap();
-        let rows = &conn
-            .query(r#"SELECT value FROM system WHERE id=1 OR id=2"#, &[])
-            .await
-            .unwrap();
+        let num_position = get_fraction(db).await;
+        let setup = vec!["商品采购", "供应商", "近期采购"];
+        let options = vec!["采购入库", "退货出库"];
+        let html = r2s(|o| buyin(o, user, num_position, setup, options));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
 
-        let mut num_position = "".to_owned();
-        for row in rows {
-            let s: String = row.get("value");
-            num_position += &format!("{},", s);
-        }
-
-        let html = r2s(|o| buyin(o, user, num_position));
+///商品采购
+#[get("/sale")]
+pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let num_position = get_fraction(db).await;
+        let setup = vec!["商品销售", "客户", "近期销售"];
+        let options = vec!["销售出库", "退货入库", "商品直销", "直销退货"];
+        let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()

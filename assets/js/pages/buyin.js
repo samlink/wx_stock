@@ -406,24 +406,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
         });
 });
 
-//获取打印模板
-fetch('/fetch_models', {
-    method: 'post',
-    headers: {
-        "Content-Type": "application/json",
-    },
-    body: 3,    //3 是采购入库打印单的 id
-})
-    .then(response => response.json())
-    .then(content => {
-        let model_options = "";
-        for (let data of content) {
-            model_options += `<option value="${data.id}">打印模板 - ${data.name}</option>`;
-        }
-
-        document.querySelector('#print-choose').innerHTML = model_options;
-    });
-
 //打印
 document.querySelector('#print-button').addEventListener('click', function () {
     //错误勘察
@@ -572,7 +554,51 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 });
 
+let inout_cate = document.querySelector('#inout-cate');
+fetch_print_models(inout_cate.value);
+
+inout_cate.addEventListener('change', function () {
+    fetch_print_models(this.value);
+});
+
 //共用事件和函数 ---------------------------------------------------------------------
+
+//获取打印模板
+function fetch_print_models(value) {
+    let print_id;
+    if (value == "采购入库") {
+        print_id = 3;
+    }
+    else if (value == "退货出库") {
+        print_id = 4;
+    }
+    else if (value == "销售出库") {
+        print_id = 1;
+    }
+    else if (value == "销售退货") {
+        print_id = 2;
+    }
+    else {
+        print_id = 5;
+    }
+
+    fetch('/fetch_models', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: print_id,
+    })
+        .then(response => response.json())
+        .then(content => {
+            let model_options = "";
+            for (let data of content) {
+                model_options += `<option value="${data.id}">打印 - ${data.name}</option>`;
+            }
+
+            document.querySelector('#print-choose').innerHTML = model_options;
+        });
+}
 
 //保存、打印和记账前的错误检查
 function error_check() {
