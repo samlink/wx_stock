@@ -212,9 +212,10 @@ pub async fn save_document(
         let mut doc_sql;
 
         let fields = get_inout_fields(db.clone(), "采购单据").await;
+        let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
-        if dh == "新单据" {
+        if dh_data == "新单据" {
             let dh_pre = if doc_data[0] == "采购入库" {
                 "CG"
             } else if doc_data[0] == "退货出库" {
@@ -274,7 +275,9 @@ pub async fn save_document(
             let mut num = 1i32;
             if dh_first != "" {
                 if let Some(n) = dh_first.get(len - keep..len) {
-                    num = n.parse::<i32>().unwrap() + 1;
+                    if dh_first == format!("{}{}", date, n) {
+                        num = n.parse::<i32>().unwrap() + 1;
+                    }
                 }
             }
 
@@ -297,12 +300,16 @@ pub async fn save_document(
         }
 
         println!("{}", doc_sql);
+
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
-        transaction
-            .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
-            .await
-            .unwrap();
+
+        if dh_data != "新单据" {
+            transaction
+                .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
+        }
 
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();

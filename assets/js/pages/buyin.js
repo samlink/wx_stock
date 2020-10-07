@@ -396,12 +396,14 @@ document.querySelector('#save-button').addEventListener('click', function () {
     })
         .then(response => response.json())
         .then(content => {
-            document.querySelector('#dh').textContent = content;
-
+            if (content != -1) {
+                document.querySelector('#dh').textContent = content;
+                notifier.show('单据保存成功', 'success');
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
         });
-
-
-
 });
 
 //获取打印模板
