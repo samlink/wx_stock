@@ -353,7 +353,7 @@ pub async fn fetch_history(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!("SELECT 日期, 单价, 数量 FROM documents JOIN document_items ON documents.单号=document_items.单号id 
-                            WHERE 客商id={} AND 商品id={} LIMIT 10", data.customer_id, data.product_id);
+                            WHERE 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10", data.customer_id, data.product_id);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut history: Vec<HistoryData> = Vec::new();

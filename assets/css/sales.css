@@ -1749,13 +1749,24 @@ a.roar-alert-message-tbf {
   margin: 0 auto;
 }
 
-.buy-in #supplier-info {
-  color: darkgreen;
-  padding: 3px 10px;
+.buy-in .info-model {
   height: 25px;
   width: 100%;
-  margin-left: 1px;
+  margin-right: 10px;
   margin-bottom: 3px;
+  display: flex;
+}
+.buy-in #supplier-info {
+  width: 100%;
+  color: darkgreen;
+  padding: 3px 10px;
+  background-color: #ecf6fe;
+}
+.buy-in #history-info {
+  width: 290px;
+  height: 25px;
+  padding-top: 3px;
+  padding-left: 10px;
   background-color: #ecf6fe;
 }
 .buy-in #buy-cate {
@@ -1771,9 +1782,8 @@ a.roar-alert-message-tbf {
   align-items: flex-start;
 }
 .buy-in #choose-div {
-  width: 290px;
-  padding-top: 1px;
-  margin-left: 20px;
+  width: 180px;
+  margin-left: 10px;
 }
 .buy-in .buy-items {
   display: flex;
@@ -1920,6 +1930,9 @@ a.roar-alert-message-tbf {
 }
 .buy-in .table-history tr {
   height: 33px;
+}
+.buy-in .table-history td:nth-child(1) {
+  text-align: center;
 }
 .buy-in .table-history .table-info {
   width: 100%;

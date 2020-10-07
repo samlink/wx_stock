@@ -1031,6 +1031,10 @@ function add_line(show_names, all_width) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
+                let num = document.querySelector('.inputting td:nth-child(1)').textContent;
+                let name = document.querySelector('.inputting td:nth-child(2) input').value;
+                document.querySelector('#history-info').textContent = `${num} - ${name}`;
+
                 let tr = "";
                 for (let row of content) {
                     tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
@@ -1044,6 +1048,7 @@ function add_line(show_names, all_width) {
                 }
 
                 document.querySelector('.table-history tbody').innerHTML = tr;
+
             }
             else {
                 notifier.show('权限不够', 'danger');
