@@ -283,19 +283,21 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
 }
 
 //从前端传过来字符串数组，按显示字段，组合成 update 语句。供更新数据用
+//参数：n 是字段名数组的偏移量
 pub fn build_sql_for_update(
     field_names: Vec<&str>,
     mut sql: String,
     fields: Vec<FieldsData>,
+    n: usize,
 ) -> String {
     for i in 0..fields.len() {
         if fields[i].data_type == "文本" {
-            sql += &format!("{}='{}',", fields[i].field_name, field_names[i + 2]);
+            sql += &format!("{}='{}',", fields[i].field_name, field_names[i + n]);
         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-            sql += &format!("{}={},", fields[i].field_name, field_names[i + 2]);
+            sql += &format!("{}={},", fields[i].field_name, field_names[i + n]);
         } else {
             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + 2] == op[0] {
+            let val = if field_names[i + n] == op[0] {
                 true
             } else {
                 false
@@ -307,19 +309,21 @@ pub fn build_sql_for_update(
 }
 
 //从前端传过来字符串数组，按显示字段，组合成 insert 语句。供追加数据用
+//参数：n 是字段名数组的偏移量
 pub fn build_sql_for_insert(
     field_names: Vec<&str>,
     mut sql: String,
     fields: Vec<FieldsData>,
+    n: usize,
 ) -> String {
     for i in 0..fields.len() {
         if fields[i].data_type == "文本" {
-            sql += &format!("'{}',", field_names[i + 2]);
+            sql += &format!("'{}',", field_names[i + n]);
         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-            sql += &format!("{},", field_names[i + 2]);
+            sql += &format!("{},", field_names[i + n]);
         } else {
             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + 2] == op[0] {
+            let val = if field_names[i + n] == op[0] {
                 true
             } else {
                 false

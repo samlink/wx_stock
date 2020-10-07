@@ -207,16 +207,17 @@ pub async fn save_document(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, data.rights.clone()).await;
     if user.name != "" {
-        let conn = db.get().await.unwrap();
+        let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
-        let mut items_sql;
+
+        let fields = get_inout_fields(db.clone(), "采购单据").await;
         let mut dh = doc_data[1].to_owned();
 
         if dh == "新单据" {
             let dh_pre = if doc_data[0] == "采购入库" {
                 "CG"
-            } else if doc_data[0] == "采购退货" {
+            } else if doc_data[0] == "退货出库" {
                 "CT"
             } else if doc_data[0] == "销售出库" {
                 "XS"
@@ -272,19 +273,48 @@ pub async fn save_document(
             let len = dh_first.len();
             let mut num = 1i32;
             if dh_first != "" {
-                if let Some(n) = dh_first.get(len - 1 - keep..len - 1) {
+                if let Some(n) = dh_first.get(len - keep..len) {
                     num = n.parse::<i32>().unwrap() + 1;
                 }
             }
 
             dh = format!("{}{:0pad$}", date, num, pad = keep);
 
-            doc_sql = format!("INSERT INTO documents (");
+            let mut init = "INSERT INTO documents (单号,".to_owned();
+            for f in &fields {
+                init += &format!("{},", &*f.field_name);
+            }
+
+            init += &format!("客商id) VALUES('{}',", dh);
+
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 3);
+
+            doc_sql += &format!("{})", doc_data[2]);
+        } else {
+            let init = "UPDATE documents SET ".to_owned();
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 3);
+            doc_sql += &format!("客商id={} WHERE 单号='{}'", doc_data[2], dh);
         }
 
-        // let mut sql = format!("INSERT INTO customers (");
+        println!("{}", doc_sql);
+        let transaction = conn.transaction().await.unwrap();
+        transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
+        transaction
+            .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
+            .await
+            .unwrap();
 
-        &conn.query(sql.as_str(), &[]).await.unwrap();
+        for item in &data.items {
+            let value: Vec<&str> = item.split(SPLITER).collect();
+            let items_sql = format!(
+                r#"INSERT INTO document_items (单号id, 商品id, 单价, 数量, 仓库id, 备注) 
+                VALUES('{}', {}, {}, {}, {}, '{}')"#,
+                dh, value[0], value[1], value[2], value[3], value[4]
+            );
+            transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+        }
+
+        let _result = transaction.commit().await;
 
         HttpResponse::Ok().json(dh)
     } else {

@@ -76,7 +76,7 @@ pub async fn update_product(
         let product: Vec<&str> = p.data.split(SPLITER).collect();
         let init = r#"UPDATE products SET "#.to_owned();
 
-        let mut sql = build_sql_for_update(product.clone(), init, fields);
+        let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
 
         sql += &format!(r#"商品id='{}' WHERE id={}"#, product[1], product[0]);
 
@@ -104,7 +104,7 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
         init += r#"商品id) VALUES("#;
 
         let product: Vec<&str> = p.data.split(SPLITER).collect();
-        let mut sql = build_sql_for_insert(product.clone(), init, fields);
+        let mut sql = build_sql_for_insert(product.clone(), init, fields, 2);
 
         sql += &format!("'{}')", product[1]);
 

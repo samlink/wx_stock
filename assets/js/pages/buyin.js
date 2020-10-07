@@ -357,11 +357,15 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
     let n = 0;
     for (let f of document_table_fields) {
-        if (f.data_type != "布尔") {
+        if (f.data_type == "文本") {
             save_str += `${all_values[n].value}${SPLITER}`;
         }
+        else if (f.data_type == "整数" || f.data_type == "实数") {
+            let value = all_values[n].value ? all_values[n].value : 0;
+            save_str += `${value}${SPLITER}`;
+        }
         else {
-            save_str += `${all_values[n].checked}${SPLITER}`;
+            save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
         }
         n++;
     }
@@ -383,8 +387,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
-
     fetch('/save_document', {
         method: 'post',
         headers: {
@@ -394,6 +396,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     })
         .then(response => response.json())
         .then(content => {
+            document.querySelector('#dh').textContent = content;
 
         });
 

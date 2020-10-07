@@ -76,7 +76,7 @@ pub async fn update_customer(
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
         let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
         let init = "UPDATE customers SET ".to_owned();
-        let mut sql = build_sql_for_update(field_names.clone(), init, fields);
+        let mut sql = build_sql_for_update(field_names.clone(), init, fields, 2);
         sql += &format!(r#"助记码='{}' WHERE id={}"#, py, field_names[0]);
 
         &conn.execute(sql.as_str(), &[]).await.unwrap();
@@ -108,7 +108,7 @@ pub async fn add_customer(
         }
 
         init += "助记码,类别) VALUES(";
-        let mut sql = build_sql_for_insert(field_names.clone(), init, fields);
+        let mut sql = build_sql_for_insert(field_names.clone(), init, fields, 2);
         sql += &format!("'{}', '{}')", py, p.cate);
 
         &conn.query(sql.as_str(), &[]).await.unwrap();
