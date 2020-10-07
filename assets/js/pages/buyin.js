@@ -1121,12 +1121,18 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
 //自动完成点击后，展示供应商（客户）数据
 function supplier_auto_show() {
+    let data = {
+        rights: customer_supplier.textContent == "客户" ? "商品销售" : "商品采购",
+        cate: customer_supplier.textContent,
+        id: Number(document.querySelector('#supplier-input').getAttribute('data')),
+    };
+
     fetch("/fetch_supplier", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(document.querySelector('#supplier-input').getAttribute('data')),
+        body: JSON.stringify(data),
     })
         .then(response => response.json())
         .then(content => {

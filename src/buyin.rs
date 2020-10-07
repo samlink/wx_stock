@@ -21,16 +21,23 @@ pub async fn fetch_inout_fields(
     }
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct Customer {
+    pub rights: String,
+    pub cate: String,
+    pub id: i32,
+}
+
 ///获取指定 id 的供应商
 #[post("/fetch_supplier")]
 pub async fn fetch_supplier(
     db: web::Data<Pool>,
-    supplier_id: web::Json<String>,
+    supplier: web::Json<Customer>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
+    let user = get_user(db.clone(), id, supplier.rights.to_owned()).await;
     if user.name != "" {
-        let fields = get_inout_fields(db.clone(), "供应商").await;
+        let fields = get_inout_fields(db.clone(), &supplier.cate).await;
 
         let mut sql = "SELECT ".to_owned();
         for f in &fields {
@@ -39,7 +46,7 @@ pub async fn fetch_supplier(
 
         sql = sql.trim_end_matches(",").to_owned();
 
-        sql += &format!(r#" FROM customers WHERE id={}"#, supplier_id);
+        sql += &format!(r#" FROM customers WHERE id={}"#, supplier.id);
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut supplier = "".to_owned();
