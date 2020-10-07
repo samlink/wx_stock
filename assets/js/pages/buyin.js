@@ -8,6 +8,7 @@ import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tool
 
 let customer_table_fields, document_table_fields;
 let num_position = document.querySelector('#num_position').textContent.split(",");
+let customer_supplier = document.querySelector('#customer-suplier');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
@@ -56,7 +57,7 @@ fetch("/fetch_inout_fields", {
 
 //供应商自动完成
 let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
-    document.querySelector('#customer-suplier'), "/customer_auto", () => {
+    customer_supplier, "/customer_auto", () => {
         supplier_auto_show();
     });
 
@@ -72,7 +73,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
         let html = `<div id="customer-show">
                     <div class="table-top">
                         <div class="autocomplete customer-search">
-                            <input type="text" class="form-control search-input" id="search-input" placeholder="供应商搜索">
+                            <input type="text" class="form-control search-input" id="search-input" placeholder="${customer_supplier.textContent}搜索">
                             <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                         </div>
                     </div>
@@ -117,7 +118,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify("供应商"),
+            body: JSON.stringify(customer_supplier.textContent),
         })
             .then(response => response.json())
             .then(content => {
@@ -136,7 +137,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                         name: '',
                         sort: "名称 ASC",
                         rec: Math.floor(customer_height / 30),
-                        cate: "供应商",
+                        cate: customer_supplier.textContent,
                     },
                     edit: false,
 
@@ -151,7 +152,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             });
 
         let auto_comp = new AutoInput(document.querySelector('#search-input'),
-            document.querySelector('#customer-suplier'), "/customer_auto", () => {
+            customer_supplier, "/customer_auto", () => {
                 search_table();
             });
 
@@ -572,10 +573,10 @@ function fetch_print_models(value) {
     else if (value == "退货出库") {
         print_id = 4;
     }
-    else if (value == "销售出库") {
+    else if (value == "销售出库" || value == "商品直销") {
         print_id = 1;
     }
-    else if (value == "销售退货") {
+    else if (value == "退货入库" || value == "直销退货") {
         print_id = 2;
     }
     else {
