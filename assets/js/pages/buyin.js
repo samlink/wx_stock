@@ -162,7 +162,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             search_table();
         };
 
-        document.querySelector('.modal-title').textContent = "选择供应商";
+        document.querySelector('.modal-title').textContent = `选择${customer_supplier.textContent}`;
         document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
         document.querySelector('.modal-content').style.cssText = `height: 100%;`
     }

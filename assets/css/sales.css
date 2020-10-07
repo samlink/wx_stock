@@ -1203,6 +1203,9 @@ a.roar-alert-message-tbf {
 .modal .tree-title {
   margin-top: 11px;
 }
+.modal .table-customer {
+  overflow-x: auto;
+}
 
 .modal-dialog {
   position: relative;
