@@ -299,7 +299,7 @@ pub async fn save_document(
             doc_sql += &format!("客商id={} WHERE 单号='{}'", doc_data[2], dh);
         }
 
-        println!("{}", doc_sql);
+        // println!("{}", doc_sql);
 
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
@@ -324,6 +324,50 @@ pub async fn save_document(
         let _result = transaction.commit().await;
 
         HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct History {
+    pub customer_id: i32,
+    pub product_id: i32,
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct HistoryData {
+    pub date: String,
+    pub price: f32,
+    pub count: f32,
+}
+
+///获取历史交易记录
+#[post("/fetch_history")]
+pub async fn fetch_history(
+    db: web::Data<Pool>,
+    data: web::Json<History>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!("SELECT 日期, 单价, 数量 FROM documents JOIN document_items ON documents.单号=document_items.单号id 
+                            WHERE 客商id={} AND 商品id={} LIMIT 10", data.customer_id, data.product_id);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut history: Vec<HistoryData> = Vec::new();
+
+        for row in rows {
+            let h = HistoryData {
+                date: row.get("日期"),
+                price: row.get("单价"),
+                count: row.get("数量"),
+            };
+            history.push(h);
+        }
+
+        HttpResponse::Ok().json(history)
     } else {
         HttpResponse::Ok().json(-1)
     }

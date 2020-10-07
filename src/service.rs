@@ -265,7 +265,8 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
     for f in fields {
         if f.data_type == "文本" {
             let s: String = row.get(&*f.field_name);
-            product += &format!("{}{}", s, SPLITER);
+            let s1 = if s != "" { s } else { " ".to_owned() };
+            product += &format!("{}{}", s1, SPLITER);
         } else if f.data_type == "整数" {
             let num: i32 = row.get(&*f.field_name);
             product += &format!("{}{}", num, SPLITER);

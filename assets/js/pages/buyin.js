@@ -171,7 +171,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, ware_value, product_table_fields;
+let show_names, all_width, ware_option, ware_value, product_table_fields, table_lines;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -185,7 +185,7 @@ fetch("/fetch_inout_fields", {
         //构造表主体结构-----------
         product_table_fields = content;
         let line_height = 33; //行高，与 css 设置一致
-        let count = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
+        table_lines = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
 
         all_width = 0;
         show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
@@ -229,18 +229,18 @@ fetch("/fetch_inout_fields", {
         tbody.appendChild(input_row);
 
         let rows = "";
-        for (let i = 0; i < count - 1; i++) {
+        for (let i = 0; i < table_lines - 1; i++) {
             rows += blank_row;
         }
 
         tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
 
-        tbody.style.height = count * line_height + "px";    //这里设置高度，为了实现Y轴滚动
+        tbody.style.height = table_lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
         //构造第二张历史记录表----------
         let row2 = "<tr><td></td><td></td><td></td></tr>";
         let rows2 = "";
-        for (let i = 0; i < count; i++) {
+        for (let i = 0; i < table_lines; i++) {
             rows2 += row2;
         }
 
@@ -1012,6 +1012,46 @@ function element_position(element, add_x, add_y) {
 
 //增加新的输入行
 function add_line(show_names, all_width) {
+    let field_values = document.querySelector('.inputting input').getAttribute("data").split(SPLITER);
+    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
+
+    let data = {
+        customer_id: customer_id ? Number(customer_id) : 0,
+        product_id: Number(field_values[0])
+    }
+
+    //获取历史交易记录
+    fetch('/fetch_history', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                let tr = "";
+                for (let row of content) {
+                    tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
+                }
+
+                let row2 = "<tr><td></td><td></td><td></td></tr>";
+                let len = table_lines - content.length;
+
+                for (let i = 0; i < len; i++) {
+                    tr += row2;
+                }
+
+                document.querySelector('.table-history tbody').innerHTML = tr;
+            }
+            else {
+                notifier.show('权限不够', 'danger');
+            }
+
+
+        });
+
     let new_row = build_input_row(show_names, all_width);
     let next = document.querySelector(`.inputting + tr`);
 
