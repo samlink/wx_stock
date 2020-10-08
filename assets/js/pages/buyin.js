@@ -173,7 +173,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, ware_value, product_table_fields, table_lines, blank_row;
+let show_names, all_width, ware_option, ware_value, direct_check, product_table_fields, table_lines, blank_row;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -205,10 +205,19 @@ fetch("/fetch_inout_fields", {
 
         //构造表头和空行------------
 
-        all_width = all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
+        all_width = customer_supplier.textContent == "客户" ?
+            all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100 + 40 :
+            all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
 
-        let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
-        blank_row = `<tr><td width=${40 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
+        let hide = customer_supplier.textContent == "客户" ? "" : "hidden";
+
+        let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th>
+                <th width=${40 * 100 / all_width}% ${hide}>直销</th>
+                <th width=${140 * 100 / all_width}%>名称</th>`;
+
+        blank_row = `<tr><td width=${40 * 100 / all_width}%></td>
+                <td width=${40 * 100 / all_width}% ${hide}></td>
+                <td width=${140 * 100 / all_width}%></td>`;
 
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18 * 100 / all_width}%>${th.show_name}</th>`;
@@ -265,7 +274,7 @@ document.querySelector('#row-insert').addEventListener('click', function (e) {
         rebuild_index();
         sum_records();
 
-        input_row.querySelector('td:nth-child(2)').click();
+        input_row.querySelector('td:nth-child(3)').click();
     }
     else {
         notifier.show('请先选择行', 'danger');
@@ -369,14 +378,14 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
+        if (row.querySelector('td:nth-child(3) input').value != "") {
             let cate = document.querySelector('#inout-cate').value;
             let mount = row.querySelector('.mount').value;
-            if (cate == "销售出库" || cate == "商品直销" || cate == "退货出库") {
+            if (cate == "商品销售" || cate == "退货出库") {
                 mount = mount * -1;
             }
 
-            let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+            let row_data = `${row.querySelector('td:nth-child(3) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
             row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
             row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
             table_data.push(row_data);
@@ -517,10 +526,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
             let count = 0;
             let sum = 0;
             for (let row of all_rows) {
-                if (row.querySelector('td:nth-child(2) input').value != "") {
+                if (row.querySelector('td:nth-child(3) input').value != "") {
                     let row_data = {};
                     row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
-                    row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
+                    row_data["名称"] = row.querySelector('td:nth-child(3) input').value;
 
                     let n = 3;
                     for (let f of product_table_fields) {
@@ -584,7 +593,7 @@ function init_page() {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let lines = 0;
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
+        if (row.querySelector('td:nth-child(3) input').value != "") {
             lines = 1;
             break;
         }
@@ -714,7 +723,7 @@ function error_check() {
 
     let lines = 0;
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
+        if (row.querySelector('td:nth-child(3) input').value != "") {
             lines = 1;
             if (!regReal.test(row.querySelector('.price').value) || !regReal.test(row.querySelector('.mount').value)) {
                 notifier.show(`单价或数量输入错误`, 'danger');
@@ -750,7 +759,7 @@ function sum_money() {
     for (let i = 0; i < all_input.length; i++) {
         let price = all_input[i].querySelector('.price').value;
         let mount = all_input[i].querySelector('.mount').value;
-        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
+        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
             price && regReal.test(price) && mount && regReal.test(mount)) {
             sum += price * mount;
         }
@@ -765,7 +774,7 @@ function sum_records() {
     let all_input = document.querySelectorAll('.has-input');
     let num = 0;
     for (let i = 0; i < all_input.length; i++) {
-        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "") {
+        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "") {
             num++;
         }
     }
@@ -778,7 +787,7 @@ function rebuild_index() {
     let all_input = document.querySelectorAll('.has-input');
     for (let i = 0; i < all_input.length; i++) {
         all_input[i].querySelector('td:nth-child(1)').textContent = i + 1;
-        all_input[i].querySelector('td:nth-child(2) .autocomplete').style.zIndex = 900 - i;
+        all_input[i].querySelector('td:nth-child(3) .autocomplete').style.zIndex = 900 - i;
     }
 }
 
@@ -831,28 +840,39 @@ function build_input_row(show_names, all_width) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
-    let row = `<td width=${40 * 100 / all_width}%>1</td><td width=${140 * 100 / all_width}%>
-                <div class="form-input autocomplete" style="z-index: 900;">
-                    <input class="form-control input-sm has-value auto-input" type="text" />
-                    <button class="btn btn-info btn-sm product-search-button"> ... </button>
-                </div>
-              </td>`;
+    let hide = customer_supplier.textContent == "客户" ? "" : "hidden";
+    let check = direct_check ? "checked" : "";
+
+    let row = `<td width=${40 * 100 / all_width}%>1</td>
+                <td width=${40 * 100 / all_width}% ${hide} class="editable">
+                    <label class="check-radio">
+                        <input class="has-value direct-check" type="checkbox" ${check}>
+                            <span class="checkmark td-check"></span>
+                    </label>
+                </td>
+                <td width=${140 * 100 / all_width}% class="editable">
+                    <div class="form-input autocomplete" style="z-index: 900;">
+                        <input class="form-control input-sm has-value auto-input" type="text" />
+                        <button class="btn btn-info btn-sm product-search-button"> ... </button>
+                    </div>
+                </td>`;
 
     for (let i = 1; i < show_names.length; i++) {
         row += `<td width=${show_names[i].width * 100 / all_width}%></td>`;
     }
 
     row += `
-        <td width=${60 * 100 / all_width}%>
+        <td width=${60 * 100 / all_width}% class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value price" type="text" />
             </div>
-        </td><td width=${60 * 100 / all_width}%}>
+        </td><td width=${60 * 100 / all_width}%} class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value mount" type="text" />
             </div>
-        </td><td class="money" width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
-        <td width=${100 * 100 / all_width}%>
+        </td><td class="money" width=${80 * 100 / all_width}%></td>
+        <td width=${100 * 100 / all_width}% class="editable"></td>
+        <td width=${100 * 100 / all_width}% class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
@@ -861,8 +881,8 @@ function build_input_row(show_names, all_width) {
     input_row.innerHTML = row;
 
     let auto_input = input_row.querySelector('.auto-input');
-    let auto_td = input_row.querySelector('td:nth-child(2)');
-    let auto_th = document.querySelector('.table-items th:nth-child(2)');
+    let auto_td = input_row.querySelector('td:nth-child(3)');
+    let auto_th = document.querySelector('.table-items th:nth-child(3)');
     auto_input.style.width = (auto_th.clientWidth - 36) + "px";
 
     auto_td.addEventListener('click', function () {
@@ -878,7 +898,7 @@ function build_input_row(show_names, all_width) {
     //构造商品规格自动完成
     auto_table(auto_input, "", "/buyin_auto", show_names, () => {
         let field_values = auto_input.getAttribute("data").split(SPLITER);
-        let n = 3;
+        let n = 4;
         for (let i = 2; i < field_values.length; i++) {
             document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
             n++;
@@ -1127,7 +1147,7 @@ function element_position(element, add_x, add_y) {
 
 //增加新的输入行
 function add_line(show_names, all_width) {
-    let field_values = document.querySelector('.inputting input').getAttribute("data").split(SPLITER);
+    let field_values = document.querySelector('.inputting .auto-input').getAttribute("data").split(SPLITER);
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
 
     let data = {
@@ -1148,7 +1168,7 @@ function add_line(show_names, all_width) {
         .then(content => {
             if (content != -1) {
                 let num = document.querySelector('.inputting td:nth-child(1)').textContent;
-                let name = document.querySelector('.inputting td:nth-child(2) input').value;
+                let name = document.querySelector('.inputting td:nth-child(3) input').value;
                 document.querySelector('#history-info').textContent = `${num} - ${name}`;
 
                 let tr = "";

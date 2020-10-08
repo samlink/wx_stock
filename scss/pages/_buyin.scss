@@ -105,6 +105,11 @@
             border: none;
         }
 
+        .td-check {
+            top: -12px;
+            left: 8px;
+        }
+
         .auto-edit {
             position: absolute;
             z-index: 0;
@@ -124,12 +129,7 @@
         }
 
         .inputting {
-            td:nth-child(2),
-            td:nth-last-child(1),
-            td:nth-last-child(2),
-            // td:nth-last-child(3),
-            td:nth-last-child(4),
-            td:nth-last-child(5) {
+            .editable {
                 border-bottom: 1px solid tomato;
             }
         }
