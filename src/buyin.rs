@@ -351,6 +351,7 @@ pub async fn save_document(
 
 #[derive(Deserialize, Serialize)]
 pub struct History {
+    pub cate: String,
     pub customer_id: i32,
     pub product_id: i32,
 }
@@ -372,8 +373,14 @@ pub async fn fetch_history(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let sql = format!("SELECT 日期, 单价, 数量 FROM documents JOIN document_items ON documents.单号=document_items.单号id 
-                            WHERE 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10", data.customer_id, data.product_id);
+        let cate = if data.cate == "客户" {
+            "(单号 LIKE 'XS%' OR 单号 LIKE 'ZS%')"
+        } else {
+            "单号 LIKE 'CG%'"
+        };
+        let sql = format!("SELECT 日期, 单价, ABS(数量) AS 数量 FROM documents JOIN document_items ON documents.单号=document_items.单号id 
+                            WHERE {} AND 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10", 
+                            cate, data.customer_id, data.product_id);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut history: Vec<HistoryData> = Vec::new();

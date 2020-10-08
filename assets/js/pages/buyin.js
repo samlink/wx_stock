@@ -1131,6 +1131,7 @@ function add_line(show_names, all_width) {
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
 
     let data = {
+        cate: customer_supplier.textContent,
         customer_id: customer_id ? Number(customer_id) : 0,
         product_id: Number(field_values[0])
     }
