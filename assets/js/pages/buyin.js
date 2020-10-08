@@ -385,7 +385,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 mount = mount * -1;
             }
 
-            let row_data = `${row.querySelector('td:nth-child(3) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+            let row_data = `${row.querySelector('td:nth-child(2) input').checked}${SPLITER}${row.querySelector('td:nth-child(3) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
             row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
             row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
             table_data.push(row_data);
@@ -398,7 +398,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch('/save_document', {
         method: 'post',
@@ -531,7 +531,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
                     row_data["名称"] = row.querySelector('td:nth-child(3) input').value;
 
-                    let n = 3;
+                    let n = 4;
                     for (let f of product_table_fields) {
                         row_data[f.show_name] = row.querySelector(`td:nth-child(${n})`).textContent;
                         n++
@@ -636,6 +636,8 @@ function init_page() {
                 document.querySelector('#remember-button').textContent = "未记账";
 
                 //清空表格
+                direct_check = false;
+                ware_value = "";
                 let input_row = build_input_row(show_names, all_width);
                 let tbody = document.querySelector('.table-items tbody');
                 tbody.innerHTML = "";
@@ -662,10 +664,10 @@ function fetch_print_models(value) {
     else if (value == "退货出库") {
         print_id = 4;
     }
-    else if (value == "销售出库" || value == "商品直销") {
+    else if (value == "商品销售") {
         print_id = 1;
     }
-    else if (value == "退货入库" || value == "直销退货") {
+    else if (value == "销售退货") {
         print_id = 2;
     }
     else {
@@ -1140,8 +1142,6 @@ function element_position(element, add_x, add_y) {
     auto_div.style.left = (x + add_x) + "px";
     auto_div.style.top = (y + add_y) + "px";
 
-    // remove_absolute();
-
     element.querySelector('.autocomplete').classList.add('auto-edit');
 }
 
@@ -1184,14 +1184,13 @@ function add_line(show_names, all_width) {
                 }
 
                 document.querySelector('.table-history tbody').innerHTML = tr;
-
             }
             else {
                 notifier.show('权限不够', 'danger');
             }
-
-
         });
+
+    direct_check = document.querySelector('.inputting .direct-check').checked;
 
     let new_row = build_input_row(show_names, all_width);
     let next = document.querySelector(`.inputting + tr`);
@@ -1333,7 +1332,7 @@ function chose_exit(selected_row) {
 
                     let field_values = content.split(SPLITER);
 
-                    let n = 3;
+                    let n = 4;
                     for (let i = 0; i < field_values.length; i++) {
                         document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
                         n++;

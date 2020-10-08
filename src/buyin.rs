@@ -238,14 +238,10 @@ pub async fn save_document(
                 "CG"
             } else if doc_data[0] == "退货出库" {
                 "CT"
-            } else if doc_data[0] == "销售出库" {
+            } else if doc_data[0] == "商品销售" {
                 "XS"
-            } else if doc_data[0] == "退货入库" {
+            } else if doc_data[0] == "销售退货" {
                 "XT"
-            } else if doc_data[0] == "商品直销" {
-                "ZS"
-            } else if doc_data[0] == "直销退货" {
-                "ZT"
             } else {
                 "KZ"
             };
@@ -336,9 +332,9 @@ pub async fn save_document(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 商品id, 单价, 数量, 仓库id, 备注) 
-                VALUES('{}', {}, {}, {}, {}, '{}')"#,
-                dh, value[0], value[1], value[2], value[3], value[4]
+                r#"INSERT INTO document_items (单号id, 直销, 商品id, 单价, 数量, 仓库id, 备注) 
+                VALUES('{}', {}, {}, {}, {}, {}, '{}')"#,
+                dh, value[0], value[1], value[2], value[3], value[4], value[5]
             );
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
         }

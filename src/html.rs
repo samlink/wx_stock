@@ -171,7 +171,7 @@ pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     if user.name != "" {
         let num_position = get_fraction(db).await;
         let setup = vec!["商品销售", "客户", "近期销售"];
-        let options = vec!["销售出库", "退货入库", "商品直销", "直销退货"];
+        let options = vec!["商品销售", "销售退货"];
         let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
