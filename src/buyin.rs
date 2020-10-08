@@ -5,15 +5,16 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use time::now;
 
-///获取商品采购单显示字段
+///获取单据显示字段
 #[post("/fetch_inout_fields")]
 pub async fn fetch_inout_fields(
     db: web::Data<Pool>,
     name: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
-    if user.name != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name != "" {
         let fields = get_inout_fields(db.clone(), &name).await;
         HttpResponse::Ok().json(fields)
     } else {
@@ -39,7 +40,7 @@ pub async fn fetch_supplier(
     if user.name != "" {
         let fields = get_inout_fields(db.clone(), &supplier.cate).await;
 
-        let mut sql = "SELECT ".to_owned();
+        let mut sql = "SELECT 信用评价,".to_owned();
         for f in &fields {
             sql += &format!("{},", f.field_name);
         }
@@ -50,10 +51,12 @@ pub async fn fetch_supplier(
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut supplier = "".to_owned();
+        let mut trust = "".to_owned();
         for row in rows {
             supplier += &simple_string_from_base(row, &fields);
+            trust = row.get("信用评价");
         }
-        HttpResponse::Ok().json((fields, supplier))
+        HttpResponse::Ok().json((fields, supplier, trust))
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -218,7 +221,13 @@ pub async fn save_document(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields = get_inout_fields(db.clone(), "采购单据").await;
+        let fields_cate = if data.rights == "商品销售" {
+            "销售单据"
+        } else {
+            "采购单据"
+        };
+
+        let fields = get_inout_fields(db.clone(), fields_cate).await;
         let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
@@ -229,8 +238,12 @@ pub async fn save_document(
                 "CT"
             } else if doc_data[0] == "销售出库" {
                 "XS"
-            } else if doc_data[0] == "销售退货" {
+            } else if doc_data[0] == "退货入库" {
                 "XT"
+            } else if doc_data[0] == "商品直销" {
+                "ZS"
+            } else if doc_data[0] == "直销退货" {
+                "ZT"
             } else {
                 "KZ"
             };

@@ -12,16 +12,31 @@ let customer_supplier = document.querySelector('#customer-suplier');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
+
 fetch("/fetch_inout_fields", {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
     },
-    body: JSON.stringify("采购单据"),
+    body: JSON.stringify(customer_supplier.textContent == "客户" ? "销售单据" : "采购单据"),
 })
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
+            // if (customer_supplier.textContent == "客户") {
+            //     fetch("/fetch_salers")
+            //         .then(response => response.json())
+            //         .then(salers => {
+            //             let html = `<div class="form-group" style='margin-left: 420px;'>
+            //                 <label style='width:100px;'>销售人员</label><select class='select-sm' id='saler-select'>`;
+            //             for (let name of salers) {
+            //                 html += `<option value="${name}">${name}</option>`;
+            //             }
+            //             html += `</select></div>`;
+            //             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+            //         });
+            // }
+
             document_table_fields = content;
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
@@ -355,7 +370,8 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let save_str = `${document.querySelector('#buy-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
+    let save_str = `${document.querySelector('#inout-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
+
     let n = 0;
     for (let f of document_table_fields) {
         if (f.data_type == "文本") {
@@ -375,18 +391,26 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
+            let cate = document.querySelector('#inout-cate').value;
+            let mount = row.querySelector('.mount').value;
+            if (cate == "销售出库" || cate == "商品直销" || cate == "退货出库") {
+                mount = mount * -1;
+            }
+            
             let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
-            row_data += `${row.querySelector('.price').value}${SPLITER}${row.querySelector('.mount').value}${SPLITER}`;
+            row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
             row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
             table_data.push(row_data);
         }
     }
 
     let data = {
-        rights: '商品采购',
+        rights: customer_supplier.textContent == "客户" ? '商品销售' : '商品采购',
         document: save_str,
         items: table_data,
     }
+
+    // console.log(data);
 
     fetch('/save_document', {
         method: 'post',
@@ -491,6 +515,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
             var printData = {
                 供应商: document.querySelector('#supplier-input').value,
+                客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
                 dh: document.querySelector('#dh').textContent,
                 maker: document.querySelector('#user-name').textContent,
@@ -631,13 +656,21 @@ function error_check() {
     }
 
     let all_rows = document.querySelectorAll('.table-items .has-input');
+
+    let lines = 0;
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
+            lines = 1;
             if (!regReal.test(row.querySelector('.price').value) || !regReal.test(row.querySelector('.mount').value)) {
                 notifier.show(`单价或数量输入错误`, 'danger');
                 return false;
             }
         }
+    }
+
+    if (lines == 0) {
+        notifier.show(`表格不能为空`, 'danger');
+        return false;
     }
 
     return true;
@@ -1142,7 +1175,15 @@ function supplier_auto_show() {
                 join_sup += `${content[0][i].show_name}：${supplier[i]}； `;
             }
 
-            document.querySelector('#supplier-info').textContent = join_sup;
+            let info = document.querySelector('#supplier-info');
+            if (content[2].indexOf('差') != -1) {
+                info.style.cssText = "color: red; background-color: wheat;";
+            }
+            else {
+                info.style.cssText = "";
+            }
+
+            info.textContent = join_sup;
         });
 }
 
