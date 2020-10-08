@@ -64,7 +64,7 @@ let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
 
 auto_comp.init();
 
-//供应商查找按钮
+//客户供应商查找按钮
 document.querySelector('#supplier-serach').addEventListener('click', function () {
     if (!document.querySelector('#customer-show')) {
         let width = document.querySelector('body').clientWidth * 0.8;

@@ -130,7 +130,8 @@ pub async fn customer_auto(
     if user_name != "" {
         let s = search.s.to_lowercase();
         let sql = &format!(
-            r#"SELECT id, 名称 AS label FROM customers WHERE 类别='{}' AND (助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%') LIMIT 10"#,
+            r#"SELECT id, 名称 AS label FROM customers 
+            WHERE 类别='{}' AND (助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%') AND 停用=false LIMIT 10"#,
             search.cate, s, s
         );
 

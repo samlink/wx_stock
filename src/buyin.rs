@@ -97,7 +97,7 @@ pub async fn fetch_inout_customer(
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM customers WHERE 
-            类别='{}' AND LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
+            类别='{}' AND LOWER(名称) LIKE '%{}%' AND 停用=false ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, post_data.cate, name, post_data.sort, skip, post_data.rec
         );
 
@@ -106,7 +106,7 @@ pub async fn fetch_inout_customer(
         let products = build_string_from_base(rows, fields);
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%'"#,
+            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%' AND 停用=false"#,
             post_data.cate, name
         );
 

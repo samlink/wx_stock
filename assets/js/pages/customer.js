@@ -147,16 +147,19 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             }
             let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
 
+            let n = 0;
             for (let input of all_input) {
                 let value;
-                if (input.parentNode.className.indexOf('check-radio') == -1) {
+                if (table_fields[n].data_type != "布尔") {
                     value = input.value;
                 }
                 else {
-                    value = input.checked;
+                    let v = table_fields[n].option_value.split("_");
+                    value = input.checked ? v[0] : v[1];
                 }
 
                 customer += `${value}${SPLITER}`;
+                n++;
             }
 
             let data = {
