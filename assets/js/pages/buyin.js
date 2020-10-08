@@ -23,20 +23,6 @@ fetch("/fetch_inout_fields", {
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            // if (customer_supplier.textContent == "客户") {
-            //     fetch("/fetch_salers")
-            //         .then(response => response.json())
-            //         .then(salers => {
-            //             let html = `<div class="form-group" style='margin-left: 420px;'>
-            //                 <label style='width:100px;'>销售人员</label><select class='select-sm' id='saler-select'>`;
-            //             for (let name of salers) {
-            //                 html += `<option value="${name}">${name}</option>`;
-            //             }
-            //             html += `</select></div>`;
-            //             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
-            //         });
-            // }
-
             document_table_fields = content;
             let html = service.build_inout_form(content);
             document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
@@ -187,7 +173,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, ware_value, product_table_fields, table_lines;
+let show_names, all_width, ware_option, ware_value, product_table_fields, table_lines, blank_row;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -222,7 +208,7 @@ fetch("/fetch_inout_fields", {
         all_width = all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
 
         let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th><th width=${140 * 100 / all_width}%>名称</th>`;
-        let blank_row = `<tr><td width=${40 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
+        blank_row = `<tr><td width=${40 * 100 / all_width}%></td><td width=${140 * 100 / all_width}%></td>`;
 
         for (let th of content) {
             th_row += `<th width=${th.show_width * 18 * 100 / all_width}%>${th.show_name}</th>`;
@@ -254,14 +240,7 @@ fetch("/fetch_inout_fields", {
         tbody.style.height = table_lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
         //构造第二张历史记录表----------
-        let row2 = "<tr><td></td><td></td><td></td></tr>";
-        let rows2 = "";
-        for (let i = 0; i < table_lines; i++) {
-            rows2 += row2;
-        }
-
-        document.querySelector('.table-history tbody').innerHTML = rows2;
-        //---------------------------------
+        init_history();
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
         table_container.querySelector('tbody').addEventListener('scroll', function () {
@@ -396,7 +375,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
             if (cate == "销售出库" || cate == "商品直销" || cate == "退货出库") {
                 mount = mount * -1;
             }
-            
+
             let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
             row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
             row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
@@ -584,10 +563,86 @@ let inout_cate = document.querySelector('#inout-cate');
 fetch_print_models(inout_cate.value);
 
 inout_cate.addEventListener('change', function () {
+    init_page();
     fetch_print_models(this.value);
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
+
+function init_history() {
+    let row2 = "<tr><td></td><td></td><td></td></tr>";
+    let rows2 = "";
+    for (let i = 0; i < table_lines; i++) {
+        rows2 += row2;
+    }
+
+    document.querySelector('.table-history tbody').innerHTML = rows2;
+}
+
+//清空页面数据
+function init_page() {
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    let lines = 0;
+    for (let row of all_rows) {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
+            lines = 1;
+            break;
+        }
+    }
+
+    if (lines != 0) {
+        alert_confirm('清空页面所有数据吗？', {
+            confirmText: "清空",
+            cancelText: "保留",
+            confirmCallBack: () => {
+                let customer_input = document.querySelector('#supplier-input');
+                customer_input.removeAttribute('data');
+                customer_input.value = "";
+                let all_inputs = document.querySelectorAll('.document-value');
+                let n = 0;
+                for (let name of document_table_fields) {
+                    if (name.ctr_type == "普通输入") {
+                        all_inputs[n].value = "";
+                    } else if (name.ctr_type == "二值选一") {
+                        let checked = name.option_value.split('_')[0] == name.default_value ? true : false;
+                        all_inputs[n].checked = checked;
+                    } else {
+                        let options = name.option_value.split('_');
+                        for (let value of options) {
+                            if (value == name.default_value) {
+                                all_inputs[n].value = value;
+                                break;
+                            }
+                        }
+                    }
+                    n++;
+                }
+
+                document.querySelector('#日期').value = new Date().Format("yyyy-MM-dd");
+                document.querySelector('#dh').textContent = "新单据";
+                document.querySelector('#supplier-info').textContent = "";
+                document.querySelector('#history-info').textContent = "";
+                document.querySelector('#total-records').textContent = "";
+                document.querySelector('#sum-money').textContent = "金额合计：元";
+                document.querySelector('#remember-button').textContent = "未记账";
+
+                //清空表格
+                let input_row = build_input_row(show_names, all_width);
+                let tbody = document.querySelector('.table-items tbody');
+                tbody.innerHTML = "";
+                tbody.appendChild(input_row);
+
+                let rows = "";
+                for (let i = 0; i < table_lines - 1; i++) {
+                    rows += blank_row;
+                }
+
+                tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+                init_history();
+            }
+        });
+    }
+}
 
 //获取打印模板
 function fetch_print_models(value) {
