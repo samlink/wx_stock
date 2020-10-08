@@ -897,11 +897,12 @@ function build_input_row(show_names, all_width) {
         this.classList.add("inputting");
     });
 
+    show_names.push({ name: "库存", width: 60 });
     //构造商品规格自动完成
     auto_table(auto_input, "", "/buyin_auto", show_names, () => {
         let field_values = auto_input.getAttribute("data").split(SPLITER);
         let n = 4;
-        for (let i = 2; i < field_values.length; i++) {
+        for (let i = 2; i < field_values.length - 1; i++) {     //不计末尾的库存字段
             document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
             n++;
         }
@@ -911,7 +912,8 @@ function build_input_row(show_names, all_width) {
         if (ware_value) {
             input_row.querySelector('select').value = ware_value;
         }
-
+        
+        show_names.pop();
         add_line(show_names, all_width);
     });
 

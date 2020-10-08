@@ -151,10 +151,11 @@ pub async fn buyin_auto(
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
         sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
+        //记账功能完成后，修改为： 已记账=true
         let sql = &format!(
-            r#"SELECT id, node_name || '{}' || {} || '{}' || 库存 AS label FROM products 
+            r#"SELECT id, node_name || '{}' || {} || '{}' || COALESCE(库存, '0') AS label FROM products 
             JOIN tree ON products.商品id = tree.num
-            JOIN  
+            LEFT JOIN  
                 (SELECT 商品id, SUM(数量) AS 库存 FROM document_items 
                 JOIN documents ON document_items.单号id=documents.单号
                 WHERE 直销=false AND 已记账=false GROUP BY 商品id) as foo
