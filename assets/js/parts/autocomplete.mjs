@@ -120,6 +120,7 @@ export class AutoInput {
 
 //thead 是对象数组，其格式：[{ name: "名称", width: 140 }，……];
 export function auto_table(input, cate, url, thead, cb) {
+    thead.push({ name: "库存", width: 60 });
     var currentFocus;
     input.addEventListener("input", function (e) {
         var a, b, i;
