@@ -6,7 +6,7 @@ import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 
-let customer_table_fields, document_table_fields;
+let customer_table_fields, document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let customer_supplier = document.querySelector('#customer-suplier');
 
@@ -577,8 +577,13 @@ inout_cate.addEventListener('change', function () {
     fetch_print_models(this.value);
 });
 
+document.querySelector('#document-new-button').addEventListener('click', function () {
+    clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
+});
+
 //共用事件和函数 ---------------------------------------------------------------------
 
+//清空历史记录表
 function init_history() {
     let row2 = "<tr><td></td><td></td><td></td></tr>";
     let rows2 = "";
@@ -589,71 +594,77 @@ function init_history() {
     document.querySelector('.table-history tbody').innerHTML = rows2;
 }
 
-//清空页面数据
+//初始化页面数据，供类别变换时调用
 function init_page() {
-    let all_rows = document.querySelectorAll('.table-items .has-input');
-    let lines = 0;
-    for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(3) input').value != "") {
-            lines = 1;
-            break;
-        }
-    }
+    // let all_rows = document.querySelectorAll('.table-items .has-input');
+    // let lines = 0;
+    // for (let row of all_rows) {
+    //     if (row.querySelector('td:nth-child(3) input').value != "") {
+    //         lines = 1;
+    //         break;
+    //     }
+    // }
 
-    if (lines != 0) {
-        alert_confirm('清空页面所有数据吗？', {
-            confirmText: "清空",
-            cancelText: "保留",
-            confirmCallBack: () => {
-                let customer_input = document.querySelector('#supplier-input');
-                customer_input.removeAttribute('data');
-                customer_input.value = "";
-                let all_inputs = document.querySelectorAll('.document-value');
-                let n = 0;
-                for (let name of document_table_fields) {
-                    if (name.ctr_type == "普通输入") {
-                        all_inputs[n].value = "";
-                    } else if (name.ctr_type == "二值选一") {
-                        let checked = name.option_value.split('_')[0] == name.default_value ? true : false;
-                        all_inputs[n].checked = checked;
-                    } else {
-                        let options = name.option_value.split('_');
-                        for (let value of options) {
-                            if (value == name.default_value) {
-                                all_inputs[n].value = value;
-                                break;
-                            }
+    if (edited) {
+        clear_page("清空页面所有数据吗？", "清空", "保留");
+    }
+}
+
+//清空页面数据
+function clear_page(info, text1, text2) {
+    alert_confirm(info, {
+        confirmText: text1,
+        cancelText: text2,
+        confirmCallBack: () => {
+            let customer_input = document.querySelector('#supplier-input');
+            customer_input.removeAttribute('data');
+            customer_input.value = "";
+            let all_inputs = document.querySelectorAll('.document-value');
+            let n = 0;
+            for (let name of document_table_fields) {
+                if (name.ctr_type == "普通输入") {
+                    all_inputs[n].value = "";
+                } else if (name.ctr_type == "二值选一") {
+                    let checked = name.option_value.split('_')[0] == name.default_value ? true : false;
+                    all_inputs[n].checked = checked;
+                } else {
+                    let options = name.option_value.split('_');
+                    for (let value of options) {
+                        if (value == name.default_value) {
+                            all_inputs[n].value = value;
+                            break;
                         }
                     }
-                    n++;
                 }
-
-                document.querySelector('#日期').value = new Date().Format("yyyy-MM-dd");
-                document.querySelector('#dh').textContent = "新单据";
-                document.querySelector('#supplier-info').textContent = "";
-                document.querySelector('#history-info').textContent = "";
-                document.querySelector('#total-records').textContent = "";
-                document.querySelector('#sum-money').textContent = "金额合计：元";
-                document.querySelector('#remember-button').textContent = "未记账";
-
-                //清空表格
-                direct_check = false;
-                ware_value = "";
-                let input_row = build_input_row(show_names, all_width);
-                let tbody = document.querySelector('.table-items tbody');
-                tbody.innerHTML = "";
-                tbody.appendChild(input_row);
-
-                let rows = "";
-                for (let i = 0; i < table_lines - 1; i++) {
-                    rows += blank_row;
-                }
-
-                tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
-                init_history();
+                n++;
             }
-        });
-    }
+
+            document.querySelector('#日期').value = new Date().Format("yyyy-MM-dd");
+            document.querySelector('#dh').textContent = "新单据";
+            document.querySelector('#supplier-info').textContent = "";
+            document.querySelector('#history-info').textContent = "";
+            document.querySelector('#total-records').textContent = "";
+            document.querySelector('#sum-money').textContent = "金额合计：元";
+            document.querySelector('#remember-button').textContent = "未记账";
+
+            //清空表格
+            direct_check = false;
+            ware_value = "";
+            let input_row = build_input_row(show_names, all_width);
+            let tbody = document.querySelector('.table-items tbody');
+            tbody.innerHTML = "";
+            tbody.appendChild(input_row);
+
+            let rows = "";
+            for (let i = 0; i < table_lines - 1; i++) {
+                rows += blank_row;
+            }
+
+            tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+            init_history();
+            edited = false;
+        }
+    });
 }
 
 //获取打印模板
@@ -902,10 +913,7 @@ function build_input_row(show_names, all_width) {
     let [...show_th] = show_names;
     show_th.push({ name: "库存", width: 60 });
     auto_table(auto_input, "", "/buyin_auto", show_th, () => {
-        fill_gg(auto_input,input_row);
-
-
-
+        fill_gg(auto_input, input_row);
     });
 
     //添加价格和数量变化事件
@@ -1085,6 +1093,7 @@ function fill_gg(auto_input, input_row) {
     }
 
     add_line(show_names, all_width);
+    edited = true;
 }
 
 //构造仓库下拉选单，并记住 option 内容
@@ -1349,26 +1358,19 @@ function chose_exit(selected_row) {
                     let input = document.querySelector('.inputting .auto-input');
                     input.value = name;
                     input.setAttribute("data", data);
-
                     fill_gg(input, document.querySelector('.inputting'));
-
-                    // let field_values = content.split(SPLITER);
-
-                    // let n = 4;
-                    // for (let i = 0; i < field_values.length; i++) {
-                    //     document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
-                    //     n++;
-                    // }
-
-                    // document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
-                    // add_line(show_names, all_width);
-
                     close_modal();
-
                 });
         }
     }
     else {
         notifier.show('请先选择记录', 'danger');
+    }
+}
+
+window.onbeforeunload = function (e) {
+    if (edited) {
+        var e = window.event || e;
+        e.returnValue = ("编辑未保存提醒");
     }
 }
