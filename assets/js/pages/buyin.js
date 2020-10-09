@@ -39,41 +39,65 @@ fetch("/fetch_inout_fields", {
     .then(content => {
         if (content != -1) {
             document_table_fields = content;
-            let html = service.build_inout_form(content);
-            document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+            let dh = document.querySelector('#dh').textContent;
+            if (dh != "新单据") {
+                fetch("/fetch_document", {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dh),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = service.build_inout_values(document_table_fields, data);
+                        document_top_handle(html, true);
 
-            let date = document.querySelector('#日期');
-            date.value = new Date().Format("yyyy-MM-dd");
-
-            //执行一个laydate实例
-            laydate.render({
-                elem: date,
-                showBottom: false,
-                theme: 'molv',
-                // theme: '#62468d',
-            });
-
-            if (document_bz == "库存调整") {
-                document.querySelector('#customer-div + div').style.marginLeft = "0";
+                    });
             }
-
-            let fields_show = document.querySelector('.fields-show');
-            let has_auto = document.querySelector('.has-auto');
-            let next_auto = document.querySelector('.has-auto+div');
-
-            //加入滚动事件处理
-            fields_show.addEventListener('scroll', function () {
-                if (fields_show.scrollTop != 0) {
-                    has_auto.style.cssText = "position: relative; left: 5px;";
-                    next_auto.style.cssText = "margin-left: -3px;"
-                }
-                else {
-                    has_auto.style.cssText = "";
-                    next_auto.style.cssText = "";
-                }
-            });
+            else {
+                let html = service.build_inout_form(content);
+                document_top_handle(html, false);
+            }
         }
     });
+
+function document_top_handle(html, has_date) {
+    document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+
+    let date = document.querySelector('#日期');
+    if (!has_date) {
+        date.value = new Date().Format("yyyy-MM-dd");
+    }
+
+    //执行一个laydate实例
+    laydate.render({
+        elem: date,
+        showBottom: false,
+        theme: 'molv',
+        // theme: '#62468d',
+    });
+
+    if (document_bz == "库存调整") {
+        document.querySelector('#customer-div + div').style.marginLeft = "0";
+    }
+
+    let fields_show = document.querySelector('.fields-show');
+    let has_auto = document.querySelector('.has-auto');
+    let next_auto = document.querySelector('.has-auto+div');
+
+    //加入滚动事件处理
+    fields_show.addEventListener('scroll', function () {
+        if (fields_show.scrollTop != 0) {
+            has_auto.style.cssText = "position: relative; left: 5px;";
+            next_auto.style.cssText = "margin-left: -3px;"
+        }
+        else {
+            has_auto.style.cssText = "";
+            next_auto.style.cssText = "";
+        }
+    });
+}
 
 //供应商自动完成
 let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
@@ -634,7 +658,7 @@ function clear_page(info, text1, text2) {
         cancelText: text2,
         confirmCallBack: () => {
             if (document_bz != "库存调整") {
-                let customer_input = document.querySelector('#supplier-input');            
+                let customer_input = document.querySelector('#supplier-input');
                 customer_input.removeAttribute('data');
                 customer_input.value = "";
             }
