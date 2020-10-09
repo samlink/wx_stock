@@ -41,18 +41,46 @@ fetch("/fetch_inout_fields", {
             document_table_fields = content;
             let dh = document.querySelector('#dh').textContent;
             if (dh != "新单据") {
+                let cate;
+                if (document_bz == "商品销售") {
+                    cate = "销售单据";
+                }
+                else if (document_bz == "商品采购") {
+                    cate = "采购单据";
+                }
+                else {
+                    cate = "库存调整";
+                }
+
+                let data = {
+                    cate: cate,
+                    dh: dh,
+                };
+
                 fetch("/fetch_document", {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(dh),
+                    body: JSON.stringify(data),
                 })
                     .then(response => response.json())
                     .then(data => {
-                        let html = service.build_inout_values(document_table_fields, data);
+                        console.log(data);
+                        let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
+                        let values = data.split(SPLITER);
+                        let len = values.length;
+                        document.querySelector('#inout-cate').value = values[len - 1];
+                        fetch_print_models(values[len - 1]);
 
+                        document.querySelector('#remember-button').textContent =
+                            values[len - 2] == "true" ? "已记账" : "未记账";
+
+                        let customer = document.querySelector('#supplier-input');
+                        customer.value = values[len - 3];
+                        customer.setAttribute('data', values[len - 4]);
+                        supplier_auto_show();
                     });
             }
             else {

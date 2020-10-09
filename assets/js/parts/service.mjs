@@ -173,23 +173,29 @@ export function build_add_form(table_fields) {
 }
 
 //依据显示字段，建立表头字段, 用于进出货输入
-export function build_inout_form(table_fields) {
+export function build_inout_form(table_fields, data) {
+    let values = data ? data.split(SPLITER) : "";
     let form = "";
+    let n = 0;
     for (let name of table_fields) {
         let control;
         let id = name.all_edit ? "" : `id="${name.field_name}"`;
+        let value = values ? values[n] : "";
+
         if (name.ctr_type == "普通输入") {
+            value = value === "0" ? "" : value;
             control = `<div class="form-group">
                                 <div class="form-label">
                                     <label>${name.show_name}</label>
                                 </div>
                                 <div class="form-input">
-                                    <input class="form-control input-sm document-value" type="text" ${id}
+                                    <input class="form-control input-sm document-value" value='${value}' type="text" ${id}
                                         style="width: ${name.show_width * 20}px;" />
                                 </div>
                             </div>`;
         } else if (name.ctr_type == "二值选一") {
-            let checked = name.option_value.split('_')[0] == name.default_value ? 'checked' : '';
+            let has_value = value ? value : name.default_value;
+            let checked = name.option_value.split('_')[0] == has_value ? 'checked' : '';
             control = `<div class="form-group">
                                 <div class="form-label">                                    
                                     <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
@@ -207,18 +213,67 @@ export function build_inout_form(table_fields) {
                                 <select class='select-sm document-value' style="width: ${name.show_width * 20}px;" ${id}>`;
 
             let options = name.option_value.split('_');
+            let has_value = value ? value : name.default_value;
             for (let value of options) {
-                let selected = value == name.default_value ? 'selected' : '';
+                let selected = value == has_value ? 'selected' : '';
                 control += `<option value="${value}" ${selected}>${value}</option>`;
             }
             control += "</select></div>";
         }
 
         form += control;
+        n++;
     }
 
     return form;
 }
+
+// export function build_inout_form(table_fields) {
+//     let form = "";
+//     for (let name of table_fields) {
+//         let control;
+//         let id = name.all_edit ? "" : `id="${name.field_name}"`;
+//         if (name.ctr_type == "普通输入") {
+//             control = `<div class="form-group">
+//                                 <div class="form-label">
+//                                     <label>${name.show_name}</label>
+//                                 </div>
+//                                 <div class="form-input">
+//                                     <input class="form-control input-sm document-value" type="text" ${id}
+//                                         style="width: ${name.show_width * 20}px;" />
+//                                 </div>
+//                             </div>`;
+//         } else if (name.ctr_type == "二值选一") {
+//             let checked = name.option_value.split('_')[0] == name.default_value ? 'checked' : '';
+//             control = `<div class="form-group">
+//                                 <div class="form-label">                                    
+//                                     <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
+//                                 </div>
+//                                 <label class="check-radio">
+//                                     <input class="document-value" id='${name.show_name}' type="checkbox" ${id} ${checked}>
+//                                     <span class="checkmark"></span>
+//                                 </label>
+//                             </div>`;
+//         } else {
+//             control = `<div class="form-group">
+//                                 <div class="form-label">                                    
+//                                     <label>${name.show_name}</label>
+//                                 </div>
+//                                 <select class='select-sm document-value' style="width: ${name.show_width * 20}px;" ${id}>`;
+
+//             let options = name.option_value.split('_');
+//             for (let value of options) {
+//                 let selected = value == name.default_value ? 'selected' : '';
+//                 control += `<option value="${value}" ${selected}>${value}</option>`;
+//             }
+//             control += "</select></div>";
+//         }
+
+//         form += control;
+//     }
+
+//     return form;
+// }
 
 //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
 export function build_product_table(row_num, cb) {

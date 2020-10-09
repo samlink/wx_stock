@@ -420,3 +420,74 @@ pub async fn fetch_history(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct DocumentDh {
+    pub cate: String,
+    pub dh: String,
+}
+
+///获取历史交易记录
+#[post("/fetch_document")]
+pub async fn fetch_document(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let fields = get_inout_fields(db.clone(), &data.cate).await;
+
+        let mut sql_fields = "SELECT ".to_owned();
+
+        for f in &fields {
+            sql_fields += &format!("documents.{},", f.field_name);
+        }
+
+        let sql = format!(
+            r#"{} 客商id, 名称, 已记账 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, data.dh
+        );
+
+        // println!("{}", sql);
+
+        let cate;
+        if data.dh.starts_with("XS") {
+            cate = "商品销售";
+        } else if data.dh.starts_with("XT") {
+            cate = "销售退货";
+        } else if data.dh.starts_with("CG") {
+            cate = "采购入库";
+        } else if data.dh.starts_with("CT") {
+            cate = "退货出库";
+        } else {
+            cate = "库存调整";
+        }
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document = "".to_owned();
+        for row in rows {
+            let id: i32 = row.get("客商id");
+            let name: String = row.get("名称");
+            let rem: bool = row.get("已记账");
+            document += &format!(
+                "{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields),
+                SPLITER,
+                id,
+                SPLITER,
+                name,
+                SPLITER,
+                rem,
+                SPLITER,
+                cate,
+            );
+        }
+
+        HttpResponse::Ok().json(document)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
