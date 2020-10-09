@@ -40,7 +40,7 @@ pub async fn fetch_supplier(
     if user.name != "" {
         let fields = get_inout_fields(db.clone(), &supplier.cate).await;
 
-        let mut sql = "SELECT 信用评价,".to_owned();
+        let mut sql = "SELECT 信用评价,优惠折扣,".to_owned();
         for f in &fields {
             sql += &format!("{},", f.field_name);
         }
@@ -52,11 +52,13 @@ pub async fn fetch_supplier(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut supplier = "".to_owned();
         let mut trust = "".to_owned();
+        let mut sale_cut = 1f32;
         for row in rows {
             supplier += &simple_string_from_base(row, &fields);
             trust = row.get("信用评价");
+            sale_cut = row.get("优惠折扣");
         }
-        HttpResponse::Ok().json((fields, supplier, trust))
+        HttpResponse::Ok().json((fields, supplier, trust, sale_cut))
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -153,7 +155,7 @@ pub async fn buyin_auto(
 
         //记账功能完成后，修改为： 已记账=true
         let sql = &format!(
-            r#"SELECT id, node_name || '{}' || {} || '{}' || COALESCE(库存, '0') AS label FROM products 
+            r#"SELECT id, node_name || '{}' || {} || '{}' || COALESCE(库存, '0') || '{}' || 出售价格 AS label FROM products 
             JOIN tree ON products.商品id = tree.num
             LEFT JOIN  
                 (SELECT 商品id, SUM(数量) AS 库存 FROM document_items 
@@ -163,7 +165,8 @@ pub async fn buyin_auto(
             WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER,
             sql_fields,
-            SPLITER,            
+            SPLITER,
+            SPLITER,
             s[0].to_lowercase(),
             s[0].to_lowercase(),
             sql_where,
@@ -187,7 +190,7 @@ pub async fn fetch_one_product(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let fields = get_inout_fields(db.clone(), "商品规格").await;
-        let mut sql = "SELECT ".to_owned();
+        let mut sql = "SELECT 出售价格,".to_owned();
         for f in &fields {
             sql += &format!("{},", f.field_name);
         }
@@ -197,12 +200,16 @@ pub async fn fetch_one_product(
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut data = "".to_owned();
+        let mut field_str = "".to_owned();
+        let mut price = 0f32;
         for row in rows {
-            let field_str = simple_string_from_base(row, &fields);
-            data += &field_str;
+            field_str = simple_string_from_base(row, &fields);
+            price = row.get("出售价格");
         }
 
-        data = data.trim_end_matches(SPLITER).to_owned();
+        data += &format!("{}{}{}{}", field_str, "", SPLITER, price);
+
+        // data = data.trim_end_matches(SPLITER).to_owned();
 
         HttpResponse::Ok().json(data)
     } else {

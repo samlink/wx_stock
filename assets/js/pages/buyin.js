@@ -173,7 +173,8 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, ware_value, direct_check, product_table_fields, table_lines, blank_row;
+let show_names, all_width, ware_option, ware_value, direct_check,
+    product_table_fields, table_lines, blank_row, sale_cut;
 
 fetch("/fetch_inout_fields", {
     method: 'post',
@@ -897,24 +898,14 @@ function build_input_row(show_names, all_width) {
         this.classList.add("inputting");
     });
 
-    show_names.push({ name: "库存", width: 60 });
     //构造商品规格自动完成
-    auto_table(auto_input, "", "/buyin_auto", show_names, () => {
-        let field_values = auto_input.getAttribute("data").split(SPLITER);
-        let n = 4;
-        for (let i = 2; i < field_values.length - 1; i++) {     //不计末尾的库存字段
-            document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
-            n++;
-        }
+    let [...show_th] = show_names;
+    show_th.push({ name: "库存", width: 60 });
+    auto_table(auto_input, "", "/buyin_auto", show_th, () => {
+        fill_gg(auto_input,input_row);
 
-        document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
 
-        if (ware_value) {
-            input_row.querySelector('select').value = ware_value;
-        }
-        
-        show_names.pop();
-        add_line(show_names, all_width);
+
     });
 
     //添加价格和数量变化事件
@@ -1068,6 +1059,32 @@ function build_input_row(show_names, all_width) {
     }
 
     return input_row;
+}
+
+//填充规格字段
+function fill_gg(auto_input, input_row) {
+    let field_values = auto_input.getAttribute("data").split(SPLITER);
+    let n = 4;
+    for (let i = 2; i < field_values.length - 2; i++) {     //不计末尾的库存和售价两个字段
+        document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
+        n++;
+    }
+
+    let price_input = document.querySelector(`.inputting td:nth-child(${n}) input`);
+    let price = field_values[field_values.length - 1];
+    if (customer_supplier.textContent == "客户" && regReal.test(sale_cut) && regReal.test(price)) {
+        price_input.value = (price * sale_cut).toFixed(Number(num_position[0]));
+        price_input.select();
+    }
+    else {
+        price_input.focus();
+    }
+
+    if (ware_value) {
+        input_row.querySelector('select').value = ware_value;
+    }
+
+    add_line(show_names, all_width);
 }
 
 //构造仓库下拉选单，并记住 option 内容
@@ -1261,6 +1278,7 @@ function supplier_auto_show() {
             }
 
             info.textContent = join_sup;
+            sale_cut = content[3];      //全局变量：折扣优惠
         });
 }
 
@@ -1332,17 +1350,21 @@ function chose_exit(selected_row) {
                     input.value = name;
                     input.setAttribute("data", data);
 
-                    let field_values = content.split(SPLITER);
+                    fill_gg(input, document.querySelector('.inputting'));
 
-                    let n = 4;
-                    for (let i = 0; i < field_values.length; i++) {
-                        document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
-                        n++;
-                    }
+                    // let field_values = content.split(SPLITER);
 
-                    document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
+                    // let n = 4;
+                    // for (let i = 0; i < field_values.length; i++) {
+                    //     document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
+                    //     n++;
+                    // }
+
+                    // document.querySelector(`.inputting td:nth-child(${n}) input`).focus();
+                    // add_line(show_names, all_width);
+
                     close_modal();
-                    add_line(show_names, all_width);
+
                 });
         }
     }

@@ -120,7 +120,6 @@ export class AutoInput {
 
 //thead 是对象数组，其格式：[{ name: "名称", width: 140 }，……];
 export function auto_table(input, cate, url, thead, cb) {
-    // thead.push({ name: "库存", width: 60 });
     var currentFocus;
     input.addEventListener("input", function (e) {
         var a, b, i;
@@ -144,8 +143,8 @@ export function auto_table(input, cate, url, thead, cb) {
 
                     let ths = "";
 
-                    for (let th of thead) {
-                        ths += `<th width=${th.width}>${th.name}</th>`;
+                    for (let i = 0; i < thead.length; i++) {
+                        ths += `<th width=${thead[i].width}>${thead[i].name}</th>`;
                     }
 
                     document.querySelector('.table-auto thead tr').innerHTML = ths;
@@ -157,7 +156,7 @@ export function auto_table(input, cate, url, thead, cb) {
                         tr.setAttribute("data", `${arr[i].id}${SPLITER}${arr[i].label}`);
 
                         let row = "";
-                        for (let i = 0; i < items.length; i++) {
+                        for (let i = 0; i < items.length - 1; i++) {
                             row += `<td width=${thead[i].width}>${items[i]}</td>`;
                         }
                         tr.innerHTML = row;
