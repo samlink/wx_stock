@@ -150,12 +150,17 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 ///商品采购
-#[get("/buy_in")]
-pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+#[get("/buy_in/{dh}")]
+pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
     if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
         let num_position = get_fraction(db).await;
-        let setup = vec!["商品采购", "供应商", "近期采购"];
+        let setup = vec!["商品采购", "供应商", "近期采购", dh];
         let options = vec!["采购入库", "退货出库"];
         let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
@@ -165,12 +170,17 @@ pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 ///商品销售
-#[get("/sale")]
-pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+#[get("/sale/{dh}")]
+pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品销售".to_owned()).await;
     if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
         let num_position = get_fraction(db).await;
-        let setup = vec!["商品销售", "客户", "近期销售"];
+        let setup = vec!["商品销售", "客户", "近期销售", dh];
         let options = vec!["商品销售", "销售退货"];
         let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
@@ -179,13 +189,22 @@ pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///商品销售
-#[get("/stock_change")]
-pub async fn stock_change(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+///库存调整
+#[get("/stock_change/{dh}")]
+pub async fn stock_change(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "库存调整".to_owned()).await;
     if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
         let num_position = get_fraction(db).await;
-        let setup = vec!["库存调整", "供应商", "近期调整"];
+        let setup = vec!["库存调整", "供应商", "近期调整", dh];
         let options = vec!["库存调整"];
         let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
