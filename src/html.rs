@@ -164,7 +164,7 @@ pub async fn buy_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///商品采购
+///商品销售
 #[get("/sale")]
 pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "商品销售".to_owned()).await;
@@ -172,6 +172,21 @@ pub async fn sale(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let num_position = get_fraction(db).await;
         let setup = vec!["商品销售", "客户", "近期销售"];
         let options = vec!["商品销售", "销售退货"];
+        let html = r2s(|o| buyin(o, user, num_position, setup, options));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
+
+///商品销售
+#[get("/stock_change")]
+pub async fn stock_change(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "库存调整".to_owned()).await;
+    if user.name != "" {
+        let num_position = get_fraction(db).await;
+        let setup = vec!["库存调整", "供应商", "近期调整"];
+        let options = vec!["库存调整"];
         let html = r2s(|o| buyin(o, user, num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {

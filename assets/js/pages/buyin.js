@@ -9,16 +9,31 @@ import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tool
 let customer_table_fields, document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let customer_supplier = document.querySelector('#customer-suplier');
+let document_bz = document.querySelector('#document-bz').textContent.trim();
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
+let document_name;
+if (document_bz == "商品销售") {
+    document_name = "销售单据";
+}
+else if (document_bz == "商品采购") {
+    document_name = "采购单据";
+}
+else {
+    let customer = document.querySelector('#customer-div');
+    customer.style.display = "none";
+    customer.querySelector('input').setAttribute('data', 0);
+    document.querySelector('#sum-money').style.display = "none";
+    document_name = "库存调整";
+}
 
 fetch("/fetch_inout_fields", {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
     },
-    body: JSON.stringify(customer_supplier.textContent == "客户" ? "销售单据" : "采购单据"),
+    body: JSON.stringify(document_name),
 })
     .then(response => response.json())
     .then(content => {
@@ -37,6 +52,10 @@ fetch("/fetch_inout_fields", {
                 theme: 'molv',
                 // theme: '#62468d',
             });
+
+            if (document_bz == "库存调整") {
+                document.querySelector('#customer-div + div').style.marginLeft = "0";
+            }
 
             let fields_show = document.querySelector('.fields-show');
             let has_auto = document.querySelector('.has-auto');
@@ -413,6 +432,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
             if (content != -1) {
                 document.querySelector('#dh').textContent = content;
                 notifier.show('单据保存成功', 'success');
+                edited = false;
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
@@ -756,31 +776,35 @@ function error_check() {
 
 //计算行金额
 function calc_money(input_row) {
-    let price = input_row.querySelector('.price').value;
-    let mount = input_row.querySelector('.mount').value;
-    let money = "";
-    if (price && regReal.test(price) && mount && regReal.test(mount)) {
-        money = (price * mount).toFixed(Number(num_position[1]));
-    }
+    if (document_bz != "库存调整") {
+        let price = input_row.querySelector('.price').value;
+        let mount = input_row.querySelector('.mount').value;
+        let money = "";
+        if (price && regReal.test(price) && mount && regReal.test(mount)) {
+            money = (price * mount).toFixed(Number(num_position[1]));
+        }
 
-    input_row.querySelector('.money').textContent = money;
+        input_row.querySelector('.money').textContent = money;
+    }
 }
 
 //计算合计金额
 function sum_money() {
-    let all_input = document.querySelectorAll('.has-input');
-    let sum = 0;
-    for (let i = 0; i < all_input.length; i++) {
-        let price = all_input[i].querySelector('.price').value;
-        let mount = all_input[i].querySelector('.mount').value;
-        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
-            price && regReal.test(price) && mount && regReal.test(mount)) {
-            sum += price * mount;
+    if (document_bz != "库存调整") {
+        let all_input = document.querySelectorAll('.has-input');
+        let sum = 0;
+        for (let i = 0; i < all_input.length; i++) {
+            let price = all_input[i].querySelector('.price').value;
+            let mount = all_input[i].querySelector('.mount').value;
+            if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
+                price && regReal.test(price) && mount && regReal.test(mount)) {
+                sum += price * mount;
+            }
         }
-    }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
-    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
+        document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
+        document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
+    }
 }
 
 //计算记录数
