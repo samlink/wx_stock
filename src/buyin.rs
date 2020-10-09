@@ -239,8 +239,10 @@ pub async fn save_document(
 
         let fields_cate = if data.rights == "商品销售" {
             "销售单据"
-        } else {
+        } else if data.rights == "商品采购" {
             "采购单据"
+        } else {
+            "库存调整"
         };
 
         let fields = get_inout_fields(db.clone(), fields_cate).await;

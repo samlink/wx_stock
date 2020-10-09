@@ -229,7 +229,8 @@ fetch("/fetch_inout_fields", {
             all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100 + 40 :
             all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
 
-        let hide = customer_supplier.textContent == "客户" ? "" : "hidden";
+        let hide = document_bz == "商品销售" ? "" : "hidden";
+        let hide2 = document_bz != "库存调整" ? "" : "hidden";
 
         let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th>
                 <th width=${40 * 100 / all_width}% ${hide}>直销</th>
@@ -244,14 +245,14 @@ fetch("/fetch_inout_fields", {
             blank_row += `<td width=${th.show_width * 18 * 100 / all_width}%></td>`;
         }
 
-        th_row += `<th width=${60 * 100 / all_width}%>单价</th><th width=${60 * 100 / all_width}%>数量</th>
-                <th width=${80 * 100 / all_width}%>金额</th><th width=${100 * 100 / all_width}%>仓库</th>
+        th_row += `<th width=${60 * 100 / all_width}% ${hide2}>单价</th><th width=${60 * 100 / all_width}%>数量</th>
+                <th width=${80 * 100 / all_width}% ${hide2}>金额</th><th width=${100 * 100 / all_width}%>仓库</th>
                 <th width=${100 * 100 / all_width}%>备注</th></tr>`;
 
         table_container.querySelector('thead').innerHTML = th_row;
 
-        blank_row += `<td width=${60 * 100 / all_width}%></td><td width=${60 * 100 / all_width}%></td>
-                    <td width=${80 * 100 / all_width}%></td><td width=${100 * 100 / all_width}%></td>
+        blank_row += `<td width=${60 * 100 / all_width}% ${hide2}></td><td width=${60 * 100 / all_width}%></td>
+                    <td width=${80 * 100 / all_width}% ${hide2}></td><td width=${100 * 100 / all_width}%></td>
                     <td width=${100 * 100 / all_width}%></td></tr>`;
 
         let input_row = build_input_row(show_names, all_width);
@@ -269,6 +270,10 @@ fetch("/fetch_inout_fields", {
         tbody.style.height = table_lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
         //构造第二张历史记录表----------
+        if (document_bz == "库存调整") {
+            document.querySelector('.table-history thead th:nth-child(2)').style.display = "none";
+        }
+
         init_history();
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
@@ -413,31 +418,31 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 
     let data = {
-        rights: customer_supplier.textContent == "客户" ? '商品销售' : '商品采购',
+        rights: document_bz,
         document: save_str,
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
-    fetch('/save_document', {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content != -1) {
-                document.querySelector('#dh').textContent = content;
-                notifier.show('单据保存成功', 'success');
-                edited = false;
-            }
-            else {
-                notifier.show('权限不够，操作失败', 'danger');
-            }
-        });
+    // fetch('/save_document', {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    // })
+    //     .then(response => response.json())
+    //     .then(content => {
+    //         if (content != -1) {
+    //             document.querySelector('#dh').textContent = content;
+    //             notifier.show('单据保存成功', 'success');
+    //             edited = false;
+    //         }
+    //         else {
+    //             notifier.show('权限不够，操作失败', 'danger');
+    //         }
+    //     });
 });
 
 //打印
@@ -605,7 +610,8 @@ document.querySelector('#document-new-button').addEventListener('click', functio
 
 //清空历史记录表
 function init_history() {
-    let row2 = "<tr><td></td><td></td><td></td></tr>";
+
+    let row2 = document_bz != "库存调整" ? "<tr><td></td><td></td><td></td></tr>" : "<tr><td></td><td></td></tr>";
     let rows2 = "";
     for (let i = 0; i < table_lines; i++) {
         rows2 += row2;
@@ -616,15 +622,6 @@ function init_history() {
 
 //初始化页面数据，供类别变换时调用
 function init_page() {
-    // let all_rows = document.querySelectorAll('.table-items .has-input');
-    // let lines = 0;
-    // for (let row of all_rows) {
-    //     if (row.querySelector('td:nth-child(3) input').value != "") {
-    //         lines = 1;
-    //         break;
-    //     }
-    // }
-
     if (edited) {
         clear_page("清空页面所有数据吗？", "清空", "保留");
     }
@@ -878,7 +875,9 @@ function build_input_row(show_names, all_width) {
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
-    let hide = customer_supplier.textContent == "客户" ? "" : "hidden";
+    let hide = document_bz == "商品销售" ? "" : "hidden";
+    let hide2 = document_bz != "库存调整" ? "" : "hidden";
+    let hide_value = document_bz != "库存调整" ? "" : 0;
     let check = direct_check ? "checked" : "";
 
     let row = `<td width=${40 * 100 / all_width}%>1</td>
@@ -900,15 +899,15 @@ function build_input_row(show_names, all_width) {
     }
 
     row += `
-        <td width=${60 * 100 / all_width}% class="editable">
+        <td width=${60 * 100 / all_width}% class="editable" ${hide2}>
             <div class="form-input">
-                <input class="form-control input-sm has-value price" type="text" />
+                <input class="form-control input-sm has-value price" value='${hide_value}' type="text" />
             </div>
         </td><td width=${60 * 100 / all_width}%} class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value mount" type="text" />
             </div>
-        </td><td class="money" width=${80 * 100 / all_width}%></td>
+        </td><td class="money" width=${80 * 100 / all_width}% ${hide2}></td>
         <td width=${100 * 100 / all_width}% class="editable"></td>
         <td width=${100 * 100 / all_width}% class="editable">
             <div class="form-input">
@@ -940,17 +939,19 @@ function build_input_row(show_names, all_width) {
         fill_gg(auto_input, input_row);
     });
 
-    //添加价格和数量变化事件
-    input_row.querySelector('.price').addEventListener('blur', function () {
-        calc_money(input_row);
-        sum_money();
+    if (document_bz != "库存调整") {
+        //添加价格和数量变化事件
+        input_row.querySelector('.price').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
 
-    });
+        });
 
-    input_row.querySelector('.mount').addEventListener('blur', function () {
-        calc_money(input_row);
-        sum_money();
-    });
+        input_row.querySelector('.mount').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
+    }
 
     //商品规格查找按钮
     input_row.querySelector('.product-search-button').addEventListener('click', function () {
@@ -1104,12 +1105,16 @@ function fill_gg(auto_input, input_row) {
 
     let price_input = document.querySelector(`.inputting td:nth-child(${n}) input`);
     let price = field_values[field_values.length - 1];
-    if (customer_supplier.textContent == "客户" && regReal.test(sale_cut) && regReal.test(price)) {
+
+    if (document_bz == "商品销售" && regReal.test(sale_cut) && regReal.test(price)) {
         price_input.value = (price * sale_cut).toFixed(Number(num_position[0]));
         price_input.select();
     }
-    else {
+    else if (document_bz != "库存调整") {
         price_input.focus();
+    }
+    else {
+        document.querySelector('.inputting .mount').focus();
     }
 
     if (ware_value) {
@@ -1197,14 +1202,14 @@ function element_position(element, add_x, add_y) {
     element.querySelector('.autocomplete').classList.add('auto-edit');
 }
 
-//增加新的输入行
+//追加新的输入空行
 function add_line(show_names, all_width) {
     let field_values = document.querySelector('.inputting .auto-input').getAttribute("data").split(SPLITER);
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
 
     let data = {
         cate: customer_supplier.textContent,
-        customer_id: customer_id ? Number(customer_id) : 0,
+        customer_id: customer_id ? Number(customer_id) : -1,
         product_id: Number(field_values[0])
     }
 
@@ -1224,11 +1229,18 @@ function add_line(show_names, all_width) {
                 document.querySelector('#history-info').textContent = `${num} - ${name}`;
 
                 let tr = "";
-                for (let row of content) {
-                    tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
+                if (document_bz != "库存调整") {
+                    for (let row of content) {
+                        tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
+                    }
+                }
+                else {
+                    for (let row of content) {
+                        tr += `<tr><td>${row.date}</td><td>${row.count}</td></tr>`;
+                    }
                 }
 
-                let row2 = "<tr><td></td><td></td><td></td></tr>";
+                let row2 = document_bz != "库存调整" ? "<tr><td></td><td></td><td></td></tr>" : "<tr><td></td><td></td></tr>";
                 let len = table_lines - content.length;
 
                 for (let i = 0; i < len; i++) {
