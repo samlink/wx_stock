@@ -259,7 +259,7 @@ pub async fn save_document(
             } else if doc_data[0] == "销售退货" {
                 "XT"
             } else {
-                "KZ"
+                "KT"
             };
 
             let rows = &conn
@@ -387,14 +387,21 @@ pub async fn fetch_history(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let cate = if data.cate == "客户" {
-            "(单号 LIKE 'XS%' OR 单号 LIKE 'ZS%')"
+        let cate;
+        let count;
+        if data.cate == "商品销售" {
+            cate = "单号 LIKE 'XS%'";
+            count = "ABS(数量) AS 数量";
+        } else if data.cate == "商品采购" {
+            cate = "单号 LIKE 'CG%'";
+            count = "数量";
         } else {
-            "单号 LIKE 'CG%'"
+            cate = "单号 LIKE 'KT%'";
+            count = "数量";
         };
-        let sql = format!("SELECT 日期, 单价, ABS(数量) AS 数量 FROM documents JOIN document_items ON documents.单号=document_items.单号id 
+        let sql = format!("SELECT 日期, 单价, {} FROM documents JOIN document_items ON documents.单号=document_items.单号id 
                             WHERE {} AND 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10", 
-                            cate, data.customer_id, data.product_id);
+                            count, cate, data.customer_id, data.product_id);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut history: Vec<HistoryData> = Vec::new();

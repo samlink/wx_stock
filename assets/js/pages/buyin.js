@@ -423,26 +423,26 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
-    // fetch('/save_document', {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    // })
-    //     .then(response => response.json())
-    //     .then(content => {
-    //         if (content != -1) {
-    //             document.querySelector('#dh').textContent = content;
-    //             notifier.show('单据保存成功', 'success');
-    //             edited = false;
-    //         }
-    //         else {
-    //             notifier.show('权限不够，操作失败', 'danger');
-    //         }
-    //     });
+    fetch('/save_document', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                document.querySelector('#dh').textContent = content;
+                notifier.show('单据保存成功', 'success');
+                edited = false;
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
 });
 
 //打印
@@ -633,9 +633,12 @@ function clear_page(info, text1, text2) {
         confirmText: text1,
         cancelText: text2,
         confirmCallBack: () => {
-            let customer_input = document.querySelector('#supplier-input');
-            customer_input.removeAttribute('data');
-            customer_input.value = "";
+            if (document_bz != "库存调整") {
+                let customer_input = document.querySelector('#supplier-input');            
+                customer_input.removeAttribute('data');
+                customer_input.value = "";
+            }
+
             let all_inputs = document.querySelectorAll('.document-value');
             let n = 0;
             for (let name of document_table_fields) {
@@ -1208,7 +1211,7 @@ function add_line(show_names, all_width) {
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
 
     let data = {
-        cate: customer_supplier.textContent,
+        cate: document_bz,
         customer_id: customer_id ? Number(customer_id) : -1,
         product_id: Number(field_values[0])
     }
