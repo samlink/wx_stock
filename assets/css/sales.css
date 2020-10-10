@@ -1776,10 +1776,14 @@ a.roar-alert-message-tbf {
   margin-left: 15px;
   cursor: pointer;
 }
-.buy-in .remebered {
+.buy-in .remembered {
   color: green;
   background-color: white;
+  border-color: green;
   cursor: default;
+}
+.buy-in .remembered:hover {
+  background-color: transparent;
 }
 .buy-in .has-auto {
   left: 136px;

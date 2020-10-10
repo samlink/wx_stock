@@ -58,8 +58,15 @@ fetch("/fetch_inout_fields", {
                         document.querySelector('#inout-cate').value = values[len - 1];
                         fetch_print_models(values[len - 1]);
 
-                        document.querySelector('#remember-button').textContent =
-                            values[len - 2] == "true" ? "已记账" : "未记账";
+                        let rem = document.querySelector('#remember-button');
+                        if (values[len - 2] == "true") {
+                            rem.textContent = "已记账";
+                            rem.classList.add('remembered');
+                        }
+                        else {
+                            rem.textContent = "未记账";
+                            rem.classList.remove('remembered');
+                        }
 
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
@@ -70,6 +77,7 @@ fetch("/fetch_inout_fields", {
             else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
+                document.querySelector('#remember-button').textContent = '未记账'
             }
         }
     });
@@ -712,7 +720,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
             hiprintTemplate.print(printData);
         });
-
 });
 
 let inout_cate = document.querySelector('#inout-cate');
@@ -727,33 +734,35 @@ document.querySelector('#document-new-button').addEventListener('click', functio
     clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
 });
 
-document.querySelector('#remember-button').addEventListener('click', () => {
+document.querySelector('#remember-button').addEventListener('click', function () {
     let that = this;
-    alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
-        confirmText: "确认",
-        cancelText: "取消",
-        confirmCallBack: () => {
-            fetch('/make_formal', {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(document.querySelector('#dh').textContent),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        that.textContent = '已记账';
-                        that.classList.add('remebered');
-                        notifier.show('记账完成', 'success');
-                    }
-                    else {
-                        notifier.show('权限不够', 'danger');
+    if (that.textContent != "已记账") {
+        alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
+            confirmText: "确认",
+            cancelText: "取消",
+            confirmCallBack: () => {
+                fetch('/make_formal', {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(document.querySelector('#dh').textContent),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content != -1) {
+                            that.textContent = '已记账';
+                            that.classList.add('remembered');
+                            notifier.show('记账完成', 'success');
+                        }
+                        else {
+                            notifier.show('权限不够', 'danger');
 
-                    }
-                });
-        }
-    });
+                        }
+                    });
+            }
+        });
+    }
 });
 
 //共用事件和函数 ---------------------------------------------------------------------

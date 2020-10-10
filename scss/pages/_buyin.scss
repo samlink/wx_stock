@@ -27,10 +27,15 @@
         cursor: pointer;
     }
 
-    .remebered {
+    .remembered {
         color: green;
         background-color: white;
+        border-color: green;
         cursor: default;
+
+        &:hover {
+            background-color: transparent;
+        }
     }
 
     .has-auto {
