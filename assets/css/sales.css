@@ -1776,6 +1776,11 @@ a.roar-alert-message-tbf {
   margin-left: 15px;
   cursor: pointer;
 }
+.buy-in .remebered {
+  color: green;
+  background-color: white;
+  cursor: default;
+}
 .buy-in .has-auto {
   left: 136px;
 }

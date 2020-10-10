@@ -345,14 +345,16 @@ pub async fn save_document(
                 .unwrap();
         }
 
+        let mut n = 1;
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 直销, 商品id, 单价, 数量, 仓库id, 备注) 
-                VALUES('{}', {}, {}, {}, {}, {}, '{}')"#,
-                dh, value[0], value[1], value[2], value[3], value[4], value[5]
+                r#"INSERT INTO document_items (单号id, 直销, 商品id, 单价, 数量, 仓库id, 备注, 顺序) 
+                VALUES('{}', {}, {}, {}, {}, {}, '{}', {})"#,
+                dh, value[0], value[1], value[2], value[3], value[4], value[5], n
             );
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+            n += 1;
         }
 
         let _result = transaction.commit().await;
@@ -516,7 +518,7 @@ pub async fn fetch_document_items(
                 JOIN products ON document_items.商品id=products.id
                 JOIN warehouse ON document_items.仓库id=warehouse.id
                 JOIN tree ON products.商品id=tree.num
-                WHERE 单号id='{}'"#,
+                WHERE 单号id='{}' ORDER BY 顺序"#,
             sql_fields, data.dh
         );
 
@@ -551,12 +553,29 @@ pub async fn fetch_document_items(
                 SPLITER,
                 ware_name,
                 SPLITER,
-                note,            
+                note,
             );
             document_items.push(item)
         }
 
         HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/make_formal")]
+pub async fn make_formal(
+    db: web::Data<Pool>,
+    dh_id: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let dh_id = format!("{}", dh_id);  //这里转换一下，直接写入查询报错，说不支持Json<String>
+        &conn.execute("UPDATE documents SET 已记账=true WHERE 单号=$1", &[&dh_id]).await.unwrap();
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

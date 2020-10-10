@@ -350,11 +350,10 @@ fetch("/fetch_inout_fields", {
                         }
 
                         input_row.querySelector(`td:nth-child(1)`).textContent = num;
-                        input_row.querySelector(`td:nth-child(2)`).checked = product[len - 8] == "true" ? true : false;
+                        input_row.querySelector(`td:nth-child(2) input`).checked = product[len - 8] == "true" ? true : false;
                         input_row.querySelector(`td:nth-child(3) input`).value = product[len - 6];
                         input_row.querySelector(`td:nth-child(3) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
                         input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
-                        // input_row.querySelector(`td:nth-last-child(2) select`).value = product[len - 3];
 
                         input_row.querySelector(`td:nth-last-child(3)`).textContent =
                             Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
@@ -373,12 +372,19 @@ fetch("/fetch_inout_fields", {
                         num++;
                     }
 
+                    let input_row = build_input_row(show_names, all_width);
+                    tbody.appendChild(input_row);
+
+                    setTimeout(function () {
+                        build_ware_position(ware_option, input_row);
+                    }, 200);
+
                     let rows = "";
                     for (let i = 0; i < table_lines - data.length - 1; i++) {
                         rows += blank_row;
                     }
 
-                    tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+                    tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
                 });
         }
 
@@ -719,6 +725,35 @@ inout_cate.addEventListener('change', function () {
 
 document.querySelector('#document-new-button').addEventListener('click', function () {
     clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
+});
+
+document.querySelector('#remember-button').addEventListener('click', () => {
+    let that = this;
+    alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
+        confirmText: "确认",
+        cancelText: "取消",
+        confirmCallBack: () => {
+            fetch('/make_formal', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(document.querySelector('#dh').textContent),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        that.textContent = '已记账';
+                        that.classList.add('remebered');
+                        notifier.show('记账完成', 'success');
+                    }
+                    else {
+                        notifier.show('权限不够', 'danger');
+
+                    }
+                });
+        }
+    });
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
@@ -1247,7 +1282,7 @@ function fill_gg(auto_input, input_row) {
 }
 
 //构造仓库下拉选单，并记住 option 内容
-function build_ware_house(input_row, index) {
+function build_ware_house(input_row, value) {
     fetch("/fetch_house")
         .then(response => response.json())
         .then(content => {
@@ -1256,24 +1291,25 @@ function build_ware_house(input_row, index) {
                 ware_option += `<option value="${house.id}">${house.name}</option>`;
             }
 
-            build_ware_position(ware_option, input_row, index);
+            build_ware_position(ware_option, input_row, value);
         });
 }
 
 //构建仓库和库位
-function build_ware_position(ware_option, input_row, index) {
+function build_ware_position(ware_option, input_row, value) {
     let ware_house_select = document.createElement('select');
     ware_house_select.classList.add("select-sm");
     ware_house_select.classList.add("has-value");
 
     ware_house_select.innerHTML = ware_option;
 
-    if (ware_value) {
-        ware_house_select.value = ware_value;
+    if (value) {
+        ware_house_select.value = value;
     }
-
-    if (index) {
-        ware_house_select.selectedIndex = index;
+    else {
+        if (ware_value) {
+            ware_house_select.value = ware_value;
+        }
     }
 
     ware_house_select.addEventListener('change', function () {
