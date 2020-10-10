@@ -4,7 +4,6 @@ import { alert_confirm } from '../parts/alert.mjs';
 var hiprintTemplate;
 var edit_mode = "新增";
 var options;
-var changed = 0;
 
 fetch('/fetch_print_documents')
     .then(response => response.json())
@@ -16,44 +15,47 @@ fetch('/fetch_print_documents')
             }
             document.querySelector('#newmodel-select').innerHTML = options;
             document.querySelector('#editmodel-select').innerHTML = options;
-
-            var configElementTypeProvider = (function () {
-                return function (options) {
-
-                    var addElementTypes = function (context) {
-                        context.allElementTypes = [];
-                        context.testModule = [];
-
-                        context.addPrintElementTypes(
-                            "testModule",
-                            [
-                                new hiprint.PrintElementTypeGroup("自定义", [
-                                    { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
-                                ]),
-                            ]
-                        );
-                    };
-
-                    return {
-                        addElementTypes: addElementTypes
-                    };
-                };
-            })();
-
-            let configPrintJson = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": " 欢迎使用报表设计，请先选择单据", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
-
-            hiprint.init({
-                providers: [new configElementTypeProvider()]
-            });
-
-            template_init(configPrintJson);
-
-            document.querySelector('.about-this').textContent = "样板示例，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
+            first_page();
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
         }
     });
+
+function first_page() {
+    var configElementTypeProvider = (function () {
+        return function (options) {
+
+            var addElementTypes = function (context) {
+                context.allElementTypes = [];
+                context.testModule = [];
+
+                context.addPrintElementTypes(
+                    "testModule",
+                    [
+                        new hiprint.PrintElementTypeGroup("自定义", [
+                            { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
+                        ]),
+                    ]
+                );
+            };
+
+            return {
+                addElementTypes: addElementTypes
+            };
+        };
+    })();
+
+    let configPrintJson = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": " 欢迎使用报表设计，请先选择单据", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
+
+    hiprint.init({
+        providers: [new configElementTypeProvider()]
+    });
+
+    template_init(configPrintJson);
+
+    document.querySelector('.about-this').textContent = "更多帮助点击右上角“ ？”按钮";
+}
 
 $('#paper-directPrint').click(function () {
     hiprintTemplate.print(printData);
@@ -101,10 +103,12 @@ document.querySelector('#choose-new').addEventListener('click', function () {
         edit_mode = "新增";
         reset_ctrol(false);
         this.parentNode.style.fontWeight = "bold";
-
-        let info = "样板示例，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
-        alert_clear();
-        reset_content(info);
+        
+        let model = hiprintTemplate.getJsonTid();
+        if (model.panels[0].printElements.length > 1) {
+            alert_clear();
+            reset_content();
+        }
     }
 });
 
@@ -114,9 +118,11 @@ document.querySelector('#choose-edit').addEventListener('click', function () {
         reset_ctrol(true);
         this.parentNode.style.fontWeight = "bold";
 
-        let info = "已保存的模板，可在此基础上修改，也可重新设计。更多帮助点击右上角“ ？”按钮";
-        alert_clear();
-        reset_content(info);
+        let model = hiprintTemplate.getJsonTid();
+        if (model.panels[0].printElements.length > 1) {
+            alert_clear();
+            reset_content();
+        }
     }
 });
 
@@ -131,110 +137,98 @@ function reset_ctrol(yes) {
     document.querySelector('#choose-edit').parentNode.style.cssText = "";
 }
 
-
 function alert_clear() {
-    if (changed != 0) {
+    let model = hiprintTemplate.getJsonTid();
+    if (model.panels[0].printElements.length > 1) {
         alert_confirm('设计框内容将被重置，确认重置吗？', {
             confirmText: "是",
             cancelText: "否",
             confirmCallBack: () => {
-                hiprintTemplate.clear();
+                first_page();
             }
         });
     }
     else {
-        hiprintTemplate.clear();
+        first_page();
     }
 }
 
-function change_alert(info, funcall) {
-    if (changed != 0) {
-        alert_confirm('设计框内容将被重置，确认重置吗？', {
-            confirmText: "是",
-            cancelText: "否",
-            confirmCallBack: () => {
-                funcall(info);
-            }
-        });
-    }
-    else {
-        funcall(info);
-    }
-}
-
-function reset_content(info) {
-    changed = 0;
+function reset_content() {
     document.querySelector('#newmodel-name').value = "";
     document.querySelector('#editmodel-name').value = "";
     document.querySelector('#default-check').checked = false;
     document.querySelector('#newmodel-select').innerHTML = options;
     document.querySelector('#editmodel-select').innerHTML = options;
     document.querySelector('#edit-select').innerHTML = "<option value=0 selected hidden>请选择模板</option>";
-    document.querySelector('.about-this').textContent = info;
 }
 
 document.querySelector('#newmodel-select').addEventListener("change", function () {
-    change_alert("", () => {
-        fetch_provider(this.value);
-        document.querySelector('#newmodel-name').value = "";
-        document.querySelector('#editmodel-name').value = "";
-        document.querySelector('#default-check').checked = false;
-    });
-
-    changed = 1;
+    fetch_provider(this.value);
+    document.querySelector('#newmodel-name').value = "";
+    document.querySelector('#editmodel-name').value = "";
+    document.querySelector('#default-check').checked = false;
+    document.querySelector('.about-this').textContent = "设计框中是样板示例，可在此基础上修改，也可重新设计";
 });
 
 document.querySelector('#editmodel-select').addEventListener("change", function () {
-    change_alert("", () => {
-        changed = 0;
-        let model_json = { "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": "修改报表模板，请选择打印模板", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
-        fetch_provider(this.value, model_json);
+    let model_json = { first: true, "panels": [{ "index": 0, "height": 93.1, "width": 190, "paperHeader": 0, "paperFooter": 266.45669291338584, "printElements": [{ "tid": "configModule.customText", "options": { "left": 153, "top": 90, "height": 30, "width": 243, "title": "修改报表模板，请选择打印模板", "fontSize": 15, "fontWeight": "bold", "color": "#2196f3", "textAlign": "center", "textContentVerticalAlign": "middle" } }], "paperNumberLeft": 508.5, "paperNumberTop": 244.5, "paperNumberDisabled": true }] };
+    fetch_provider(this.value, model_json);
 
-        let id = Number(document.querySelector('#editmodel-select').value);
-        fetch('/fetch_models', {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: id,
-        })
-            .then(response => response.json())
-            .then(content => {
-                let model_options = "<option value=0 selected hidden>请选择模板</option>";
-                for (let data of content) {
-                    model_options += `<option value="${data.id}" data=${data.default}>${data.name}</option>`;
-                }
+    let id = Number(document.querySelector('#editmodel-select').value);
+    fetch('/fetch_models', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: id,
+    })
+        .then(response => response.json())
+        .then(content => {
+            let model_options = "<option value=0 selected hidden>请选择模板</option>";
+            for (let data of content) {
+                model_options += `<option value="${data.id}" data=${data.default}>${data.name}</option>`;
+            }
 
-                document.querySelector('#edit-select').innerHTML = model_options;
-            });
-    });
+            document.querySelector('#edit-select').innerHTML = model_options;
+        });
 });
 
 document.querySelector('#edit-select').addEventListener("change", function () {
-    change_alert("", () => {
-        fetch('/fetch_one_model', {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: Number(this.value),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    document.querySelector('#default-check').checked = content[0];
-                    document.querySelector('#newmodel-name').value = "";
-                    document.querySelector('#editmodel-name').value = "";
+    fetch('/fetch_one_model', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: Number(this.value),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                document.querySelector('#default-check').checked = content[0];
+                document.querySelector('#newmodel-name').value = "";
+                document.querySelector('#editmodel-name').value = "";
 
-                    template_init(JSON.parse(content[1]));
+                let model = hiprintTemplate.getJsonTid();
+                if (model.panels[0].printElements.length > 1) {
+                    alert_confirm('设计框内容将被重置，确认重置吗？', {
+                        confirmText: "是",
+                        cancelText: "否",
+                        confirmCallBack: () => {
+                            template_init(JSON.parse(content[1]));
+                        },
+                    });
                 }
                 else {
-                    notifier.show('权限不够，操作失败', 'danger');
+                    template_init(JSON.parse(content[1]));
                 }
-            });
-    });
 
-    changed = 1;
+                document.querySelector('.about-this').textContent = "设计框中是已保存的模板，可在此基础上修改，也可重新设计";
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+
 });
 
 document.querySelector('#save-button').addEventListener('click', function () {
@@ -261,8 +255,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 
     let model = hiprintTemplate.getJsonTid();
-
-    if (model.panels.length != 0) {
+    if (model.panels[0].printElements.length > 1) {
         let data = {
             id: Number(id),
             print_id: Number(print_id),
@@ -416,7 +409,19 @@ function fetch_provider(id, model_json) {
                 //设置左侧拖拽事件
                 hiprint.PrintElementTypeManager.buildByHtml($('.ep-draggable-item'));
 
-                template_init(configPrintJson);
+                let model = hiprintTemplate.getJsonTid();
+                if (model.panels[0].printElements.length > 1) {
+                    alert_confirm('设计框内容将被重置，确认重置吗？', {
+                        confirmText: "是",
+                        cancelText: "否",
+                        confirmCallBack: () => {
+                            template_init(configPrintJson);
+                        },
+                    });
+                }
+                else {
+                    template_init(configPrintJson);
+                }
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');

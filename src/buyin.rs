@@ -29,7 +29,7 @@ pub struct Customer {
     pub id: i32,
 }
 
-///获取指定 id 的供应商
+///获取指定 id 的供应商和客户
 #[post("/fetch_supplier")]
 pub async fn fetch_supplier(
     db: web::Data<Pool>,
@@ -64,19 +64,7 @@ pub async fn fetch_supplier(
     }
 }
 
-// ///获取供应商显示字段
-// #[post("/fetch_supplier_fields")]
-// pub async fn fetch_supplier_fields(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-//     let user = get_user(db.clone(), id, "商品采购".to_owned()).await;
-//     if user.name != "" {
-//         let fields = get_inout_fields(db.clone(), "供应商").await;
-//         HttpResponse::Ok().json(fields)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
-
-///进出库获取客户供应商信息
+///出入库获取客户供应商信息
 #[post("/fetch_inout_customer")]
 pub async fn fetch_inout_customer(
     db: web::Data<Pool>,
@@ -153,14 +141,13 @@ pub async fn buyin_auto(
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
         sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
-        //记账功能完成后，修改为： 已记账=true
         let sql = &format!(
             r#"SELECT id, node_name || '{}' || {} || '{}' || COALESCE(库存, '0') || '{}' || 出售价格 AS label FROM products 
             JOIN tree ON products.商品id = tree.num
             LEFT JOIN  
                 (SELECT 商品id, SUM(数量) AS 库存 FROM document_items 
                 JOIN documents ON document_items.单号id=documents.单号
-                WHERE 直销=false AND 已记账=false GROUP BY 商品id) as foo
+                WHERE 直销=false AND 已记账=true GROUP BY 商品id) as foo
             ON products.id = foo.商品id 
             WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER,
@@ -502,7 +489,7 @@ pub async fn fetch_document(
     }
 }
 
-///获取单据条目字段
+///获取单据条目
 #[post("/fetch_document_items")]
 pub async fn fetch_document_items(
     db: web::Data<Pool>,
