@@ -327,7 +327,7 @@ pub fn build_sql_for_update(
 }
 
 //从前端传过来字符串数组，按显示字段，组合成 insert 语句。供追加数据用
-//参数：n 是字段名数组的偏移量
+//参数：n 是字段名数组的偏移量，即从第 n 个元素算起，才是自定义字段
 pub fn build_sql_for_insert(
     field_names: Vec<&str>,
     mut sql: String,

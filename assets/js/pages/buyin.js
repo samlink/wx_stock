@@ -10,6 +10,7 @@ let customer_table_fields, document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let customer_supplier = document.querySelector('#customer-suplier');
 let document_bz = document.querySelector('#document-bz').textContent.trim();
+let dh_div = document.querySelector('#dh');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
@@ -39,7 +40,7 @@ fetch("/fetch_inout_fields", {
     .then(content => {
         if (content != -1) {
             document_table_fields = content;
-            let dh = document.querySelector('#dh').textContent;
+            let dh = dh_div.textContent;
             if (dh != "新单据") {
                 let data = dh_data(dh);
                 fetch("/fetch_document", {
@@ -319,7 +320,7 @@ fetch("/fetch_inout_fields", {
 
 
         let tbody = table_container.querySelector('tbody');
-        let dh = document.querySelector('#dh').textContent;
+        let dh = dh_div.textContent;
 
         if (dh == "新单据") {
             let input_row = build_input_row(show_names, all_width);
@@ -512,7 +513,10 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let save_str = `${document.querySelector('#inout-cate').value}${SPLITER}${document.querySelector('#dh').textContent}${SPLITER}${customer_id}${SPLITER}`;
+    let cate = document.querySelector('#inout-cate').value;
+    let dh = dh_div.textContent;
+
+    let save_str = `${cate}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
@@ -549,6 +553,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
+        remember: dh_div.textContent,
         items: table_data,
     }
 
@@ -564,7 +569,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                document.querySelector('#dh').textContent = content;
+                dh_div.textContent = content;
                 notifier.show('单据保存成功', 'success');
                 edited = false;
             }
@@ -660,9 +665,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 供应商: document.querySelector('#supplier-input').value,
                 客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
-                dh: document.querySelector('#dh').textContent,
+                dh: dh_div.textContent,
                 maker: document.querySelector('#user-name').textContent,
-                barCode: document.querySelector('#dh').textContent,
+                barCode: dh_div.textContent,
             };
             let show_fields = document.querySelectorAll('.document-value');
             let n = 0;
@@ -734,7 +739,13 @@ document.querySelector('#document-new-button').addEventListener('click', functio
     clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
 });
 
+//记账
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (dh_div.textContent == "新单据" || edited) {
+        notifier.show('请先保存单据', 'danger');
+        return false;
+    }
+
     let that = this;
     if (that.textContent != "已记账") {
         alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
@@ -746,7 +757,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(document.querySelector('#dh').textContent),
+                    body: JSON.stringify(dh_div.textContent),
                 })
                     .then(response => response.json())
                     .then(content => {
@@ -819,7 +830,7 @@ function clear_page(info, text1, text2) {
             }
 
             document.querySelector('#日期').value = new Date().Format("yyyy-MM-dd");
-            document.querySelector('#dh').textContent = "新单据";
+            dh_div.textContent = "新单据";
             document.querySelector('#supplier-info').textContent = "";
             document.querySelector('#history-info').textContent = "";
             document.querySelector('#total-records').textContent = "";
@@ -1246,7 +1257,7 @@ function build_input_row(show_names, all_width) {
         document.querySelector('.modal').style.display = "block";
     });
 
-    let dh = document.querySelector('#dh').textContent;
+    let dh = dh_div.textContent;
     if (dh == "新单据") {
         if (!ware_option) {
             build_ware_house(input_row);

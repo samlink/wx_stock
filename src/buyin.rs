@@ -221,6 +221,7 @@ pub async fn fetch_one_product(
 pub struct Document {
     pub rights: String,
     pub document: String,
+    pub remember: String,
     pub items: Vec<String>,
 }
 
@@ -564,6 +565,7 @@ pub async fn fetch_document_items(
     }
 }
 
+///记账
 #[post("/make_formal")]
 pub async fn make_formal(
     db: web::Data<Pool>,
