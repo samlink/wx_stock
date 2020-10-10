@@ -41,22 +41,7 @@ fetch("/fetch_inout_fields", {
             document_table_fields = content;
             let dh = document.querySelector('#dh').textContent;
             if (dh != "新单据") {
-                let cate;
-                if (document_bz == "商品销售") {
-                    cate = "销售单据";
-                }
-                else if (document_bz == "商品采购") {
-                    cate = "采购单据";
-                }
-                else {
-                    cate = "库存调整";
-                }
-
-                let data = {
-                    cate: cate,
-                    dh: dh,
-                };
-
+                let data = dh_data(dh);
                 fetch("/fetch_document", {
                     method: 'post',
                     headers: {
@@ -66,7 +51,6 @@ fetch("/fetch_inout_fields", {
                 })
                     .then(response => response.json())
                     .then(data => {
-                        console.log(data);
                         let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
                         let values = data.split(SPLITER);
@@ -89,6 +73,24 @@ fetch("/fetch_inout_fields", {
             }
         }
     });
+
+function dh_data(dh) {
+    let cate;
+    if (document_bz == "商品销售") {
+        cate = "销售单据";
+    }
+    else if (document_bz == "商品采购") {
+        cate = "采购单据";
+    }
+    else {
+        cate = "库存调整";
+    }
+
+    return {
+        cate: cate,
+        dh: dh,
+    };
+}
 
 function document_top_handle(html, has_date) {
     document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
@@ -307,17 +309,78 @@ fetch("/fetch_inout_fields", {
                     <td width=${80 * 100 / all_width}% ${hide2}></td><td width=${100 * 100 / all_width}%></td>
                     <td width=${100 * 100 / all_width}%></td></tr>`;
 
-        let input_row = build_input_row(show_names, all_width);
 
         let tbody = table_container.querySelector('tbody');
-        tbody.appendChild(input_row);
+        let dh = document.querySelector('#dh').textContent;
 
-        let rows = "";
-        for (let i = 0; i < table_lines - 1; i++) {
-            rows += blank_row;
+        if (dh == "新单据") {
+            let input_row = build_input_row(show_names, all_width);
+            tbody.appendChild(input_row);
+
+            let rows = "";
+            for (let i = 0; i < table_lines - 1; i++) {
+                rows += blank_row;
+            }
+
+            tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
         }
+        else {
+            let data = dh_data(dh);
+            fetch("/fetch_document_items", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    // console.log(data);
+                    let num = 1;    //序号
+                    for (let item of data) {
+                        let input_row = build_input_row(show_names, all_width);
+                        tbody.appendChild(input_row);
 
-        tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+                        let product = item.split(SPLITER);
+                        let len = product.length;
+                        let n = 4;
+                        for (let i = 0; i < show_names.length - 1; i++) { //减1 是因为“名称”不参与
+                            input_row.querySelector(`td:nth-child(${n})`).textContent = product[i];
+                            n++;
+                        }
+
+                        input_row.querySelector(`td:nth-child(1)`).textContent = num;
+                        input_row.querySelector(`td:nth-child(2)`).checked = product[len - 8] == "true" ? true : false;
+                        input_row.querySelector(`td:nth-child(3) input`).value = product[len - 6];
+                        input_row.querySelector(`td:nth-child(3) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
+                        input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
+                        // input_row.querySelector(`td:nth-last-child(2) select`).value = product[len - 3];
+
+                        input_row.querySelector(`td:nth-last-child(3)`).textContent =
+                            Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
+
+                        input_row.querySelector(`td:nth-last-child(4) input`).value = document_bz != "库存调整" ?
+                            Math.abs(product[len - 4]) : product[len - 4];
+                        input_row.querySelector(`td:nth-last-child(5) input`).value = product[len - 5];
+
+                        if (!ware_option) {
+                            build_ware_house(input_row, Number(product[len - 3]));
+                        }
+                        else {
+                            build_ware_position(ware_option, input_row, Number(product[len - 3]));
+                        }
+
+                        num++;
+                    }
+
+                    let rows = "";
+                    for (let i = 0; i < table_lines - data.length - 1; i++) {
+                        rows += blank_row;
+                    }
+
+                    tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
+                });
+        }
 
         tbody.style.height = table_lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
@@ -1139,11 +1202,14 @@ function build_input_row(show_names, all_width) {
         document.querySelector('.modal').style.display = "block";
     });
 
-    if (!ware_option) {
-        build_ware_house(input_row);
-    }
-    else {
-        build_ware_position(ware_option, input_row);
+    let dh = document.querySelector('#dh').textContent;
+    if (dh == "新单据") {
+        if (!ware_option) {
+            build_ware_house(input_row);
+        }
+        else {
+            build_ware_position(ware_option, input_row);
+        }
     }
 
     return input_row;
@@ -1181,7 +1247,7 @@ function fill_gg(auto_input, input_row) {
 }
 
 //构造仓库下拉选单，并记住 option 内容
-function build_ware_house(input_row) {
+function build_ware_house(input_row, index) {
     fetch("/fetch_house")
         .then(response => response.json())
         .then(content => {
@@ -1190,19 +1256,24 @@ function build_ware_house(input_row) {
                 ware_option += `<option value="${house.id}">${house.name}</option>`;
             }
 
-            build_ware_position(ware_option, input_row);
+            build_ware_position(ware_option, input_row, index);
         });
 }
 
 //构建仓库和库位
-function build_ware_position(ware_option, input_row) {
+function build_ware_position(ware_option, input_row, index) {
     let ware_house_select = document.createElement('select');
     ware_house_select.classList.add("select-sm");
     ware_house_select.classList.add("has-value");
+
     ware_house_select.innerHTML = ware_option;
 
     if (ware_value) {
         ware_house_select.value = ware_value;
+    }
+
+    if (index) {
+        ware_house_select.selectedIndex = index;
     }
 
     ware_house_select.addEventListener('change', function () {

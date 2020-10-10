@@ -427,7 +427,7 @@ pub struct DocumentDh {
     pub dh: String,
 }
 
-///获取历史交易记录
+///获取单据字段
 #[post("/fetch_document")]
 pub async fn fetch_document(
     db: web::Data<Pool>,
@@ -487,6 +487,76 @@ pub async fn fetch_document(
         }
 
         HttpResponse::Ok().json(document)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取单据条目字段
+#[post("/fetch_document_items")]
+pub async fn fetch_document_items(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let fields = get_inout_fields(db.clone(), "商品规格").await;
+
+        let mut sql_fields = "SELECT ".to_owned();
+
+        for f in &fields {
+            sql_fields += &format!("products.{},", f.field_name);
+        }
+
+        let sql = format!(
+            r#"{} 直销, document_items.商品id, node_name, 单价, 数量, 仓库id, name, document_items.备注 FROM document_items 
+                JOIN products ON document_items.商品id=products.id
+                JOIN warehouse ON document_items.仓库id=warehouse.id
+                JOIN tree ON products.商品id=tree.num
+                WHERE 单号id='{}'"#,
+            sql_fields, data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let direct: bool = row.get("直销");
+            let id: i32 = row.get("商品id");
+            let name: String = row.get("node_name");
+            let price: f32 = row.get("单价");
+            let count: f32 = row.get("数量");
+            let ware_id: i32 = row.get("仓库id");
+            let ware_name: String = row.get("name");
+            let note: String = row.get("备注");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields),
+                SPLITER,
+                direct,
+                SPLITER,
+                id,
+                SPLITER,
+                name,
+                SPLITER,
+                price,
+                SPLITER,
+                count,
+                SPLITER,
+                ware_id,
+                SPLITER,
+                ware_name,
+                SPLITER,
+                note,            
+            );
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
     }
