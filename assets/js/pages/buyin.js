@@ -26,6 +26,8 @@ else {
     customer.style.display = "none";
     customer.querySelector('input').setAttribute('data', 0);
     document.querySelector('#sum-money').style.display = "none";
+    document.querySelector('#supplier-info').style.cssText = "color: black";
+    document.querySelector('#supplier-info').textContent = "库存增加，数量为正；库存减少，数量为负";
     document_name = "库存调整";
 }
 
@@ -72,7 +74,10 @@ fetch("/fetch_inout_fields", {
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
-                        supplier_auto_show();
+
+                        if (document_bz != "库存调整") {
+                            supplier_auto_show();
+                        }
                     });
             }
             else {
@@ -347,7 +352,7 @@ fetch("/fetch_inout_fields", {
                     // console.log(data);
                     let num = 1;    //序号
                     for (let item of data) {
-                        let input_row = build_input_row(show_names, all_width);
+                        let input_row = build_input_row(show_names, all_width, num);
                         tbody.appendChild(input_row);
 
                         let product = item.split(SPLITER);
@@ -358,7 +363,7 @@ fetch("/fetch_inout_fields", {
                             n++;
                         }
 
-                        input_row.querySelector(`td:nth-child(1)`).textContent = num;
+                        // input_row.querySelector(`td:nth-child(1)`).textContent = num;
                         input_row.querySelector(`td:nth-child(2) input`).checked = product[len - 8] == "true" ? true : false;
                         input_row.querySelector(`td:nth-child(3) input`).value = product[len - 6];
                         input_row.querySelector(`td:nth-child(3) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
@@ -381,7 +386,7 @@ fetch("/fetch_inout_fields", {
                         num++;
                     }
 
-                    let input_row = build_input_row(show_names, all_width);
+                    let input_row = build_input_row(show_names, all_width, num);
                     tbody.appendChild(input_row);
 
                     setTimeout(function () {
@@ -553,7 +558,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
-        remember: dh_div.textContent,
+        remember: document.querySelector('#remember-button').textContent,
         items: table_data,
     }
 
@@ -741,39 +746,41 @@ document.querySelector('#document-new-button').addEventListener('click', functio
 
 //记账
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (this.textContent == "已记账") {
+        return false;
+    }
+
     if (dh_div.textContent == "新单据" || edited) {
         notifier.show('请先保存单据', 'danger');
         return false;
     }
 
     let that = this;
-    if (that.textContent != "已记账") {
-        alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
-            confirmText: "确认",
-            cancelText: "取消",
-            confirmCallBack: () => {
-                fetch('/make_formal', {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dh_div.textContent),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != -1) {
-                            that.textContent = '已记账';
-                            that.classList.add('remembered');
-                            notifier.show('记账完成', 'success');
-                        }
-                        else {
-                            notifier.show('权限不够', 'danger');
+    alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
+        confirmText: "确认",
+        cancelText: "取消",
+        confirmCallBack: () => {
+            fetch('/make_formal', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dh_div.textContent),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        that.textContent = '已记账';
+                        that.classList.add('remembered');
+                        notifier.show('记账完成', 'success');
+                    }
+                    else {
+                        notifier.show('权限不够', 'danger');
 
-                        }
-                    });
-            }
-        });
-    }
+                    }
+                });
+        }
+    });
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
@@ -836,6 +843,7 @@ function clear_page(info, text1, text2) {
             document.querySelector('#total-records').textContent = "";
             document.querySelector('#sum-money').textContent = "金额合计：元";
             document.querySelector('#remember-button').textContent = "未记账";
+            document.querySelector('#remember-button').classList.remove('remembered');
 
             //清空表格
             direct_check = false;
@@ -1043,8 +1051,9 @@ function getTop(element, parent) {
     return actualTop - parent.scrollTop;
 }
 
-//创建新的输入行
-function build_input_row(show_names, all_width) {
+//创建新的输入行，参数 num 是序号
+function build_input_row(show_names, all_width, num) {
+    if (!num) num = 1;
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
 
@@ -1053,7 +1062,7 @@ function build_input_row(show_names, all_width) {
     let hide_value = document_bz != "库存调整" ? "" : 0;
     let check = direct_check ? "checked" : "";
 
-    let row = `<td width=${40 * 100 / all_width}%>1</td>
+    let row = `<td width=${40 * 100 / all_width}%>${num}</td>
                 <td width=${40 * 100 / all_width}% ${hide} class="editable">
                     <label class="check-radio">
                         <input class="has-value direct-check" type="checkbox" ${check}>
@@ -1257,15 +1266,13 @@ function build_input_row(show_names, all_width) {
         document.querySelector('.modal').style.display = "block";
     });
 
-    let dh = dh_div.textContent;
-    if (dh == "新单据") {
-        if (!ware_option) {
-            build_ware_house(input_row);
-        }
-        else {
-            build_ware_position(ware_option, input_row);
-        }
+    if (!ware_option) {
+        build_ware_house(input_row);
     }
+    else {
+        build_ware_position(ware_option, input_row);
+    }
+
 
     return input_row;
 }
@@ -1336,6 +1343,9 @@ function build_ware_position(ware_option, input_row, value) {
         ware_value = this.value;
     });
 
+    input_row.querySelector('td:nth-last-child(2)').innerHTML = "";
+    input_row.querySelector('td:nth-last-child(2)').appendChild(ware_house_select);
+
     // ware_house_select.addEventListener('change', function () {
     //     let id = document.createElement('p');
     //     id.textContent = this.value;
@@ -1364,7 +1374,6 @@ function build_ware_position(ware_option, input_row, value) {
     //     position_input.focus();
     // });
 
-    input_row.querySelector('td:nth-last-child(2)').appendChild(ware_house_select);
     // input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
 }
 

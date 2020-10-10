@@ -232,8 +232,15 @@ pub async fn save_document(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, data.rights.clone()).await;
+    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
     if user.name != "" {
+        if data.remember == "已记账" {
+            let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+            if user.name == "" {
+                return HttpResponse::Ok().json(-1);
+            }
+        }
+
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
@@ -575,8 +582,11 @@ pub async fn make_formal(
     let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let dh_id = format!("{}", dh_id);  //这里转换一下，直接写入查询报错，说不支持Json<String>
-        &conn.execute("UPDATE documents SET 已记账=true WHERE 单号=$1", &[&dh_id]).await.unwrap();
+        let dh_id = format!("{}", dh_id); //这里转换一下，直接写入查询报错，说不支持Json<String>
+        &conn
+            .execute("UPDATE documents SET 已记账=true WHERE 单号=$1", &[&dh_id])
+            .await
+            .unwrap();
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
