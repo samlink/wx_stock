@@ -10,7 +10,6 @@ mod customer;
 mod field_set;
 mod html;
 mod product;
-mod sale_person;
 mod service;
 mod systemset;
 mod tree;
@@ -56,7 +55,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::field_set)
             .service(html::customer_manage)
             .service(html::supplier_manage)
-            .service(html::sale_person)
             .service(html::warehouse_set)
             .service(html::system_set)
             .service(html::help)
@@ -110,8 +108,6 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
-            .service(sale_person::pull_salers)
-            .service(sale_person::edit_saler)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)
