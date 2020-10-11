@@ -520,8 +520,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
     //构建数据字符串
     let cate = document.querySelector('#inout-cate').value;
     let dh = dh_div.textContent;
+    let user_name = document.querySelector('#user-name').textContent;
 
-    let save_str = `${cate}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}`;
+    let save_str = `${cate}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
