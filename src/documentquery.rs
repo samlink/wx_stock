@@ -33,7 +33,7 @@ pub async fn fetch_all_documents(
 
         let fields = get_inout_fields(db.clone(), doc_cate).await;
 
-        let mut sql_fields = "SELECT 单号,已记账,".to_owned();
+        let mut sql_fields = "SELECT 单号,类别,已记账,".to_owned();
 
         for f in &fields {
             sql_fields += &format!("{},", f.field_name);
@@ -45,21 +45,35 @@ pub async fn fetch_all_documents(
             sql_fields, post_data.sort, doc_pre, post_data.sort, skip, post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         //AND LOWER(名称) LIKE '%{}%'
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let doc_rows: Vec<&str> = Vec::new(); 
+        let mut doc_rows: Vec<String> = Vec::new();
         for row in rows {
             let num: i64 = row.get("序号");
             let dh: String = row.get("单号");
+            let cate: String = row.get("类别");
             let rem: bool = row.get("已记账");
+            let remembered = if rem == true { "是" } else { "否" };
             let maker: String = row.get("制单人");
-            let row_str = format!("{}{}", simple_string_from_base(row,&fields));
-        }
+            let row_str = format!(
+                "{}{}{}{}{}{}{}{}{}{}",
+                num,
+                SPLITER,
+                dh,
+                SPLITER,
+                cate,
+                SPLITER,
+                simple_string_from_base(row, &fields),
+                remembered,
+                SPLITER,
+                maker,
+            );
 
-        let products = build_string_from_base(rows, fields);
+            doc_rows.push(row_str);
+        }
 
         let count_sql = format!(
             r#"SELECT count(单号) as 记录数 FROM documents WHERE 单号 like '{}%'"#,
@@ -73,7 +87,7 @@ pub async fn fetch_all_documents(
             count = row.get("记录数");
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        HttpResponse::Ok().json((products, count, pages))
+        HttpResponse::Ok().json((doc_rows, count, pages))
     } else {
         HttpResponse::Ok().json(-1)
     }

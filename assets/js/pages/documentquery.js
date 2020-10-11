@@ -27,10 +27,6 @@ else {
     document_cate = "库存调整";
 }
 
-// let table_name = {
-//     name: document_cate,
-// };
-
 let table_fields;
 
 let init_data = {
@@ -64,7 +60,7 @@ fetch("/fetch_inout_fields", {
             let table = document.querySelector('.table-documents');
             let data = service.build_table_header(table, table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
-            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+            // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
             init_data.header_names = data.header_names;
 

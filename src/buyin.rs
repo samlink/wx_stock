@@ -317,15 +317,15 @@ pub async fn save_document(
                 init += &format!("{},", &*f.field_name);
             }
 
-            init += &format!("客商id,制单人) VALUES('{}',", dh);
+            init += &format!("客商id,类别,制单人) VALUES('{}',", dh);
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
-            doc_sql += &format!("{},'{}')", doc_data[2], doc_data[3]);
+            doc_sql += &format!("{},'{}','{}')", doc_data[2], doc_data[0], doc_data[3]);
         } else {
             let init = "UPDATE documents SET ".to_owned();
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
-                "客商id={}, 制单人='{}' WHERE 单号='{}'",
-                doc_data[2], doc_data[3], dh
+                "客商id={}, 类别='{}', 制单人='{}' WHERE 单号='{}'",
+                doc_data[2], doc_data[0], doc_data[3], dh
             );
         }
 
