@@ -4,36 +4,29 @@
 @(user: UserData, cate: &str)
 
 @:base({
-<div class="customer-set">
+<div class="docment-query">
     <div class="top-title"><span><i class="fa fa-retweet"></i> 商品出入库 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> @cate </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
         <span id="category" hidden>@cate</span>
     </div>
-    <div class="customer-content">
-        <div id="customer-show">
+    <div class="query-content">
+        <div id="query-show">
             <div class="table-top">
-                <div class="autocomplete customer-search">
-                    <input type="text" class="form-control search-input" id="search-input" placeholder="@cate搜索">
+                <div class="query-search">
+                    <input type="text" class="form-control search-input" id="search-input" placeholder="文本字段模糊搜索">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                 </div>
                 <div class="table-tools">
                     <div class="table-edit">
-                        <button class="btn btn-info btn-sm" id="add-button">增加</button>
+                        <button class="btn btn-info btn-sm" id="remember-button">记账</button>
                         <button class="btn btn-info btn-sm" id="edit-button">编辑</button>
                         <button class="btn btn-info btn-sm" id="del-button">删除</button>
-                    </div>
-                    <div class="data-button">
-                        <input type="file" id="choose_file2" class="hide" accept="xls,xlsx" />
-                        <button class="btn btn-info btn-sm" id="data-update">批量更新</button>
-                        <input type="file" id="choose_file" class="hide" accept="xls,xlsx" />
-                        <button class="btn btn-info btn-sm" id="data-in">批量导入</button>
-                        <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
                     </div>
                 </div>
             </div>
 
-            <div class="table-container table-customer">
+            <div class="table-container table-documents">
                 <table>
                     <thead>
                         <tr>
@@ -69,5 +62,5 @@
         </div>
     </div>
 </div>
-<!-- <script type="module" src="/assets/js/pages/customer.js"></script> -->
+<script type="module" src="/assets/js/pages/documentquery.js"></script>
 }, user.name.clone())

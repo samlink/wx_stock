@@ -513,7 +513,7 @@ input:focus {
 }
 
 .search-input {
-  height: 14px;
+  height: 13px;
   display: inline-block;
   width: 200px;
   margin-right: 3px;
@@ -2013,6 +2013,47 @@ a.roar-alert-message-tbf {
 .report-design .build-model .model-div #del-button:disabled {
   background-color: #d3d3d3;
   box-shadow: none;
+}
+
+.docment-query .query-search {
+  display: flex;
+  align-items: center;
+}
+.docment-query .query-search button {
+  margin-left: 5px;
+}
+.docment-query .table-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-left: 10px;
+}
+.docment-query .table-documents {
+  overflow-x: auto;
+}
+.docment-query .table-edit {
+  min-width: 200px;
+}
+.docment-query .table-edit button {
+  margin-left: 10px;
+}
+.docment-query .data-button {
+  margin-left: 40px;
+  margin-right: 20px;
+  min-width: 300px;
+}
+.docment-query .data-button button {
+  margin-left: 10px;
+}
+.docment-query #search-input {
+  width: 260px;
+}
+.docment-query td:nth-child(2),
+.docment-query th:nth-child(2) {
+  border-left: none !important;
+}
+.docment-query table th {
+  padding: 0;
 }
 
 /*# sourceMappingURL=sales.css.map */

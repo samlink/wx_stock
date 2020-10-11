@@ -1,0 +1,51 @@
+.docment-query {
+    // height: 95%;
+    .query-search {
+        display: flex;
+        align-items: center;
+        
+        button {
+            margin-left: 5px;
+        }
+    }
+
+    .table-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-left: 10px;
+    }
+
+    .table-documents {
+        overflow-x: auto;
+    }
+    .table-edit {
+        min-width: 200px;
+        button {
+            margin-left: 10px;
+        }
+    }
+
+    .data-button {
+        margin-left: 40px;
+        margin-right: 20px;
+        min-width: 300px;
+
+        button {
+            margin-left: 10px;
+        }
+    }
+
+    #search-input {
+        width: 260px;
+    }
+
+    td:nth-child(2),
+    th:nth-child(2) {
+        border-left: none !important;
+    }
+
+    table th {
+        padding: 0;
+    }
+}
