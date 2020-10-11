@@ -17,6 +17,7 @@ mod user_manage;
 mod user_set;
 mod warehouse_set;
 mod report_design;
+mod documentquery;
 
 #[derive(Deserialize)]
 struct Config {
@@ -73,6 +74,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_document)
             .service(buyin::fetch_document_items)
             .service(buyin::make_formal)
+            .service(documentquery::fetch_all_documents)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)

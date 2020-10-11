@@ -16,19 +16,30 @@ let global = {
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);
 
-let table_name = {
-    name: cate,
-};
+let document_cate;
+if (cate == "采购查询") {
+    document_cate = "采购单据";
+}
+else if (cate == "销售查询") {
+    document_cate = "销售单据";
+}
+else {
+    document_cate = "库存调整";
+}
+
+// let table_name = {
+//     name: document_cate,
+// };
 
 let table_fields;
 
 let init_data = {
     container: '.table-documents',
-    url: "/fetch_customer",
+    url: "/fetch_all_documents",
     post_data: {
         id: "",
         name: '',
-        sort: "名称 ASC",
+        sort: "开单时间 DESC",
         rec: row_num,
         cate: cate,
     },
@@ -38,19 +49,17 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch("/fetch_fields", {
+fetch("/fetch_inout_fields", {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
     },
-    body: JSON.stringify(table_name),
+    body: JSON.stringify(document_cate),
 })
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            table_fields = content[0].filter((item) => {
-                return item.is_show;
-            });
+            table_fields = content;
 
             let table = document.querySelector('.table-documents');
             let data = service.build_table_header(table, table_fields);
@@ -66,7 +75,7 @@ fetch("/fetch_fields", {
 
 function table_row(tr) {
     let rec = tr.split(SPLITER);
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
+    let row = `<tr><td style="text-align: center;">${rec[0]}</td><td>${rec[1]}</td>`;
     return service.build_row_from_string(rec, row, table_fields);
 }
 
