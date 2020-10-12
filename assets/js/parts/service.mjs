@@ -4,21 +4,32 @@ import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 
 export var table_fields;
 
-//根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
-export function build_table_header(table_container, table_fields) {
+/**
+ * 根据显示字段创建表头
+ * @param {} table_container 表格容器
+ * @param {} custom_fields {name:'序号', width: 3}
+ * @param {} table_fields  {field_name:'日期', show_name:'日期', data_type:'文本' ...}
+ */
+export function build_table_header(table_container, custom_fields, table_fields) {
     let all_width = 0;
+    for (let item of custom_fields) {
+        all_width += item.width;
+    }
+
     for (let item of table_fields) {
         all_width += item.show_width;
     }
 
-    all_width += 3;  //序号列的宽度
     let table_width = table_container.clientWidth;
     let width_raio = table_width / all_width;
-    let row = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
+    let row = "";
 
     //当可用屏幕宽度小于字段总宽度的18倍时，则按实际px显示，这样会横向滚动
     if (width_raio < 18) {
-        row = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
+        for (let item of custom_fields) {
+            row += `<th width='${item.width * 18}px'>${item.name}</th>`;
+        }
+
         table_container.style.width = table_width;
         table_container.querySelector('.table-ctrl').style.cssText = `
             position: absolute;
@@ -27,8 +38,22 @@ export function build_table_header(table_container, table_fields) {
             border: 1px solid #edf5fb;
             margin-left: -2px;`;
     }
+    else {
+        for (let item of custom_fields) {
+            row += `<th width='${item.width * 100 / all_width}%'>${item.name}</th>`;
+        }
+    }
 
     let header_names = {};
+    for (let th of custom_fields) {
+        // row += width_raio > 18 ? `<th width="${(th.width * 100 / all_width).toFixed(1)}%">${th.name}</th>` :
+        //     `<th width="${th.width * 18}px">${th.name}</th>`;
+
+        let key = th.show_name;
+        let value = th.field_name;
+        header_names[key] = value;
+    }
+
     for (let th of table_fields) {
         row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
@@ -43,6 +68,45 @@ export function build_table_header(table_container, table_fields) {
         header_names: header_names,
     };
 }
+// //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
+// export function build_table_header(table_container, table_fields) {
+//     let all_width = 0;
+//     for (let item of table_fields) {
+//         all_width += item.show_width;
+//     }
+
+//     all_width += 3;  //序号列的宽度
+//     let table_width = table_container.clientWidth;
+//     let width_raio = table_width / all_width;
+//     let row = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
+
+//     //当可用屏幕宽度小于字段总宽度的18倍时，则按实际px显示，这样会横向滚动
+//     if (width_raio < 18) {
+//         row = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
+//         table_container.style.width = table_width;
+//         table_container.querySelector('.table-ctrl').style.cssText = `
+//             position: absolute;
+//             width: ${table_width + 2}px;
+//             margin-top: 11px;
+//             border: 1px solid #edf5fb;
+//             margin-left: -2px;`;
+//     }
+
+//     let header_names = {};
+//     for (let th of table_fields) {
+//         row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
+//             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
+
+//         let key = th.show_name;
+//         let value = th.field_name;
+//         header_names[key] = value;
+//     }
+
+//     return {
+//         th_row: row,
+//         header_names: header_names,
+//     };
+// }
 
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields) {

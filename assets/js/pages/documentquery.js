@@ -56,11 +56,17 @@ fetch("/fetch_inout_fields", {
     .then(content => {
         if (content != -1) {
             table_fields = content;
+            let custom_fields = [
+                { name: '序号', width: 2 }, 
+                { name: '单号', width: 5 }, 
+                { name: '类别', width: 4 }, 
+                { name: '已记账', width: 3 }, 
+                { name: '制单人', width: 4 }, 
+            ];
 
             let table = document.querySelector('.table-documents');
-            let data = service.build_table_header(table, table_fields);
+            let data = service.build_table_header(table, custom_fields, table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
-            // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
             init_data.header_names = data.header_names;
 
