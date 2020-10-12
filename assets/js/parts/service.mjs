@@ -46,11 +46,8 @@ export function build_table_header(table_container, custom_fields, table_fields)
 
     let header_names = {};
     for (let th of custom_fields) {
-        // row += width_raio > 18 ? `<th width="${(th.width * 100 / all_width).toFixed(1)}%">${th.name}</th>` :
-        //     `<th width="${th.width * 18}px">${th.name}</th>`;
-
-        let key = th.show_name;
-        let value = th.field_name;
+        let key = th.name;
+        let value = th.field;
         header_names[key] = value;
     }
 

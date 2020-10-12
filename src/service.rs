@@ -58,7 +58,6 @@ pub struct Message {
 }
 
 //存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
-
 #[derive(Deserialize, Serialize)]
 pub struct FieldsData {
     pub field_name: String,
@@ -368,6 +367,19 @@ pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String 
         }
     }
     sql
+}
+
+//构建动态字段文本模糊查询语句
+pub fn build_sql_where(fields: &Vec<FieldsData>, s: &str) -> String {
+    let mut sql_where = "".to_owned();
+
+    for f in fields {
+        if f.data_type == "文本" {
+            sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s)
+        }
+    }
+
+    sql_where.trim_end_matches(" OR ").to_owned()
 }
 
 //各个功能页面获取帮助信息

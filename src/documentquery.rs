@@ -34,19 +34,27 @@ pub async fn fetch_all_documents(
         let fields = get_inout_fields(db.clone(), doc_cate).await;
 
         let mut sql_fields = "SELECT 单号,documents.类别,已记账,".to_owned();
+        let mut sql_where = "".to_owned();
 
         for f in &fields {
             sql_fields += &format!("documents.{},", f.field_name);
+            if f.data_type == "文本" {
+                sql_where += &format!(
+                    "LOWER(documents.{}) LIKE '%{}%' OR ",
+                    f.field_name, post_data.name
+                )
+            }
         }
+        sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,制单人 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE 单号 like '{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, doc_pre, post_data.sort, skip, post_data.rec
+            WHERE 单号 like '{}%' AND {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields, post_data.sort, doc_pre, sql_where, post_data.sort, skip, post_data.rec
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         //AND LOWER(名称) LIKE '%{}%'
 

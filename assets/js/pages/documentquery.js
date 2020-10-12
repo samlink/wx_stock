@@ -57,12 +57,12 @@ fetch("/fetch_inout_fields", {
         if (content != -1) {
             table_fields = content;
             let custom_fields = [
-                { name: '序号', width: 2 },
-                { name: '单号', width: 6 },
-                { name: '类别', width: 4 },
-                { name: cate == '销售查询' ? '客户' : '供应商', width: 10 },
-                { name: '已记账', width: 3 },
-                { name: '制单人', width: 4 },
+                { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
+                { name: '单号', field: '单号', width: 7 },
+                { name: '类别', field: 'documents.类别', width: 4 },
+                { name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10 },
+                { name: '已记账', field: '已记账', width: 3 },
+                { name: '制单人', field: '制单人', width: 4 },
             ];
 
             let table = document.querySelector('.table-documents');
@@ -89,9 +89,10 @@ function table_row(tr) {
         bk_color = "background-color: #faebd7;";
     }
 
-    let row = `<tr style='${boder_left}${bk_color}'><td style="text-align: center;">${rec[0]}</td><td>${rec[1]}</td>
+    let row = `<tr style='${boder_left}${bk_color}'><td style="text-align: center;">${rec[0]}</td>
+        <td title='${rec[1]}'>${rec[1]}</td>
         <td style="text-align: center;">${rec[2]}</td>
-        <td style="text-align: left;">${rec[len - 3]}</td>
+        <td style="text-align: left;" title='${rec[len - 3]}'>${rec[len - 3]}</td>
         <td style="text-align: center;">${rec[len - 2]}</td>
         <td style="text-align: center;">${rec[len - 1]}</td>`;
 
