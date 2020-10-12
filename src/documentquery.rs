@@ -33,15 +33,16 @@ pub async fn fetch_all_documents(
 
         let fields = get_inout_fields(db.clone(), doc_cate).await;
 
-        let mut sql_fields = "SELECT 单号,类别,已记账,".to_owned();
+        let mut sql_fields = "SELECT 单号,documents.类别,已记账,".to_owned();
 
         for f in &fields {
-            sql_fields += &format!("{},", f.field_name);
+            sql_fields += &format!("documents.{},", f.field_name);
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,制单人 FROM documents WHERE 
-            单号 like '{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,制单人 FROM documents 
+            JOIN customers ON documents.客商id=customers.id
+            WHERE 单号 like '{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, doc_pre, post_data.sort, skip, post_data.rec
         );
 
@@ -55,11 +56,12 @@ pub async fn fetch_all_documents(
             let num: i64 = row.get("序号");
             let dh: String = row.get("单号");
             let cate: String = row.get("类别");
+            let customer_name: String = row.get("名称");
             let rem: bool = row.get("已记账");
             let remembered = if rem == true { "是" } else { "否" };
             let maker: String = row.get("制单人");
             let row_str = format!(
-                "{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}",
                 num,
                 SPLITER,
                 dh,
@@ -67,6 +69,8 @@ pub async fn fetch_all_documents(
                 cate,
                 SPLITER,
                 simple_string_from_base(row, &fields),
+                customer_name,
+                SPLITER,
                 remembered,
                 SPLITER,
                 maker,

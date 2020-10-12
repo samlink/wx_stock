@@ -109,16 +109,16 @@ export function build_table_header(table_container, custom_fields, table_fields)
 // }
 
 //依据显示字段，创建表格内容行
-export function build_row_from_string(rec, row, table_fields) {
-    let n = 2;
+export function build_row_from_string(rec, row, table_fields, n) {
+    if (!n) n = 2;
     for (let name of table_fields) {
         if (name.data_type == "文本") {
-            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
+            row += `<td  title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
             row += `<td style="text-align: right;">${rec[n]}</td>`;
         }
         else {
-            row += `<td>${rec[n]}</td>`;
+            row += `<td style="text-align: center;">${rec[n]}</td>`;
         }
         n++;
     }

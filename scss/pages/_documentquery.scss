@@ -10,7 +10,7 @@
 
     .table-top {
         display: flex;
-        align-items: center; 
+        align-items: center;
         justify-content: space-between;
         margin-left: 10px;
     }
@@ -18,7 +18,7 @@
     .table-documents {
         overflow-x: auto;
     }
-    
+
     .table-edit {
         min-width: 200px;
         button {
@@ -47,5 +47,6 @@
 
     table th {
         padding: 0;
+    //    color:lighten(#fd3995, 25%);
     }
 }
