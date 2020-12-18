@@ -45,18 +45,22 @@ pub async fn fetch_all_documents(
                 )
             }
         }
-        sql_where = sql_where.trim_end_matches(" OR ").to_owned();
+
+        sql_where += &format!(
+            "单号 LIKE '%{}%' OR 名称 LIKE '%{}%' OR documents.类别 LIKE '%{}%' OR 制单人 LIKE '%{}%'",
+            post_data.name, post_data.name, post_data.name, post_data.name
+        );
+
+        // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,制单人 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE 单号 like '{}%' AND {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            WHERE 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, doc_pre, sql_where, post_data.sort, skip, post_data.rec
         );
 
         println!("{}", sql);
-
-        //AND LOWER(名称) LIKE '%{}%'
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut doc_rows: Vec<String> = Vec::new();
@@ -88,8 +92,10 @@ pub async fn fetch_all_documents(
         }
 
         let count_sql = format!(
-            r#"SELECT count(单号) as 记录数 FROM documents WHERE 单号 like '{}%'"#,
-            doc_pre
+            r#"SELECT count(单号) as 记录数 FROM documents 
+            JOIN customers ON documents.客商id=customers.id 
+            WHERE 单号 like '{}%' AND ({})"#,
+            doc_pre, sql_where
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
