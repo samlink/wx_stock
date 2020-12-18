@@ -7,15 +7,13 @@ export var table_fields;
 /**
  * 根据显示字段创建表头
  * @param {} table_container 表格容器
- * @param {} custom_fields {name:'序号', width: 3}
- * @param {} table_fields  {field_name:'日期', show_name:'日期', data_type:'文本' ...}
+ * @param {} custom_fields 自定义字段数组 [{name:'序号', width: 3}...]
+ * @param {} table_fields  自动生成字段 [{field_name:'日期', show_name:'日期', data_type:'文本' ...}...]
  */
 export function build_table_header(table_container, custom_fields, table_fields) {
     let all_width = 0;
-    if (custom_fields) {
-        for (let item of custom_fields) {
-            all_width += item.width;
-        }
+    for (let item of custom_fields) {
+        all_width += item.width;
     }
 
     for (let item of table_fields) {
@@ -326,7 +324,7 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, "", table_fields);
+                let header = build_table_header(table, [{}], table_fields);
                 table.querySelector('thead tr').innerHTML = header.th_row;
 
                 init_data.header_names = header.header_names;

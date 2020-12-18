@@ -53,9 +53,11 @@ fetch("/fetch_fields", {
             });
 
             let table = document.querySelector('.table-customer');
-            let data = service.build_table_header(table, "", table_fields);
+            let custom_fields =[{name:'序号', width: 3}]
+            let data = service.build_table_header(table, custom_fields, table_fields);
+            console.log(data.th_row);
             table.querySelector('thead tr').innerHTML = data.th_row;
-            table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+            // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
             init_data.header_names = data.header_names;
 
