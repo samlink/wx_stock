@@ -79,17 +79,17 @@ fetch("/fetch_inout_fields", {
 function table_row(tr) {
     let rec = tr.split(SPLITER);
     let len = rec.length;
-    let boder_left = "";
+    let border_left = "";
     if (rec[2].indexOf("退") != -1) {
-        boder_left = "border-left: 3px solid tomato;";
+        border_left = "has-border";
     }
 
     let bk_color = "";
     if (rec[len - 2] == "否") {
-        bk_color = "background-color: #faebd7;";
+        bk_color = "not-confirm";
     }
 
-    let row = `<tr style='${boder_left}${bk_color}'><td style="text-align: center;">${rec[0]}</td>
+    let row = `<tr class='${border_left} ${bk_color}'><td style="text-align: center;">${rec[0]}</td>
         <td title='${rec[1]}'>${rec[1]}</td>
         <td style="text-align: center;">${rec[2]}</td>
         <td style="text-align: left;" title='${rec[len - 3]}'>${rec[len - 3]}</td>

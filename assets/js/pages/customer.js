@@ -53,7 +53,7 @@ fetch("/fetch_fields", {
             });
 
             let table = document.querySelector('.table-customer');
-            let data = service.build_table_header(table, table_fields);
+            let data = service.build_table_header(table, "", table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
             table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 

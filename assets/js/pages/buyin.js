@@ -212,7 +212,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             .then(content => {
                 customer_table_fields = content;
                 let table = document.querySelector('.table-customer');
-                let data = service.build_table_header(table, customer_table_fields);
+                let data = service.build_table_header(table, "", customer_table_fields);
                 table.querySelector('thead tr').innerHTML = data.th_row;
                 table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 

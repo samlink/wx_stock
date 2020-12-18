@@ -47,6 +47,18 @@
 
     table th {
         padding: 0;
-    //    color:lighten(#fd3995, 25%);
+        //    color:lighten(#fd3995, 25%);
     }
+
+    .has-border {
+        border-left: 3px solid tomato;
+    }
+
+    .not-confirm {
+        background-color: #faebd7;
+        &:hover {
+            background-color: #e4f4f8;
+        }
+    }
+
 }

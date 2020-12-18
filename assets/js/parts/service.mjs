@@ -12,8 +12,10 @@ export var table_fields;
  */
 export function build_table_header(table_container, custom_fields, table_fields) {
     let all_width = 0;
-    for (let item of custom_fields) {
-        all_width += item.width;
+    if (custom_fields) {
+        for (let item of custom_fields) {
+            all_width += item.width;
+        }
     }
 
     for (let item of table_fields) {
@@ -324,7 +326,7 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, table_fields);
+                let header = build_table_header(table, "", table_fields);
                 table.querySelector('thead tr').innerHTML = header.th_row;
 
                 init_data.header_names = header.header_names;
