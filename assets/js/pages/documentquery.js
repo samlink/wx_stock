@@ -100,7 +100,7 @@ function table_row(tr) {
 }
 
 function blank_row() {
-    let row = "<tr><td></td><td hidden></td>";
+    let row = "<tr><td></td><td></td><td></td><td></td><td></td><td></td>";     //与上面的 table_row() 中的 row 变量保持一致
     return service.build_blank_from_fields(row, table_fields);
 }
 
