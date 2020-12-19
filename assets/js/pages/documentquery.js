@@ -116,7 +116,28 @@ function search_table() {
 
 //记账按键
 document.querySelector('#remember-button').addEventListener('click', function () {
+    let chosed = document.querySelector('tbody .focus');
+    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+    let checked = chosed ? chosed.querySelector('td:nth-child(5)').textContent : "";
+    if (id != "") {
+        if (checked == "是") {
+            alert_confirm('该单据已记账，是否取消记账？', {
+                confirmCallBack: () => {
 
+                }
+            });
+        }
+        else {
+            alert_confirm('确认记账吗？', {
+                confirmCallBack: () => {
+
+                }
+            });
+        }
+    }
+    else {
+        notifier.show('请先选择单据', 'danger');
+    }
 });
 
 //编辑按键
@@ -129,7 +150,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
     }
     else {
-        notifier.show('请先选择' + cate, 'danger');
+        notifier.show('请先选择单据', 'danger');
     }
 });
 
