@@ -121,14 +121,14 @@ document.querySelector('#remember-button').addEventListener('click', function ()
     let checked = chosed ? chosed.querySelector('td:nth-child(5)').textContent : "";
     if (id != "") {
         if (checked == "是") {
-            alert_confirm('该单据已记账，是否取消记账？', {
+            alert_confirm(`单据 ${id} 已记账，是否取消记账？`, {
                 confirmCallBack: () => {
 
                 }
             });
         }
         else {
-            alert_confirm('确认记账吗？', {
+            alert_confirm(`确认记账单据 ${id} 吗？`, {
                 confirmCallBack: () => {
 
                 }
