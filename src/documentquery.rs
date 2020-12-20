@@ -136,3 +136,29 @@ pub async fn update_rem(db: web::Data<Pool>, rem: web::Json<Rem>, id: Identity) 
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize, Serialize)]
+pub struct Del {
+    id: String,
+    rights: String,
+}
+
+#[post("/documents_del")]
+pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, del.rights.clone()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(r#"DELETE FROM document_items WHERE 单号id='{}'"#, del.id);
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        let sql = format!(r#"DELETE FROM documents WHERE 单号='{}'"#, del.id);
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

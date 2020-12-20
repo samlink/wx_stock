@@ -76,6 +76,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_formal)
             .service(documentquery::fetch_all_documents)
             .service(documentquery::update_rem)
+            .service(documentquery::documents_del)
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
