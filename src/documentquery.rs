@@ -2,7 +2,7 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
-// use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 // use time::now;
 
 ///获取全部单据
@@ -106,6 +106,32 @@ pub async fn fetch_all_documents(
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((doc_rows, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Rem {
+    id: String,
+    has: bool,
+    rights: String,
+}
+
+#[post("/update_rem")]
+pub async fn update_rem(db: web::Data<Pool>, rem: web::Json<Rem>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, rem.rights.clone()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"UPDATE documents SET 已记账={} WHERE 单号='{}'"#,
+            rem.has, rem.id
+        );
+
+        &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
