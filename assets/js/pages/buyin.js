@@ -78,6 +78,11 @@ fetch("/fetch_inout_fields", {
                         if (document_bz != "库存调整") {
                             supplier_auto_show();
                         }
+                        
+                        setTimeout(() => {
+                            sum_money();
+                            sum_records();
+                        }, 200);
                     });
             }
             else {
@@ -212,9 +217,9 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             .then(content => {
                 customer_table_fields = content;
                 let table = document.querySelector('.table-customer');
-                let data = service.build_table_header(table, "", customer_table_fields);
+                let data = service.build_table_header(table, [{ name: '序号', width: 3 }], customer_table_fields);
                 table.querySelector('thead tr').innerHTML = data.th_row;
-                table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+                // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
                 let init_data = {
                     container: '.table-customer',

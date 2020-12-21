@@ -167,17 +167,10 @@ function remember(rem) {
 
 //编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {
-    global.eidt_cate = "edit";
-
-
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (id != "") {
-        alert_confirm(`确认删除单据 ${id} 吗？`, {
-            confirmCallBack: () => {
-                remember(rem);
-            }
-        });
+        window.open("/buy_in/" + id);
     }
     else {
         notifier.show('请先选择单据', 'danger');
@@ -193,7 +186,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
         id: id,
         rights: "记账编辑",
     }
-    
+
     if (id != "") {
         alert_confirm(`确认删除单据 ${id} 吗？`, {
             confirmCallBack: () => {
