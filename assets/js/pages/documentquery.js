@@ -7,24 +7,27 @@ import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
 
-let global = {
-    row_id: 0,
-    edit: 0,
-    eidt_cate: "",
-}
+// let global = {
+//     row_id: 0,
+//     edit: 0,
+//     eidt_cate: "",
+// }
 
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);
 
-let document_cate;
+let document_cate, address;
 if (cate == "采购查询") {
     document_cate = "采购单据";
+    address = "/buy_in/";
 }
 else if (cate == "销售查询") {
     document_cate = "销售单据";
+    address = "/sale/";    
 }
 else {
     document_cate = "库存调整";
+    address = "/stock_change/";
 }
 
 let table_fields;
@@ -170,7 +173,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (id != "") {
-        window.open("/buy_in/" + id);
+        window.open(address + id);
     }
     else {
         notifier.show('请先选择单据', 'danger');

@@ -324,8 +324,9 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{}], table_fields);
+                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields);
                 table.querySelector('thead tr').innerHTML = header.th_row;
+                // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
                 init_data.header_names = header.header_names;
                 init_data.header_names["编号"] = "id";

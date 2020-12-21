@@ -217,7 +217,29 @@ pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购查询".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| buyquery(o, user, "采购查询"));
+        let html = r2s(|o| query(o, user, "采购查询"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
+
+#[get("/sale_query")]
+pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "销售查询".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| query(o, user, "销售查询"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
+
+#[get("/change_query")]
+pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "调整查询".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| query(o, user, "调整查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
