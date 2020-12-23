@@ -270,6 +270,9 @@ pub fn build_string_from_base(
 
         product += &simple_string_from_base(row, &fields);
 
+        let stock: f32 = row.get("库存");
+        product += &format!("{}{}", stock, SPLITER);
+
         products.push(product);
     }
     products

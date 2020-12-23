@@ -9,11 +9,18 @@ export var table_fields;
  * @param {} table_container 表格容器
  * @param {} custom_fields 自定义字段数组 [{name:'序号', width: 3}...]
  * @param {} table_fields  自动生成字段 [{field_name:'日期', show_name:'日期', data_type:'文本' ...}...]
+ * @param {} last_fields  自定义表格最后部分的字段数组 [{name:'库存', field: '库存', width: 3}...]
  */
-export function build_table_header(table_container, custom_fields, table_fields) {
+export function build_table_header(table_container, custom_fields, table_fields, last_fields) {
     let all_width = 0;
     for (let item of custom_fields) {
         all_width += item.width;
+    }
+
+    if (last_fields) {
+        for (let item of last_fields) {
+            all_width += item.width;
+        }
     }
 
     for (let item of table_fields) {
@@ -47,8 +54,7 @@ export function build_table_header(table_container, custom_fields, table_fields)
     let header_names = {};
     for (let th of custom_fields) {
         let key = th.name;
-        let value = th.field;
-        header_names[key] = value;
+        header_names[key] = th.field;
     }
 
     for (let th of table_fields) {
@@ -56,8 +62,15 @@ export function build_table_header(table_container, custom_fields, table_fields)
             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
 
         let key = th.show_name;
-        let value = th.field_name;
-        header_names[key] = value;
+        header_names[key] = th.field_name;
+    }
+
+    if (last_fields) {
+        for (let item of last_fields) {
+            row += width_raio < 18 ? `<th width='${item.width * 18}px'>${item.name}</th>` : `<th width='${item.width * 100 / all_width}%'>${item.name}</th>`;
+            let key = item.name;
+            header_names[key] = item.field;
+        }
     }
 
     return {
@@ -324,7 +337,7 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields);
+                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, [{name:'库存', field: '库存', width: 3}]);
                 table.querySelector('thead tr').innerHTML = header.th_row;
                 // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -349,7 +362,7 @@ export function build_product_table(row_num, cb) {
 
     function table_row(tr) {
         let rec = tr.split(SPLITER);
-        let row = `<tr><td style="text-align: center;">${rec[1]}</td><td>${rec[0]}</td>`;
+        let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
         return build_row_from_string(rec, row, table_fields);
     }
 

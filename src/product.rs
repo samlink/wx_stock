@@ -34,7 +34,10 @@ pub async fn fetch_product(
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products WHERE 商品id='{}' AND 
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号, COALESCE(库存, '0') as 库存 FROM products 
+            left join (select 商品id, sum(数量) as 库存 from document_items group by 商品id) as foo
+            on products.id=foo.商品id
+            WHERE products.商品id='{}' AND 
             LOWER(规格型号) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, post_data.id, name, post_data.sort, skip, post_data.rec
         );
@@ -42,6 +45,7 @@ pub async fn fetch_product(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let products = build_string_from_base(rows, fields);
+
         let rows = &conn
             .query(
                 r#"SELECT count(id) as 记录数 FROM products WHERE 商品id=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
