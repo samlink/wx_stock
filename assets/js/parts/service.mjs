@@ -337,7 +337,7 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, [{name:'库存', field: '库存', width: 3}]);
+                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, [{ name: '库存', field: '库存', width: 3 }]);
                 table.querySelector('thead tr').innerHTML = header.th_row;
                 // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -363,7 +363,9 @@ export function build_product_table(row_num, cb) {
     function table_row(tr) {
         let rec = tr.split(SPLITER);
         let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
-        return build_row_from_string(rec, row, table_fields);
+        let row_build = build_row_from_string(rec, row, table_fields);
+        let rows = row_build.replace("</tr>", `<td>${rec[rec.length - 2]}</td></tr>`);  //将库存加入
+        return rows;
     }
 
     function blank_row() {
