@@ -1,0 +1,21 @@
+// 部分样式与 _documentquery.scss 共用
+.stock_query {
+    .stock_content {
+        display: flex;
+    }
+
+    .query-content {
+        width: 49%;
+        min-width: 400px;
+        margin-right: 20px;
+    }
+
+    .table-top {
+        justify-content: flex-start;
+    }
+
+    .title-note {
+        margin-left: 30px;
+
+    }
+}

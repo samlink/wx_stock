@@ -245,3 +245,14 @@ pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+#[get("/stock_query")]
+pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "库存检查".to_owned()).await;
+    if user.name != "" {
+        let html = r2s(|o| stockquery(o, user, "库存检查"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
