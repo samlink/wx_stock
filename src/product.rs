@@ -44,7 +44,19 @@ pub async fn fetch_product(
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let products = build_string_from_base(rows, fields);
+        //这部分是取自 build_string_from_base（），但由于需加入库存，不能使用原函数
+        let mut products = Vec::new();
+        for row in rows {
+            let mut product = "".to_owned();
+            let num: i32 = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
+            product += &format!("{}{}", num, SPLITER);
+            let num: i64 = row.get("序号");
+            product += &format!("{}{}", num, SPLITER);
+            product += &simple_string_from_base(row, &fields);
+            let stock: f32 = row.get("库存");
+            product += &format!("{}{}", stock, SPLITER);
+            products.push(product);
+        }
 
         let rows = &conn
             .query(
