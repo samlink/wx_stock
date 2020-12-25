@@ -7,34 +7,14 @@ import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
 
-// let global = {
-//     row_id: 0,
-//     edit: 0,
-//     eidt_cate: "",
-// }
-
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);
-
-let document_cate, address;
-if (cate == "采购查询") {
-    document_cate = "采购单据";
-    address = "/buy_in/";
-}
-else if (cate == "销售查询") {
-    document_cate = "销售单据";
-    address = "/sale/";    
-}
-else {
-    document_cate = "库存调整";
-    address = "/stock_change/";
-}
 
 let table_fields;
 
 let init_data = {
-    container: '.table-documents',
-    url: "/fetch_all_documents",
+    container: '.table-limit',
+    url: "/fetch_limit",
     post_data: {
         id: "",
         name: '',
@@ -117,103 +97,5 @@ function search_table() {
     fetch_table();
 }
 
-//记账按键
-document.querySelector('#remember-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-    let checked = chosed ? chosed.querySelector('td:nth-child(5)').textContent : "";
-    if (id != "") {
-        let rem = {
-            id: id,
-            has: checked == "是" ? false : true,
-            rights: "单据记账",
-        }
 
-        if (checked == "是") {
-            alert_confirm(`单据 ${id} 已记账，是否撤销记账？`, {
-                confirmCallBack: () => {
-                    remember(rem);
-                }
-            });
-        }
-        else {
-            alert_confirm(`确认记账单据 ${id} 吗？`, {
-                confirmCallBack: () => {
-                    remember(rem);
-                }
-            });
-        }
-    }
-    else {
-        notifier.show('请先选择单据', 'danger');
-    }
-});
-
-function remember(rem) {
-    fetch("/update_rem", {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(rem),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content != -1) {
-                search_table();
-            }
-            else {
-                notifier.show('权限不够，操作失败', 'danger');
-            }
-        });
-}
-
-//编辑按键
-document.querySelector('#edit-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-    if (id != "") {
-        window.open(address + id);
-    }
-    else {
-        notifier.show('请先选择单据', 'danger');
-    }
-});
-
-//删除按键
-document.querySelector('#del-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-
-    let del = {
-        id: id,
-        rights: "记账编辑",
-    }
-
-    if (id != "") {
-        alert_confirm(`确认删除单据 ${id} 吗？`, {
-            confirmCallBack: () => {
-                fetch("/documents_del", {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(del),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != -1) {
-                            search_table();
-                        }
-                        else {
-                            notifier.show('权限不够，操作失败', 'danger');
-                        }
-                    });
-            }
-        });
-    }
-    else {
-        notifier.show('请先选择单据', 'danger');
-    }
-});
 
