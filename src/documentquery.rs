@@ -262,13 +262,18 @@ pub async fn fetch_stay(
         let name = post_data.name.to_lowercase();
 
         let sql = format!(
-            r#"select node_name as 名称, 规格型号, 单位,name as 仓库, 库位, 库存, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products 
+            r#"select node_name as 名称, 规格型号, 单位,name as 仓库, 库位, 库存下限, 库存, B.日期, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false AND 已记账=true group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
             on products.id=foo.商品id
+            join 
+            (
+                SELECT 商品id, 日期, ROW_NUMBER() OVER (PARTITION BY 商品id ORDER BY 日期 DESC) RowIndex
+                FROM document_items join documents on 单号=单号id WHERE 单号 like 'XS%' AND 直销=false AND 已记账=true
+            ) B            
+            on products.id=B.商品id
             join tree on num=products.商品id 
-            join warehouse on warehouse.id=foo.仓库id
-            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND B.RowIndex = 1 and B.日期::date + interval '2 day' <= now()
             order by {} OFFSET {} LIMIT {};"#,
             post_data.sort, name, name, post_data.sort, skip, post_data.rec
         );
