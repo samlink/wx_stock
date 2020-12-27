@@ -184,7 +184,7 @@ pub async fn fetch_limit(
             join tree on num=products.商品id 
             join warehouse on warehouse.id=foo.仓库id
             where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限
-            order by {}  OFFSET {} LIMIT {};"#,
+            order by {} OFFSET {} LIMIT {};"#,
             post_data.sort, name, name, post_data.sort, skip, post_data.rec
         );
 
@@ -198,7 +198,92 @@ pub async fn fetch_limit(
             let gg: String = row.get("规格型号");
             let dw: String = row.get("单位");
             let ck: String = row.get("仓库");
+            let kw: String = row.get("库位");
             let limit: f32 = row.get("库存下限");
+            let stock: f32 = row.get("库存");
+
+            let product = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                num,
+                SPLITER,
+                name,
+                SPLITER,
+                gg,
+                SPLITER,
+                dw,
+                SPLITER,
+                ck,
+                SPLITER,
+                kw,
+                SPLITER,
+                limit,
+                SPLITER,
+                stock
+            );
+
+            products.push(product);
+        }
+
+        let count_sql = format!(
+            r#"select count(products.id) as 记录数 from products 
+            join 
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号id=单号 where 直销=false AND 已记账=true group by 仓库id,商品id) as foo
+            on products.id=foo.商品id
+            join tree on num=products.商品id 
+            join warehouse on warehouse.id=foo.仓库id
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限;"#,
+            name, name
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+        for row in rows {
+            count = row.get("记录数");
+        }
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+        HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取滞库的商品
+#[post("/fetch_stay")]
+pub async fn fetch_stay(
+    db: web::Data<Pool>,
+    post_data: web::Json<TablePager>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "库存检查".to_string()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.to_lowercase();
+
+        let sql = format!(
+            r#"select node_name as 名称, 规格型号, 单位,name as 仓库, 库位, 库存, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products 
+            join 
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false AND 已记账=true group by 仓库id,商品id) as foo
+            on products.id=foo.商品id
+            join tree on num=products.商品id 
+            join warehouse on warehouse.id=foo.仓库id
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限
+            order by {} OFFSET {} LIMIT {};"#,
+            post_data.sort, name, name, post_data.sort, skip, post_data.rec
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut products = Vec::new();
+
+        for row in rows {
+            let num: i64 = row.get("序号");
+            let name: String = row.get("名称");
+            let gg: String = row.get("规格型号");
+            let dw: String = row.get("单位");
+            let ck: String = row.get("仓库");
+            let kw: String = row.get("库位");
             let stock: f32 = row.get("库存");
 
             let product = format!(
@@ -213,7 +298,7 @@ pub async fn fetch_limit(
                 SPLITER,
                 ck,
                 SPLITER,
-                limit,
+                kw,
                 SPLITER,
                 stock
             );
@@ -222,7 +307,13 @@ pub async fn fetch_limit(
         }
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM products WHERE (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限"#,
+            r#"select count(products.id) as 记录数 from products 
+            join 
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
+            on products.id=foo.商品id
+            join tree on num=products.商品id 
+            join warehouse on warehouse.id=foo.仓库id
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限;"#,
             name, name
         );
 
