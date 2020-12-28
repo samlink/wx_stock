@@ -70,8 +70,10 @@
                     <input type="text" class="form-control search-input" id="search-input2" placeholder="搜索">
                     <button class="btn btn-info btn-sm" id="serach-button2">搜索</button>
                 </div>
-                <div class="title-note">
-                    有库存，但 3 个月以来未有销售记录的商品：
+                <div class="title-note">                    
+                    <input type="text" class="form-control search-input" id="month-input" value="3">
+                    个月以来未有销售记录的商品
+                    <button class="btn btn-info btn-sm" id="month-button">检查</button>
                 </div>
             </div>
 
@@ -81,11 +83,12 @@
                         <tr>
                             <th width="8%">序号</th>
                             <th width="20%">名称</th>
-                            <th width="30%">规格型号</th>
+                            <th width="25%">规格型号</th>
                             <th width="8%">单位</th>
                             <th>仓库</th>
                             <th>库位</th>
                             <th>库存</th>
+                            <th>最近销售</th>
                         </tr>
                     </thead>
                     <tbody>

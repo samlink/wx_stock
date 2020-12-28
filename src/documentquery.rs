@@ -227,7 +227,7 @@ pub async fn fetch_limit(
         let count_sql = format!(
             r#"select count(products.id) as 记录数 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号id=单号 where 直销=false AND 已记账=true group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
             on products.id=foo.商品id
             join tree on num=products.商品id 
             join warehouse on warehouse.id=foo.仓库id
@@ -273,9 +273,10 @@ pub async fn fetch_stay(
             ) B            
             on products.id=B.商品id
             join tree on num=products.商品id 
-            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND B.RowIndex = 1 and B.日期::date + interval '2 day' <= now()
+            join warehouse on warehouse.id=foo.仓库id
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存>0 AND B.RowIndex = 1 and B.日期::date + interval '{} month' <= now()
             order by {} OFFSET {} LIMIT {};"#,
-            post_data.sort, name, name, post_data.sort, skip, post_data.rec
+            post_data.sort, name, name, post_data.cate, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -290,9 +291,10 @@ pub async fn fetch_stay(
             let ck: String = row.get("仓库");
             let kw: String = row.get("库位");
             let stock: f32 = row.get("库存");
+            let date: String = row.get("日期");
 
             let product = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 num,
                 SPLITER,
                 name,
@@ -305,7 +307,9 @@ pub async fn fetch_stay(
                 SPLITER,
                 kw,
                 SPLITER,
-                stock
+                stock,
+                SPLITER,
+                date,
             );
 
             products.push(product);
@@ -316,10 +320,16 @@ pub async fn fetch_stay(
             join 
             (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
             on products.id=foo.商品id
+            join 
+            (
+                SELECT 商品id, 日期, ROW_NUMBER() OVER (PARTITION BY 商品id ORDER BY 日期 DESC) RowIndex
+                FROM document_items join documents on 单号=单号id WHERE 单号 like 'XS%' AND 直销=false AND 已记账=true
+            ) B            
+            on products.id=B.商品id
             join tree on num=products.商品id 
             join warehouse on warehouse.id=foo.仓库id
-            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存<=库存下限;"#,
-            name, name
+            where (LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%') AND 库存>0 AND B.RowIndex = 1 and B.日期::date + interval '{} month' <= now()"#,
+            name, name, post_data.cate
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

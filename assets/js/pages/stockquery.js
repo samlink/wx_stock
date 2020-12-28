@@ -105,7 +105,8 @@ let init_data2 = {
         "单位": "单位",
         "仓库": "name",
         "库位": "库位",
-        "库存下限": "库存下限",
+        "库存": "库存",
+        "最近销售": "日期"
     },
 
     row_fn: table_row2,
@@ -125,13 +126,14 @@ function table_row2(tr) {
         <td style="text-align: center;">${rec[3]}</td>
         <td style="text-align: center;">${rec[4]}</td>
         <td style="text-align: center;">${rec[5]}</td>
-        <td style="text-align: center;">${rec[6]}</td></tr>`;
+        <td style="text-align: center;">${rec[6]}</td>
+        <td style="text-align: center;">${rec[7]}</td></tr>`;
 
     return row;
 }
 
 function blank_row2() {
-    return "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+    return "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
 }
 
 document.querySelector('#serach-button2').addEventListener('click', function () {
@@ -143,3 +145,14 @@ function search_table2() {
     table2.change_data({ name: search, page: 1 });
     table2.fetch_table();
 }
+
+document.querySelector('#month-button').addEventListener('click', function () {
+    let mon = document.querySelector('#month-input').value;
+    if (regInt.test(mon)) {
+        table2.change_data({ cate: mon });
+        table2.fetch_table();
+    }
+    else {
+        notifier.show('月份输入错误', 'danger');
+    }
+})
