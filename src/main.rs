@@ -18,6 +18,7 @@ mod user_set;
 mod warehouse_set;
 mod report_design;
 mod documentquery;
+mod business;
 
 #[derive(Deserialize)]
 struct Config {
@@ -67,6 +68,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::sale_query)
             .service(html::change_query)
             .service(html::stock_query)
+            .service(html::business_query)
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
@@ -118,6 +120,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
+            .service(business::business_query)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)
