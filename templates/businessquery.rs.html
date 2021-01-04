@@ -13,7 +13,17 @@
         <div id="query-show">
             <div class="table-top">
                 <div class="query-search">
-                    <input type="text" class="form-control search-input" id="search-input" placeholder="文本字段模糊搜索">
+                    <input type="text" class="form-control search-input" id="search-input" placeholder="客户供应商搜索">
+                    <label class="check-radio"><input type="checkbox" id="checkbox-fields">
+                        <span class="checkmark"></span>
+                    </label>
+                    <input type="text" class="form-control search-input" id="search-fields" placeholder="字段模糊搜索">
+                    <label class="check-radio"><input type="checkbox" id="checkbox-date">
+                        <span class="checkmark"></span>
+                    </label>
+                    <input type="text" class="form-control search-input" id="search-date1" placeholder="起始日期">
+                    -
+                    <input type="text" class="form-control search-input" id="search-date2" placeholder="终止日期">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                 </div>
                 <div class="table-tools">
