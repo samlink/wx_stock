@@ -1,8 +1,17 @@
 .business_query {
     .query-search {
         label {
-            margin: 0 6px 22px 30px;
-            
+            margin: 0 6px 22px 30px;            
+        }
+
+        .date-input {
+            width: 100px;
+            margin-left: 3px;
+        }
+
+        button {
+            margin-left: 10px;
         }
     }
+
 }
