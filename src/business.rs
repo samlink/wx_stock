@@ -27,7 +27,7 @@ pub async fn fetch_business(
         let customer = post_data.cate.trim().to_lowercase();
 
         let sql = format!(
-            r#"select 日期,单号,documents.类别,应结金额,node_name,规格型号,单位,单价,数量, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents 
+            r#"select 日期,单号,documents.类别,应结金额,node_name,规格型号,单位,单价,数量,documents.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents 
             join document_items on documents.单号 = document_items.单号id 
             join customers on documents.客商id = customers.id
             join products on products.id = document_items.商品id
@@ -54,9 +54,10 @@ pub async fn fetch_business(
             let f8: String = row.get("单位");
             let f9: f32 = row.get("单价");
             let f10: f32 = row.get("数量");
+            let f11: String = row.get("备注");
 
             products = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 f1,
                 SPLITER,
                 f2,
@@ -75,7 +76,9 @@ pub async fn fetch_business(
                 SPLITER,
                 f9,
                 SPLITER,
-                f10
+                f10,
+                SPLITER,
+                f11
             );
         }
 
