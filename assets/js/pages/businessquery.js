@@ -61,7 +61,20 @@ let init_data = {
 document.querySelector('#serach-button').addEventListener('click', function () {
     let customer = document.querySelector('#search-customer').value;
     let check_fields = document.querySelector('#checkbox-fields').checked;
-    let check_fields = document.querySelector('#checkbox-date').checked;
+    let check_date = document.querySelector('#checkbox-date').checked;
+
+    let fields = check_fields ? document.querySelector('#search-fields').value : "";
+    let date1, date2;
+
+    if (check_date) {
+        date1 = document.querySelector('#search-date1').value;
+        date2 = document.querySelector('#search-date2').value;
+        if (!(regDate.test(date1) && regDate.test(date2))) {
+            notifier.show('日期输入错误', 'danger');
+            return;
+        }
+    }
+
 
 
 });
