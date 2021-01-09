@@ -27,42 +27,67 @@ pub async fn fetch_business(
         let customer = post_data.cate.trim().to_lowercase();
 
         let sql = format!(
-            r#"select 日期,单号,documents.类别,应结金额,node_name,单价,数量, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents 
+            r#"select 日期,单号,documents.类别,应结金额,node_name,规格型号,单位,单价,数量, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents 
             join document_items on documents.单号 = document_items.单号id 
             join customers on documents.客商id = customers.id
             join products on products.id = document_items.商品id
             join tree on tree.num = products.商品id
             where customers.名称 = '{}' FROM customers
-            LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, customer, name, post_data.sort, skip, post_data.rec
+            LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%'            
+            ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, customer, name, name, name, name, post_data.sort, skip, post_data.rec
         );
 
         println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let products = "".to_owned();
+        let mut products = "".to_owned();
         for row in rows {
             let f1: String = row.get("序号");
             let f2: String = row.get("日期");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
-            let f1: String = row.get("序号");
+            let f3: String = row.get("单号");
+            let f4: String = row.get("类别");
+            let f5: String = row.get("应结金额");
+            let f6: String = row.get("node_name");
+            let f7: String = row.get("规格型号");
+            let f8: String = row.get("单位");
+            let f9: f32 = row.get("单价");
+            let f10: f32 = row.get("数量");
 
+            products = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                f1,
+                SPLITER,
+                f2,
+                SPLITER,
+                f3,
+                SPLITER,
+                f4,
+                SPLITER,
+                f5,
+                SPLITER,
+                f6,
+                SPLITER,
+                f7,
+                SPLITER,
+                f8,
+                SPLITER,
+                f9,
+                SPLITER,
+                f10
+            );
         }
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%'"#,
-            post_data.cate, name
+            r#"select count(单号) from documents 
+            join document_items on documents.单号 = document_items.单号id 
+            join customers on documents.客商id = customers.id
+            join products on products.id = document_items.商品id
+            join tree on tree.num = products.商品id
+            where customers.名称 = '{}' FROM customers
+            LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%'"#,
+            customer, name, name, name, name,
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
