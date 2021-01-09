@@ -50,13 +50,12 @@ let init_data = {
         name: '',
         sort: "日期 DESC",
         rec: row_num,
-        cate: cate,
+        // cate: ,
     },
     edit: false,
     header_names: {
-        
-    },
 
+    },
 
     row_fn: row_fn,
     blank_row_fn: blank_row_fn,
@@ -76,6 +75,9 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     let fields = check_fields ? document.querySelector('#search-fields').value : "";
     let date1 = check_date ? document.querySelector('#search-date1').value : "";
     let date2 = check_date ? document.querySelector('#search-date2').value : "";
+
+    init_data.post_data.name = fields;
+    init_data.post_data.cate = `${customer}${SPLITER}${date1}${SPLITER}${date2}`;
 
     table_init(init_data);
     fetch_table();
