@@ -120,7 +120,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
-            .service(business::business_query)
+            .service(business::fetch_business)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)

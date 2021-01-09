@@ -27,7 +27,7 @@ laydate.render({
 //客户供应商自动填充--------------------------------------------
 let cate = document.querySelector('#auto_cate');
 
-let auto_comp = new AutoInput(document.querySelector('#search-input'),
+let auto_comp = new AutoInput(document.querySelector('#search-customer'),
     cate, "/customer_auto", () => {
     });
 
@@ -44,7 +44,7 @@ document.querySelector('.table-container tbody').innerHTML = blank_rows;
 //表格搜索----------------------------------------------------
 let init_data = {
     container: '.table-container',
-    url: "",
+    url: "/fetch_business",
     post_data: {
         id: "",
         name: '',
@@ -53,6 +53,10 @@ let init_data = {
         cate: cate,
     },
     edit: false,
+    header_names: {
+        
+    },
+
 
     row_fn: row_fn,
     blank_row_fn: blank_row_fn,
@@ -60,51 +64,24 @@ let init_data = {
 
 document.querySelector('#serach-button').addEventListener('click', function () {
     let customer = document.querySelector('#search-customer').value;
+
+    if (!customer) {
+        notifier.show('客户供应商不能为空', 'danger');
+        return;
+    }
+
     let check_fields = document.querySelector('#checkbox-fields').checked;
     let check_date = document.querySelector('#checkbox-date').checked;
 
     let fields = check_fields ? document.querySelector('#search-fields').value : "";
-    let date1, date2;
+    let date1 = check_date ? document.querySelector('#search-date1').value : "";
+    let date2 = check_date ? document.querySelector('#search-date2').value : "";
 
-    if (check_date) {
-        date1 = document.querySelector('#search-date1').value;
-        date2 = document.querySelector('#search-date2').value;
-        if (!(regDate.test(date1) && regDate.test(date2))) {
-            notifier.show('日期输入错误', 'danger');
-            return;
-        }
-    }
-
-
+    table_init(init_data);
+    fetch_table();
 
 });
 
-// fetch("/fetch_fields", {
-//     method: 'post',
-//     headers: {
-//         "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(table_name),
-// })
-//     .then(response => response.json())
-//     .then(content => {
-//         if (content != -1) {
-//             table_fields = content[0].filter((item) => {
-//                 return item.is_show;
-//             });
-
-//             let table = document.querySelector('.table-customer');
-//             let custom_fields =[{name:'序号', width: 3}]
-//             let data = service.build_table_header(table, custom_fields, table_fields);
-//             table.querySelector('thead tr').innerHTML = data.th_row;
-//             // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
-
-//             init_data.header_names = data.header_names;
-
-//             table_init(init_data);
-//             fetch_table();
-//         }
-//     });
 
 function row_fn(tr) {
     let checked = tr.inout_show ? "checked" : "";
