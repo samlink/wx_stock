@@ -48,13 +48,21 @@ let init_data = {
     post_data: {
         id: "",
         name: '',
-        sort: "日期 DESC",
+        sort: "单号 DESC",
         rec: row_num,
-        // cate: ,
     },
     edit: false,
     header_names: {
-
+        "日期": "日期",
+        "单号": "单号",
+        "类别": "documents.类别",
+        "金额": "应结金额",
+        "商品名称": "node_name",
+        "规格型号": "规格型号",
+        "单位": "单位",
+        "价格": "单价",
+        "数量": "abs(数量)",
+        "备注": "documents.备注"
     },
 
     row_fn: row_fn,
@@ -81,19 +89,38 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
     table_init(init_data);
     fetch_table();
+});
 
+
+//查看单据
+document.querySelector('#edit-button').addEventListener('click', function () {
+    let chosed = document.querySelector('tbody .focus');
+    let id = chosed ? chosed.querySelector('td:nth-child(3)').textContent : "";
+    if (id != "") {
+        let cate = chosed.querySelector('td:nth-child(4)').textContent;
+        let address = "/sale/";
+        
+        if (cate.indexOf("采购") != -1) {
+            address = "/buy_in/";
+        }
+
+        window.open(address + id);
+    }
+    else {
+        notifier.show('请先选择单据', 'danger');
+    }
 });
 
 
 function row_fn(tr) {
-    let checked = tr.inout_show ? "checked" : "";
-    let disabled = tr.all_edit ? "" : "disabled";
-    let style = tr.all_edit ? "" : "style='background: lightgrey;border: none;'";
+    let row = tr.split(SPLITER);
+    let num = document.querySelector('#num_position').textContent.split(',');
+    let center = "style='text-align:center'";
+    let right = "style='text-align:right'";
 
-    return `<tr draggable="true"><td class='hide'>${tr.id}</td>
-            <td width=20%>${tr.num}</td><td>${tr.show_name}</td>
-            <td width=20%><label class="check-radio"><input type="checkbox" ${checked} ${disabled}>
-            <span class="checkmark" ${style}></span></td></tr>`;
+    return `<tr><td ${center}>${row[0]}</td><td ${center}>${row[1]}</td><td>${row[2]}</td><td ${center}>${row[3]}</td>
+            <td ${right}>${Number(row[4]).toFixed(num[1])}</td><td>${row[5]}</td><td>${row[6]}</td><td ${center}>${row[7]}</td>
+            <td ${right}>${Number(row[8]).toFixed(num[0])}</td><td ${right}>${row[9]}</td><td>${row[10]}</td></tr>`;
 }
 
 function blank_row_fn() {

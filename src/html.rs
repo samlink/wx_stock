@@ -260,8 +260,10 @@ pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 #[get("/business_query")]
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    let num_position = get_fraction(db).await;
+
     if user.name != "" {
-        let html = r2s(|o| businessquery(o, user));
+        let html = r2s(|o| businessquery(o, user,num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()

@@ -30,31 +30,32 @@ pub async fn fetch_business(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR LOWER(规格型号) LIKE '%{}%')"#,
-                name, name, name, name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' 
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name
             )
         } else {
             "".to_owned()
         };
 
         let query_date = if data[1] != "" && data[2] != "" {
-            format!(r#" AND 日期>={} AND 日期<={}"#, data[1], data[2])
+            format!(r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#, data[1], data[2])
         } else {
             "".to_owned()
         };
 
         let sql = format!(
-            r#"select 日期,单号,documents.类别,应结金额,node_name,规格型号,单位,单价,数量,documents.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents
+            r#"select 日期,单号,documents.类别,应结金额,node_name,规格型号,单位,单价,abs(数量) as 数量,documents.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from documents
             join document_items on documents.单号 = document_items.单号id 
             join customers on documents.客商id = customers.id
             join products on products.id = document_items.商品id
             join tree on tree.num = products.商品id
-            where customers.名称 = '{}'{}{} 
+            where customers.名称 = '{}' and 已记账=true {}{} 
             ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, data[0], query_field, query_date, post_data.sort, skip, post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -106,7 +107,7 @@ pub async fn fetch_business(
             join customers on documents.客商id = customers.id
             join products on products.id = document_items.商品id
             join tree on tree.num = products.商品id
-            where customers.名称 = '{}'{}{}"#,
+            where customers.名称 = '{}' and 已记账=true {}{}"#,
             data[0], query_field, query_date
         );
 

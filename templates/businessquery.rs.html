@@ -1,7 +1,7 @@
 @use super::base;
 @use crate::service::UserData;
 @use super::statics::*;
-@(user: UserData)
+@(user: UserData, num_position: String)
 
 @:base({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
@@ -11,6 +11,7 @@
         <span class="t1"><i class="fa fa-angle-double-right"></i> 业务往来 </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
         <p id="auto_cate" hidden></p>
+        <span id="num_position" hidden>@num_position</span>
     </div>
     <div class="query-content">
         <div id="query-show">
@@ -38,6 +39,7 @@
                 </div>
                 <div class="table-tools">
                     <div class="table-edit">
+                        <button class="btn btn-info btn-sm" id="edit-button">查看单据</button>
                         <button class="btn btn-info btn-sm" id="excel-button">导出到 Excel</button>
                     </div>
                 </div>
@@ -53,8 +55,8 @@
                             <th>类别</th>
                             <th>金额</th>
                             <th>商品名称</th>
-                            <th width="6%">单位</th>
                             <th width="15%">规格型号</th>
+                            <th width="6%">单位</th>
                             <th width="8%">价格</th>
                             <th width="6%">数量</th>
                             <th width="18%">备注</th>
