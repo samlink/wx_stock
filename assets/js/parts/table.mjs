@@ -14,6 +14,7 @@ export var table_init = function (data) {
         page_last: document.querySelector(data.container + ' #last'),
         total_pages: document.querySelector(data.container + ' #pages'),
         total_records: document.querySelector(data.container + ' #total-records'),
+        other_info: document.querySelector(data.container + ' #other-info'),
     });
 
     table_data.page_input.value = 1;
@@ -102,6 +103,10 @@ export var fetch_table = function (cb) {
                 table_data.total_records.textContent = content[1];
                 table_data.total_pages.textContent = content[2];
                 table_data.page_input.value = table_data.post_data.page;
+
+                if (table_data.other_info && content[3]) {
+                    table_data.other_info.textContent = content[3];
+                }
 
                 button_change(table_data.page_input, table_data.page_first, table_data.page_pre, table_data.page_aft, table_data.page_last, content[2]);
 

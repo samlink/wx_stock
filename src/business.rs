@@ -39,7 +39,10 @@ pub async fn fetch_business(
         };
 
         let query_date = if data[1] != "" && data[2] != "" {
-            format!(r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#, data[1], data[2])
+            format!(
+                r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[1], data[2]
+            )
         } else {
             "".to_owned()
         };
@@ -102,7 +105,7 @@ pub async fn fetch_business(
         }
 
         let count_sql = format!(
-            r#"select count(单号) as 记录数 from documents 
+            r#"select count(单号) as 记录数, sum(数量*单价) as 金额 from documents 
             join document_items on documents.单号 = document_items.单号id 
             join customers on documents.客商id = customers.id
             join products on products.id = document_items.商品id
@@ -114,11 +117,14 @@ pub async fn fetch_business(
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
+        let mut money: f32 = 0f32;
+
         for row in rows {
             count = row.get("记录数");
+            money = row.get("金额");
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        HttpResponse::Ok().json((products, count, pages))
+        HttpResponse::Ok().json((products, count, pages, money))
     } else {
         HttpResponse::Ok().json(-1)
     }

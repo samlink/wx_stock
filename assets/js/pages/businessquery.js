@@ -89,6 +89,8 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
     table_init(init_data);
     fetch_table();
+
+    
 });
 
 
@@ -99,7 +101,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     if (id != "") {
         let cate = chosed.querySelector('td:nth-child(4)').textContent;
         let address = "/sale/";
-        
+
         if (cate.indexOf("采购") != -1) {
             address = "/buy_in/";
         }
