@@ -104,6 +104,7 @@ export var fetch_table = function (cb) {
                 table_data.total_pages.textContent = content[2];
                 table_data.page_input.value = table_data.post_data.page;
 
+                //此处时最新加入的，可选的一个信息提示
                 if (table_data.other_info && content[3]) {
                     table_data.other_info.textContent = content[3];
                 }
