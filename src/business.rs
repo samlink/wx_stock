@@ -124,7 +124,14 @@ pub async fn fetch_business(
             money = row.get("金额");
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        HttpResponse::Ok().json((products, count, pages, money))
+
+        //处理小数位数
+        let num_position = get_fraction(db).await;
+        let num: Vec<&str> = num_position.split(",").collect();
+        let num2 = num[1].parse::<usize>().unwrap();
+        let money2 = format!("{:.*}", num2, money);
+
+        HttpResponse::Ok().json((products, count, pages, money2))
     } else {
         HttpResponse::Ok().json(-1)
     }

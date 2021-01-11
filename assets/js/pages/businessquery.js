@@ -56,7 +56,7 @@ let init_data = {
         "日期": "日期",
         "单号": "单号",
         "类别": "documents.类别",
-        "金额": "应结金额",
+        "单据金额": "应结金额",
         "商品名称": "node_name",
         "规格型号": "规格型号",
         "单位": "单位",
@@ -90,7 +90,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     table_init(init_data);
     fetch_table();
 
-    
+
 });
 
 
