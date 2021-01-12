@@ -1,7 +1,27 @@
 .debt {
+    .form-group {
+        margin-bottom: 0;
+    }
+
     .query-search {
-        .search-div {
-            margin-left: 260px;
+        display: flex;
+        align-items: center;
+
+        select {
+            height: 30px;
         }
+
+        #autocomplete-list {
+            margin-top: 1px;
+            margin-left: 10px;
+        }
+        .search-div {
+            margin-left: 10px;
+        }
+    }
+
+    .autocomplete {
+        position: relative;
+        margin-left: 8px;
     }
 }
