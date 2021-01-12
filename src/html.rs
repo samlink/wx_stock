@@ -276,7 +276,7 @@ pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let num_position = get_fraction(db).await;
 
     if user.name != "" {
-        let html = r2s(|o| debt(o, user,num_position));
+        let html = r2s(|o| debtquery(o, user,num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()

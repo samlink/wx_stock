@@ -69,6 +69,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::change_query)
             .service(html::stock_query)
             .service(html::business_query)
+            .service(html::debt)
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
