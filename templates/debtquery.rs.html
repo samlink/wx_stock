@@ -6,7 +6,7 @@
 @:base({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
 
-<div class="docment-query business_query">
+<div class="docment-query business_query debt">
     <div class="top-title"><span><i class="fa fa-user"></i> 客户供应商 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> 债务结算 </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
@@ -22,7 +22,9 @@
                             placeholder="客户供应商搜索">
                     </div>
                     <div class="search-div">
-                        <input type="text" class="form-control search-input date-input" id="search-date"
+                        <input type="text" class="form-control search-input date-input" id="search-date1"
+                            placeholder="起始日期"> _ 
+                        <input type="text" class="form-control search-input date-input" id="search-date2"
                             placeholder="截止日期">
                         <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                     </div>
@@ -67,7 +69,7 @@
                     </div>
 
                     <div class="table-info">
-                       共 <span id="total-records"></span> 条记录
+                        共 <span id="total-records"></span> 条记录
                     </div>
 
                 </div>
