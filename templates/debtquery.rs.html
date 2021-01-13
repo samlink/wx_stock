@@ -30,7 +30,7 @@
                     </div>
                     <div class="search-div">
                         <input type="text" class="form-control search-input date-input" id="search-date1"
-                            placeholder="起始日期"> _ 
+                            placeholder="起始日期"> _
                         <input type="text" class="form-control search-input date-input" id="search-date2"
                             placeholder="截止日期">
                         <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
@@ -38,49 +38,30 @@
                 </div>
             </div>
 
-            <div class="table-container table-documents">
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="6%">序号</th>
-                            <th>日期</th>
-                            <th width="10%">单号</th>
-                            <th>类别</th>
-                            <th>单据金额</th>
-                            <th>商品名称</th>
-                            <th width="15%">规格型号</th>
-                            <th width="6%">单位</th>
-                            <th width="8%">价格</th>
-                            <th width="6%">数量</th>
-                            <th width="18%">备注</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <div class="table-ctrl">
-                    <div class="tools-button"></div>
-                    <div class="table-button">
-                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
-                                width="12px"></button>
-                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
-                                width="12px"></button>
-                        <p class="seperator"></p>
-                        <span>第</span><input type="text" class="form-control" id="page-input" value="1">
-                        <span>页，共</span><span id="pages"></span><span>页</span>
-                        <p class="seperator"></p>
-                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
-                                width="12px"></button>
-                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
-                                width="12px"></button>
-                    </div>
+            <div class="debt-show">
+                <div class="customer-list">
+                    <p>天津丁川用品有限公司</p>
+                    <p>北京易瑞英外贸公司</p>
+                </div>
 
-                    <div class="table-info">
-                        共 <span id="total-records"></span> 条记录
-                    </div>
-
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>单据类型</th>
+                                <th>数量</th>
+                                <th>单据金额</th>
+                                <th>已结金额</th>
+                                <th>免除金额</th>
+                                <th>待结金额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+
         </div>
     </div>
 </div>

@@ -41,79 +41,6 @@ for (let i = 0; i < row_num; i++) {
 
 document.querySelector('.table-container tbody').innerHTML = blank_rows;
 
-//表格搜索----------------------------------------------------
-let init_data = {
-    container: '.table-container',
-    url: "/fetch_business",
-    post_data: {
-        id: "",
-        name: '',
-        sort: "单号 DESC",
-        rec: row_num,
-    },
-    edit: false,
-    header_names: {
-        "日期": "日期",
-        "单号": "单号",
-        "类别": "documents.类别",
-        "单据金额": "应结金额",
-        "商品名称": "node_name",
-        "规格型号": "规格型号",
-        "单位": "单位",
-        "价格": "单价",
-        "数量": "abs(数量)",
-        "备注": "documents.备注"
-    },
-
-    row_fn: row_fn,
-    blank_row_fn: blank_row_fn,
-};
-
-document.querySelector('#serach-button').addEventListener('click', function () {
-    let customer = document.querySelector('#search-customer').value;
-
-    if (!customer) {
-        notifier.show('客户供应商不能为空', 'danger');
-        return;
-    }
-
-    let check_fields = document.querySelector('#checkbox-fields').checked;
-    let check_date = document.querySelector('#checkbox-date').checked;
-
-    let fields = check_fields ? document.querySelector('#search-fields').value : "";
-    let date1 = check_date ? document.querySelector('#search-date1').value : "";
-    let date2 = check_date ? document.querySelector('#search-date2').value : "";
-
-    init_data.post_data.name = fields;
-    init_data.post_data.cate = `${customer}${SPLITER}${date1}${SPLITER}${date2}`;
-
-    table_init(init_data);
-    fetch_table();
-
-
-});
-
-
-//查看单据
-document.querySelector('#edit-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(3)').textContent : "";
-    if (id != "") {
-        let cate = chosed.querySelector('td:nth-child(4)').textContent;
-        let address = "/sale/";
-
-        if (cate.indexOf("采购") != -1) {
-            address = "/buy_in/";
-        }
-
-        window.open(address + id);
-    }
-    else {
-        notifier.show('请先选择单据', 'danger');
-    }
-});
-
-
 function row_fn(tr) {
     let row = tr.split(SPLITER);
     let num = document.querySelector('#num_position').textContent.split(',');
@@ -126,5 +53,5 @@ function row_fn(tr) {
 }
 
 function blank_row_fn() {
-    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
 }

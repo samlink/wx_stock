@@ -24,4 +24,20 @@
         position: relative;
         margin-left: 8px;
     }
+
+    .debt-show {
+        margin-top: 6px;
+        display: flex;
+    }
+
+    .customer-list {
+        width: 19%;
+        height: calc(100vh - 200px);
+        margin-right: 10px;
+        border: 1px solid lightgray;
+    }
+
+    .table-container {
+        width: 80%;
+    }
 }
