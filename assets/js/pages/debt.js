@@ -63,6 +63,15 @@ document.querySelector('#serach-button').addEventListener('click', function () {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
+                document.querySelector('.customer-name').textContent = customer;
+                let div_list = document.querySelector('.name-list');
+                let names = "";
+
+                for (let name of content[0]) {
+                    names += `<p>${name}</p>`;
+                }
+
+                div_list.innerHTML = names;
 
             }
             else {

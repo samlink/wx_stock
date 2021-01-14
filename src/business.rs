@@ -164,7 +164,8 @@ pub async fn fetch_debt(
             r#"select 名称 from customers 
             join 
             (select 客商id from documents where 已记账=true and 日期::date > '{}'::date and 日期::date <= '{}'::date group by 客商id) as foo
-            on customers.id = foo.客商id {}"#,
+            on customers.id = foo.客商id {} 
+            order by 名称"#,
             post_data.date1, post_data.date2, cate
         );
 
