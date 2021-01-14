@@ -163,7 +163,7 @@ pub async fn fetch_debt(
         let sql = format!(
             r#"select 名称 from customers 
             join 
-            (select 客商id from documents where 已记账=true 日期::date > '{}'::date and 日期::date <= '{}'::date group by 客商id) as foo
+            (select 客商id from documents where 已记账=true and 日期::date > '{}'::date and 日期::date <= '{}'::date group by 客商id) as foo
             on customers.id = foo.客商id {}"#,
             post_data.date1, post_data.date2, cate
         );
@@ -178,56 +178,68 @@ pub async fn fetch_debt(
             customers.push(name);
         }
 
-        let mut debt_string = "".to_owned();
         let mut debt_record: Vec<String> = Vec::new();
 
-        let sql = format!(
-            r#"select 客商id, sum(应结金额) as 应结金额, sum(已结金额) as 已结金额 from documents
-                join customers on 
-                documents.客商id = customers.id
-                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
-                group by 客商id;"#,
-            post_data.customer, post_data.date1, post_data.date2
-        );
+        if post_data.customer != "" {
+            let debt_names = vec!["商品采购-CG", "采购退货-CT", "商品销售-XS", "销售退货-XT"];
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        for row in rows {
-            let m1: f64 = row.get("应结金额");
-            let m2: f64 = row.get("已结金额");
-            debt_string = format!("{}{}{}{}", m1, SPLITER, m2, SPLITER);
+            for na in debt_names {
+                let name: Vec<&str> = na.split("-").collect();
+                let mut debt_string = name[0].to_owned();
+
+                let sql = format!(
+                    r#"select 客商id, count(单号) as 数量, sum(应结金额) as 应结金额, sum(已结金额) as 已结金额 from documents
+                        join customers on 
+                        documents.客商id = customers.id
+                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                        group by 客商id;"#,
+                    post_data.customer, name[1], post_data.date1, post_data.date2
+                );
+
+                let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+                for row in rows {
+                    let m1: i64 = row.get("数量");
+                    let m2: f32 = row.get("应结金额");
+                    let m3: f32 = row.get("已结金额");
+                    debt_string = format!(
+                        "{}{}{}{}{}{}{}{}",
+                        debt_string, SPLITER, m1, SPLITER, m2, SPLITER, m3, SPLITER
+                    );
+                }
+
+                let sql = format!(
+                    r#"select 客商id, sum(应结金额) - sum(已结金额) as 待结金额  from documents 
+                        join customers on 
+                        documents.客商id = customers.id
+                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 是否欠款=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                        group by 客商id;"#,
+                    post_data.customer, name[1], post_data.date1, post_data.date2
+                );
+
+                let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+                for row in rows {
+                    let m1: f32 = row.get("待结金额");
+                    debt_string = format!("{}{}{}", debt_string, m1, SPLITER);
+                }
+
+                let sql = format!(
+                    r#"select 客商id, sum(应结金额) - sum(已结金额) as 免除金额  from documents 
+                        join customers on 
+                        documents.客商id = customers.id
+                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 是否欠款=false and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                        group by 客商id;"#,
+                    post_data.customer, name[1], post_data.date1, post_data.date2
+                );
+
+                let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+                for row in rows {
+                    let m1: f32 = row.get("免除金额");
+                    debt_string = format!("{}{}{}", debt_string, m1, SPLITER);
+                }
+
+                debt_record.push(debt_string);
+            }
         }
-
-        let sql = format!(
-            r#"select 客商id, sum(应结金额) - sum(已结金额) as 待结金额  from documents 
-                join customers on 
-                documents.客商id = customers.id
-                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 是否欠款=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
-                group by 客商id;"#,
-            post_data.customer, post_data.date1, post_data.date2
-        );
-
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        for row in rows {
-            let m1: f64 = row.get("待结金额");
-            debt_string = format!("{}{}", m1, SPLITER);
-        }
-
-        let sql = format!(
-            r#"select 客商id, sum(应结金额) - sum(已结金额) as 免除金额  from documents 
-                join customers on 
-                documents.客商id = customers.id
-                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 是否欠款=false and 日期::date > '{}'::date and 日期::date <= '{}'::date
-                group by 客商id;"#,
-            post_data.customer, post_data.date1, post_data.date2
-        );
-
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        for row in rows {
-            let m1: f64 = row.get("免除金额");
-            debt_string = format!("{}{}", m1, SPLITER);
-        }
-
-        debt_record.push(debt_string);
 
         HttpResponse::Ok().json((customers, debt_record))
     } else {
