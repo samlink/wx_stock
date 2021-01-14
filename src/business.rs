@@ -177,7 +177,59 @@ pub async fn fetch_debt(
             let name: String = row.get("名称");
             customers.push(name);
         }
-        HttpResponse::Ok().json(customers)
+
+        let mut debt_string = "".to_owned();
+        let mut debt_record: Vec<String> = Vec::new();
+
+        let sql = format!(
+            r#"select 客商id, sum(应结金额) as 应结金额, sum(已结金额) as 已结金额 from documents
+                join customers on 
+                documents.客商id = customers.id
+                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                group by 客商id;"#,
+            post_data.customer, post_data.date1, post_data.date2
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let m1: f64 = row.get("应结金额");
+            let m2: f64 = row.get("已结金额");
+            debt_string = format!("{}{}{}{}", m1, SPLITER, m2, SPLITER);
+        }
+
+        let sql = format!(
+            r#"select 客商id, sum(应结金额) - sum(已结金额) as 待结金额  from documents 
+                join customers on 
+                documents.客商id = customers.id
+                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 是否欠款=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                group by 客商id;"#,
+            post_data.customer, post_data.date1, post_data.date2
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let m1: f64 = row.get("待结金额");
+            debt_string = format!("{}{}", m1, SPLITER);
+        }
+
+        let sql = format!(
+            r#"select 客商id, sum(应结金额) - sum(已结金额) as 免除金额  from documents 
+                join customers on 
+                documents.客商id = customers.id
+                where 名称='{}' and 单号 like 'XS%' and 已记账=true and 是否欠款=false and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                group by 客商id;"#,
+            post_data.customer, post_data.date1, post_data.date2
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let m1: f64 = row.get("免除金额");
+            debt_string = format!("{}{}", m1, SPLITER);
+        }
+
+        debt_record.push(debt_string);
+
+        HttpResponse::Ok().json((customers, debt_record))
     } else {
         HttpResponse::Ok().json(-1)
     }
