@@ -35,6 +35,45 @@
         height: calc(100vh - 200px);
         margin-right: 10px;
         border: 1px solid lightgray;
+
+        .list-title {
+            display: flex;
+            // align-content: center;
+            height: 37px;
+            text-align: center;
+            color: white;
+            background-color: $color-info;
+            font-size: 15px;
+            font-weight: bold;
+            margin-bottom: 6px;
+
+            span {
+                margin: 0 auto;
+                align-self: center;
+            }
+        }
+
+        .name-list {
+            height: 80%;
+            overflow-y: auto;
+
+
+            p {
+                margin: 0 1px;
+                padding: 6px 10px;
+                cursor: pointer;
+
+                &:hover {
+                    color: white;
+                    background-color: $info-100;
+                }
+            }
+        }
+    }
+
+    .customer-name {
+        margin-left: 50px;
+        font-weight: bold;
     }
 
     .table-container {

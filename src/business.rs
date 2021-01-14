@@ -136,3 +136,49 @@ pub async fn fetch_business(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize)]
+pub struct Debt {
+    cate: String,
+    customer: String,
+    date1: String,
+    date2: String,
+}
+
+#[post("/fetch_debt")]
+pub async fn fetch_debt(
+    db: web::Data<Pool>,
+    post_data: web::Json<Debt>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "债务结算".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let cate = if post_data.cate == "全部" {
+            " where 类别<>''".to_owned()
+        } else {
+            format!(" where 类别='{}'", post_data.cate)
+        };
+
+        let sql = format!(
+            r#"select 名称 from customers 
+            join 
+            (select 客商id from documents where 已记账=true 日期::date > '{}'::date and 日期::date <= '{}'::date group by 客商id) as foo
+            on customers.id = foo.客商id {}"#,
+            post_data.date1, post_data.date2, cate
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut customers = Vec::new();
+        for row in rows {
+            let name: String = row.get("名称");
+            customers.push(name);
+        }
+        HttpResponse::Ok().json(customers)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

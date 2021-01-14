@@ -89,8 +89,6 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
     table_init(init_data);
     fetch_table();
-
-
 });
 
 

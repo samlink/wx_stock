@@ -33,25 +33,53 @@ let auto_comp = new AutoInput(document.querySelector('#search-customer'),
 
 auto_comp.init();
 
+document.querySelector('#serach-button').addEventListener('click', function () {
+    let date1 = document.querySelector('#search-date1').value;
+    let date2 = document.querySelector('#search-date2').value;
+    if (!(date1 && date2)) {
+        notifier.show('请输入起止日期', 'danger');
+        return;
+    }
+
+    let cate = document.querySelector('#customer-cate').value;
+    let c = document.querySelector('#search-customer').value;
+    let customer = c ? c : "";
+
+    let data = {
+        cate: cate,
+        customer: customer,
+        date1: date1,
+        date2: date2,
+        // flag: 1,
+    }
+
+    fetch("/fetch_debt", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+
+            }
+            else {
+                notifier.show('无操作权限', 'danger');
+            }
+        });
+
+})
+
 //填充表格空行-------------------------------------------------
-let blank_rows = "";
-for (let i = 0; i < row_num; i++) {
-    blank_rows += blank_row_fn();
-}
+// let blank_rows = "";
+// for (let i = 0; i < row_num; i++) {
+//     blank_rows += blank_row_fn();
+// }
 
-document.querySelector('.table-container tbody').innerHTML = blank_rows;
+// document.querySelector('.table-container tbody').innerHTML = blank_rows;
 
-function row_fn(tr) {
-    let row = tr.split(SPLITER);
-    let num = document.querySelector('#num_position').textContent.split(',');
-    let center = "style='text-align:center'";
-    let right = "style='text-align:right'";
-
-    return `<tr><td ${center}>${row[0]}</td><td ${center}>${row[1]}</td><td>${row[2]}</td><td ${center}>${row[3]}</td>
-            <td ${right}>${Number(row[4]).toFixed(num[1])}</td><td>${row[5]}</td><td>${row[6]}</td><td ${center}>${row[7]}</td>
-            <td ${right}>${Number(row[8]).toFixed(num[0])}</td><td ${right}>${row[9]}</td><td>${row[10]}</td></tr>`;
-}
-
-function blank_row_fn() {
-    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
-}
+// function blank_row_fn() {
+//     return `<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+// }
