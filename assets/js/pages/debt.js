@@ -33,14 +33,10 @@ let auto_comp = new AutoInput(document.querySelector('#search-customer'),
 auto_comp.init();
 
 let flag = 0;
+let old_date1, old_date2;
 
-document.querySelector('#search-date1').addEventListener('onporpertychange', function () {
+document.querySelector('#customer-cate').addEventListener('change', function () {
     flag = 0;
-});
-
-document.querySelector('#search-date2').addEventListener('onporpertychange', function () {
-    flag = 0;
-    console.log(flag);
 });
 
 let search_button = document.querySelector('#serach-button');
@@ -53,18 +49,21 @@ search_button.addEventListener('click', function () {
         return;
     }
 
+    if (old_date1 != date1 || old_date2 != date2) {
+        old_date1 = date1;
+        old_date2 = date2;
+        flag = 0;
+    }
+
     let cate = document.querySelector('#customer-cate').value;
     let c = document.querySelector('#search-customer').value;
     let customer = c ? c : "";
-
-    console.log(flag);
 
     let data = {
         cate: cate,
         customer: customer,
         date1: date1,
         date2: date2,
-        // flag: 1,
     }
 
     fetch("/fetch_debt", {
