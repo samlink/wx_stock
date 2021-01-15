@@ -181,6 +181,11 @@ pub async fn fetch_debt(
 
         let mut debt_record: Vec<String> = Vec::new();
 
+        //处理小数位数
+        let num_position = get_fraction(db).await;
+        let num: Vec<&str> = num_position.split(",").collect();
+        let num2 = num[1].parse::<usize>().unwrap();
+
         if post_data.customer != "" {
             let debt_names = vec!["商品采购-CG", "采购退货-CT", "商品销售-XS", "销售退货-XT"];
 
@@ -198,30 +203,21 @@ pub async fn fetch_debt(
                 );
 
                 let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+                let mut m1: i64 = 0;
+                let mut m2: f32 = 0.0;
+                let mut m3: f32 = 0.0;
+
                 for row in rows {
-                    let m1: i64 = row.get("数量");
-                    let m2: f32 = row.get("应结金额");
-                    let m3: f32 = row.get("已结金额");
-                    debt_string = format!(
-                        "{}{}{}{}{}{}{}{}",
-                        debt_string, SPLITER, m1, SPLITER, m2, SPLITER, m3, SPLITER
-                    );
+                    m1 = row.get("数量");
+                    m2 = row.get("应结金额");
+                    m3 = row.get("已结金额");
                 }
 
-                let sql = format!(
-                    r#"select 客商id, sum(应结金额) - sum(已结金额) as 待结金额  from documents 
-                        join customers on 
-                        documents.客商id = customers.id
-                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 是否欠款=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
-                        group by 客商id;"#,
-                    post_data.customer, name[1], post_data.date1, post_data.date2
+                debt_string = format!(
+                    "{}{}{}{}{:.*}{}{:.*}{}",
+                    debt_string, SPLITER, m1, SPLITER, num2, m2, SPLITER, num2, m3, SPLITER
                 );
-
-                let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-                for row in rows {
-                    let m1: f32 = row.get("待结金额");
-                    debt_string = format!("{}{}{}", debt_string, m1, SPLITER);
-                }
 
                 let sql = format!(
                     r#"select 客商id, sum(应结金额) - sum(已结金额) as 免除金额  from documents 
@@ -233,10 +229,31 @@ pub async fn fetch_debt(
                 );
 
                 let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+                let mut m1: f32 = 0.0;
                 for row in rows {
-                    let m1: f32 = row.get("免除金额");
-                    debt_string = format!("{}{}{}", debt_string, m1, SPLITER);
+                    m1 = row.get("免除金额");
                 }
+
+                debt_string = format!("{}{:.*}{}", debt_string, num2, m1, SPLITER);
+
+                let sql = format!(
+                    r#"select 客商id, sum(应结金额) - sum(已结金额) as 待结金额  from documents 
+                        join customers on 
+                        documents.客商id = customers.id
+                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 是否欠款=true and 日期::date > '{}'::date and 日期::date <= '{}'::date
+                        group by 客商id;"#,
+                    post_data.customer, name[1], post_data.date1, post_data.date2
+                );
+
+                let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+                m1 = 0.0;
+                for row in rows {
+                    m1 = row.get("待结金额");
+                }
+
+                debt_string = format!("{}{:.*}", debt_string, num2, m1);
 
                 debt_record.push(debt_string);
             }
