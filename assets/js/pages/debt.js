@@ -32,6 +32,17 @@ let auto_comp = new AutoInput(document.querySelector('#search-customer'),
 
 auto_comp.init();
 
+let flag = 0;
+
+document.querySelector('#search-date1').addEventListener('onporpertychange', function () {
+    flag = 0;
+});
+
+document.querySelector('#search-date2').addEventListener('onporpertychange', function () {
+    flag = 0;
+    console.log(flag);
+});
+
 let search_button = document.querySelector('#serach-button');
 
 search_button.addEventListener('click', function () {
@@ -46,7 +57,7 @@ search_button.addEventListener('click', function () {
     let c = document.querySelector('#search-customer').value;
     let customer = c ? c : "";
 
-    // let flag = 0;
+    console.log(flag);
 
     let data = {
         cate: cate,
@@ -67,26 +78,29 @@ search_button.addEventListener('click', function () {
         .then(content => {
             if (content != -1) {
                 document.querySelector('.customer-name').textContent = customer;
-                let div_list = document.querySelector('.name-list');
-                let names = "";
+                if (flag == 0) {
+                    flag = 1;
+                    let div_list = document.querySelector('.name-list');
+                    let names = "";
 
-                for (let name of content[0]) {
-                    names += `<p>${name}</p>`;
-                }
+                    for (let name of content[0]) {
+                        names += `<p>${name}</p>`;
+                    }
 
-                div_list.innerHTML = names;
+                    div_list.innerHTML = names;
 
-                let ps = div_list.querySelectorAll("p");
-                for (let p of ps) {
-                    p.addEventListener("click", function () {
-                        // for (let p1 of ps) {
-                        //     p1.classList.remove('focus');
-                        // }
-                        // this.classList.add('focus');
-                        document.querySelector("#search-customer").value = p.textContent;
-                        search_button.click();
+                    let ps = div_list.querySelectorAll("p");
+                    for (let p of ps) {
+                        p.addEventListener("click", function () {
+                            for (let p1 of ps) {
+                                p1.classList.remove('focus');
+                            }
+                            this.classList.add('focus');
+                            document.querySelector("#search-customer").value = p.textContent;
+                            search_button.click();
 
-                    });
+                        });
+                    }
                 }
 
                 if (content[1].length > 0) {
@@ -157,7 +171,6 @@ search_button.addEventListener('click', function () {
                 notifier.show('无操作权限', 'danger');
             }
         });
-
 });
 
 
