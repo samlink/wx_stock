@@ -32,7 +32,9 @@ let auto_comp = new AutoInput(document.querySelector('#search-customer'),
 
 auto_comp.init();
 
-document.querySelector('#serach-button').addEventListener('click', function () {
+let search_button = document.querySelector('#serach-button');
+
+search_button.addEventListener('click', function () {
     let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
     if (!(date1 && date2)) {
@@ -43,6 +45,8 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     let cate = document.querySelector('#customer-cate').value;
     let c = document.querySelector('#search-customer').value;
     let customer = c ? c : "";
+
+    // let flag = 0;
 
     let data = {
         cate: cate,
@@ -71,6 +75,19 @@ document.querySelector('#serach-button').addEventListener('click', function () {
                 }
 
                 div_list.innerHTML = names;
+
+                let ps = div_list.querySelectorAll("p");
+                for (let p of ps) {
+                    p.addEventListener("click", function () {
+                        // for (let p1 of ps) {
+                        //     p1.classList.remove('focus');
+                        // }
+                        // this.classList.add('focus');
+                        document.querySelector("#search-customer").value = p.textContent;
+                        search_button.click();
+
+                    });
+                }
 
                 if (content[1].length > 0) {
                     let rows = "";
@@ -141,16 +158,6 @@ document.querySelector('#serach-button').addEventListener('click', function () {
             }
         });
 
-})
+});
 
-//填充表格空行-------------------------------------------------
-// let blank_rows = "";
-// for (let i = 0; i < row_num; i++) {
-//     blank_rows += blank_row_fn();
-// }
 
-// document.querySelector('.table-container tbody').innerHTML = blank_rows;
-
-// function blank_row_fn() {
-//     return `<tr><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
-// }
