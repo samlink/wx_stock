@@ -73,6 +73,28 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
                 div_list.innerHTML = names;
 
+                console.log(content[1]);
+
+                if (content[1].length > 0) {
+                    let rows;
+                    for (let s of content[1]) {
+                        rows = "";
+                        let debt = s.split(SPLITER);
+                        if (debt.length > 1) {
+                            let row = "<tr>";
+                            for (let d of debt) {
+                                row += `<td>${d}</td>`;
+                            }
+                            row += "</tr>";
+                            rows += row;
+                        }
+                    }
+
+                    console.log(rows);
+
+                    document.querySelector('.table-container tbody').innerHTML = rows;
+                }
+
             }
             else {
                 notifier.show('无操作权限', 'danger');
