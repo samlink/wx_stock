@@ -263,7 +263,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let num_position = get_fraction(db).await;
 
     if user.name != "" {
-        let html = r2s(|o| businessquery(o, user,num_position));
+        let html = r2s(|o| businessquery(o, user, num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -276,7 +276,7 @@ pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let num_position = get_fraction(db).await;
 
     if user.name != "" {
-        let html = r2s(|o| debtquery(o, user,num_position));
+        let html = r2s(|o| debtquery(o, user, num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -286,10 +286,21 @@ pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 #[get("/analys")]
 pub async fn analys(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "综合分析".to_owned()).await;
-    let num_position = get_fraction(db).await;
 
     if user.name != "" {
-        let html = r2s(|o| saleanalys(o, user,num_position));
+        let html = r2s(|o| saleanalys(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}
+
+#[get("/statistic")]
+pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "月度统计".to_owned()).await;
+
+    if user.name != "" {
+        let html = r2s(|o| statis(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()

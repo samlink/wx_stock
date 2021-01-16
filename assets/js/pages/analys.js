@@ -1,8 +1,5 @@
 import { notifier } from '../parts/notifier.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
 import { SPLITER } from '../parts/tools.mjs';
-
-let p = document.querySelector('#num_position').textContent.split(",")[1];
 
 //执行日期实例------------------------------------------------
 laydate.render({
