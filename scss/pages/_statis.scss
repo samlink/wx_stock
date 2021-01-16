@@ -8,4 +8,17 @@
             margin: 4px;
         }
     }
+
+    .debt-show {
+        height: calc(100vh - 200px);
+    }
+
+    .table-container {
+        width: 300px;
+    }
+
+    .chart-div {
+        width: calc(100% - 320px);
+        margin-left: 10px;
+    }
 }

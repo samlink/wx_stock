@@ -12,7 +12,7 @@ laydate.render({
     type: 'month',
     range: true,
     theme: 'molv',
-    value: `${date1.substring(0,7)} - ${date2.substring(0,7)}`,
+    value: `${date1.substring(0, 7)} - ${date2.substring(0, 7)}`,
 
     done: function (value, startDate, endDate) {
         let date = value.split(" - ");
@@ -22,50 +22,49 @@ laydate.render({
     },
 });
 
-// laydate.render({
-//     elem: '#search-date1',
-//     showBottom: false,
-//     theme: 'molv',
-//     value: new Intl.DateTimeFormat('fr-CA').format(da2),
-//     // theme: '#62468d',
-// });
+var ctx = document.getElementById('myChart').getContext('2d');
 
-// laydate.render({
-//     elem: '#search-date2',
-//     showBottom: false,
-//     // value: da.toLocaleDateString(),
-//     value: new Intl.DateTimeFormat('fr-CA').format(da),
-//     theme: 'molv',
-// });
-
-let search_button = document.querySelector('#serach-button');
-
-search_button.addEventListener('click', function () {
-    let date1 = document.querySelector('#search-date1').value;
-    let date2 = document.querySelector('#search-date2').value;
-    if (!(date1 && date2)) {
-        notifier.show('请输入起止日期', 'danger');
-        return;
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        datasets: [{
+            label: '销售额',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                // 'rgba(54, 162, 235, 0.2)',
+                // 'rgba(255, 206, 86, 0.2)',
+                // 'rgba(75, 192, 192, 0.2)',
+                // 'rgba(153, 102, 255, 0.2)',
+                // 'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                // 'rgba(54, 162, 235, 1)',
+                // 'rgba(255, 206, 86, 1)',
+                // 'rgba(75, 192, 192, 1)',
+                // 'rgba(153, 102, 255, 1)',
+                // 'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }]
+        }
     }
+});
 
-    if (old_date1 != date1 || old_date2 != date2) {
-        old_date1 = date1;
-        old_date2 = date2;
-        flag = 0;
-    }
 
-    let cate = document.querySelector('#customer-cate').value;
-    let c = document.querySelector('#search-customer').value;
-    let customer = c ? c : "";
+function fetch_statis(data) {
 
-    let data = {
-        cate: cate,
-        customer: customer,
-        date1: date1,
-        date2: date2,
-    }
-
-    fetch("/fetch_debt", {
+    fetch("/fetch_statis", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -169,6 +168,5 @@ search_button.addEventListener('click', function () {
                 notifier.show('无操作权限', 'danger');
             }
         });
-});
-
+}
 
