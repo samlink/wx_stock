@@ -125,6 +125,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::customer_updatein)
             .service(business::fetch_business)
             .service(business::fetch_debt)
+            .service(statistic::fetch_analys)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)

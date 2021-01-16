@@ -39,10 +39,10 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 today_button.addEventListener('click', function () {
     document.querySelector('.customer-name').textContent = "今日";
-
+    let da = new Date(Date.now());
     let data = {
-        date1: "",
-        date2: "",
+        date1: da.toLocaleDateString(),
+        date2: da.toLocaleDateString(),
     }
 
     fetch_data(data);
@@ -62,9 +62,11 @@ function fetch_data(data) {
         .then(content => {
             if (content != -1) {
                 let rows = "";
+
                 for (let record of content) {
                     let row = "<tr>";
-                    for (let d of record) {
+                    let document = record.split(SPLITER);
+                    for (let d of document) {
                         d = d == 0 ? "" : d;
                         row += `<td>${d}</td>`;
                     }
