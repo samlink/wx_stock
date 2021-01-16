@@ -1,10 +1,6 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
-import * as service from '../parts/service.mjs'
-import { SPLITER, getHeight, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { SPLITER } from '../parts/tools.mjs';
 
 let p = document.querySelector('#num_position').textContent.split(",")[1];
 

@@ -1,20 +1,14 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
-import * as service from '../parts/service.mjs'
-import { SPLITER, getHeight, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { SPLITER } from '../parts/tools.mjs';
 
-let get_height = getHeight() - 138;
-let row_num = Math.floor(get_height / 30);
+let p = document.querySelector('#num_position').textContent.split(",")[1];
 
 //执行日期实例------------------------------------------------
 laydate.render({
     elem: '#search-date1',
     showBottom: false,
     theme: 'molv',
-    // value: '2021-05-02'
-    // theme: '#62468d',
 });
 
 laydate.render({
@@ -23,105 +17,65 @@ laydate.render({
     theme: 'molv',
 });
 
-//客户供应商自动填充--------------------------------------------
-let cate = document.querySelector('#auto_cate');
-
-let auto_comp = new AutoInput(document.querySelector('#search-customer'),
-    cate, "/customer_auto", () => {
-    });
-
-auto_comp.init();
-
-//填充表格空行-------------------------------------------------
-let blank_rows = "";
-for (let i = 0; i < row_num; i++) {
-    blank_rows += blank_row_fn();
-}
-
-document.querySelector('.table-container tbody').innerHTML = blank_rows;
-
-//表格搜索----------------------------------------------------
-let init_data = {
-    container: '.table-container',
-    url: "/fetch_business",
-    post_data: {
-        id: "",
-        name: '',
-        sort: "单号 DESC",
-        rec: row_num,
-    },
-    edit: false,
-    header_names: {
-        "日期": "日期",
-        "单号": "单号",
-        "类别": "documents.类别",
-        "单据金额": "应结金额",
-        "商品名称": "node_name",
-        "规格型号": "规格型号",
-        "单位": "单位",
-        "价格": "单价",
-        "数量": "abs(数量)",
-        "备注": "documents.备注"
-    },
-
-    row_fn: row_fn,
-    blank_row_fn: blank_row_fn,
-};
+let today_button = document.querySelector('#today-button');
 
 document.querySelector('#serach-button').addEventListener('click', function () {
-    let customer = document.querySelector('#search-customer').value;
-
-    if (!customer) {
-        notifier.show('客户供应商不能为空', 'danger');
+    let date1 = document.querySelector('#search-date1').value;
+    let date2 = document.querySelector('#search-date2').value;
+    if (!(date1 && date2)) {
+        notifier.show('请输入起止日期', 'danger');
         return;
     }
 
-    let check_fields = document.querySelector('#checkbox-fields').checked;
-    let check_date = document.querySelector('#checkbox-date').checked;
+    document.querySelector('.customer-name').textContent = `日期：${date1} 至 ${date2}`;
 
-    let fields = check_fields ? document.querySelector('#search-fields').value : "";
-    let date1 = check_date ? document.querySelector('#search-date1').value : "";
-    let date2 = check_date ? document.querySelector('#search-date2').value : "";
+    let data = {
+        date1: date1,
+        date2: date2,
+    }
 
-    init_data.post_data.name = fields;
-    init_data.post_data.cate = `${customer}${SPLITER}${date1}${SPLITER}${date2}`;
-
-    table_init(init_data);
-    fetch_table();
+    fetch_data(data);
 });
 
+today_button.addEventListener('click', function () {
+    document.querySelector('.customer-name').textContent = "今日";
 
-//查看单据
-document.querySelector('#edit-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(3)').textContent : "";
-    if (id != "") {
-        let cate = chosed.querySelector('td:nth-child(4)').textContent;
-        let address = "/sale/";
-
-        if (cate.indexOf("采购") != -1) {
-            address = "/buy_in/";
-        }
-
-        window.open(address + id);
+    let data = {
+        date1: "",
+        date2: "",
     }
-    else {
-        notifier.show('请先选择单据', 'danger');
-    }
+
+    fetch_data(data);
 });
 
+today_button.click();
 
-function row_fn(tr) {
-    let row = tr.split(SPLITER);
-    let num = document.querySelector('#num_position').textContent.split(',');
-    let center = "style='text-align:center'";
-    let right = "style='text-align:right'";
+function fetch_data(data) {
+    fetch("/fetch_analys", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                let rows = "";
+                for (let record of content) {
+                    let row = "<tr>";
+                    for (let d of record) {
+                        d = d == 0 ? "" : d;
+                        row += `<td>${d}</td>`;
+                    }
+                    row += "</tr>";
+                    rows += row;
+                }
 
-    return `<tr><td ${center}>${row[0]}</td><td ${center}>${row[1]}</td><td>${row[2]}</td><td ${center}>${row[3]}</td>
-            <td ${right}>${Number(row[4]).toFixed(num[1])}</td><td>${row[5]}</td><td>${row[6]}</td><td ${center}>${row[7]}</td>
-            <td ${right}>${Number(row[8]).toFixed(num[0])}</td><td ${right}>${row[9]}</td><td>${row[10]}</td></tr>`;
-}
-
-function blank_row_fn() {
-    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                document.querySelector('.table-container tbody').innerHTML = rows;
+            }
+            else {
+                notifier.show('无操作权限', 'danger');
+            }
+        });
 }
