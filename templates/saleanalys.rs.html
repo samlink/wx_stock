@@ -1,0 +1,96 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: UserData, num_position: String)
+
+@:base({
+<link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
+
+<div class="docment-query business_query">
+    <div class="top-title"><span><i class="fa fa-user"></i> 客户供应商 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 业务往来 </span>
+        <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
+        <p id="auto_cate" hidden></p>
+        <span id="num_position" hidden>@num_position</span>
+    </div>
+    <div class="query-content">
+        <div id="query-show">
+            <div class="table-top">
+                <div class="query-search">
+                    <div class="form-input autocomplete">
+                        <input type="text" class="form-control search-input autocomplete" id="search-customer"
+                            placeholder="客户供应商搜索">
+                    </div>
+                    <div class="search-div">
+                        <label class="check-radio"><input type="checkbox" id="checkbox-fields">
+                            <span class="checkmark"></span>
+                        </label>
+                        <input type="text" class="form-control search-input" id="search-fields" placeholder="字段模糊搜索">
+                        <label class="check-radio"><input type="checkbox" id="checkbox-date">
+                            <span class="checkmark"></span>
+                        </label>
+                        <input type="text" class="form-control search-input date-input" id="search-date1"
+                            placeholder="起始日期">
+                        -
+                        <input type="text" class="form-control search-input date-input" id="search-date2"
+                            placeholder="终止日期">
+                        <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                    </div>
+                </div>
+                <div class="table-tools">
+                    <div class="table-edit">
+                        <button class="btn btn-info btn-sm" id="edit-button">查阅单据</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container table-documents">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="6%">序号</th>
+                            <th>日期</th>
+                            <th width="10%">单号</th>
+                            <th>类别</th>
+                            <th>单据金额</th>
+                            <th>商品名称</th>
+                            <th width="15%">规格型号</th>
+                            <th width="6%">单位</th>
+                            <th width="8%">价格</th>
+                            <th width="6%">数量</th>
+                            <th width="18%">备注</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+                <div class="table-ctrl">
+                    <div class="tools-button"></div>
+                    <div class="table-button">
+                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                width="12px"></button>
+                        <p class="seperator"></p>
+                        <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                        <span>页，共</span><span id="pages"></span><span>页</span>
+                        <p class="seperator"></p>
+                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                width="12px"></button>
+                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                width="12px"></button>
+                    </div>
+
+                    <div class="table-info">
+                       金额共：<span id="other-info"></span> 元， 共 <span id="total-records"></span> 条记录
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/assets/plugins/laydate/laydate.js"></script>
+<script type="module" src="/assets/js/pages/analys.js"></script>
+}, user.name.clone())

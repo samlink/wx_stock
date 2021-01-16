@@ -19,6 +19,7 @@ mod warehouse_set;
 mod report_design;
 mod documentquery;
 mod business;
+mod statistic;
 
 #[derive(Deserialize)]
 struct Config {
@@ -70,6 +71,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::stock_query)
             .service(html::business_query)
             .service(html::debt)
+            .service(html::analys)
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
