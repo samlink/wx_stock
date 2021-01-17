@@ -1,4 +1,9 @@
 .statis {
+    .table-top {
+        display: flex;
+        align-content: space-between;
+    }
+
     .query-content {
         #search-date {
             width: 130px;
@@ -21,7 +26,7 @@
     #search-date {
         margin-right: 20px;
     }
-    
+
     .table-container {
         width: 300px;
     }

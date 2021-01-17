@@ -8,7 +8,7 @@
 
 <div class="docment-query business_query debt statis">
     <div class="top-title"><span><i class="fa fa-bar-chart"></i> 统计分析 </span>
-        <span class="t1"><i class="fa fa-angle-double-right"></i> 月度统计 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 销售统计 </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
     </div>
     <div class="query-content">
@@ -23,12 +23,14 @@
                         </select>
                         <label for="search-date">统计区间：</label>
                         <input type="text" class="form-control search-input date-input" id="search-date">
-                        <select name="chart-cate" class="select-sm" id="chart-cate">
-                            <option value="柱状图">柱状图</option>
-                            <option value="折线图">折线图</option>
-                        </select>
                         <button class="btn btn-info btn-sm" id="statis-button">统计</button>
                     </div>
+                </div>
+                <div class="chart-select">
+                    <select name="chart-cate" class="select-sm" id="chart-cate">
+                        <option value="柱状图">柱状图</option>
+                        <option value="折线图">折线图</option>
+                    </select>
                 </div>
             </div>
         </div>

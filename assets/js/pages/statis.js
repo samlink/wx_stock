@@ -1,29 +1,15 @@
 import { notifier } from '../parts/notifier.mjs';
 import { SPLITER } from '../parts/tools.mjs';
 
+var ctx = document.getElementById('myChart').getContext('2d');
+
 var da = new Date(Date.now());
 let da2 = da.setFullYear(da.getFullYear() - 1); //此处 da 已经改变
 
-let date1 = new Intl.DateTimeFormat('fr-CA').format(da2)
-let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date())
+let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
+let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
 
-laydate.render({
-    elem: '#search-date',
-    // type: 'year',
-    type: 'month',
-    range: true,
-    theme: 'molv',
-    value: `${date1.substring(0, 7)} - ${date2.substring(0, 7)}`,
-
-    done: function (value, startDate, endDate) {
-        let date = value.split(" - ");
-        console.log(date[0]);
-
-
-    },
-});
-
-var ctx = document.getElementById('myChart').getContext('2d');
+set_date('month', `${date1.substring(0, 7)} - ${date2.substring(0, 7)}`);
 
 var myChart = new Chart(ctx, {
     type: 'bar',
@@ -33,14 +19,14 @@ var myChart = new Chart(ctx, {
             label: '销售额',
             data: [12, 9, 23, 5, 2, 3],
             backgroundColor:
-            [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)',
-                'rgba(153, 102, 255, 0.2)',
-                'rgba(255, 159, 64, 0.2)'
-            ],
+                [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                    'rgba(153, 102, 255, 0.2)',
+                    'rgba(255, 159, 64, 0.2)'
+                ],
             // backgroundColor: 'rgba(54, 162, 235, 0.5)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
@@ -57,9 +43,32 @@ var myChart = new Chart(ctx, {
     }
 });
 
+document.querySelector('#statis-cate').addEventListener('change', function () {
+    if (this.value == "按月") {
+        
+    }
+});
+
+
+function set_date(type, value) {
+    laydate.render({
+        elem: '#search-date',
+        // type: 'year',
+        type: type,
+        range: true,
+        theme: 'molv',
+        value: value,
+
+        // done: function (value, startDate, endDate) {
+        //     let date = value.split(" - ");
+        //     console.log(date[0]);
+
+
+        // },
+    });
+}
 
 function fetch_statis(data) {
-
     fetch("/fetch_statis", {
         method: 'post',
         headers: {

@@ -297,7 +297,7 @@ pub async fn analys(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 #[get("/statistic")]
 pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "月度统计".to_owned()).await;
+    let user = get_user(db.clone(), id, "销售统计".to_owned()).await;
 
     if user.name != "" {
         let html = r2s(|o| statis(o, user));
