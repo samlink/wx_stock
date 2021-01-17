@@ -9,10 +9,19 @@
         }
     }
 
+    .select-sm {
+        width: 100px;
+        margin-right: 20px;
+    }
+
     .debt-show {
         height: calc(100vh - 200px);
     }
 
+    #search-date {
+        margin-right: 20px;
+    }
+    
     .table-container {
         width: 300px;
     }
