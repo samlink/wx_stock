@@ -15,16 +15,17 @@
         <div id="query-show">
             <div class="table-top">
                 <div class="query-search">
-                    <div class="search-div">
-                        <select name="sta-cate" class="select-sm" id="statis-cate">
-                            <option value="按月">按月统计</option>
-                            <option value="按周">按周统计</option>
-                            <option value="按年">按年统计</option>
-                        </select>
-                        <label for="search-date">统计区间：</label>
-                        <input type="text" class="form-control search-input date-input" id="search-date">
-                        <button class="btn btn-info btn-sm" id="statis-button">统计</button>
-                    </div>
+                    <select name="sta-cate" class="select-sm" id="statis-cate">
+                        <option value="按月">按月统计</option>
+                        <option value="按周">按周统计</option>
+                        <option value="按年">按年统计</option>
+                    </select>
+                    <label for="search-date">统计区间：</label>
+                    <input type="text" class="form-control search-input date-input" id="search-date-month">
+                    <input type="text" class="form-control search-input date-input" id="search-date-year" hidden>
+                    <input type="text" class="form-control search-input date-input" id="search-date-week" placeholder="输入最近周数"
+                        hidden>
+                    <button class="btn btn-info btn-sm" id="statis-button">统计</button>
                 </div>
                 <div class="chart-select">
                     <select name="chart-cate" class="select-sm" id="chart-cate">
