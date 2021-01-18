@@ -4,7 +4,6 @@ import { SPLITER } from '../parts/tools.mjs';
 var ctx = document.getElementById('myChart').getContext('2d');
 
 var char_data = {
-    type: 'bar',
     data: {
         // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
@@ -75,7 +74,6 @@ if (statis_cate == "按月") {
 
     let data = {
         statis_cate: statis_cate,
-        chart_cate: chart_cate,
         date1: date[0],
         date2: date[1],
     };
@@ -92,7 +90,6 @@ else if (statis_cate == "按年") {
 
     let data = {
         statis_cate: statis_cate,
-        chart_cate: chart_cate,
         date1: date[0],
         date2: date[1],
     };
@@ -109,7 +106,6 @@ else {
 
     let data = {
         statis_cate: statis_cate,
-        chart_cate: chart_cate,
         date1: "",
         date2: "24",
     };
@@ -141,13 +137,17 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
 
 document.querySelector('#chart-cate').addEventListener('change', function () {
     localStorage.setItem("chart_cate", this.value);
+    char_data.type = this.value == "柱状图" ? "bar" : "line";
+    char_data.data.datasets[0].fill = this.value == "柱状图" ? true : false;
+    new Chart(ctx, char_data);
 });
 
-
+char_data.type = chart_cate == "柱状图" ? "bar" : "line";
 char_data.data.labels = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
 char_data.data.datasets[0].data = [12, 9, 23, 5, 2, 3];
+char_data.data.datasets[0].fill = chart_cate == "柱状图" ? true : false;
 
-myChart = new Chart(ctx, char_data);
+new Chart(ctx, char_data);
 
 function set_chart(data) {
     fetch("/fetch_statis", {

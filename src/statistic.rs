@@ -116,3 +116,58 @@ pub async fn fetch_analys(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[derive(Deserialize)]
+pub struct StatisData {
+    statis_cate: String,
+    date1: String,
+    date2: String,
+}
+
+#[post("/fetch_statis")]
+pub async fn fetch_statis(
+    db: web::Data<Pool>,
+    post_data: web::Json<StatisData>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "销售统计".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let mut statis_date: Vec<String> = Vec::new();
+        let mut lables: String;
+        let mut sale_data: String;
+
+        let sql = format!(
+            r#"select count(单号) as 数量, case when count(单号)=0 then 0 else sum(应结金额) end as 应结金额, 
+                    case when count(单号)=0 then 0 else sum(已结金额) end as 已结金额,
+                    case when count(单号)=0 then 0 else sum(其他费用) end as 其他费用 from documents
+                    where 单号 like '{}%' and 已记账=true and 日期::date >= '{}'::date and 日期::date <= '{}'::date"#,
+            name[1], post_data.date1, post_data.date2
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut m1: i64 = 0;
+        let mut m2: f32 = 0.0;
+        let mut m3: f32 = 0.0;
+        let mut m4: f32 = 0.0;
+
+        for row in rows {
+            m1 = row.get("数量");
+            m2 = row.get("应结金额");
+            m3 = row.get("已结金额");
+            m4 = row.get("其他费用");
+        }
+
+        doc_string = format!(
+            "{}{}{}{}{:.*}{}{:.*}{}",
+            doc_string, SPLITER, m1, SPLITER, num2, m2, SPLITER, num2, m3, SPLITER
+        );
+
+        documents_record.push(doc_string);
+
+        HttpResponse::Ok().json(documents_record)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
