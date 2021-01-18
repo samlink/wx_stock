@@ -2,32 +2,14 @@ import { notifier } from '../parts/notifier.mjs';
 import { SPLITER } from '../parts/tools.mjs';
 
 var ctx = document.getElementById('myChart').getContext('2d');
-
-var da = new Date(Date.now());
-let da2 = da.setFullYear(da.getFullYear() - 1); //此处 da 已经改变
-
-let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
-let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
-
-set_date('month', `${date1.substring(0, 7)} - ${date2.substring(0, 7)}`);
-
-var myChart = new Chart(ctx, {
+var char_data = {
     type: 'bar',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
             label: '销售额',
-            data: [12, 9, 23, 5, 2, 3],
-            backgroundColor:
-                [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                    'rgba(153, 102, 255, 0.2)',
-                    'rgba(255, 159, 64, 0.2)'
-                ],
-            // backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            // data: [12, 9, 23, 5, 2, 3],
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         }]
@@ -41,11 +23,55 @@ var myChart = new Chart(ctx, {
             }]
         }
     }
-});
+}
+
+var myChart;
+
+let statis_cate_s = localStorage.getItem("statis_cate");
+let chart_cate_s = localStorage.getItem("chart_cate");
+
+let statis_cate = statis_cate_s ? statis_cate_s : "按月";
+let chart_cate = chart_cate_s ? chart_cate_s : "柱状图";
+
+if (statis_cate == "按月") {
+    set_cate_date("按月");
+}
+else {
+    if (statis_cate == "按年") {
+        set_cate_date("按年");
+    }
+}
+
+function set_cate_date(cate) {
+    let n1 = 1, n2 = 7, d1 = "month";
+    if (cate == "按年") {
+        n1 = 10;
+        n2 = 4;
+        d1 = "year";
+    }
+
+    let da = new Date(Date.now());
+    let da2 = da.setFullYear(da.getFullYear() - n1);
+    let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
+    let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
+
+    set_date(d1, `${date1.substring(0, n2)} - ${date2.substring(0, n2)}`);
+
+    let date_s = date.split(" - ");
+
+    let data = {
+        statis_cate: statis_cate,
+        chart_cate: chart_cate,
+        date1: date_s[0],
+        date2: date_s[1],
+    };
+
+    set_chart(data);
+}
 
 document.querySelector('#statis-cate').addEventListener('change', function () {
     if (this.value == "按月") {
-        
+
     }
 });
 
@@ -53,19 +79,14 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
 function set_date(type, value) {
     laydate.render({
         elem: '#search-date',
-        // type: 'year',
         type: type,
         range: true,
         theme: 'molv',
-        value: value,
-
-        // done: function (value, startDate, endDate) {
-        //     let date = value.split(" - ");
-        //     console.log(date[0]);
-
-
-        // },
     });
+}
+
+function set_chart(data) {
+
 }
 
 function fetch_statis(data) {
