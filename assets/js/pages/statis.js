@@ -25,8 +25,6 @@ var char_data = {
     }
 }
 
-var myChart;
-
 let da = new Date(Date.now());
 let da2 = da.setFullYear(da.getFullYear() - 1);
 let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);

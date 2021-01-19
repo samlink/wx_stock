@@ -133,40 +133,53 @@ pub async fn fetch_statis(
     let user = get_user(db.clone(), id, "销售统计".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let mut statis_date: Vec<String> = Vec::new();
-        let mut lables: String;
-        let mut sale_data: String;
+        let mut num: Vec<i64> = Vec::new();
+        let mut date_lables: Vec<String> = Vec::new();
+        let mut sale_data: Vec<f32> = Vec::new();
+
+        let date1: String;
+        let date2: String;
+        let date_sql: String;
+
+        if post_data.statis_cate == "按月" {
+            date1 = format!("{}-01", post_data.date1);
+            date2 = format!("{}-01", post_data.date2);
+            date_sql = format!(
+                "日期::date >= '{}'::date and 日期::date < '{}'::date ",
+                date1, date2
+            );
+        } else if post_data.statis_cate == "按年" {
+            date1 = format!("{}-01-01", post_data.date1);
+            date2 = format!("{}-12-31", post_data.date2);
+            date_sql = format!(
+                "日期::date >= '{}'::date and 日期::date <= '{}'::date ",
+                date1, date2
+            );
+        } else {
+            date_sql = format!("日期::date >= ''::date and 日期::date <= ''::date ");
+        }
 
         let sql = format!(
-            r#"select count(单号) as 数量, case when count(单号)=0 then 0 else sum(应结金额) end as 应结金额, 
-                    case when count(单号)=0 then 0 else sum(已结金额) end as 已结金额,
-                    case when count(单号)=0 then 0 else sum(其他费用) end as 其他费用 from documents
-                    where 单号 like '{}%' and 已记账=true and 日期::date >= '{}'::date and 日期::date <= '{}'::date"#,
-            name[1], post_data.date1, post_data.date2
+            r#"select to_char(日期::date, 'YYYY-MM') as 日期, case when count(单号)=0 then 0 else sum(应结金额) end as 销售额, 
+                ROW_NUMBER () OVER (order by to_char(日期::date, 'YYYY-MM')) as 序号 from documents
+                where 单号 like 'X%' and 已记账=true and {}
+                group by to_char(日期::date, 'YYYY-MM')
+                order by to_char(日期::date, 'YYYY-MM')"#,
+            date_sql
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let mut m1: i64 = 0;
-        let mut m2: f32 = 0.0;
-        let mut m3: f32 = 0.0;
-        let mut m4: f32 = 0.0;
-
         for row in rows {
-            m1 = row.get("数量");
-            m2 = row.get("应结金额");
-            m3 = row.get("已结金额");
-            m4 = row.get("其他费用");
+            let date: String = row.get("日期");
+            let sale: f32 = row.get("销售额");
+            let n: i64 = row.get("序号");
+            num.push(n);
+            date_lables.push(date);
+            sale_data.push(sale);
         }
 
-        doc_string = format!(
-            "{}{}{}{}{:.*}{}{:.*}{}",
-            doc_string, SPLITER, m1, SPLITER, num2, m2, SPLITER, num2, m3, SPLITER
-        );
-
-        documents_record.push(doc_string);
-
-        HttpResponse::Ok().json(documents_record)
+        HttpResponse::Ok().json((num, date_lables, sale_data))
     } else {
         HttpResponse::Ok().json(-1)
     }
