@@ -1,5 +1,4 @@
 import { notifier } from '../parts/notifier.mjs';
-import { regInt } from '../parts/tools.mjs';
 
 var ctx = document.getElementById('myChart').getContext('2d');
 
