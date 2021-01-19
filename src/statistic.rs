@@ -168,7 +168,7 @@ pub async fn fetch_statis(
             da_cate, da_cate, date_sql
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 

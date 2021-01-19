@@ -10,15 +10,6 @@ var char_data = {
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-        }
     }
 }
 
@@ -65,11 +56,16 @@ let value_week = `${date1} - ${date2}`;
 
 laydate.render({
     elem: '#search-date-week',
-    // type: 'day',
     range: true,
     value: value_week,
     theme: 'molv',
 });
+
+let info = document.querySelector('#info');
+let m = "默认区间为1年";
+let y = "默认区间为10年";
+let w = "默认区间为半年，周一为起始日";
+let d = "默认区间为半年";
 
 let statis_cate_s = localStorage.getItem("statis_cate");
 let chart_cate_s = localStorage.getItem("chart_cate");
@@ -84,6 +80,8 @@ if (statis_cate == "按月") {
     document.querySelector('#search-date-month').style.display = "inline-block";
     document.querySelector('#search-date-year').style.display = "none";
     document.querySelector('#search-date-week').style.display = "none";
+
+    info.textContent = m;
 
     let date = value_month.split(' - ');
     let date1 = date[0] + "-01";
@@ -103,6 +101,8 @@ else if (statis_cate == "按年") {
     document.querySelector('#search-date-year').style.display = "inline-block";
     document.querySelector('#search-date-week').style.display = "none";
 
+    info.textContent = y;
+
     let date = value_year.split(' - ');
 
     let data = {
@@ -116,9 +116,11 @@ else if (statis_cate == "按年") {
 else {
     if (statis_cate == "按周") {
         document.querySelector('#statis-cate').value = "按周";
+        info.textContent = w;
     }
     else {
         document.querySelector('#statis-cate').value = "按日";
+        info.textContent = d;
     }
 
     document.querySelector('#search-date-month').style.display = "none";
@@ -141,27 +143,25 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
         document.querySelector('#search-date-month').style.display = "inline-block";
         document.querySelector('#search-date-year').style.display = "none";
         document.querySelector('#search-date-week').style.display = "none";
-        localStorage.setItem("statis_cate", "按月");
-
+        info.textContent = m;
     }
     else if (this.value == "按年") {
         document.querySelector('#search-date-month').style.display = "none";
         document.querySelector('#search-date-year').style.display = "inline-block";
         document.querySelector('#search-date-week').style.display = "none";
-        localStorage.setItem("statis_cate", "按年");
+        info.textContent = y;
     }
     else {
         document.querySelector('#search-date-month').style.display = "none";
         document.querySelector('#search-date-year').style.display = "none";
         document.querySelector('#search-date-week').style.display = "inline-block";
 
-        if (statis_cate == "按周") {
-            localStorage.setItem("statis_cate", "按周");
+        if (this.value == "按周") {
+            info.textContent = w;
         }
         else {
-            localStorage.setItem("statis_cate", "按日");
+            info.textContent = d;
         }
-
     }
 });
 
@@ -223,6 +223,8 @@ document.querySelector('#statis-button').addEventListener('click', function () {
     };
 
     set_chart(data);
+
+    localStorage.setItem("statis_cate", sta_cate);
 });
 
 function set_chart(data) {
@@ -242,10 +244,10 @@ function set_chart(data) {
                     th_date.textContent = "月份";
                 }
                 else if (data.statis_cate == "按年") {
-                    th_date.textContent = "年度";
+                    th_date.textContent = "年份";
                 }
                 else if (data.statis_cate == "按周") {
-                    th_date.textContent = "周度";
+                    th_date.textContent = "周 (周一)";
                 }
                 else {
                     th_date.textContent = "日期";
