@@ -35,10 +35,42 @@
 
     .table-container {
         width: 300px;
+        tbody tr {
+            height: 35px;
+        }
+    }
+
+    table thead,
+    tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    table thead {
+        width: calc(100% - 15px);
+        th {
+            cursor: default;
+        }
+    }
+
+    table tbody {
+        display: block;
+        height: calc(100vh - 250px);
+        overflow-y: scroll;
+
+        td:nth-child(1) {
+            width: 20%;
+        }
+
+        td:nth-child(2) {
+            width: 35%;
+            text-align: center;
+        }
     }
 
     .chart-div {
         width: calc(100% - 320px);
-        margin-left: 10px;
+        margin-left: 20px;
     }
 }

@@ -25,6 +25,8 @@ var char_data = {
     }
 }
 
+var myChart;
+
 let da = new Date(Date.now());
 let da2 = da.setFullYear(da.getFullYear() - 1);
 let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
@@ -139,7 +141,9 @@ document.querySelector('#chart-cate').addEventListener('change', function () {
     localStorage.setItem("chart_cate", this.value);
     char_data.type = this.value == "柱状图" ? "bar" : "line";
     char_data.data.datasets[0].fill = this.value == "柱状图" ? true : false;
-    new Chart(ctx, char_data);
+
+    myChart.destroy();
+    myChart = new Chart(ctx, char_data);
 });
 
 document.querySelector('#statis-button').addEventListener('click', function () {
@@ -203,32 +207,35 @@ function set_chart(data) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                // let row = "<tr>";
-                // for (let d of debt4) {
-                //     d = d == 0 ? "" : d;
-                //     row += `<td>${d}</td>`;
-                // }
-                // row += "</tr>";
-                // rows += row;
+                let th_date = document.querySelector('#th-date');
 
-                // s1 = debt3[1] * 1 + debt4[1] * 1;
-                // s2 = debt3[2] * 1 - debt4[2] * 1;
-                // s3 = debt3[3] * 1 - debt4[3] * 1;
-                // s4 = debt3[4] * 1 - debt4[4] * 1;
-                // s5 = debt3[5] * 1 - debt4[5] * 1;
+                if (data.statis_cate == "按月") {
+                    th_date.textContent = "月份";
+                }
+                else if (data.statis_cate == "按年") {
+                    th_date.textContent = "年度";
+                }
+                else {
+                    th_date.textContent = "距今周数";
+                }
 
-                // rows += `<tr><td>小计</td><td>${s1 == 0 ? "" : s1}</td><td>${s2 == 0 ? "" : s2.toFixed(p)}</td><td>${s3 == 0 ? "" : s3.toFixed(p)}</td>
-                //             <td>${s4 == 0 ? "" : s4.toFixed(p)}</td><td>${s5 == 0 ? "" : s5.toFixed(p)}</td></tr>`;
+                let rows = "";
+                for (let i = 0; i < content[0].length; i++) {
+                    rows += `<tr><td>${content[0][i]}</td><td>${content[1][i]}</td><td>${content[2][i]}</td></tr>`;
+                }
 
-                // document.querySelector('.table-container tbody').innerHTML = rows;
-                document.getElementById('myChart').innerHTML="";
+                document.querySelector('.table-container tbody').innerHTML = rows;
 
                 char_data.type = chart_cate == "柱状图" ? "bar" : "line";
                 char_data.data.labels = content[1];
                 char_data.data.datasets[0].data = content[2];
                 char_data.data.datasets[0].fill = chart_cate == "柱状图" ? true : false;
 
-                new Chart(ctx, char_data);
+                if (myChart) {
+                    myChart.destroy();
+                }
+
+                myChart = new Chart(ctx, char_data);
             }
             else {
                 notifier.show('无操作权限', 'danger');
