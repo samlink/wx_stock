@@ -306,3 +306,15 @@ pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Found().header("location", "/login").finish()
     }
 }
+
+#[get("/cost")]
+pub async fn cost(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
+
+    if user.name != "" {
+        let html = r2s(|o| coststatis(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        HttpResponse::Found().header("location", "/login").finish()
+    }
+}

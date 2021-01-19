@@ -186,3 +186,66 @@ pub async fn fetch_statis(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/fetch_cost")]
+pub async fn fetch_cost(
+    db: web::Data<Pool>,
+    post_data: web::Json<StatisData>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let mut num: Vec<i64> = Vec::new();
+        let mut date_lables: Vec<String> = Vec::new();
+        let mut sale_data: Vec<String> = Vec::new();
+
+        let da_cate: String;
+
+        let mut date_sql = format!(
+            "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
+            post_data.date1, post_data.date2
+        );
+
+        if post_data.statis_cate == "按月" {
+            da_cate = format!("to_char(日期::date, 'YYYY-MM')");
+            date_sql = format!(
+                "日期::date >= '{}'::date and 日期::date < '{}'::date ", //注意：小于号
+                post_data.date1, post_data.date2
+            );
+        } else if post_data.statis_cate == "按年" {
+            da_cate = format!("to_char(日期::date, 'YYYY')");
+        } else if post_data.statis_cate == "按日" {
+            da_cate = format!("to_char(日期::date, 'YYYY-MM-DD')");
+        } else {
+            da_cate = format!("to_char(日期::DATE-(extract(dow from 日期::TIMESTAMP)-1||'day')::interval, 'YYYY-mm-dd')");
+        }
+
+        let sql = format!(
+            r#"select {} as date_cate, case when count(单号)=0 then 0 else sum(单价*数量) end as 销售额, 
+                ROW_NUMBER () OVER (order by {}) as 序号 
+                from documents join document_items on documents.单号=document_items.单号id
+                where 单号 like 'X%' and 已记账=true and {}
+                group by date_cate
+                order by date_cate"#,
+            da_cate, da_cate, date_sql
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        for row in rows {
+            let date: String = row.get("date_cate");
+            let sale: f32 = row.get("销售额");
+            let n: i64 = row.get("序号");
+            num.push(n);
+            date_lables.push(date);
+            sale_data.push(format!("{:.*}", 2, -sale)); //单价*数量 销售为负数，退货为正数
+        }
+
+        HttpResponse::Ok().json((num, date_lables, sale_data))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
