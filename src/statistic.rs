@@ -135,37 +135,36 @@ pub async fn fetch_statis(
         let conn = db.get().await.unwrap();
         let mut num: Vec<i64> = Vec::new();
         let mut date_lables: Vec<String> = Vec::new();
-        let mut sale_data: Vec<f32> = Vec::new();
+        let mut sale_data: Vec<String> = Vec::new();
 
-        let date1: String;
-        let date2: String;
+        let da_cate: String;
         let date_sql: String;
 
         if post_data.statis_cate == "按月" {
-            date1 = format!("{}-01", post_data.date1);
-            date2 = format!("{}-01", post_data.date2);
+            da_cate = format!("to_char(日期::date, 'YYYY-MM')");
             date_sql = format!(
-                "日期::date >= '{}'::date and 日期::date < '{}'::date ",
-                date1, date2
+                "日期::date >= '{}'::date and 日期::date < '{}'::date ", //注意：小于号
+                post_data.date1, post_data.date2
             );
         } else if post_data.statis_cate == "按年" {
-            date1 = format!("{}-01-01", post_data.date1);
-            date2 = format!("{}-12-31", post_data.date2);
+            da_cate = format!("to_char(日期::date, 'YYYY')");
             date_sql = format!(
-                "日期::date >= '{}'::date and 日期::date <= '{}'::date ",
-                date1, date2
+                "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
+                post_data.date1, post_data.date2
             );
         } else {
+            da_cate = "".to_owned();
             date_sql = format!("日期::date >= ''::date and 日期::date <= ''::date ");
         }
 
         let sql = format!(
-            r#"select to_char(日期::date, 'YYYY-MM') as 日期, case when count(单号)=0 then 0 else sum(应结金额) end as 销售额, 
-                ROW_NUMBER () OVER (order by to_char(日期::date, 'YYYY-MM')) as 序号 from documents
+            r#"select {} as 日期, case when count(单号)=0 then 0 else sum(单价*数量) end as 销售额, 
+                ROW_NUMBER () OVER (order by {}) as 序号 
+                from documents join document_items on documents.单号=document_items.单号id
                 where 单号 like 'X%' and 已记账=true and {}
-                group by to_char(日期::date, 'YYYY-MM')
-                order by to_char(日期::date, 'YYYY-MM')"#,
-            date_sql
+                group by {}
+                order by {}"#,
+            da_cate, da_cate, date_sql, da_cate, da_cate
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -176,7 +175,7 @@ pub async fn fetch_statis(
             let n: i64 = row.get("序号");
             num.push(n);
             date_lables.push(date);
-            sale_data.push(sale);
+            sale_data.push(format!("{:.*}", 2, -sale)); //单价*数量 销售为负数，退货为正数
         }
 
         HttpResponse::Ok().json((num, date_lables, sale_data))

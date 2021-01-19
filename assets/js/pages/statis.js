@@ -1,5 +1,5 @@
 import { notifier } from '../parts/notifier.mjs';
-import { SPLITER } from '../parts/tools.mjs';
+import { SPLITER, regInt } from '../parts/tools.mjs';
 
 var ctx = document.getElementById('myChart').getContext('2d');
 
@@ -69,11 +69,13 @@ if (statis_cate == "按月") {
     document.querySelector('#search-date-week').style.display = "none";
 
     let date = value_month.split(' - ');
+    let date1 = date[0] + "-01";
+    let date2 = add_month(date[1]);
 
     let data = {
         statis_cate: statis_cate,
-        date1: date[0],
-        date2: date[1],
+        date1: date1,
+        date2: date2,
     };
 
     set_chart(data);
@@ -88,8 +90,8 @@ else if (statis_cate == "按年") {
 
     let data = {
         statis_cate: statis_cate,
-        date1: date[0],
-        date2: date[1],
+        date1: date[0] + "-01-01",
+        date2: date[1] + "-12-31",
     };
 
     set_chart(data);
@@ -140,12 +142,55 @@ document.querySelector('#chart-cate').addEventListener('change', function () {
     new Chart(ctx, char_data);
 });
 
-char_data.type = chart_cate == "柱状图" ? "bar" : "line";
-char_data.data.labels = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
-char_data.data.datasets[0].data = [12, 9, 23, 5, 2, 3];
-char_data.data.datasets[0].fill = chart_cate == "柱状图" ? true : false;
+document.querySelector('#statis-button').addEventListener('click', function () {
+    chart_cate = document.querySelector('#chart-cate').value;
+    let sta_cate = document.querySelector('#statis-cate').value;
 
-new Chart(ctx, char_data);
+    let date, date1, date2;
+    if (sta_cate == "按月") {
+        date = document.querySelector('#search-date-month').value
+
+        if (!date) {
+            notifier.show('请输入起止月份', 'danger');
+            return false;
+        }
+
+        date = date.split(' - ');
+        date1 = date[0] + "-01";
+        date2 = add_month(date[1]);
+    }
+    else if (sta_cate == "按年") {
+        date = document.querySelector('#search-date-year').value;
+
+        if (!date) {
+            notifier.show('请输入起止年份', 'danger');
+            return false;
+        }
+
+        date = date.split(' - ');
+        date1 = date[0] + "-01-01";
+        date2 = date[1] + "-12-31";
+    }
+    else {
+        date2 = document.querySelector('#search-date-week').value;
+        if (date2 && regInt.test(date2)) {
+            date1 = "";
+        }
+        else {
+            notifier.show('请正确输入周数', 'danger');
+            return false;
+        }
+    }
+
+    let data = {
+        statis_cate: sta_cate,
+        date1: date1,
+        date2: date2,
+    };
+
+    set_chart(data);
+
+});
 
 function set_chart(data) {
     fetch("/fetch_statis", {
@@ -176,11 +221,14 @@ function set_chart(data) {
                 //             <td>${s4 == 0 ? "" : s4.toFixed(p)}</td><td>${s5 == 0 ? "" : s5.toFixed(p)}</td></tr>`;
 
                 // document.querySelector('.table-container tbody').innerHTML = rows;
+                document.getElementById('myChart').innerHTML="";
 
-                char_data.data.labels = ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'];
-                char_data.data.datasets[0].data = [12, 9, 23, 5, 2, 3];
+                char_data.type = chart_cate == "柱状图" ? "bar" : "line";
+                char_data.data.labels = content[1];
+                char_data.data.datasets[0].data = content[2];
+                char_data.data.datasets[0].fill = chart_cate == "柱状图" ? true : false;
 
-                myChart = new Chart(ctx, char_data);
+                new Chart(ctx, char_data);
             }
             else {
                 notifier.show('无操作权限', 'danger');
@@ -188,3 +236,11 @@ function set_chart(data) {
         });
 }
 
+function add_month(da_str) {
+    let str = da_str + "-01";
+    str = str.replace(/-/g, '/');
+    let date = new Date(str);
+
+    date.setMonth(date.getMonth() + 1);
+    return new Intl.DateTimeFormat('fr-CA').format(date);
+}
