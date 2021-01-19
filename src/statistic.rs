@@ -168,8 +168,6 @@ pub async fn fetch_statis(
             da_cate, da_cate, date_sql
         );
 
-        // println!("{}", sql);
-
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         for row in rows {
@@ -187,10 +185,16 @@ pub async fn fetch_statis(
     }
 }
 
+#[derive(Deserialize)]
+pub struct CostData {
+    statis_cate: String,
+    num: i32,
+}
+
 #[post("/fetch_cost")]
 pub async fn fetch_cost(
     db: web::Data<Pool>,
-    post_data: web::Json<StatisData>,
+    post_data: web::Json<CostData>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
@@ -200,25 +204,33 @@ pub async fn fetch_cost(
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<String> = Vec::new();
 
-        let da_cate: String;
+        let rows = &conn
+            .query(r#"select max(日期) as 日期 from documents"#, &[])
+            .await
+            .unwrap();
+
+        let date = "".to_owned();
+        for row in rows {
+            date = row.get("日期");
+        }
+
+        if date == "" {
+            return HttpResponse::Ok().json(-1);
+        }
 
         let mut date_sql = format!(
-            "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
-            post_data.date1, post_data.date2
+            "日期::date <= '{}'::date ", //注意：小于等于号
+            post_data.date1
         );
 
         if post_data.statis_cate == "按月" {
-            da_cate = format!("to_char(日期::date, 'YYYY-MM')");
             date_sql = format!(
                 "日期::date >= '{}'::date and 日期::date < '{}'::date ", //注意：小于号
                 post_data.date1, post_data.date2
             );
         } else if post_data.statis_cate == "按年" {
-            da_cate = format!("to_char(日期::date, 'YYYY')");
         } else if post_data.statis_cate == "按日" {
-            da_cate = format!("to_char(日期::date, 'YYYY-MM-DD')");
         } else {
-            da_cate = format!("to_char(日期::DATE-(extract(dow from 日期::TIMESTAMP)-1||'day')::interval, 'YYYY-mm-dd')");
         }
 
         let sql = format!(

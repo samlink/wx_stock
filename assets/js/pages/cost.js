@@ -15,6 +15,13 @@ var char_data = {
 
 var myChart;
 
+let m = "个月";
+let w = "周";
+let d = "天";
+let y = "年";
+
+let info = document.querySelector('#info2');
+
 let statis_cate_s = localStorage.getItem("statis_cate");
 let chart_cate_s = localStorage.getItem("chart_cate");
 
@@ -25,29 +32,24 @@ document.querySelector('#chart-cate').value = chart_cate;
 
 if (statis_cate == "按月") {
     document.querySelector('#statis-cate').value = "按月";
+    document.querySelector('#search-date').value = 12;
 
     let data = {
         statis_cate: statis_cate,
-        date1: date1,
-        date2: date2,
+        num: 12,
     };
 
     set_chart(data);
 }
 else if (statis_cate == "按年") {
     document.querySelector('#statis-cate').value = "按年";
-    document.querySelector('#search-date-month').style.display = "none";
-    document.querySelector('#search-date-year').style.display = "inline-block";
-    document.querySelector('#search-date-week').style.display = "none";
+    document.querySelector('#search-date').value = 10;
 
     info.textContent = y;
 
-    let date = value_year.split(' - ');
-
     let data = {
         statis_cate: statis_cate,
-        date1: date[0] + "-01-01",
-        date2: date[1] + "-12-31",
+        num: 10,
     };
 
     set_chart(data);
@@ -62,16 +64,11 @@ else {
         info.textContent = d;
     }
 
-    document.querySelector('#search-date-month').style.display = "none";
-    document.querySelector('#search-date-year').style.display = "none";
-    document.querySelector('#search-date-week').style.display = "inline-block";
-
-    let date = value_week.split(' - ');
+    document.querySelector('#search-date').value = 10;
 
     let data = {
         statis_cate: statis_cate,
-        date1: date[0],
-        date2: date[1],
+        num: 10,
     };
 
     set_chart(data);
@@ -79,22 +76,12 @@ else {
 
 document.querySelector('#statis-cate').addEventListener('change', function () {
     if (this.value == "按月") {
-        document.querySelector('#search-date-month').style.display = "inline-block";
-        document.querySelector('#search-date-year').style.display = "none";
-        document.querySelector('#search-date-week').style.display = "none";
         info.textContent = m;
     }
     else if (this.value == "按年") {
-        document.querySelector('#search-date-month').style.display = "none";
-        document.querySelector('#search-date-year').style.display = "inline-block";
-        document.querySelector('#search-date-week').style.display = "none";
         info.textContent = y;
     }
     else {
-        document.querySelector('#search-date-month').style.display = "none";
-        document.querySelector('#search-date-year').style.display = "none";
-        document.querySelector('#search-date-week').style.display = "inline-block";
-
         if (this.value == "按周") {
             info.textContent = w;
         }
@@ -102,6 +89,8 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
             info.textContent = d;
         }
     }
+
+    document.querySelector('#search-date').value = 10;
 });
 
 document.querySelector('#chart-cate').addEventListener('change', function () {
@@ -117,49 +106,17 @@ document.querySelector('#statis-button').addEventListener('click', function () {
     chart_cate = document.querySelector('#chart-cate').value;
     let sta_cate = document.querySelector('#statis-cate').value;
 
-    let date, date1, date2;
-    if (sta_cate == "按月") {
-        date = document.querySelector('#search-date-month').value
+    let num = document.querySelector('#search-date').value;
 
-        if (!date) {
-            notifier.show('请输入起止月份', 'danger');
-            return false;
-        }
-
-        date = date.split(' - ');
-        date1 = date[0] + "-01";
-        date2 = add_month(date[1]);
-    }
-    else if (sta_cate == "按年") {
-        date = document.querySelector('#search-date-year').value;
-
-        if (!date) {
-            notifier.show('请输入起止年份', 'danger');
-            return false;
-        }
-
-        date = date.split(' - ');
-        date1 = date[0] + "-01-01";
-        date2 = date[1] + "-12-31";
-    }
-    else {
-        date = document.querySelector('#search-date-week').value;
-
-        if (!date) {
-            notifier.show('请输入正确日期', 'danger');
-            return false;
-        }
-
-        date = date.split(' - ');
-        date1 = date[0];
-        date2 = date[1];
+    if (!num) {
+        notifier.show('请输入正确数字', 'danger');
+        return false;
     }
 
     let data = {
         statis_cate: sta_cate,
-        date1: date1,
-        date2: date2,
-    };
+        num: num,
+    }
 
     set_chart(data);
 
@@ -167,7 +124,7 @@ document.querySelector('#statis-button').addEventListener('click', function () {
 });
 
 function set_chart(data) {
-    fetch("/fetch_statis", {
+    fetch("/fetch_cost", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -211,16 +168,7 @@ function set_chart(data) {
                 myChart = new Chart(ctx, char_data);
             }
             else {
-                notifier.show('无操作权限', 'danger');
+                notifier.show('无操作权限或无销售记录', 'danger');
             }
         });
-}
-
-function add_month(da_str) {
-    let str = da_str + "-01";
-    str = str.replace(/-/g, '/');
-    let date = new Date(str);
-
-    date.setMonth(date.getMonth() + 1);
-    return new Intl.DateTimeFormat('fr-CA').format(date);
 }
