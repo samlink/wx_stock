@@ -138,7 +138,11 @@ pub async fn fetch_statis(
         let mut sale_data: Vec<String> = Vec::new();
 
         let da_cate: String;
-        let date_sql: String;
+        
+        let mut date_sql = format!(
+            "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
+            post_data.date1, post_data.date2
+        );
 
         if post_data.statis_cate == "按月" {
             da_cate = format!("to_char(日期::date, 'YYYY-MM')");
@@ -148,23 +152,20 @@ pub async fn fetch_statis(
             );
         } else if post_data.statis_cate == "按年" {
             da_cate = format!("to_char(日期::date, 'YYYY')");
-            date_sql = format!(
-                "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
-                post_data.date1, post_data.date2
-            );
+        } else if post_data.statis_cate == "按日" {
+            da_cate = format!("to_char(日期::date, 'YYYY-MM-DD')");
         } else {
-            da_cate = "".to_owned();
-            date_sql = format!("日期::date >= ''::date and 日期::date <= ''::date ");
+            da_cate = format!("to_char(date::DATE-(extract(dow from date::TIMESTAMP)-1||'day')::interval, 'YYYY-mm-dd')");
         }
 
         let sql = format!(
             r#"select {} as 日期, case when count(单号)=0 then 0 else sum(单价*数量) end as 销售额, 
-                ROW_NUMBER () OVER (order by {}) as 序号 
+                ROW_NUMBER () OVER (order by 日期) as 序号 
                 from documents join document_items on documents.单号=document_items.单号id
                 where 单号 like 'X%' and 已记账=true and {}
-                group by {}
-                order by {}"#,
-            da_cate, da_cate, date_sql, da_cate, da_cate
+                group by 日期
+                order by 日期"#,
+            da_cate, date_sql
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

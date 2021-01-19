@@ -1,14 +1,12 @@
 import { notifier } from '../parts/notifier.mjs';
-import { SPLITER, regInt } from '../parts/tools.mjs';
+import { regInt } from '../parts/tools.mjs';
 
 var ctx = document.getElementById('myChart').getContext('2d');
 
 var char_data = {
     data: {
-        // labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
         datasets: [{
             label: '销售额',
-            // data: [12, 9, 23, 5, 2, 3],
             backgroundColor: 'rgba(54, 162, 235, 0.5)',
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
@@ -27,6 +25,7 @@ var char_data = {
 
 var myChart;
 
+//按月
 let da = new Date(Date.now());
 let da2 = da.setFullYear(da.getFullYear() - 1);
 let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
@@ -41,6 +40,7 @@ laydate.render({
     theme: 'molv',
 });
 
+//按年
 da = new Date(Date.now());
 da2 = da.setFullYear(da.getFullYear() - 10);
 date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
@@ -53,6 +53,22 @@ laydate.render({
     type: "year",
     range: true,
     value: value_year,
+    theme: 'molv',
+});
+
+//按周和按日
+da = new Date(Date.now());
+da2 = da.setMonth(da.getMonth() - 6);
+date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
+date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
+
+let value_week = `${date1} - ${date2}`;
+
+laydate.render({
+    elem: '#search-date-week',
+    // type: 'day',
+    range: true,
+    value: value_week,
     theme: 'molv',
 });
 
@@ -99,17 +115,23 @@ else if (statis_cate == "按年") {
     set_chart(data);
 }
 else {
-    document.querySelector('#statis-cate').value = "按周";
+    if (statis_cate == "按周") {
+        document.querySelector('#statis-cate').value = "按周";
+    }
+    else {
+        document.querySelector('#statis-cate').value = "按日";
+    }
+
     document.querySelector('#search-date-month').style.display = "none";
     document.querySelector('#search-date-year').style.display = "none";
     document.querySelector('#search-date-week').style.display = "inline-block";
 
-    document.querySelector('#search-date-week').value = 24;
+    let date = value_week.split(' - ');
 
     let data = {
         statis_cate: statis_cate,
-        date1: "",
-        date2: "24",
+        date1: date[0],
+        date2: date[1],
     };
 
     set_chart(data);
@@ -133,7 +155,14 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
         document.querySelector('#search-date-month').style.display = "none";
         document.querySelector('#search-date-year').style.display = "none";
         document.querySelector('#search-date-week').style.display = "inline-block";
-        localStorage.setItem("statis_cate", "按周");
+
+        if (statis_cate == "按周") {
+            localStorage.setItem("statis_cate", "按周");
+        }
+        else {
+            localStorage.setItem("statis_cate", "按日");
+        }
+
     }
 });
 
@@ -176,14 +205,16 @@ document.querySelector('#statis-button').addEventListener('click', function () {
         date2 = date[1] + "-12-31";
     }
     else {
-        date2 = document.querySelector('#search-date-week').value;
-        if (date2 && regInt.test(date2)) {
-            date1 = "";
-        }
-        else {
-            notifier.show('请正确输入周数', 'danger');
+        date = document.querySelector('#search-date-week').value;
+
+        if (!date) {
+            notifier.show('请输入正确日期', 'danger');
             return false;
         }
+
+        date = date.split(' - ');
+        date1 = date[0];
+        date2 = date[1];
     }
 
     let data = {
@@ -193,7 +224,6 @@ document.querySelector('#statis-button').addEventListener('click', function () {
     };
 
     set_chart(data);
-
 });
 
 function set_chart(data) {
@@ -215,8 +245,11 @@ function set_chart(data) {
                 else if (data.statis_cate == "按年") {
                     th_date.textContent = "年度";
                 }
+                else if (data.statis_cate == "按周") {
+                    th_date.textContent = "周度";
+                }
                 else {
-                    th_date.textContent = "距今周数";
+                    th_date.textContent = "日期";
                 }
 
                 let rows = "";
