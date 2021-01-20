@@ -59,6 +59,9 @@ let data2 = {
 
 set_chart2(data2);
 
+let moni_sale = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
+let moni_cost = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
+
 function set_chart1(data) {
     fetch("/fetch_statis", {
         method: 'post',
@@ -72,6 +75,12 @@ function set_chart1(data) {
             if (content != -1) {
                 char_data1.data.labels = content[1];
                 char_data1.data.datasets[0].data = content[2];
+                new Chart(ctx1, char_data1);
+            }
+            else {
+                char_data1.data.labels = fill_labels();
+                char_data1.data.datasets[0].label = "销售额 (模拟）";
+                char_data1.data.datasets[0].data = moni_sale;
                 new Chart(ctx1, char_data1);
             }
         });
@@ -90,8 +99,25 @@ function set_chart2(data) {
             if (content != -1) {
                 char_data2.data.labels = content[1].reverse();
                 char_data2.data.datasets[0].data = content[2].reverse();
-
+                new Chart(ctx2, char_data2);
+            }
+            else {
+                char_data2.data.labels = fill_labels();
+                char_data2.data.datasets[0].label = "库存成本 (模拟）";
+                char_data2.data.datasets[0].data = moni_cost.reverse();
                 new Chart(ctx2, char_data2);
             }
         });
+}
+
+function fill_labels() {
+    let labels = [];
+    for (let i = 9; i >= 0; i--) {
+        let da = new Date(Date.now());
+        let da2 = da.setDate(da.getDate() - i);
+        let date = new Intl.DateTimeFormat('fr-CA').format(da2);
+
+        labels.push(date);
+    }
+    return labels;
 }
