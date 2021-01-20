@@ -1,0 +1,51 @@
+@use super::base;
+@use crate::service::UserData;
+@use super::statics::*;
+@(user: String)
+
+@:base({
+<div class="home-page">
+    <div class="top-title"><span><i class="fa fa-home"></i> 首页 </span>
+        <span class="t1"><i class="fa fa-angle-double-right"></i> 控制面板 </span>
+        <p id="help-info"></p>
+    </div>
+    <div class="home-content">
+        <div class="show-chart">
+            <div class="chart">
+                <p>近10日销售额：</p>
+                <canvas id="myChart1">无查看权限</canvas>
+            </div>
+            <div class="chart">
+                <p>近10日库存成本变化：</p>
+                <canvas id="myChart2">无查看权限</canvas>
+            </div>
+        </div>
+        <div class="show-tip">
+            <div class="tip" id="sale-tip">
+                <div class="word">
+                    <h3> 35 张单据 </h3>
+                    <p>今日销售单数</p>
+                </div>
+                <i class="fa fa-shopping-cart"></i>
+            </div>
+            <div class="tip" id="buy-tip">
+
+            </div>
+            <div class="tip" id="warn-tip">
+
+            </div>
+            <div class="tip" id="help-tip">
+
+            </div>
+            <div class="tip" id="use-tip">
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script src="/assets/plugins/chart/Chart2.min.js"></script>
+<script type="module" src="/assets/js/pages/home.js"></script>
+}, user)

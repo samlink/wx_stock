@@ -10,6 +10,15 @@ var char_data = {
             borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }],
+        }
     }
 }
 
