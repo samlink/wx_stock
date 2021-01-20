@@ -1,9 +1,9 @@
-use time::Duration;
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::Deserialize;
+use time::Duration;
 
 #[derive(Deserialize)]
 pub struct Analys {
@@ -219,35 +219,19 @@ pub async fn fetch_cost(
             return HttpResponse::Ok().json(-1);
         }
 
-        let mut date_sql: String;
-        let mut date_label: String;
-
         for i in 0..post_data.num {
-            if post_data.statis_cate == "按月" {
-                let date_str: Vec<&str> = date.split("-").collect();
-
-                let get_time = time::strptime(&date, "%Y-%m-%d").unwrap();
-                let new_time = get_time + Duration:: month(1);
-                
-                date_sql = format!("日期::date <= '{}'::date ", date);
-            } else if post_data.statis_cate == "按年" {
-            } else if post_data.statis_cate == "按日" {
-            } else {
-            }
             let sql = format!(
-                r#"select sum(平均价格*库存数量) as 库存成本 from     
+                r#"select COALESCE(sum(平均价格*库存数量), '0') as 库存成本 from     
                 (select 商品id, sum(单价*数量) / sum(数量) as 平均价格 from document_items
                 join documents on documents.单号=document_items.单号id 
-                where 已记账=true and 单号id like 'C%' and {} group by 商品id) as foo
+                where 已记账=true and 单号id like 'C%' and 日期::date <= '{}'::date group by 商品id) as foo
                 join 
                 (select 商品id, sum(数量) as 库存数量 from document_items 
                 join documents on documents.单号=document_items.单号id 
-                where 直销=false and 已记账=true and {} group by 商品id) as bar
+                where 直销=false and 已记账=true and 日期::date <= '{}'::date group by 商品id) as bar
                 on foo.商品id = bar.商品id"#,
-                date_sql, date_sql
+                date, date
             );
-
-            // println!("{}", sql);
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -257,14 +241,28 @@ pub async fn fetch_cost(
                 stocks = row.get("库存成本");
             }
 
+            let date_label: String;
+            let get_time = time::strptime(&date, "%Y-%m-%d").unwrap();
             if post_data.statis_cate == "按月" {
-                date_sql = format!("日期::date <= '{}'::date ", date);
+                date_label = get_time.strftime("%Y-%m").unwrap().to_string();
+                let new_date = get_time - Duration::days(30);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
             } else if post_data.statis_cate == "按年" {
+                date_label = get_time.strftime("%Y").unwrap().to_string();
+                let new_date = get_time - Duration::days(365);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
             } else if post_data.statis_cate == "按日" {
+                date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
+                let new_date = get_time - Duration::days(1);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
             } else {
+                date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
+                let new_date = get_time - Duration::days(7);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
             }
 
-            num.push(i + 1);
+            //全是倒序，放到前段处理
+            num.push(post_data.num - i);
             date_lables.push(date_label);
             sale_data.push(format!("{:.*}", 2, stocks));
         }

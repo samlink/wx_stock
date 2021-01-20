@@ -5,11 +5,23 @@ var ctx = document.getElementById('myChart').getContext('2d');
 var char_data = {
     data: {
         datasets: [{
-            label: '销售额',
-            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-            borderColor: 'rgba(54, 162, 235, 1)',
+            label: '库存成本',
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            // backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            // borderColor: 'rgba(54, 162, 235, 1)',
             borderWidth: 1
         }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true
+                }
+            }],
+
+        }
     }
 }
 
@@ -22,34 +34,34 @@ let y = "年";
 
 let info = document.querySelector('#info2');
 
-let statis_cate_s = localStorage.getItem("statis_cate");
-let chart_cate_s = localStorage.getItem("chart_cate");
+let statis_cate_s = localStorage.getItem("statis_cost_cate");
+let chart_cate_s = localStorage.getItem("chart_cost_cate");
 
 let statis_cate = statis_cate_s ? statis_cate_s : "按月";
-let chart_cate = chart_cate_s ? chart_cate_s : "柱状图";
+let chart_cate = chart_cate_s ? chart_cate_s : "折线图";
 
 document.querySelector('#chart-cate').value = chart_cate;
 
 if (statis_cate == "按月") {
     document.querySelector('#statis-cate').value = "按月";
-    document.querySelector('#search-date').value = 12;
+    document.querySelector('#search-date').value = 6;
 
     let data = {
         statis_cate: statis_cate,
-        num: 12,
+        num: 6,
     };
 
     set_chart(data);
 }
 else if (statis_cate == "按年") {
     document.querySelector('#statis-cate').value = "按年";
-    document.querySelector('#search-date').value = 10;
+    document.querySelector('#search-date').value = 6;
 
     info.textContent = y;
 
     let data = {
         statis_cate: statis_cate,
-        num: 10,
+        num: 6,
     };
 
     set_chart(data);
@@ -89,12 +101,10 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
             info.textContent = d;
         }
     }
-
-    document.querySelector('#search-date').value = 10;
 });
 
 document.querySelector('#chart-cate').addEventListener('change', function () {
-    localStorage.setItem("chart_cate", this.value);
+    localStorage.setItem("chart_cost_cate", this.value);
     char_data.type = this.value == "柱状图" ? "bar" : "line";
     char_data.data.datasets[0].fill = this.value == "柱状图" ? true : false;
 
@@ -115,12 +125,12 @@ document.querySelector('#statis-button').addEventListener('click', function () {
 
     let data = {
         statis_cate: sta_cate,
-        num: num,
+        num: Number(num),
     }
 
     set_chart(data);
 
-    localStorage.setItem("statis_cate", sta_cate);
+    localStorage.setItem("statis_cost_cate", sta_cate);
 });
 
 function set_chart(data) {
@@ -143,22 +153,22 @@ function set_chart(data) {
                     th_date.textContent = "年份";
                 }
                 else if (data.statis_cate == "按周") {
-                    th_date.textContent = "周 (周一)";
+                    th_date.textContent = "周";
                 }
                 else {
                     th_date.textContent = "日期";
                 }
 
                 let rows = "";
-                for (let i = 0; i < content[0].length; i++) {
+                for (let i = content[0].length - 1; i >= 0; i--) {
                     rows += `<tr><td>${content[0][i]}</td><td>${content[1][i]}</td><td>${content[2][i]}</td></tr>`;
                 }
 
                 document.querySelector('.table-container tbody').innerHTML = rows;
 
                 char_data.type = chart_cate == "柱状图" ? "bar" : "line";
-                char_data.data.labels = content[1];
-                char_data.data.datasets[0].data = content[2];
+                char_data.data.labels = content[1].reverse();
+                char_data.data.datasets[0].data = content[2].reverse();
                 char_data.data.datasets[0].fill = chart_cate == "柱状图" ? true : false;
 
                 if (myChart) {
