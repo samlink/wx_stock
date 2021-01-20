@@ -1,3 +1,4 @@
+use time::Duration;
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
@@ -200,7 +201,7 @@ pub async fn fetch_cost(
     let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let mut num: Vec<i64> = Vec::new();
+        let mut num: Vec<i32> = Vec::new();
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<String> = Vec::new();
 
@@ -209,7 +210,7 @@ pub async fn fetch_cost(
             .await
             .unwrap();
 
-        let date = "".to_owned();
+        let mut date = "".to_owned();
         for row in rows {
             date = row.get("日期");
         }
@@ -218,42 +219,54 @@ pub async fn fetch_cost(
             return HttpResponse::Ok().json(-1);
         }
 
-        let mut date_sql = format!(
-            "日期::date <= '{}'::date ", //注意：小于等于号
-            post_data.date1
-        );
+        let mut date_sql: String;
+        let mut date_label: String;
 
-        if post_data.statis_cate == "按月" {
-            date_sql = format!(
-                "日期::date >= '{}'::date and 日期::date < '{}'::date ", //注意：小于号
-                post_data.date1, post_data.date2
+        for i in 0..post_data.num {
+            if post_data.statis_cate == "按月" {
+                let date_str: Vec<&str> = date.split("-").collect();
+
+                let get_time = time::strptime(&date, "%Y-%m-%d").unwrap();
+                let new_time = get_time + Duration:: month(1);
+                
+                date_sql = format!("日期::date <= '{}'::date ", date);
+            } else if post_data.statis_cate == "按年" {
+            } else if post_data.statis_cate == "按日" {
+            } else {
+            }
+            let sql = format!(
+                r#"select sum(平均价格*库存数量) as 库存成本 from     
+                (select 商品id, sum(单价*数量) / sum(数量) as 平均价格 from document_items
+                join documents on documents.单号=document_items.单号id 
+                where 已记账=true and 单号id like 'C%' and {} group by 商品id) as foo
+                join 
+                (select 商品id, sum(数量) as 库存数量 from document_items 
+                join documents on documents.单号=document_items.单号id 
+                where 直销=false and 已记账=true and {} group by 商品id) as bar
+                on foo.商品id = bar.商品id"#,
+                date_sql, date_sql
             );
-        } else if post_data.statis_cate == "按年" {
-        } else if post_data.statis_cate == "按日" {
-        } else {
-        }
 
-        let sql = format!(
-            r#"select {} as date_cate, case when count(单号)=0 then 0 else sum(单价*数量) end as 销售额, 
-                ROW_NUMBER () OVER (order by {}) as 序号 
-                from documents join document_items on documents.单号=document_items.单号id
-                where 单号 like 'X%' and 已记账=true and {}
-                group by date_cate
-                order by date_cate"#,
-            da_cate, da_cate, date_sql
-        );
+            // println!("{}", sql);
 
-        // println!("{}", sql);
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            let mut stocks = 0f32;
 
-        for row in rows {
-            let date: String = row.get("date_cate");
-            let sale: f32 = row.get("销售额");
-            let n: i64 = row.get("序号");
-            num.push(n);
-            date_lables.push(date);
-            sale_data.push(format!("{:.*}", 2, -sale)); //单价*数量 销售为负数，退货为正数
+            for row in rows {
+                stocks = row.get("库存成本");
+            }
+
+            if post_data.statis_cate == "按月" {
+                date_sql = format!("日期::date <= '{}'::date ", date);
+            } else if post_data.statis_cate == "按年" {
+            } else if post_data.statis_cate == "按日" {
+            } else {
+            }
+
+            num.push(i + 1);
+            date_lables.push(date_label);
+            sale_data.push(format!("{:.*}", 2, stocks));
         }
 
         HttpResponse::Ok().json((num, date_lables, sale_data))
