@@ -86,6 +86,19 @@ fetch("/home_statis", {
         }
     });
 
+document.querySelector('#sale-tip').addEventListener('click', function() {
+    window.open("/sale_query");
+});
+document.querySelector('#buy-tip').addEventListener('click', function() {
+    window.open("/buy_query");
+});
+document.querySelector('#warn-tip2').addEventListener('click', function() {
+    window.open("/stock_query");
+});
+document.querySelector('#warn-tip').addEventListener('click', function() {
+    window.open("/stock_query");
+});
+
 function set_chart1(data) {
     fetch("/fetch_statis", {
         method: 'post',
