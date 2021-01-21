@@ -3,8 +3,11 @@ let now2 = now.split('-');
 document.querySelector('#help-info').textContent = `${now2[0]}年${now2[1]}月${now2[2]}日`;
 
 let start = new Date(document.querySelector("#start-date").textContent);
+console.log(start);
 
 var days = new Date().getTime() - start.getTime();
+console.log(days);
+
 var day = parseInt(days / (1000 * 60 * 60 * 24)) + 1;
 
 document.querySelector('#use-day').textContent = day;
@@ -86,16 +89,16 @@ fetch("/home_statis", {
         }
     });
 
-document.querySelector('#sale-tip').addEventListener('click', function() {
+document.querySelector('#sale-tip').addEventListener('click', function () {
     window.open("/sale_query");
 });
-document.querySelector('#buy-tip').addEventListener('click', function() {
+document.querySelector('#buy-tip').addEventListener('click', function () {
     window.open("/buy_query");
 });
-document.querySelector('#warn-tip2').addEventListener('click', function() {
+document.querySelector('#warn-tip2').addEventListener('click', function () {
     window.open("/stock_query");
 });
-document.querySelector('#warn-tip').addEventListener('click', function() {
+document.querySelector('#warn-tip').addEventListener('click', function () {
     window.open("/stock_query");
 });
 

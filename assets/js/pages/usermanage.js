@@ -25,7 +25,7 @@ var data = {
     post_data: {
         id: '',
         name: '',
-        sort: "confirm ASC",
+        sort: "confirm ASC, name",
         rec: row_num,
         cate: '',
     },
