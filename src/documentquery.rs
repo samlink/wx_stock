@@ -179,7 +179,7 @@ pub async fn fetch_limit(
         let sql = format!(
             r#"select node_name as 名称, 规格型号, 单位,name as 仓库, 库位, 库存下限, 库存, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
             on products.id=foo.商品id
             join tree on num=products.商品id 
             join warehouse on warehouse.id=foo.仓库id
@@ -227,7 +227,7 @@ pub async fn fetch_limit(
         let count_sql = format!(
             r#"select count(products.id) as 记录数 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
             on products.id=foo.商品id
             join tree on num=products.商品id 
             join warehouse on warehouse.id=foo.仓库id
@@ -264,7 +264,7 @@ pub async fn fetch_stay(
         let sql = format!(
             r#"select node_name as 名称, 规格型号, 单位,name as 仓库, 库位, 库存下限, 库存, B.日期, ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
             on products.id=foo.商品id
             join 
             (
@@ -318,7 +318,7 @@ pub async fn fetch_stay(
         let count_sql = format!(
             r#"select count(products.id) as 记录数 from products 
             join 
-            (select 商品id,仓库id, sum(数量) as 库存 from document_items where 直销=false group by 仓库id,商品id) as foo
+            (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
             on products.id=foo.商品id
             join 
             (

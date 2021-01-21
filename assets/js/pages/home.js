@@ -75,12 +75,14 @@ fetch("/home_statis", {
     headers: {
         "Content-Type": "application/json",
     },
-    body: now,
 })
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-
+            document.querySelector('#sale-data').textContent = content[0];
+            document.querySelector('#buy-data').textContent = content[1];
+            document.querySelector('#warn-data2').textContent = content[2];
+            document.querySelector('#warn-data1').textContent = content[3];
         }
     });
 
