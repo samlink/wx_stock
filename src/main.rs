@@ -130,6 +130,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_analys)
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
+            .service(statistic::home_statis)
             .service(warehouse_set::fetch_house)
             .service(warehouse_set::update_house)
             .service(warehouse_set::house_drag)

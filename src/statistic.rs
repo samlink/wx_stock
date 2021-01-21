@@ -272,3 +272,25 @@ pub async fn fetch_cost(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/home_statis")]
+pub async fn home_statis(db: web::Data<Pool>, date: String, id: Identity) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(r#""#,);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        for row in rows {
+            let date: String = row.get("date_cate");
+            let sale: f32 = row.get("销售额");
+            let n: i64 = row.get("序号");
+        }
+
+        HttpResponse::Ok().json((num, date_lables, sale_data))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

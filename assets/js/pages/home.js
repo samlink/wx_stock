@@ -69,6 +69,21 @@ set_chart2(data2);
 let moni_sale = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 let moni_cost = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 
+
+fetch("/home_statis", {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: now,
+})
+    .then(response => response.json())
+    .then(content => {
+        if (content != -1) {
+
+        }
+    });
+
 function set_chart1(data) {
     fetch("/fetch_statis", {
         method: 'post',
