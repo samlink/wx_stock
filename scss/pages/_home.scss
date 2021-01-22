@@ -1,5 +1,13 @@
-.home-content {
+.home-page {
     margin-left: 10px;
+
+    #help-info {
+        display: flex;
+    }
+
+    #date-now {
+        margin-right: 15px;
+    }
 
     .show-chart {
         display: flex;
