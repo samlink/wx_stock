@@ -244,12 +244,12 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                 });
             });
 
-        let auto_comp = new AutoInput(document.querySelector('#search-input'),
+        let auto_complete = new AutoInput(document.querySelector('#search-input'),
             customer_supplier, "/customer_auto", () => {
                 search_table();
             });
 
-        auto_comp.init();
+        auto_complete.init();
 
         document.querySelector('#serach-button').onclick = function () {
             search_table();
@@ -1247,11 +1247,11 @@ function build_input_row(show_names, all_width, num) {
 
             let input = document.querySelector('#auto_input');
 
-            let auto_comp = new AutoInput(input, "", "/tree_auto", () => {
+            let auto_com = new AutoInput(input, "", "/tree_auto", () => {
                 tree_search(input.value);
             });
 
-            auto_comp.init();
+            auto_com.init();
 
             document.querySelector("#auto_search").addEventListener('click', () => {
                 tree_search(input.value);
@@ -1351,36 +1351,6 @@ function build_ware_position(ware_option, input_row, value) {
 
     input_row.querySelector('td:nth-last-child(2)').innerHTML = "";
     input_row.querySelector('td:nth-last-child(2)').appendChild(ware_house_select);
-
-    // ware_house_select.addEventListener('change', function () {
-    //     let id = document.createElement('p');
-    //     id.textContent = this.value;
-    //     auto_comp.cate = id;     //对象中的元素可以赋值，如果是变量则不可以
-    // });
-
-    //加入自动完成
-    // let id = document.createElement('p');
-    // id.textContent = ware_house_select.value;
-    // let position_input = input_row.querySelector('.ware-position');
-
-    // let auto_comp = new AutoInput(position_input, id, "/position_auto", () => { });
-    // auto_comp.init();
-
-    // let position_th = document.querySelector('.table-items thead th:nth-last-child(2)');
-    // position_input.style.width = (position_th.clientWidth - 24) + "px";
-
-    // let position_td = input_row.querySelector('.position');
-    // position_td.addEventListener('click', function () {
-    //     this.querySelector('.autocomplete').classList.add('auto-edit');
-    //     // element_position(this, 6.5, 100.5);
-    //     let tbody = document.querySelector('.table-items tbody');
-    //     let y = getTop(this, tbody);
-    //     let body_height = document.querySelector('body').clientHeight;
-    //     auto_comp.space = body_height - y
-    //     position_input.focus();
-    // });
-
-    // input_row.querySelector('.position .autocomplete').style.cssText = `z-index: 500;`;
 }
 
 //设置元素的位置
