@@ -16,6 +16,8 @@ fetch('/fetch_print_documents')
             document.querySelector('#newmodel-select').innerHTML = options;
             document.querySelector('#editmodel-select').innerHTML = options;
             first_page();
+
+            document.querySelector('.gener-code').style.display = "none";   //隐藏的这部分在正式发布时需删除，包括html和js两部分代码
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
@@ -103,7 +105,7 @@ document.querySelector('#choose-new').addEventListener('click', function () {
         edit_mode = "新增";
         reset_ctrol(false);
         this.parentNode.style.fontWeight = "bold";
-        
+
         let model = hiprintTemplate.getJsonTid();
         if (model.panels[0].printElements.length > 1) {
             alert_clear();

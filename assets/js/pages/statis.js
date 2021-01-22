@@ -57,7 +57,7 @@ laydate.render({
 
 //按周和按日
 da = new Date(Date.now());
-da2 = da.setMonth(da.getMonth() - 6);
+da2 = da.setMonth(da.getMonth() - 3);
 date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
 date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
 
@@ -73,8 +73,8 @@ laydate.render({
 let info = document.querySelector('#info');
 let m = "默认区间为1年";
 let y = "默认区间为10年";
-let w = "默认区间为半年，周一为起始日";
-let d = "默认区间为半年";
+let w = "默认区间三个月，周一为起始日";
+let d = "默认区间一个月";
 
 let statis_cate_s = localStorage.getItem("statis_cate");
 let chart_cate_s = localStorage.getItem("chart_cate");
@@ -123,6 +123,10 @@ else if (statis_cate == "按年") {
     set_chart(data);
 }
 else {
+    let date = value_week.split(' - ');
+    let date1 = date[0];
+    let date2 = date[1];
+
     if (statis_cate == "按周") {
         document.querySelector('#statis-cate').value = "按周";
         info.textContent = w;
@@ -130,18 +134,21 @@ else {
     else {
         document.querySelector('#statis-cate').value = "按日";
         info.textContent = d;
+        let da = new Date(Date.now());
+        let da2 = da.setMonth(da.getMonth() - 1);
+        date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
     }
+
+    document.querySelector('#search-date-week').value = `${date1} - ${date2}`;
 
     document.querySelector('#search-date-month').style.display = "none";
     document.querySelector('#search-date-year').style.display = "none";
     document.querySelector('#search-date-week').style.display = "inline-block";
 
-    let date = value_week.split(' - ');
-
     let data = {
         statis_cate: statis_cate,
-        date1: date[0],
-        date2: date[1],
+        date1: date1,
+        date2: date2,
     };
 
     set_chart(data);
