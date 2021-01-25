@@ -127,7 +127,7 @@ pub async fn fetch_business(
         let num_position = get_fraction(db).await;
         let num: Vec<&str> = num_position.split(",").collect();
         let num2 = num[1].parse::<usize>().unwrap();
-        let money2 = format!("{:.*}", num2, money);
+        let money2 = format!("{:.*}", num2, -money);
 
         HttpResponse::Ok().json((products, count, pages, money2))
     } else {
