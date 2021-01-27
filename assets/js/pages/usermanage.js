@@ -155,36 +155,31 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         notifier.show('请先选择用户', 'danger');
     }
     else {
-        let name = focus.children[1].textContent;
-        if (name == "admin") {
-            notifier.show('不能编辑管理员信息', 'danger');
+        document.querySelector('#edit-button').classList.add("hide");
+        document.querySelector('#del-button').classList.add("hide");
+        document.querySelector('#sumit-button').classList.remove("hide");
+        document.querySelector('#cancel-button').classList.remove("hide");
+
+        for (let mark of marks) {
+            mark.removeAttribute("style");
         }
-        else {
-            document.querySelector('#edit-button').classList.add("hide");
-            document.querySelector('#del-button').classList.add("hide");
-            document.querySelector('#sumit-button').classList.remove("hide");
-            document.querySelector('#cancel-button').classList.remove("hide");
 
-            for (let mark of marks) {
-                mark.removeAttribute("style");
-            }
+        for (let check of all_checks) {
+            check.disabled = false;
+        }
 
-            for (let check of all_checks) {
-                check.disabled = false;
-            }
+        table_data.edit = true;
 
-            table_data.edit = true;
+        confirm_save = focus.children[4].textContent;
 
-            confirm_save = focus.children[4].textContent;
+        let confirm = confirm_save == "未确认" ? "" : "checked";
 
-            let confirm = confirm_save == "未确认" ? "" : "checked";
-
-            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+        focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
                                                 <span class="checkmark"></span></label>`;
 
-            focus.children[4].setAttribute("style", "padding-top: 0;");
-        }
+        focus.children[4].setAttribute("style", "padding-top: 0;");
     }
+}
 });
 
 //取消按钮

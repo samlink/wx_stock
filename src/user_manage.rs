@@ -26,7 +26,7 @@ pub async fn pull_users(
         let skip = (post_data.page - 1) * post_data.rec;
         let sql = format!(
             "SELECT name, phone, rights, confirm, ROW_NUMBER () OVER (ORDER BY {}) as 序号 
-                    FROM users WHERE name LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {} ",
+                    FROM users WHERE name LIKE '%{}%' AND name <> 'admin' ORDER BY {} OFFSET {} LIMIT {} ",
             post_data.sort, post_data.name, post_data.sort, skip, post_data.rec
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
