@@ -1,4 +1,4 @@
-import { notifier } from './parts/notifier.mjs';
+import { notifier } from '../parts/notifier.mjs';
 
 var login_show = document.querySelector('#login-form');
 var logon_show = document.querySelector('#logon-form');
@@ -28,7 +28,7 @@ document.querySelector('#logon a').addEventListener('click', function (e) {
 });
 
 //注册按钮
-document.querySelector('#logon-button').addEventListener('click', function (evnet) {
+document.querySelector('#logon-button').addEventListener('click', function (event) {
   event.preventDefault();
 
   var logon_pass = document.querySelector('#logon-pass').value.trim();
@@ -68,7 +68,7 @@ document.querySelector('#logon-button').addEventListener('click', function (evne
 });
 
 //登录按钮
-document.querySelector('#login-button').addEventListener('click', function (evnet) {
+document.querySelector('#login-button').addEventListener('click', function (event) {
   event.preventDefault();
   var name = document.querySelector('#login-name').value.trim();
   var login_pass = document.querySelector('#login-pass').value.trim();
