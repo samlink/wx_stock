@@ -27,9 +27,9 @@ var myChart;
 //按月
 let da = new Date(Date.now());
 let da2 = da.setFullYear(da.getFullYear() - 1);
-let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
-let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
-let value_month = `${date1.substring(0, 7)} - ${date2.substring(0, 7)}`;
+let date1 = new Date(da2).Format("yyyy-MM");
+let date2 = new Date().Format("yyyy-MM");
+let value_month = `${date1} - ${date2}`;
 
 laydate.render({
     elem: '#search-date-month',
@@ -42,10 +42,10 @@ laydate.render({
 //按年
 da = new Date(Date.now());
 da2 = da.setFullYear(da.getFullYear() - 10);
-date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
-date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
+date1 = new Date(da2).Format("yyyy");
+date2 = new Date().Format("yyyy");
 
-let value_year = `${date1.substring(0, 4)} - ${date2.substring(0, 4)}`;
+let value_year = `${date1} - ${date2}`;
 
 laydate.render({
     elem: '#search-date-year',
@@ -58,8 +58,8 @@ laydate.render({
 //按周和按日
 da = new Date(Date.now());
 da2 = da.setMonth(da.getMonth() - 3);
-date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
-date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
+date1 = new Date(da2).Format("yyyy-MM-dd");
+date2 = new Date().Format("yyyy-MM-dd");
 
 let value_week = `${date1} - ${date2}`;
 
@@ -136,7 +136,7 @@ else {
         info.textContent = d;
         let da = new Date(Date.now());
         let da2 = da.setMonth(da.getMonth() - 1);
-        date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
+        date1 = new Date(da2).Format("yyyy-MM-dd");
     }
 
     document.querySelector('#search-date-week').value = `${date1} - ${date2}`;
@@ -299,5 +299,5 @@ function add_month(da_str) {
     let date = new Date(str);
 
     date.setMonth(date.getMonth() + 1);
-    return new Intl.DateTimeFormat('fr-CA').format(date);
+    return new Date(date).Format("yyyy-MM-dd");
 }

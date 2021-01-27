@@ -1,3 +1,4 @@
+//去除字符串左右空格
 String.prototype.trim = function (char, type) {
     if (char) {
         if (type == 'left') {

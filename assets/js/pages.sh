@@ -1,5 +1,6 @@
 #!/bin/bash
 
+terser ./pages/pre.js -c -o ../min/pages/pre.js
 terser ./pages/analys.js -c -o ../min/pages/analys.js
 terser ./pages/businessquery.js -c -o ../min/pages/businessquery.js
 terser ./pages/buyin.js -c -o ../min/pages/buyin.js

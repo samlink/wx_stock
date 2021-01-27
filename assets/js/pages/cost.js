@@ -87,9 +87,11 @@ else {
 document.querySelector('#statis-cate').addEventListener('change', function () {
     if (this.value == "按月") {
         info.textContent = m;
+        document.querySelector('#search-date').value = 6;
     }
     else if (this.value == "按年") {
         info.textContent = y;
+        document.querySelector('#search-date').value = 6;
     }
     else {
         if (this.value == "按周") {
@@ -98,6 +100,8 @@ document.querySelector('#statis-cate').addEventListener('change', function () {
         else {
             info.textContent = d;
         }
+
+        document.querySelector('#search-date').value = 10;
     }
 });
 
