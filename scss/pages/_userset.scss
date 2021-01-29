@@ -4,8 +4,8 @@
     justify-content: space-around;
 
     > div {
-        width: 45%;
-        min-width: 520px;
+        width: 32%;
+        min-width: 450px;
     }
 
     .title {
@@ -52,5 +52,18 @@
 #password-set {
     button {
         margin-left: 185px;
+    }
+}
+
+#theme-set {
+    .theme-container {
+        margin-left: 60px;
+        div {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            margin-right: 20px;
+            cursor: pointer;
+        }
     }
 }
