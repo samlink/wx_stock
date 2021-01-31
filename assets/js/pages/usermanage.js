@@ -179,7 +179,6 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         focus.children[4].setAttribute("style", "padding-top: 0;");
     }
-}
 });
 
 //取消按钮
