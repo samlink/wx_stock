@@ -1,7 +1,7 @@
 import { notifier } from '../parts/notifier.mjs';
 
 //设置密码
-document.querySelector('#pass-button').addEventListener('click', function (evnet) {
+document.querySelector('#pass-button').addEventListener('click', function (event) {
     event.preventDefault();
     var old_pass = document.querySelector('#old-pass').value.trim();
     var new_pass = document.querySelector('#new-pass').value.trim();
@@ -40,7 +40,7 @@ document.querySelector('#pass-button').addEventListener('click', function (evnet
 });
 
 //设置手机
-document.querySelector('#phone-button').addEventListener('click', function (evnet) {
+document.querySelector('#phone-button').addEventListener('click', function (event) {
     event.preventDefault();
     var phone_number = document.querySelector('#phone').value.trim();
 
@@ -72,3 +72,78 @@ document.querySelector('#phone-button').addEventListener('click', function (evne
             }
         });
 });
+
+//设置主题
+function theme_set() {
+    let themes = document.querySelectorAll('.themes');
+    for (let theme of themes) {
+        theme.addEventListener('click', function () {
+            var theme_name = {
+                name: this.dataset.theme,
+            }
+
+            fetch('/change_theme', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(theme_name),
+            })
+                .then(res => res.json())
+                .then(data => {
+                    change_themes(this.dataset.theme);
+                    notifier.show('主题设置成功', 'success');
+                });
+        });
+    }
+}
+
+function change_themes(theme) {
+    const app_themes = {
+        light: {
+            logo: 'logo.png',
+            book: 'main.png'
+        },
+        pink: {
+            logo: 'logo4.png',
+            book: 'pink2.png'
+        },
+        orange: {
+            logo: 'logo1.png',
+            book: 'blue.png',
+        },
+        red: {
+            logo: 'logo3.png',
+            book: 'red2.png'
+        },
+        green: {
+            logo: 'logo1.png',
+            book: 'main.png'
+        },
+        blue: {
+            logo: 'logo1.png',
+            book: 'main.png'
+        },
+        dark: {
+            logo: 'logo1.png',
+            book: 'main.png'
+        }
+    }
+
+    document.body.removeAttribute('class');
+    document.body.classList.add(theme);
+    let name = theme.split('-')[1];
+    document.querySelector('#logo img').setAttribute('src', '/assets/img/' + app_themes[name].logo);
+    document.styleSheets[0].insertRule('.caret::before {content: url("/assets/img/close-' + app_themes[name].book + '")}', document.styleSheets[0].cssRules.length);
+    document.styleSheets[0].insertRule('.caret-down::before {content: url("/assets/img/open-' + app_themes[name].book + '")}', document.styleSheets[0].cssRules.length);
+    let menu = document.querySelector('#menu-bar img');
+    let search = document.querySelector('#phone-query img');
+    if (theme == "theme-light") {
+        menu.setAttribute('src', '/assets/img/menu-1.png');
+        search.setAttribute('src', '/assets/img/search-1.png');
+    }
+    else {
+        menu.setAttribute('src', '/assets/img/menu-2.png');
+        search.setAttribute('src', '/assets/img/search-2.png');
+    }
+}

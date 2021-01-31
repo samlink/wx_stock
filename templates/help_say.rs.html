@@ -1,7 +1,7 @@
 @use super::base;
 @use crate::service::UserData;
 @use super::statics::*;
-@(user: String)
+@(user: String, theme: String)
 
 @:base({
 <div class="help">
@@ -21,4 +21,4 @@
         <p>7、 联系电话：13920953285 </p>
     </div>
 </div>
-}, user)
+}, user, theme)

@@ -95,6 +95,7 @@ async fn main() -> std::io::Result<()> {
             .service(user_set::forget_pass)
             .service(user_set::change_pass)
             .service(user_set::phone_number)
+            .service(user_set::change_theme)
             .service(user_manage::pull_users)
             .service(user_manage::edit_user)
             .service(user_manage::del_user)

@@ -1,7 +1,7 @@
 @use super::base;
 @use crate::service::UserData;
 @use super::statics::*;
-@(user: String)
+@(user: String, theme: String)
 
 @:base({
 <div class="home-page">
@@ -62,4 +62,4 @@
 
 <script src="/assets/plugins/chart/Chart2.min.js"></script>
 <script type="module" src="/assets/min/pages/home.js"></script>
-}, user)
+}, user, theme)

@@ -37,6 +37,7 @@ pub struct UserData {
     pub get_pass: i32,
     pub rights: String,
     pub confirm: bool,
+    pub theme: String,
 }
 
 //表格分页、搜索和分类参数
@@ -115,6 +116,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
         get_pass: 0,
         rights: "".to_owned(),
         confirm: false,
+        theme: "".to_owned(),
     };
 
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -123,7 +125,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
         let right = format!("%{}%", right);
         let rows = &conn
         .query(
-            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
+            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm, theme FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
             &[&user_name, &right],
         )
         .await
@@ -138,6 +140,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
                 user.get_pass = row.get("get_pass");
                 user.rights = row.get("rights");
                 user.confirm = row.get("confirm");
+                user.theme = row.get("theme");
             }
             user
         }

@@ -12,7 +12,7 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| home(o, user.name));
+        let html = r2s(|o| home(o, user.name, user.theme));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -128,9 +128,8 @@ pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 #[get("/help")]
 pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
-
     if user.name != "" {
-        let html = r2s(|o| help_say_html(o, user.name));
+        let html = r2s(|o| help_say_html(o, user.name, user.theme));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -261,7 +260,6 @@ pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
     let num_position = get_fraction(db).await;
-
     if user.name != "" {
         let html = r2s(|o| businessquery(o, user, num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
