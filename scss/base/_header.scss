@@ -7,6 +7,7 @@
     width: 100%;
     background-image: linear-gradient(270deg, $header-grade-color, transparent);
     background-color: $primary-800;
+    // background-color: $color-primary;
     box-shadow: 0 1rem 3rem $header-shadow-color;
 }
 
@@ -31,6 +32,8 @@
         }
 
         &:hover {
+            font-weight: bold;
+
             #title {
                 color: $menu-hover-color;
             }
@@ -117,6 +120,7 @@
 
     .nav-icon,
     .menu-text {
+        font-weight: bold;
         color: $menu-hover-color;
     }
 
@@ -146,6 +150,7 @@
         margin-bottom: 7px;
     }
     &:hover {
+        font-weight: bold;
         background-color: $primary-700;
         .nav-text {
             color: white;
@@ -186,6 +191,7 @@
     padding-bottom: 2px;
 
     &:hover {
+        font-weight: bold;
         color: $menu-hover-color;
     }
 }
@@ -197,6 +203,7 @@
 
     &:hover {
         .nav-icon {
+            font-weight: bold;
             color: $menu-hover-color;
         }
     }

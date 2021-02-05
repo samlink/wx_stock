@@ -1,5 +1,6 @@
 //颜色变量
-$color-primary: #547db3;
+$color-primary: #45a3e9;
+// $color-primary: #547db3;
 // $color-primary: #886ab5;
 $color-success: #1dc9b7;
 $color-info: #2196f3;
@@ -81,7 +82,8 @@ $header-grade-color: rgba(51, 148, 225, 0.18);
 $header-shadow-color: rgba(0, 0, 0, 0.13);
 $page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
 $base-text-color: darken(white, 70%) !default;
-$menu-hover-color: lighten($color-success, 5%) !default;
+$menu-hover-color: lighten($primary-500, 55%) !default;
+// $menu-hover-color: $primary-500 !default;
 
 //设备尺寸
 $grid-breakpoints: (
