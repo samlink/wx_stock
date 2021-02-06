@@ -1,6 +1,10 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 
+//设置菜单 
+document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
+document.querySelector('#function-set .menu-text').classList.add('show-chosed');
+
 let global = {
     edit_cate: '',
     name_save: '',

@@ -1,10 +1,10 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { MakeTable } from '../parts/table_class.mjs';
 import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
-import * as service from '../parts/service.mjs';
+import { regInt, getHeight, SPLITER } from '../parts/tools.mjs';
+
+//设置菜单 
+document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
+document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
 
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);

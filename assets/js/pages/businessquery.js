@@ -1,10 +1,11 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
+import { table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
-import * as service from '../parts/service.mjs'
-import { SPLITER, getHeight, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { SPLITER, getHeight } from '../parts/tools.mjs';
+
+//设置菜单 
+document.querySelector('#customers .nav-icon').classList.add('show-chosed');
+document.querySelector('#customers .menu-text').classList.add('show-chosed');
 
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);

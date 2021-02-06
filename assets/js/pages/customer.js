@@ -5,6 +5,10 @@ import { AutoInput } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
+//设置菜单 
+document.querySelector('#customers .nav-icon').classList.add('show-chosed');
+document.querySelector('#customers .menu-text').classList.add('show-chosed');
+
 let cate = document.querySelector('#category').textContent;
 
 let global = {

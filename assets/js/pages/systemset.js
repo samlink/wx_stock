@@ -1,6 +1,10 @@
 import { padZero } from "../parts/tools.mjs";
 import { notifier } from '../parts/notifier.mjs';
 
+//设置菜单 
+document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
+document.querySelector('#function-set .menu-text').classList.add('show-chosed');
+
 const price = 3.685972;
 const mount = 368.5972;
 const year = "2021";

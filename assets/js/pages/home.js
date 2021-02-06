@@ -1,3 +1,6 @@
+document.querySelector('#title').classList.add('show-chosed');
+
+
 let now = new Intl.DateTimeFormat('fr-CA').format(new Date());
 let now2 = now.split('-');
 document.querySelector('#date-now').textContent = `${now2[0]}年${now2[1]}月${now2[2]}日`;

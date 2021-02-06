@@ -1,5 +1,9 @@
 import { notifier } from '../parts/notifier.mjs';
 
+//设置菜单 
+document.querySelector('#statics .nav-icon').classList.add('show-chosed');
+document.querySelector('#statics .menu-text').classList.add('show-chosed');
+
 var ctx = document.getElementById('myChart').getContext('2d');
 
 var char_data = {

@@ -209,8 +209,9 @@
     }
 }
 
-.show-bottom {
-    border-bottom: 2px solid $menu-hover-color;
+.show-chosed {
+    font-weight: bold;
+    color: $menu-hover-color;
 }
 
 .top-title {

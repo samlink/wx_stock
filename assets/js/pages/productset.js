@@ -6,6 +6,10 @@ import { AutoInput } from '../parts/autocomplete.mjs';
 import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
+//设置菜单 
+document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
+document.querySelector('#function-set .menu-text').classList.add('show-chosed');
+
 let global = {
     row_id: 0,
     edit: 0,

@@ -6,6 +6,10 @@ import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 
+//设置菜单 
+document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
+document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
+
 let customer_table_fields, document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let customer_supplier = document.querySelector('#customer-suplier');

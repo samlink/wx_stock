@@ -4,7 +4,8 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { getHeight } from '../parts/tools.mjs';
 
 //设置菜单 
-document.querySelector('#function-set').classList.add('show-bottom');
+document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
+document.querySelector('#function-set .menu-text').classList.add('show-chosed');
 
 //设置表格行数、高度
 let get_height = getHeight() - 166;

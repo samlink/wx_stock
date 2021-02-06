@@ -1,17 +1,14 @@
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
+import { getHeight, SPLITER } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
-let cate = document.querySelector('#category').textContent;
+//设置菜单 
+document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
+document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
 
-// let global = {
-//     row_id: 0,
-//     edit: 0,
-//     eidt_cate: "",
-// }
+let cate = document.querySelector('#category').textContent;
 
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);

@@ -2,6 +2,10 @@ import { notifier } from '../parts/notifier.mjs';
 import { AutoInput } from '../parts/autocomplete.mjs';
 import { SPLITER } from '../parts/tools.mjs';
 
+//设置菜单 
+document.querySelector('#customers .nav-icon').classList.add('show-chosed');
+document.querySelector('#customers .menu-text').classList.add('show-chosed');
+
 let p = document.querySelector('#num_position').textContent.split(",")[1];
 
 //执行日期实例------------------------------------------------

@@ -1,6 +1,10 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 
+//设置菜单 
+document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
+document.querySelector('#function-set .menu-text').classList.add('show-chosed');
+
 var hiprintTemplate;
 var edit_mode = "新增";
 var options;
