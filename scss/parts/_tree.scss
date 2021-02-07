@@ -9,20 +9,21 @@ $mini-wd: 305px;
 
   button {
     color: white;
-    background-color: $color-info;
+    background-color: $color-primary;
     margin-left: 3px;
     margin-bottom: 2px;
     vertical-align: middle;
 
     &:hover {
-      background-color: $info-700;
+      background-color: $primary-600;
+      border-color: $primary-700;
     }
   }
 }
 
 .tree-title {
   color: white;
-  background-color: $info-400;
+  background-color: $color-primary;;
   height: 35px;
   display: flex;
   align-items: center;
@@ -31,22 +32,26 @@ $mini-wd: 305px;
   padding-bottom: 3px;
   margin-top: 40px;
   margin-bottom: -2px;
-  border: 1px solid $info-500;
+  border: 1px solid $primary-600;
   border-top-left-radius: 3px;
   border-top-right-radius: 3px;
   cursor: pointer;
+
+  &:hover {
+    background-color: $primary-600;
+  }
 
   a {
     color: white;
     margin-right: 20px;
     &:hover {
-      color: $color-warning;
+      color: white;
     }
   }
 }
 
 .tree-container {
-  border: 1px solid $info-500;
+  border: 1px solid $primary-400;
   border-top: 0;
   border-radius: 3px;
   height: 90%;
@@ -90,7 +95,7 @@ $mini-wd: 305px;
       left: 0;
       position: absolute;
       right: auto;
-      border-left: 1px dotted #67b2dd;
+      border-left: 1px dotted $primary-400;
       bottom: 50px;
       height: 100%;
       top: 0px;
@@ -106,7 +111,7 @@ $mini-wd: 305px;
       left: 0px;
       position: absolute;
       right: auto;
-      border-top: 1px dotted #67b2dd;
+      border-top: 1px dotted $primary-400;
       height: 20px;
       top: 17px;
       width: 20px;
@@ -152,7 +157,7 @@ $mini-wd: 305px;
 
     &:hover {
       color: white;
-      background-color: $info-100;
+      background-color: $primary-300;
     }
 
     &.is-selected {
@@ -162,7 +167,7 @@ $mini-wd: 305px;
 
   .selected {
     color: white;
-    background-color: $info-200;
+    background-color: $primary-400;
   }
 
   // .selected.is-selected {
