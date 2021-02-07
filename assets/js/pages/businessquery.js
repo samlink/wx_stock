@@ -14,7 +14,7 @@ let row_num = Math.floor(get_height / 30);
 laydate.render({
     elem: '#search-date1',
     showBottom: false,
-    theme: 'molv',
+    // theme: 'molv',
     // value: '2021-05-02'
     // theme: '#62468d',
 });
@@ -22,7 +22,7 @@ laydate.render({
 laydate.render({
     elem: '#search-date2',
     showBottom: false,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 //客户供应商自动填充--------------------------------------------

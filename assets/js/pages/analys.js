@@ -9,13 +9,13 @@ document.querySelector('#statics .menu-text').classList.add('show-chosed');
 laydate.render({
     elem: '#search-date1',
     showBottom: false,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 laydate.render({
     elem: '#search-date2',
     showBottom: false,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 let today_button = document.querySelector('#today-button');

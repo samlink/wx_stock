@@ -18,7 +18,7 @@
         height: 25px;
         padding-top: 3px;
         padding-left: 10px;
-        background-color: lighten($color-info, 42%);
+        // background-color: lighten($color-info, 42%);
     }
 
     #buy-cate {
@@ -42,9 +42,8 @@
     }
 
     .info-and-choose {
-        margin-top: 3px;
-        border-radius: 8px;
-        background-color: white;
+        margin-top: 5px;
+        margin-bottom: 5px;
         display: flex;
         justify-content: space-between;
         align-items: flex-start;
@@ -72,7 +71,7 @@
 
             th {
                 cursor: default;
-                border: none;
+                // border: none;
             }
 
             tbody {
@@ -86,7 +85,7 @@
                     }
 
                     &:hover {
-                        border-bottom: 2px solid $info-200;
+                        border-bottom: 1.5px solid $color-primary;
                         background-color: transparent;
                     }
                 }
@@ -143,7 +142,7 @@
 
         .inputting {
             .editable {
-                border-bottom: 1px solid tomato;
+                border-bottom: 1px solid $editable-color;
             }
         }
 

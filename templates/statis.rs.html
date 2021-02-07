@@ -11,7 +11,7 @@
         <span class="t1"><i class="fa fa-angle-double-right"></i> 销售统计 </span>
         <p id="help-info" title="帮助信息"><img src="/assets/img/ask.png" width="20px"></p>
     </div>
-    <div class="query-content">
+    <div class="query-content has-bak">
         <div id="query-show">
             <div class="table-top">
                 <div class="query-search">
@@ -36,27 +36,29 @@
                     </select>
                 </div>
             </div>
+
+            <div class="debt-show">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="20%">序号</th>
+                                <th width="35%" id="th-date">月份</th>
+                                <th>销售额</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="chart-div">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="debt-show">
-        <div class="table-container">
-            <table>
-                <thead>
-                    <tr>
-                        <th width="20%">序号</th>
-                        <th width="35%" id="th-date">月份</th>
-                        <th>销售额</th>
-                    </tr>
-                </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </div>
-        <div class="chart-div">
-            <canvas id="myChart"></canvas>
-        </div>
-    </div>
+
 
 </div>
 </div>
@@ -65,5 +67,4 @@
 <script src="/assets/plugins/laydate/laydate.js"></script>
 <script src="/assets/plugins/chart/Chart2.min.js"></script>
 <script type="module" src="/assets/min/pages/statis.js"></script>
-<script type="module" src="/assets/js/pages/statis.js"></script>
 }, user.name.clone(), user.theme.clone())

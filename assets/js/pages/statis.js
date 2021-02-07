@@ -40,7 +40,7 @@ laydate.render({
     type: "month",
     range: true,
     value: value_month,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 //按年
@@ -56,7 +56,7 @@ laydate.render({
     type: "year",
     range: true,
     value: value_year,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 //按周和按日
@@ -71,7 +71,7 @@ laydate.render({
     elem: '#search-date-week',
     range: true,
     value: value_week,
-    theme: 'molv',
+    // theme: 'molv',
 });
 
 let info = document.querySelector('#info');

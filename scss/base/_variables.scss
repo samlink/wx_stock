@@ -6,13 +6,18 @@ $color-warning: #ffc241;
 $color-danger: #fd3995;
 $color-fusion: darken(desaturate(adjust-hue($color-primary, 5), 80%), 25%);
 
-$body-background:  #f3f3f3;
-$top-line-color: #E2E2E2;
+$body-background: #f3f3f3;
+$div-background: white;
+$top-line-color: #e2e2e2;
 $header-grade-color: rgba(51, 148, 225, 0.18);
 $header-shadow-color: rgba(0, 0, 0, 0.13);
 $page-bg: desaturate(lighten($color-primary, 41.7%), 5%) !default;
 $base-text-color: darken(white, 70%) !default;
 $menu-hover-color: lighten($color-primary, 55%) !default;
+$editable-color: tomato;
+$table-hover-color: lighten($color-primary, 35%) !default;
+$table-focus-color: lighten($color-primary, 30%) !default;
+$table-border-color: lighten(desaturate($color-primary, 60%), 35%); //rgba($black, 0.09);
 
 $primary-50: lighten($color-primary, 25%) !default;
 $primary-100: lighten($color-primary, 20%) !default;
@@ -133,9 +138,8 @@ $input-btn-padding-y-lg: 0.75rem;
 $input-btn-padding-x-lg: 1.5rem;
 
 //表格
-$table-border-color: lighten(desaturate($primary-500, 60%), 35%); //rgba($black, 0.09);
-$table-hover-bg: lighten(desaturate($primary-900, 70%), 63%);
-$table-accent-bg: rgba($fusion-500, 0.02);
+// $table-hover-bg: lighten(desaturate($primary-900, 70%), 63%);
+// $table-accent-bg: rgba($fusion-500, 0.02);
 
 //下拉菜单
 // $dropdown-border-width: $theme-border-utility-size;

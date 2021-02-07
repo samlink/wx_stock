@@ -127,7 +127,7 @@ function document_top_handle(html, has_date) {
     laydate.render({
         elem: date,
         showBottom: false,
-        theme: 'molv',
+        // theme: 'molv',
         // theme: '#62468d',
     });
 
@@ -284,7 +284,7 @@ fetch("/fetch_inout_fields", {
         //构造表主体结构-----------
         product_table_fields = content;
         let line_height = 33; //行高，与 css 设置一致
-        table_lines = Math.floor((document.querySelector('body').clientHeight - 370) / line_height);
+        table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / line_height);
 
         all_width = 0;
         show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入

@@ -34,18 +34,17 @@
         width: 19%;
         height: calc(100vh - 200px);
         margin-right: 10px;
-        border: 1px solid lightgray;
+        border: 1px solid $table-border-color;
+        border-radius: 8px;
 
         .list-title {
             display: flex;
-            // align-content: center;
             height: 37px;
             text-align: center;
-            color: white;
-            background-color: $color-info;
             font-size: 15px;
             font-weight: bold;
             margin-bottom: 6px;
+            border-bottom: 1px solid $table-border-color;
 
             span {
                 margin: 0 auto;
@@ -63,14 +62,14 @@
                 cursor: pointer;
 
                 &:hover {
-                    color: white;
-                    background-color: $info-100;
+                    // color: white;
+                    background-color: $table-hover-color;
                 }
             }
 
             .focus {
-                color: white;
-                background-color: $info-200;
+                // color: white;
+                background-color: $table-focus-color;
             }
         }
     }
