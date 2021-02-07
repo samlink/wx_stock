@@ -1,12 +1,18 @@
 //颜色变量
 $color-primary: #45a3e9;
-// $color-primary: #547db3;
-// $color-primary: #886ab5;
 $color-success: #1dc9b7;
 $color-info: #2196f3;
 $color-warning: #ffc241;
 $color-danger: #fd3995;
 $color-fusion: darken(desaturate(adjust-hue($color-primary, 5), 80%), 25%);
+
+$body-background:  #f3f3f3;
+$top-line-color: #E2E2E2;
+$header-grade-color: rgba(51, 148, 225, 0.18);
+$header-shadow-color: rgba(0, 0, 0, 0.13);
+$page-bg: desaturate(lighten($color-primary, 41.7%), 5%) !default;
+$base-text-color: darken(white, 70%) !default;
+$menu-hover-color: lighten($color-primary, 55%) !default;
 
 $primary-50: lighten($color-primary, 25%) !default;
 $primary-100: lighten($color-primary, 20%) !default;
@@ -77,13 +83,6 @@ $fusion-600: darken($color-fusion, 5%) !default;
 $fusion-700: darken($color-fusion, 10%) !default;
 $fusion-800: darken($color-fusion, 15%) !default;
 $fusion-900: darken($color-fusion, 20%) !default;
-
-$header-grade-color: rgba(51, 148, 225, 0.18);
-$header-shadow-color: rgba(0, 0, 0, 0.13);
-$page-bg: desaturate(lighten($primary-500, 41.7%), 5%) !default;
-$base-text-color: darken(white, 70%) !default;
-$menu-hover-color: lighten($primary-500, 55%) !default;
-// $menu-hover-color: $primary-500 !default;
 
 //设备尺寸
 $grid-breakpoints: (

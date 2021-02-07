@@ -1,5 +1,8 @@
 .inout-top {
+    background-color: white;
+    border-radius: 8px;
     height: 100px;
+    padding: 6px 8px;
     display: flex;
     justify-content: space-between;
 
@@ -13,7 +16,6 @@
         .form-group {
             display: flex;
             justify-content: center;
-            // margin-right: 10px;
         }
 
         .form-label {
@@ -88,5 +90,4 @@
             margin-left: 410px;
         }
     }
-
 }
