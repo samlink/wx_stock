@@ -23,9 +23,12 @@
     width: 200px;
     margin-right: 3px;
 
-    &:hover,
+    &:hover {
+        border-color: $form-border-color;
+    }
+
     &:focus {
-        border-color: $info-200;
+        border-color: $color-primary;
     }
 }
 

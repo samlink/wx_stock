@@ -80,11 +80,11 @@ button {
     }
 
     &:disabled {
-        background-color: $info-50;
+        background-color: $primary-50;
         border: none;
         cursor: default;
         &:hover {
-            background-color: $info-50;
+            background-color: $primary-50;
         }
     }
 }

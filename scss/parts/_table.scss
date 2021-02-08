@@ -75,16 +75,15 @@
   .page-button {
     width: 30px;
     height: 30px;
-    // background-color: $info-400;
     padding: 0.4rem 0.6rem !important;
     margin: 0 3px;
 
     &:hover {
-      background-color: $info-700;
+      background-color: $primary-700;
     }
 
     &:disabled {
-      background-color: $info-100;
+      background-color: $primary-100;
       cursor: default;
     }
   }
@@ -109,7 +108,7 @@
 
     &:hover,
     &:focus {
-      border-color: #6ab8f7;
+      border-color: $primary-400;
     }
   }
 
