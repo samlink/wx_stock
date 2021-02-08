@@ -165,7 +165,7 @@
         .table-auto {
             table {
                 width: auto;
-                border: 1px solid $success-300;
+                border: 1px solid $primary-300;
             }
 
             thead {
@@ -177,7 +177,8 @@
 
                 th {
                     height: 28px;
-                    background-color: $success-600;
+                    color: white;
+                    background-color: $primary-600;
                     border: none;
                 }
             }
@@ -200,14 +201,14 @@
 
                     &:hover {
                         border-left: 0;
-                        background-color: lighten($color-success, 42%);
+                        background-color: lighten($color-primary, 32%);
                         border-bottom: none;
                     }
                 }
 
                 .autocomplete-active {
                     color: black;
-                    background-color: lighten($color-success, 42%);
+                    background-color: lighten($color-primary, 32%);
                 }
             }
         }
@@ -272,7 +273,7 @@
         }
 
         .table-auto {
-            top: 280px;
+            top: 290px;
             left: 350px;
             position: fixed;
         }

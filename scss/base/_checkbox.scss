@@ -14,6 +14,7 @@
   &:hover input ~ .checkmark,
   &:hover input ~ .radiomark {
     background-color: $check-roadio-backround-hover;
+    border-color: $check-roadio-backround-hover;
   }
 
   input {

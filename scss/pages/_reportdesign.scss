@@ -1,8 +1,8 @@
 .report-design {
     display: flex;
     padding: 6px 20px;
-    margin: 14px 0;
-    background-color: lighten($info-400, 38%);
+    margin: 10px 0 8px 0;
+    // background-color: lighten($info-400, 38%);
 
     .build-model {
         display: flex;
@@ -62,5 +62,17 @@
                 box-shadow: none;
             }
         }
+    }
+}
+
+#paper-directPrint {
+    color: #fff;
+    background-color: $color-primary;
+    border-color: $color-primary;
+    // border-radius: 2px;
+
+    &:hover {
+        background-color: $primary-600;
+        border-color: $primary-700;
     }
 }
