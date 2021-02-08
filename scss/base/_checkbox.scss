@@ -43,7 +43,7 @@
     height: 16px;
     width: 16px;
     background-color: $check-roadio-backround;
-    border: 1px solid $check-roadio-backround-hover;
+    border: 1px solid darken($check-roadio-backround, 10%);
   }
 
   .checkmark {

@@ -9,11 +9,14 @@ $color-fusion: darken(desaturate(adjust-hue($color-primary, 5), 80%), 25%);
 $body-background: #f3f3f3;
 $div-background: white;
 $top-line-color: #e2e2e2;
+$form-border-color: lighten(desaturate($color-primary, 60%), 30%);
+
 $header-grade-color: rgba(51, 148, 225, 0.18);
 $header-shadow-color: rgba(0, 0, 0, 0.13);
 $page-bg: desaturate(lighten($color-primary, 41.7%), 5%) !default;
 $base-text-color: darken(white, 70%) !default;
 $menu-hover-color: lighten($color-primary, 55%) !default;
+
 $editable-color: tomato;
 $table-hover-color: lighten($color-primary, 35%) !default;
 $table-focus-color: lighten($color-primary, 30%) !default;
@@ -121,7 +124,7 @@ $link-hover-color: $primary-400;
 
 // checkbox
 $check-roadio-backround: #eee;
-$check-roadio-backround-hover: #ccc;
+$check-roadio-backround-hover: $primary-300;
 $check-roadio-mark: white;
 $check-roadio-checked: $primary-700; // #7a59ad;
 

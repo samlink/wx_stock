@@ -1,6 +1,7 @@
 .fields-set {
     .system-content {
         display: flex;
+        padding-top: 10px;
     }
     #product-show {
         width: 68%;
@@ -71,7 +72,7 @@
 
         tr:hover {
             background-color: transparent;
-            border-left: 3px solid $info-400;
+            border-left: 3px solid $primary-400;
         }
     }
 
