@@ -28,22 +28,21 @@
             width: 180px;
             height: 26px;
             padding: 2px 8px;
-            border-color: #e8e8e8;
+            // border-color: #e8e8e8;
 
-            &:hover,
-            &:focus {
-                border-color: $info-200;
-            }
+            // &:hover,
+            // &:focus {
+            //     border-color: $info-200;
+            // }
         }
 
         #serach-button {
             color: white;
-            background-color: $color-info;
             margin-left: 5px;
 
-            &:hover {
-                background-color: $info-700;
-            }
+            // &:hover {
+            //     background-color: $info-700;
+            // }
         }
 
         tbody tr td:nth-child(1),

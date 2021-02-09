@@ -70,4 +70,14 @@
     table th {
         padding: 0;
     }
+
+    .autocomplete {
+        .autocomplete-items {
+            width: 230px;
+
+            div {
+                width: 215px;
+            }
+        }
+    }
 }
