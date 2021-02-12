@@ -32,9 +32,10 @@ document.oncontextmenu = function (event) {
     if (selected_node.tagName == "LI") {
         let all_li = document.querySelectorAll('li');
         for (let li of all_li) {
-            li.style.cssText = "";
+            li.classList.remove('item-selected');
         }
-        selected_node.style.cssText = "background-color: #51adf6; color: white; z-index: 1001;";
+        
+        selected_node.classList.add('item-selected');
         return show_menu(event, 1);
     }
     else if (selected_node.classList.contains('title')) {
@@ -194,10 +195,10 @@ function fetch_house() {
 
                             let lis = document.querySelectorAll('#house-list li');
                             for (let li of lis) {
-                                li.style.cssText = "";
+                                li.classList.remove('item-selected');
                             }
 
-                            this.style.cssText = "background-color: #51adf6; color: white; z-index: 1001;"
+                            this.classList.add('item-selected');
 
                             // house_click();
                         }

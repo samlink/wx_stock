@@ -51,7 +51,7 @@
     }
 
     .selected {
-        background-color: $info-300;
+        background-color: $primary-400;
         color: white;
         font-weight: bold;
     }
@@ -60,5 +60,11 @@
         li {
             padding: 0;
         }
-    }   
+    }
+
+    .item-selected {
+        background-color: $primary-400;
+        color: white;
+        z-index: 1001;
+    }
 }
