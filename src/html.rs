@@ -12,7 +12,7 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| home(o, user.name, user.theme));
+        let html = r2s(|o| home(o, user.name, format!("{}.css", user.theme)));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
