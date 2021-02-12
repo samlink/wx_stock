@@ -38,12 +38,7 @@
 
         #serach-button {
             color: white;
-            background-color: $color-info;
             margin-left: 5px;
-
-            &:hover {
-                background-color: $info-700;
-            }
         }
 
         tbody tr td:nth-child(1),
