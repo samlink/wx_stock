@@ -32,6 +32,7 @@ Date.prototype.Format = function (fmt) {
 let class_theme = document.querySelector('body').className;
 let theme_name = class_theme.split('.')[0];
 document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
+document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
 
 //帮助信息点击显示
 document.querySelector('#help-info').addEventListener('click', function () {
