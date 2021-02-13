@@ -2,11 +2,11 @@
 String.prototype.trim = function (char, type) {
     if (char) {
         if (type == 'left') {
-            return this.replace(new RegExp('^\\'+char+'+', 'g'), '');
+            return this.replace(new RegExp('^\\' + char + '+', 'g'), '');
         } else if (type == 'right') {
-            return this.replace(new RegExp('\\'+char+'+$', 'g'), '');
+            return this.replace(new RegExp('\\' + char + '+$', 'g'), '');
         }
-        return this.replace(new RegExp('^\\'+char+'+|\\'+char+'+$', 'g'), '');
+        return this.replace(new RegExp('^\\' + char + '+|\\' + char + '+$', 'g'), '');
     }
     return this.replace(/^\s+|\s+$/g, '');
 };
@@ -28,6 +28,10 @@ Date.prototype.Format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
+
+let class_theme = document.querySelector('body').className;
+let theme_name = class_theme.split('.')[0];
+document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
 
 //帮助信息点击显示
 document.querySelector('#help-info').addEventListener('click', function () {

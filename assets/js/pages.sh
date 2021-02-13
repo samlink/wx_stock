@@ -19,4 +19,4 @@ terser ./pages/systemset.js -c -o ../min/pages/systemset.js
 terser ./pages/usermanage.js -c -o ../min/pages/usermanage.js
 terser ./pages/userset.js -c -o ../min/pages/userset.js
 terser ./pages/warehouse.js -c -o ../min/pages/warehouse.js
-
+terser ./pages/help.js -c -o ../min/pages/help.js
