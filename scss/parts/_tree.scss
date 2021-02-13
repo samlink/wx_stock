@@ -136,11 +136,11 @@ $mini-wd: 305px;
   }
 
   .item::before {
-    content: url("/assets/img/folder.png");
+    content: url("/assets/img/folder_red.png");
   }
 
   .item-down::before {
-    content: url("/assets/img/folder-open.png");
+    content: url("/assets/img/folder_red2.png");
   }
 
   .nested {
