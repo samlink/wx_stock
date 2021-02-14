@@ -1,6 +1,6 @@
 use crate::service::*;
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 // use time::now;

@@ -8,15 +8,7 @@ use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
 
-include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
-use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
-
 pub static SPLITER: &str = "<`*_*`>";
-
-#[derive(Deserialize)]
-pub struct File {
-    name: String,
-}
 
 //自动完成搜索字符串
 #[derive(Deserialize)]
@@ -370,19 +362,6 @@ pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String 
         }
     }
     sql
-}
-
-//构建动态字段文本模糊查询语句
-pub fn build_sql_where(fields: &Vec<FieldsData>, s: &str) -> String {
-    let mut sql_where = "".to_owned();
-
-    for f in fields {
-        if f.data_type == "文本" {
-            sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s)
-        }
-    }
-
-    sql_where.trim_end_matches(" OR ").to_owned()
 }
 
 //各个功能页面获取帮助信息

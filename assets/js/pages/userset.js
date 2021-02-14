@@ -94,7 +94,6 @@ function theme_set() {
                 .then(res => res.json())
                 .then(data => {
                     location.reload();
-                    // notifier.show('主题设置成功', 'success');
                 });
         });
     }

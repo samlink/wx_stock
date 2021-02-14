@@ -275,7 +275,7 @@ pub async fn fetch_cost(
 }
 
 #[post("/home_statis")]
-pub async fn home_statis(db: web::Data<Pool>, date: String, id: Identity) -> HttpResponse {
+pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let today = now().strftime("%Y-%m-%d").unwrap().to_string();

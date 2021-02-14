@@ -1,6 +1,4 @@
 @use super::base;
-@use crate::service::UserData;
-@use super::statics::*;
 @(user: String, theme: String)
 
 @:base({
@@ -42,7 +40,7 @@
                 </div>
                 <i class="fa fa-cubes"></i>
             </div>
-            <div class="tip" id="warn-tip2">
+            <div class="tip" id="warn-tip2" style="background-color: #eb72aa;">
                 <div class="word">
                     <h2><span id="warn-data2"></span> 种商品 </h2>
                     <p>滞库三个月以上</p>
