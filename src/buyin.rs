@@ -149,11 +149,12 @@ pub async fn buyin_auto(
                 JOIN documents ON document_items.单号id=documents.单号
                 WHERE 直销=false AND 已记账=true GROUP BY 商品id) as foo
             ON products.id = foo.商品id 
-            WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            WHERE products.id={} OR pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' AND ({}) LIMIT 10"#,
             SPLITER,
             sql_fields,
             SPLITER,
             SPLITER,
+            s[0].to_lowercase(),
             s[0].to_lowercase(),
             s[0].to_lowercase(),
             sql_where,
