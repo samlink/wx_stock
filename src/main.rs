@@ -39,7 +39,7 @@ async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
-    println!("服务已启动: 127.0.0.1:8083");
+    println!("服务已启动: 127.0.0.1:9001");
 
     HttpServer::new(move || {
         App::new()
@@ -150,7 +150,7 @@ async fn main() -> std::io::Result<()> {
             // .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
-    .bind("127.0.0.1:8083")?
+    .bind("127.0.0.1:9001")?
     .run()
     .await
 }

@@ -1,4 +1,4 @@
-use crate::service::{TablePager, get_user};
+use crate::service::{get_user, TablePager};
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
@@ -57,6 +57,7 @@ pub async fn pull_users(
         for row in rows {
             count = row.get("记录数");
         }
+        count = count - 1;  // 将 admin 用户减去
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((users, count, pages))
     } else {
