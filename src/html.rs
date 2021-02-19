@@ -12,15 +12,21 @@ fn get_code() -> String {
     dotenv::var("code").unwrap()
 }
 
+fn goto_login() -> HttpResponse {
+    HttpResponse::Found()
+        .header("location", format!("/{}/{}", get_code(), "login"))
+        .finish()
+}
+
 ///主页
 #[get("/")]
 pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| home(o, user.name, format!("{}.css", user.theme),  get_code()));
+        let html = r2s(|o| home(o, user.name, format!("{}.css", user.theme), get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()
     }
 }
 
@@ -41,9 +47,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| userset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found()
-            .header("location", "/app/login")
-            .finish()
+        goto_login()
     }
 }
 
@@ -55,7 +59,7 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| usermanage(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()
     }
 }
 
@@ -67,7 +71,7 @@ pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| productset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -79,7 +83,7 @@ pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| fieldset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()                
     }
 }
 
@@ -91,7 +95,7 @@ pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
         let html = r2s(|o| customer(o, user, get_code(), "客户"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()         
     }
 }
 
@@ -103,7 +107,7 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
         let html = r2s(|o| customer(o, user, get_code(), "供应商"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -115,7 +119,7 @@ pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| warehouse(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -127,7 +131,7 @@ pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| systemset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -139,7 +143,7 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| help_say_html(o, user.name, user.theme, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -159,7 +163,7 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
         let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -179,7 +183,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
         let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -203,7 +207,7 @@ pub async fn stock_change(
         let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -215,7 +219,7 @@ pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| reportdesign(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -226,7 +230,7 @@ pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| query(o, user, get_code(), "采购查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -237,7 +241,7 @@ pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| query(o, user, get_code(), "销售查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -248,7 +252,7 @@ pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| query(o, user, get_code(), "调整查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -259,7 +263,7 @@ pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| stockquery(o, user, get_code(), "库存检查"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -271,7 +275,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| businessquery(o, user, get_code(), num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -284,7 +288,7 @@ pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| debtquery(o, user, get_code(), num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -296,7 +300,7 @@ pub async fn analys(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| saleanalys(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -308,7 +312,7 @@ pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| statis(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }
 
@@ -320,6 +324,6 @@ pub async fn cost(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let html = r2s(|o| coststatis(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        goto_login()        
     }
 }

@@ -1,5 +1,7 @@
 import { notifier } from '../parts/notifier.mjs';
 
+var code = document.querySelector('#user-code').textContent;
+
 var login_show = document.querySelector('#login-form');
 var logon_show = document.querySelector('#logon-form');
 var login = document.querySelector('#login');
