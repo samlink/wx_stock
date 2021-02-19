@@ -37,8 +37,11 @@ impl Config {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    let name_code = format!("/{}", dotenv::var("code").unwrap());
+
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
+
     println!("服务已启动: 127.0.0.1:8085");
 
     HttpServer::new(move || {
@@ -51,7 +54,7 @@ async fn main() -> std::io::Result<()> {
                     .secure(false),
             ))
             .service(
-                web::scope("/app")
+                web::scope(&name_code)
                     .service(html::index)
                     .service(html::login)
                     .service(html::user_set)
