@@ -306,7 +306,7 @@ export function build_inout_form(table_fields, data) {
 export function build_product_table(row_num, cb) {
     let init_data = {
         container: '.table-product',
-        url: "/fetch_blank",
+        url: `/${code}/fetch_blank`,
         post_data: {
             id: "",
             name: '',
@@ -320,7 +320,7 @@ export function build_product_table(row_num, cb) {
         blank_row_fn: blank_row,
     };
 
-    fetch("/fetch_fields", {
+    fetch(`/${code}/fetch_fields`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -348,7 +348,7 @@ export function build_product_table(row_num, cb) {
                 fetch_table();
 
                 let data = {
-                    url: "/fetch_product",
+                    url: `/${code}/fetch_product`,
                 }
 
                 let post_data = {

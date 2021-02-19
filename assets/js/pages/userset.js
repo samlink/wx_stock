@@ -21,7 +21,7 @@ document.querySelector('#pass-button').addEventListener('click', function (event
         new_pass: new_pass
     }
 
-    fetch('/change_pass', {
+    fetch(`/${code}/change_pass`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -57,7 +57,7 @@ document.querySelector('#phone-button').addEventListener('click', function (even
         phone_number: phone_number,
     }
 
-    fetch('/phone_number', {
+    fetch(`/${code}/phone_number`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -84,7 +84,7 @@ function theme_set() {
                 name: this.dataset.theme,
             }
 
-            fetch('/change_theme', {
+            fetch(`/${code}/change_theme`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",

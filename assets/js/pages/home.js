@@ -71,7 +71,7 @@ let moni_sale = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 let moni_cost = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 
 
-fetch("/home_statis", {
+fetch(`/${code}/home_statis`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -88,19 +88,19 @@ fetch("/home_statis", {
     });
 
 document.querySelector('#sale-tip').addEventListener('click', function () {
-    window.open("/sale_query");
+    window.open(`/${code}/sale_query`);
 });
 
 document.querySelector('#buy-tip').addEventListener('click', function () {
-    window.open("/buy_query");
+    window.open(`/${code}/buy_query`);
 });
 
 document.querySelector('#warn-tip2').addEventListener('click', function () {
-    window.open("/stock_query");
+    window.open(`/${code}/stock_query`);
 });
 
 document.querySelector('#warn-tip').addEventListener('click', function () {
-    window.open("/stock_query");
+    window.open(`/${code}/stock_query`);
 });
 
 setInterval(() => {
@@ -108,7 +108,7 @@ setInterval(() => {
 }, 600000);
 
 function set_chart1(data) {
-    fetch("/fetch_statis", {
+    fetch(`/${code}/fetch_statis`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -132,7 +132,7 @@ function set_chart1(data) {
 }
 
 function set_chart2(data) {
-    fetch("/fetch_cost", {
+    fetch(`/${code}/fetch_cost`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

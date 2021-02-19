@@ -161,7 +161,7 @@ document.querySelector('#context-del').addEventListener('click', function (event
 });
 
 function house_edit(data) {
-    fetch('/update_house', {
+    fetch(`/${code}/update_house`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -176,7 +176,7 @@ function house_edit(data) {
 }
 
 function fetch_house() {
-    fetch('/fetch_house')
+    fetch(`/${code}/fetch_house`)
         .then(response => response.json())
         .then(data => {
             if (data != -1) {
@@ -268,7 +268,7 @@ function house_drag(drag_idx, to_idx) {
     arr_exchange(global.id_arr, drag_idx, to_idx);
     let data = global.id_arr.join(',');
 
-    fetch("/house_drag", {
+    fetch(`/${code}/house_drag`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

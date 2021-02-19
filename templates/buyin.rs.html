@@ -1,10 +1,10 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, num_position: String, setup: Vec<&str>, options: Vec<&str>)
+@(user: UserData, code: String, num_position: String, setup: Vec<&str>, options: Vec<&str>)
 
         @:base({
-        <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
-        <link rel="stylesheet" href="/assets/plugins/hiprint/css/print-lock.css">
+        <link rel="stylesheet" href="/@code/assets/plugins/laydate/theme/default/laydate.css">
+        <link rel="stylesheet" href="/@code/assets/plugins/hiprint/css/print-lock.css">
 
         <div class="buy-in">
             <div class="top-title"><span><i class="fa fa-retweet"></i> 商品出入库 </span>
@@ -110,12 +110,12 @@
                 </div>
             </div>
         </div>
-        <script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
-        <script src="/assets/plugins/barcode/JsBarcode.all.min.js"></script>
-        <script src="/assets/plugins/qrcode/qrcode.js"></script>
-        <script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
-        <script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
+        <script src="/@code/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
+        <script src="/@code/assets/plugins/barcode/JsBarcode.all.min.js"></script>
+        <script src="/@code/assets/plugins/qrcode/qrcode.js"></script>
+        <script src="/@code/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
+        <script src="/@code/assets/plugins/jquery/jquery.hiwprint.js"></script>
 
-        <script src="/assets/plugins/laydate/laydate.js"></script>
-        <script type="module" src="/assets/min/pages/buyin.js"></script>
-        }, user.name.clone(), format!("{}.css", user.theme.clone()))
+        <script src="/@code/assets/plugins/laydate/laydate.js"></script>
+        <script type="module" src="/@code/assets/min/pages/buyin.js"></script>
+        }, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())

@@ -9,7 +9,7 @@ var hiprintTemplate;
 var edit_mode = "新增";
 var options;
 
-fetch('/fetch_print_documents')
+fetch(`/${code}/fetch_print_documents`)
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
@@ -181,7 +181,7 @@ document.querySelector('#editmodel-select').addEventListener("change", function 
     fetch_provider(this.value, model_json);
 
     let id = Number(document.querySelector('#editmodel-select').value);
-    fetch('/fetch_models', {
+    fetch(`/${code}/fetch_models`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -200,7 +200,7 @@ document.querySelector('#editmodel-select').addEventListener("change", function 
 });
 
 document.querySelector('#edit-select').addEventListener("change", function () {
-    fetch('/fetch_one_model', {
+    fetch(`/${code}/fetch_one_model`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -271,7 +271,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
             cate: edit_mode,
         }
 
-        fetch('/save_model', {
+        fetch(`/${code}/save_model`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -300,7 +300,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
             confirmText: "确认",
             cancelText: "取消",
             confirmCallBack: () => {
-                fetch('/del_model', {
+                fetch(`/${code}/del_model`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -328,7 +328,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
 });
 
 function fetch_provider(id, model_json) {
-    fetch('/fetch_provider', {
+    fetch(`/${code}/fetch_provider`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

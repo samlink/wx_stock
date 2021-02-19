@@ -7,12 +7,17 @@ use dotenv::dotenv;
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
 use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
 
+fn get_code() -> String {
+    dotenv().ok();
+    dotenv::var("code").unwrap()
+}
+
 ///主页
 #[get("/")]
 pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| home(o, user.name, format!("{}.css", user.theme)));
+        let html = r2s(|o| home(o, user.name, format!("{}.css", user.theme),  get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -24,7 +29,7 @@ pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> Http
 pub fn login(_req: HttpRequest) -> HttpResponse {
     dotenv().ok();
     let comany = dotenv::var("company").unwrap();
-    let html = r2s(|o| login_html(o, comany));
+    let html = r2s(|o| login_html(o, comany, get_code()));
     HttpResponse::Ok().content_type("text/html").body(html)
 }
 
@@ -33,10 +38,12 @@ pub fn login(_req: HttpRequest) -> HttpResponse {
 pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| userset(o, user));
+        let html = r2s(|o| userset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
-        HttpResponse::Found().header("location", "/login").finish()
+        HttpResponse::Found()
+            .header("location", "/app/login")
+            .finish()
     }
 }
 
@@ -45,7 +52,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "用户设置".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| usermanage(o, user));
+        let html = r2s(|o| usermanage(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -57,7 +64,7 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "商品设置".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| productset(o, user));
+        let html = r2s(|o| productset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -69,7 +76,7 @@ pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "字段设置".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| fieldset(o, user));
+        let html = r2s(|o| fieldset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -81,7 +88,7 @@ pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "客户管理".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| customer(o, user, "客户"));
+        let html = r2s(|o| customer(o, user, get_code(), "客户"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -93,7 +100,7 @@ pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
 pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "供应商管理".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| customer(o, user, "供应商"));
+        let html = r2s(|o| customer(o, user, get_code(), "供应商"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -105,7 +112,7 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
 pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "仓库设置".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| warehouse(o, user));
+        let html = r2s(|o| warehouse(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -117,7 +124,7 @@ pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "系统参数".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| systemset(o, user));
+        let html = r2s(|o| systemset(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -129,7 +136,7 @@ pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| help_say_html(o, user.name, user.theme));
+        let html = r2s(|o| help_say_html(o, user.name, user.theme, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -149,7 +156,7 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
         let num_position = get_fraction(db).await;
         let setup = vec!["商品采购", "供应商", "近期采购", dh];
         let options = vec!["采购入库", "退货出库"];
-        let html = r2s(|o| buyin(o, user, num_position, setup, options));
+        let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -169,7 +176,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
         let num_position = get_fraction(db).await;
         let setup = vec!["商品销售", "客户", "近期销售", dh];
         let options = vec!["商品销售", "销售退货"];
-        let html = r2s(|o| buyin(o, user, num_position, setup, options));
+        let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -193,7 +200,7 @@ pub async fn stock_change(
         let num_position = get_fraction(db).await;
         let setup = vec!["库存调整", "供应商", "近期调整", dh];
         let options = vec!["库存调整"];
-        let html = r2s(|o| buyin(o, user, num_position, setup, options));
+        let html = r2s(|o| buyin(o, user, get_code(), num_position, setup, options));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -205,7 +212,7 @@ pub async fn stock_change(
 pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| reportdesign(o, user));
+        let html = r2s(|o| reportdesign(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -216,7 +223,7 @@ pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "采购查询".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| query(o, user, "采购查询"));
+        let html = r2s(|o| query(o, user, get_code(), "采购查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -227,7 +234,7 @@ pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| query(o, user, "销售查询"));
+        let html = r2s(|o| query(o, user, get_code(), "销售查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -238,7 +245,7 @@ pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "调整查询".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| query(o, user, "调整查询"));
+        let html = r2s(|o| query(o, user, get_code(), "调整查询"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -249,7 +256,7 @@ pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "库存检查".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| stockquery(o, user, "库存检查"));
+        let html = r2s(|o| stockquery(o, user, get_code(), "库存检查"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -261,7 +268,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
     let num_position = get_fraction(db).await;
     if user.name != "" {
-        let html = r2s(|o| businessquery(o, user, num_position));
+        let html = r2s(|o| businessquery(o, user, get_code(), num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -274,7 +281,7 @@ pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let num_position = get_fraction(db).await;
 
     if user.name != "" {
-        let html = r2s(|o| debtquery(o, user, num_position));
+        let html = r2s(|o| debtquery(o, user, get_code(), num_position));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -286,7 +293,7 @@ pub async fn analys(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "综合分析".to_owned()).await;
 
     if user.name != "" {
-        let html = r2s(|o| saleanalys(o, user));
+        let html = r2s(|o| saleanalys(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -298,7 +305,7 @@ pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "销售统计".to_owned()).await;
 
     if user.name != "" {
-        let html = r2s(|o| statis(o, user));
+        let html = r2s(|o| statis(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()
@@ -310,7 +317,7 @@ pub async fn cost(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
 
     if user.name != "" {
-        let html = r2s(|o| coststatis(o, user));
+        let html = r2s(|o| coststatis(o, user, get_code()));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         HttpResponse::Found().header("location", "/login").finish()

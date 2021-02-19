@@ -1,5 +1,5 @@
 @use super::base;
-@(user: String, theme: String)
+@(user: String, theme: String, code: String)
 
 @:base({
 <div class="help">
@@ -19,6 +19,6 @@
         <p>7、 联系电话：13920953285 </p>
     </div>
 </div>
-<script type="module" src="/assets/min/pages/help.js"></script>
+<script type="module" src="/@code/assets/min/pages/help.js"></script>
 
-}, user, format!("{}.css", theme))
+}, user, format!("{}.css", theme), code.clone())

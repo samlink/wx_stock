@@ -1,9 +1,9 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, num_position: String)
+@(user: UserData, code: String, num_position: String)
 
 @:base({
-<link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
+<link rel="stylesheet" href="/@code/assets/plugins/laydate/theme/default/laydate.css">
 
 <div class="docment-query business_query debt">
     <div class="top-title"><span><i class="fa fa-user"></i> 客户供应商 </span>
@@ -69,6 +69,6 @@
     </div>
 </div>
 
-<script src="/assets/plugins/laydate/laydate.js"></script>
-<script type="module" src="/assets/min/pages/debt.js"></script>
-}, user.name.clone(), format!("{}.css", user.theme.clone()))
+<script src="/@code/assets/plugins/laydate/laydate.js"></script>
+<script type="module" src="/@code/assets/min/pages/debt.js"></script>
+}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())

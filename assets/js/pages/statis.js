@@ -248,7 +248,7 @@ document.querySelector('#statis-button').addEventListener('click', function () {
 });
 
 function set_chart(data) {
-    fetch("/fetch_statis", {
+    fetch(`/${code}/fetch_statis`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

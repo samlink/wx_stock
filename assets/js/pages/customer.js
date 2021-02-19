@@ -28,7 +28,7 @@ let table_fields;
 
 let init_data = {
     container: '.table-customer',
-    url: "/fetch_customer",
+    url: `/${code}/fetch_customer`,
     post_data: {
         id: "",
         name: '',
@@ -42,7 +42,7 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch("/fetch_fields", {
+fetch(`/${code}/fetch_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -172,7 +172,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 cate: cate,
             };
 
-            let url = global.eidt_cate == "edit" ? "/update_customer" : "/add_customer";
+            let url = global.eidt_cate == "edit" ? `/${code}/update_customer` : `/${code}/add_customer`;
 
             fetch(url, {
                 method: 'post',
@@ -203,7 +203,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         }
     }
     else {
-        let url = global.eidt_cate == "批量导入" ? "/customer_addin" : "/customer_updatein";
+        let url = global.eidt_cate == "批量导入" ? `/${code}/customer_addin` : `/${code}/customer_updatein`;
         fetch(url, {
             method: 'post',
             headers: {
@@ -271,7 +271,7 @@ function leave_alert() {
 //数据导入和导出 ------------------------------------------------------------------------------
 
 document.querySelector('#data-out').addEventListener('click', function () {
-    fetch("/customer_out", {
+    fetch(`/${code}/customer_out`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -316,7 +316,7 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        let url = cate == "客户" ? "/customer_in" : "/supplier_in";
+        let url = cate == "客户" ? `/${code}/customer_in` : `/${code}/supplier_in`;
         fetch(url, {
             method: 'POST',
             body: fd,

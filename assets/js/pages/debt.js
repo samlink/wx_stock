@@ -27,7 +27,7 @@ laydate.render({
 let cate = document.querySelector('#auto_cate');
 
 let auto_comp = new AutoInput(document.querySelector('#search-customer'),
-    cate, "/customer_auto", () => {
+    cate, `/${code}/customer_auto`, () => {
     });
 
 auto_comp.init();
@@ -66,7 +66,7 @@ search_button.addEventListener('click', function () {
         date2: date2,
     }
 
-    fetch("/fetch_debt", {
+    fetch(`/${code}/fetch_debt`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

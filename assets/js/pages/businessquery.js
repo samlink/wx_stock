@@ -29,7 +29,7 @@ laydate.render({
 let cate = document.querySelector('#auto_cate');
 
 let auto_comp = new AutoInput(document.querySelector('#search-customer'),
-    cate, "/customer_auto", () => {
+    cate, `/${code}/customer_auto`, () => {
     });
 
 auto_comp.init();
@@ -45,7 +45,7 @@ document.querySelector('.table-container tbody').innerHTML = blank_rows;
 //表格搜索----------------------------------------------------
 let init_data = {
     container: '.table-container',
-    url: "/fetch_business",
+    url: `/${code}/fetch_business`,
     post_data: {
         id: "",
         name: '',
@@ -99,10 +99,10 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let id = chosed ? chosed.querySelector('td:nth-child(3)').textContent : "";
     if (id != "") {
         let cate = chosed.querySelector('td:nth-child(4)').textContent;
-        let address = "/sale/";
+        let address = `/${code}/sale/`;
 
         if (cate.indexOf("采购") != -1) {
-            address = "/buy_in/";
+            address = `/${code}/buy_in/`;
         }
 
         window.open(address + id);

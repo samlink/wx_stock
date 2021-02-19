@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData)
+@(user: UserData, code: String)
 
 @:base({
 <div class="system-set">
@@ -70,5 +70,5 @@
         <button class="btn btn-info" id="sumit-button" disabled>提交修改</button>
     </div>
 </div>
-<script type="module" src="/assets/min/pages/systemset.js"></script>
-}, user.name.clone(), format!("{}.css", user.theme.clone()))
+<script type="module" src="/@code/assets/min/pages/systemset.js"></script>
+}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())

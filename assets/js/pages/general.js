@@ -29,17 +29,19 @@ Date.prototype.Format = function (fmt) {
     return fmt;
 }
 
+var code = document.querySelector('#user-code').textContent;
+
 let class_theme = document.querySelector('body').className;
 let theme_name = class_theme.split('.')[0];
-document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
-document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
+document.querySelector('#help-info img').setAttribute('src', `/${code}/assets/img/${theme_name}.png`);
+document.querySelector('#logo img').setAttribute('src', `/${code}/assets/img/logo_${theme_name}.png`);
 
 //帮助信息点击显示
 document.querySelector('#help-info').addEventListener('click', function () {
     this.setAttribute('show', 'on');
     let name = document.querySelector('.top-title .t1').textContent.trim();
 
-    fetch('/fetch_help', {
+    fetch(`/${code}/fetch_help`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

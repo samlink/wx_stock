@@ -17,7 +17,7 @@ var input_html = '<input type="text" id="input_node" value="新节点">';
 
 //从数据库获取 tree 数据
 export var fetch_tree = function () {
-    fetch('/tree')
+    fetch(`/${code}/tree`)
         .then(response => response.json())
         .then(data => {
             var tree = document.querySelector('#tree');
@@ -168,7 +168,7 @@ export var tree_init = function (data) {
                         node_name: ""
                     };
 
-                    fetch("/tree_del", {
+                    fetch(`/${code}/tree_del`, {
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json",
@@ -423,7 +423,7 @@ function tree_drag() {
         num: global.drag_id,
     };
 
-    fetch("/tree_drag", {
+    fetch(`/${code}/tree_drag`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -523,7 +523,7 @@ function tree_edit(has_input, selected_node) {
 
 //保存增加的数据到后台
 function save_add(num, new_node) {
-    fetch("/tree_add", {
+    fetch(`/${code}/tree_add`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -538,7 +538,7 @@ function save_add(num, new_node) {
 
 //保存编辑的数据到后台
 function save_edit(num) {
-    fetch("/tree_edit", {
+    fetch(`/${code}/tree_edit`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

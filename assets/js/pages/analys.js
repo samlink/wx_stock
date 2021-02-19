@@ -52,7 +52,7 @@ today_button.addEventListener('click', function () {
 today_button.click();
 
 function fetch_data(data) {
-    fetch("/fetch_analys", {
+    fetch(`/${code}/fetch_analys`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

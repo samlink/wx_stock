@@ -1,10 +1,10 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData)
+@(user: UserData, code: String)
 
 @:base({
-<link href="/assets/plugins/hiprint/css/hiprint.css" rel="stylesheet" />
-<link href="/assets/plugins/hiprint/css/print-lock.css" rel="stylesheet" />
+<link href="/@code/assets/plugins/hiprint/css/hiprint.css" rel="stylesheet" />
+<link href="/@code/assets/plugins/hiprint/css/print-lock.css" rel="stylesheet" />
 
 <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
     <span class="t1"><i class="fa fa-angle-double-right"></i> 报表设计 </span>
@@ -164,16 +164,16 @@
     </sider>
 </layout>
 
-<script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
+<script src="/@code/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
 
-<script src="/assets/plugins/hiprint/js/print-data.js"></script>
+<script src="/@code/assets/plugins/hiprint/js/print-data.js"></script>
 
-<script src="/assets/plugins/jquery/jquery.minicolors.min.js"></script>
-<script src="/assets/plugins/barcode/JsBarcode.all.min.js"></script>
-<script src="/assets/plugins/qrcode/qrcode.js"></script>
-<script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
-<script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
+<script src="/@code/assets/plugins/jquery/jquery.minicolors.min.js"></script>
+<script src="/@code/assets/plugins/barcode/JsBarcode.all.min.js"></script>
+<script src="/@code/assets/plugins/qrcode/qrcode.js"></script>
+<script src="/@code/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
+<script src="/@code/assets/plugins/jquery/jquery.hiwprint.js"></script>
 
-<script type="module" src="/assets/min/pages/reportdesign.js"></script>
+<script type="module" src="/@code/assets/min/pages/reportdesign.js"></script>
 
-}, user.name.clone(), format!("{}.css", user.theme.clone()))
+}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())
