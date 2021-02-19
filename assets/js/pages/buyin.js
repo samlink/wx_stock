@@ -1127,7 +1127,7 @@ function build_input_row(show_names, all_width, num) {
     //构造商品规格自动完成
     let [...show_th] = show_names;
     show_th.push({ name: "库存", width: 60 });
-    auto_table(auto_input, "", "/buyin_auto", show_th, () => {
+    auto_table(auto_input, "", `/${code}/buyin_auto`, show_th, () => {
         fill_gg(auto_input, input_row);
     });
 
@@ -1251,7 +1251,7 @@ function build_input_row(show_names, all_width, num) {
 
             let input = document.querySelector('#auto_input');
 
-            let auto_com = new AutoInput(input, "", "/tree_auto", () => {
+            let auto_com = new AutoInput(input, "", `/${code}/tree_auto`, () => {
                 tree_search(input.value);
             });
 

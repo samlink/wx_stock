@@ -49,7 +49,7 @@ document.querySelector('#logon-button').addEventListener('click', function (even
     password: logon_pass
   }
 
-  fetch('/app/logon', {
+  fetch(`/${code}/logon`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",
@@ -85,7 +85,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
 
   let MAX_FAILED = 6;
 
-  fetch('/app/login', {
+  fetch(`/${code}/login`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",
@@ -108,7 +108,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
         notifier.show('用户已被锁定', 'danger');
       }
       else {
-        window.location = "/app/";
+        window.location = `/${code}/`;
       }
     });
 });
@@ -126,7 +126,7 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
     password: ""
   }
 
-  fetch('/app/forget_pass', {
+  fetch(`/${code}/forget_pass`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",

@@ -377,7 +377,7 @@ export function build_product_table(row_num, cb) {
     let search_input = document.querySelector('#search-input');
     let cate = document.querySelector('#product-id');
 
-    let auto_comp = new AutoInput(search_input, cate, "/product_auto", () => {
+    let auto_comp = new AutoInput(search_input, cate, `/${code}/product_auto`, () => {
         search_table();
     });
 

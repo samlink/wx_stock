@@ -360,7 +360,7 @@ function fetch_provider(id, model_json) {
                                     new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
                                     new hiprint.PrintElementTypeGroup("自定义", [
                                         { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
-                                        { tid: 'configModule.image', title: '图片', data: '/assets/img/book.jpg', type: 'image' },
+                                        { tid: 'configModule.image', title: '图片', data: `/${code}/assets/img/book.jpg`, type: 'image' },
                                         {
                                             tid: 'configModule.tableCustom',
                                             title: '表格',
