@@ -89,7 +89,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 var rights = {
     goods_in_out: ['商品采购', '商品销售', '库存调整', '采购查询', '销售查询', '调整查询', '库存检查'],
-    customers: ['客户管理', '供应商管理', '业务往来', '债务结算', '客户消费'],
+    customers: ['客户管理', '供应商管理', '业务往来', '债务结算'],
     statics: ['综合分析', '销售统计', '库存成本'],
     setup: ['商品设置', '用户设置', '销售人员', '仓库设置', '字段设置', '报表设计', '系统参数'],
     other: ['单据记账', '记账编辑', '批量导入', '导出数据'],
@@ -156,29 +156,36 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         notifier.show('请先选择用户', 'danger');
     }
     else {
-        document.querySelector('#edit-button').classList.add("hide");
-        document.querySelector('#del-button').classList.add("hide");
-        document.querySelector('#sumit-button').classList.remove("hide");
-        document.querySelector('#cancel-button').classList.remove("hide");
-
-        for (let mark of marks) {
-            mark.removeAttribute("style");
+        let user_name = document.querySelector('#user-name').textContent;
+        let focus_name = focus.children[1].textContent;
+        if (user_name != "adm" && user_name != "admin" && focus_name == "adm") {
+            notifier.show('无法编辑超级用户', 'danger');
         }
+        else {
+            document.querySelector('#edit-button').classList.add("hide");
+            document.querySelector('#del-button').classList.add("hide");
+            document.querySelector('#sumit-button').classList.remove("hide");
+            document.querySelector('#cancel-button').classList.remove("hide");
 
-        for (let check of all_checks) {
-            check.disabled = false;
-        }
+            for (let mark of marks) {
+                mark.removeAttribute("style");
+            }
 
-        table_data.edit = true;
+            for (let check of all_checks) {
+                check.disabled = false;
+            }
 
-        confirm_save = focus.children[4].textContent;
+            table_data.edit = true;
 
-        let confirm = confirm_save == "未确认" ? "" : "checked";
+            confirm_save = focus.children[4].textContent;
 
-        focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+            let confirm = confirm_save == "未确认" ? "" : "checked";
+
+            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
                                                 <span class="checkmark"></span></label>`;
 
-        focus.children[4].setAttribute("style", "padding-top: 0;");
+            focus.children[4].setAttribute("style", "padding-top: 0;");
+        }
     }
 });
 
@@ -256,8 +263,8 @@ document.querySelector('#del-button').addEventListener('click', function () {
     }
     else {
         let name = focus.children[1].textContent;
-        if (name == "admin") {
-            notifier.show('无法删除管理员', 'danger');
+        if (name == "adm") {
+            notifier.show('无法删除超级用户', 'danger');
         }
         else if (name == document.querySelector('#user-name').textContent) {
             notifier.show('无法删除用户自己', 'danger');
