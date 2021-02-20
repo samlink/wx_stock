@@ -1,3 +1,13 @@
+var code = document.querySelector('#user-code').textContent;
+
+let class_theme = document.querySelector('body').className;
+let theme_name = class_theme.split('.')[0];
+document.querySelector('#help-info img').setAttribute('src', `/${code}/assets/img/${theme_name}.png`);
+document.querySelector('#logo img').setAttribute('src', `/${code}/assets/img/logo_${theme_name}.png`);
+
+document.styleSheets[0].insertRule(`#tree .item::before{content:url("/${code}/assets/img/folder_${theme_name}.png")}`, document.styleSheets[0].cssRules.length);
+document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/${code}/assets/img/folder_${theme_name}2.png")}`, document.styleSheets[0].cssRules.length);
+
 //去除字符串左右空格
 String.prototype.trim = function (char, type) {
     if (char) {
@@ -28,13 +38,6 @@ Date.prototype.Format = function (fmt) {
         if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
     return fmt;
 }
-
-var code = document.querySelector('#user-code').textContent;
-
-let class_theme = document.querySelector('body').className;
-let theme_name = class_theme.split('.')[0];
-document.querySelector('#help-info img').setAttribute('src', `/${code}/assets/img/${theme_name}.png`);
-document.querySelector('#logo img').setAttribute('src', `/${code}/assets/img/logo_${theme_name}.png`);
 
 //帮助信息点击显示
 document.querySelector('#help-info').addEventListener('click', function () {
