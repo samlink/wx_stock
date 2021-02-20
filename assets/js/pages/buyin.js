@@ -1340,14 +1340,14 @@ function build_ware_position(ware_option, input_row, value) {
 
     ware_house_select.innerHTML = ware_option;
 
-    if (value) {
-        ware_house_select.value = value;
-    }
-    else {
-        if (ware_value) {
-            ware_house_select.value = ware_value;
-        }
-    }
+    // if (value) {
+    //     ware_house_select.value = value;
+    // }
+    // else {
+    //     if (ware_value) {
+    //         ware_house_select.value = ware_value;
+    //     }
+    // }
 
     ware_house_select.addEventListener('change', function () {
         ware_value = this.value;
