@@ -70,6 +70,27 @@ let init_data = {
     blank_row_fn: blank_row_fn,
 };
 
+document.querySelector('#checkbox-fields').addEventListener('click', function () {
+    if (this.checked) {
+        document.querySelector('#search-fields').disabled = false;
+    } 
+    else {
+        document.querySelector('#search-fields').disabled = true;
+    }   
+});
+
+document.querySelector('#checkbox-date').addEventListener('click', function () {
+    if (this.checked) {
+        document.querySelector('#search-date1').disabled = false;
+        document.querySelector('#search-date2').disabled = false;
+    } 
+    else {
+        document.querySelector('#search-date1').disabled = true;
+        document.querySelector('#search-date2').disabled = true;
+    }    
+});
+
+//点击搜索按钮
 document.querySelector('#serach-button').addEventListener('click', function () {
     let customer = document.querySelector('#search-customer').value;
 
@@ -91,7 +112,6 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     table_init(init_data);
     fetch_table();
 });
-
 
 //查看单据
 document.querySelector('#edit-button').addEventListener('click', function () {

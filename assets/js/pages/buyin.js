@@ -82,7 +82,7 @@ fetch(`/${code}/fetch_inout_fields`, {
                         if (document_bz != "库存调整") {
                             supplier_auto_show();
                         }
-                        
+
                         setTimeout(() => {
                             sum_money();
                             sum_records();
@@ -1292,7 +1292,12 @@ function fill_gg(auto_input, input_row) {
     let field_values = auto_input.getAttribute("data").split(SPLITER);
     let n = 4;
     for (let i = 2; i < field_values.length - 2; i++) {     //不计末尾的库存和售价两个字段
-        document.querySelector(`.inputting td:nth-child(${n})`).textContent = field_values[i];
+        let val = field_values[i];
+        if (product_table_fields[i - 2].ctr_type == "二值选一") {
+            val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
+        }
+
+        document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
         n++;
     }
 
