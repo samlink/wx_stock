@@ -120,7 +120,7 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
         let conn = db.get().await.unwrap();
         let rows = &conn
             .query(
-                r#"SELECT "ID" FROM products WHERE "商品ID"=$1 LIMIT 1"#,
+                r#"SELECT id FROM products WHERE 商品id=$1 LIMIT 1"#,
                 &[&data.pnum],
             )
             .await
@@ -133,7 +133,7 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
         } else {
             &conn
                 .execute(
-                    r#"UPDATE products SET 停用=true WHERE "商品ID"=$1"#,
+                    r#"UPDATE products SET 停用=true WHERE 商品id=$1"#,
                     &[&data.pnum],
                 )
                 .await

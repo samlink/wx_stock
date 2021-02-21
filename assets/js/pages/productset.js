@@ -255,7 +255,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
             .then(response => response.json())
             .then(content => {
                 if (content != -1) {
-                    download_file(`/download/${content}.xlsx`);
+                    download_file(`/${code}/download/${content}.xlsx`);
                     notifier.show('成功导出至 Excel 文件', 'success');
                 }
                 else {

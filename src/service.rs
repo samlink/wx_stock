@@ -309,7 +309,7 @@ pub fn build_sql_for_update(
             sql += &format!("{}={},", fields[i].field_name, field_names[i + n]);
         } else {
             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + n] == op[0] {
+            let val = if field_names[i + n] == op[0] || field_names[i + n] == "true" {
                 true
             } else {
                 false
@@ -335,7 +335,7 @@ pub fn build_sql_for_insert(
             sql += &format!("{},", field_names[i + n]);
         } else {
             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + n] == op[0] {
+            let val = if field_names[i + n] == op[0] || field_names[i + n] == "true" {
                 true
             } else {
                 false
