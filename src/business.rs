@@ -195,7 +195,7 @@ pub async fn fetch_debt(
                     r#"select 客商id, count(单号) as 数量, sum(应结金额) as 应结金额, sum(已结金额) as 已结金额 from documents
                         join customers on 
                         documents.客商id = customers.id
-                        where 名称='{}' and 单号 like '{}%' and 已记账=true and 日期::date >= '{}'::date and 日期::date <= '{}'::date
+                        where trim(名称)='{}' and 单号 like '{}%' and 已记账=true and 日期::date >= '{}'::date and 日期::date <= '{}'::date
                         group by 客商id;"#,
                     post_data.customer, name[1], post_data.date1, post_data.date2
                 );
