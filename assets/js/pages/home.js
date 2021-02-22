@@ -1,14 +1,21 @@
 document.querySelector('#title').classList.add('show-chosed');
 
-
 let now = new Intl.DateTimeFormat('fr-CA').format(new Date());
 let now2 = now.split('-');
 document.querySelector('#date-now').textContent = `${now2[0]}年${now2[1]}月${now2[2]}日`;
 
-let start = new Date(document.querySelector("#start-date").textContent);
-var days = new Date().getTime() - start.getTime();
-var day = parseInt(days / (1000 * 60 * 60 * 24)) + 1;
-document.querySelector('#use-day').textContent = day;
+fetch(`/${code}/start_date`, {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+})
+    .then(response => response.json())
+    .then(content => {
+        document.querySelector('#use-day').textContent = 
+            parseInt((new Date().getTime() - new Date(content).getTime()) / (1000 * 60 * 60 * 24)) + 1;
+    });
+
 
 var ctx1 = document.getElementById('myChart1').getContext('2d');
 var ctx2 = document.getElementById('myChart2').getContext('2d');

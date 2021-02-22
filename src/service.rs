@@ -4,6 +4,7 @@ use actix_multipart::Multipart;
 use actix_web::Either;
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
+use dotenv::dotenv;
 use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
 use std::io::{self, Write};
@@ -392,4 +393,10 @@ pub async fn fetch_help(
     } else {
         HttpResponse::Ok().json(-1)
     }
+}
+
+#[post("/start_date")]
+pub fn start_date() -> HttpResponse {
+    dotenv().ok();
+    HttpResponse::Ok().json(dotenv::var("start").unwrap())
 }

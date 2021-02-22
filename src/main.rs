@@ -38,11 +38,12 @@ impl Config {
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
     let name_code = format!("/{}", dotenv::var("code").unwrap());
+    let port = dotenv::var("port").unwrap();
 
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
 
-    println!("服务已启动: 127.0.0.1:8086");
+    println!("服务已启动: 127.0.0.1:{}", port);
 
     HttpServer::new(move || {
         App::new()
@@ -152,11 +153,12 @@ async fn main() -> std::io::Result<()> {
                     .service(service::fetch_blank)
                     .service(service::fetch_help)
                     .service(service::serve_download)
+                    .service(service::start_date)
                     // .service(web::resource("static/{name}").to(service::serve_static))
                     .service(fs::Files::new("/assets", "assets")),
             )
     })
-    .bind("127.0.0.1:8086")?
+    .bind(format!("127.0.0.1:{}", port))?
     .run()
     .await
 }
