@@ -42,6 +42,7 @@ document.querySelector('#customer-cate').addEventListener('change', function () 
 let search_button = document.querySelector('#serach-button');
 
 search_button.addEventListener('click', function () {
+    clear_table();
     let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
     if (!(date1 && date2)) {
@@ -171,5 +172,16 @@ search_button.addEventListener('click', function () {
             }
         });
 });
+
+function clear_table() {
+    let rows = `<tr><td>商品采购</td><td></td><td></td><td></td><td></td><td></td>
+               <tr><td>采购退货</td><td></td><td></td><td></td><td></td><td></td>
+               <tr><td>小计</td><td></td><td></td><td></td><td></td><td></td>
+               <tr><td>商品销售</td><td></td><td></td><td></td><td></td><td></td>
+               <tr><td>商品退货</td><td></td><td></td><td></td><td></td><td></td>
+               <tr><td>小计</td><td></td><td></td><td></td><td></td><td></td>`;
+
+document.querySelector('.table-container tbody').innerHTML= rows;
+}
 
 
