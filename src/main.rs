@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
     let config = Config::from_env().unwrap();
     let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
 
-    println!("服务已启动: 127.0.0.1:8084");
+    println!("服务已启动: 127.0.0.1:8086");
 
     HttpServer::new(move || {
         App::new()
@@ -156,7 +156,7 @@ async fn main() -> std::io::Result<()> {
                     .service(fs::Files::new("/assets", "assets")),
             )
     })
-    .bind("127.0.0.1:8084")?
+    .bind("127.0.0.1:8086")?
     .run()
     .await
 }
