@@ -25,7 +25,9 @@ document.querySelector('#table-choose').addEventListener('change', function () {
     document.querySelector('#choose-info').classList.add('hide');
     fetch_data(table_name);
     fetch_data2(table_name);
-})
+});
+
+// table_resize(document.querySelector('.table-product table'));
 
 function row_fn(tr) {
     let s1 = "";

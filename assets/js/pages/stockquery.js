@@ -11,6 +11,7 @@ let row_num = Math.floor(get_height / 30);
 
 let container = '.table-limit';
 let init_data = {
+    table: document.querySelector(container + ' table'),
     header: document.querySelector(container + ' thead tr'),                 //排序可选,若不需要排序功能,则去掉此属性
     body: document.querySelector(container + ' tbody'),
     page_input: document.querySelector(container + ' #page-input'),
@@ -49,6 +50,9 @@ let table = new MakeTable(init_data);
 table.init();
 table.fetch_table();
 
+//调整列宽
+table_resize(document.querySelector(container + ' table'));
+
 function table_row(tr) {
     let rec = tr.split(SPLITER);
     let row = `<tr><td style="text-align: center;">${rec[0]}</td>
@@ -80,6 +84,7 @@ function search_table() {
 container = '.table-stay';
 
 let init_data2 = {
+    table: document.querySelector(container + ' table'),
     header: document.querySelector(container + ' thead tr'),                 //排序可选,若不需要排序功能,则去掉此属性
     body: document.querySelector(container + ' tbody'),
     page_input: document.querySelector(container + ' #page-input2'),
@@ -118,6 +123,9 @@ let table2 = new MakeTable(init_data2);
 table2.init();
 table2.fetch_table();
 
+//调整列宽
+table_resize(document.querySelector(container + ' table'));
+
 function table_row2(tr) {
     let rec = tr.split(SPLITER);
     let row = `<tr><td style="text-align: center;">${rec[0]}</td>
@@ -155,4 +163,4 @@ document.querySelector('#month-button').addEventListener('click', function () {
     else {
         notifier.show('月份输入错误', 'danger');
     }
-})
+});

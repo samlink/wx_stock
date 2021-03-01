@@ -20,7 +20,7 @@ if (cate == "采购查询") {
 }
 else if (cate == "销售查询") {
     document_cate = "销售单据";
-    address = `/${code}/sale/`;    
+    address = `/${code}/sale/`;
 }
 else {
     document_cate = "库存调整";
@@ -213,4 +213,3 @@ document.querySelector('#del-button').addEventListener('click', function () {
         notifier.show('请先选择单据', 'danger');
     }
 });
-

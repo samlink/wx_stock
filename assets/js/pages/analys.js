@@ -18,6 +18,8 @@ laydate.render({
     // theme: 'molv',
 });
 
+table_resize(document.querySelector('.table-container table'));
+
 let today_button = document.querySelector('#today-button');
 
 document.querySelector('#serach-button').addEventListener('click', function () {

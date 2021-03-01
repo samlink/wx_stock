@@ -39,6 +39,8 @@ document.querySelector('#customer-cate').addEventListener('change', function () 
     flag = 0;
 });
 
+table_resize(document.querySelector('.table-container table'));
+
 let search_button = document.querySelector('#serach-button');
 
 search_button.addEventListener('click', function () {
@@ -181,7 +183,7 @@ function clear_table() {
                <tr><td>商品退货</td><td></td><td></td><td></td><td></td><td></td>
                <tr><td>小计</td><td></td><td></td><td></td><td></td><td></td>`;
 
-document.querySelector('.table-container tbody').innerHTML= rows;
+    document.querySelector('.table-container tbody').innerHTML = rows;
 }
 
 

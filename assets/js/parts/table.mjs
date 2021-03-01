@@ -1,5 +1,5 @@
 
-var cb_function;
+var cb_function, container, resize;
 
 export var table_data = {};
 
@@ -16,6 +16,8 @@ export var table_init = function (data) {
         total_records: document.querySelector(data.container + ' #total-records'),
         other_info: document.querySelector(data.container + ' #other-info'),
     });
+
+    container = data.container;
 
     table_data.page_input.value = 1;
     table_data.page_first.disabled = true;
@@ -57,7 +59,7 @@ export var table_init = function (data) {
     if (table_data.header) {
         for (let th of table_data.header.children) {
             th.addEventListener('click', function (e) {
-                if (!table_data.edit && this.textContent != "序号") {
+                if (!resize && !table_data.edit && this.textContent != "序号") {
                     for (let t of table_data.header.children) {
                         t.textContent = t.textContent.split(' ')[0];
                     }
@@ -136,6 +138,8 @@ export var fetch_table = function (cb) {
                     }
                 }
 
+                table_resize();
+
                 if (typeof cb == "function") {
                     cb_function = cb;
                     cb();
@@ -175,3 +179,66 @@ function button_change(input, first, pre, aft, last, pages) {
     }
 }
 
+//表格列宽调整
+function table_resize() {
+    var tTD; //用来存储当前更改宽度的Table Cell,避免快速移动鼠标的问题
+    var table = document.querySelector(container + ' table');
+    for (let j = 0; j < table.rows[0].cells.length; j++) {
+        table.rows[0].cells[j].onmousedown = function (event) {
+            //记录单元格
+            tTD = this;
+            if (event.offsetX > tTD.offsetWidth - 10) {
+                tTD.mouseDown = true;
+                tTD.oldX = event.x;
+                tTD.oldWidth = tTD.offsetWidth;
+            }
+            //记录Table宽度
+            //table = tTD; while (table.tagName != ‘TABLE') table = table.parentElement;
+            //tTD.tableWidth = table.offsetWidth;
+        };
+
+        table.rows[0].cells[j].onmouseup = function (event) {
+            //结束宽度调整
+            if (tTD == undefined) tTD = this;
+            tTD.mouseDown = false;
+            tTD.style.cursor = 'pointer';
+
+            //防止触发排序操作
+            setTimeout(() => {
+                resize = false;
+            }, 100);
+        };
+
+        table.rows[0].cells[j].onmousemove = function (event) {
+            //更改鼠标样式
+            if (event.offsetX > this.offsetWidth - 10)
+                this.style.cursor = 'col-resize';
+            else
+                this.style.cursor = 'pointer';
+            //取出暂存的Table Cell
+            if (tTD == undefined) tTD = this;
+            //调整宽度
+            if (tTD.mouseDown != null && tTD.mouseDown == true) {
+                tTD.style.cursor = 'pointer';
+                if (tTD.oldWidth + (event.x - tTD.oldX) > 0)
+                    tTD.width = tTD.oldWidth + (event.x - tTD.oldX);
+                //调整列宽
+                tTD.style.width = tTD.width;
+                tTD.style.cursor = 'col-resize';
+                //调整该列中的每个Cell
+                table = tTD;
+                while (table.tagName != 'TABLE') table = table.parentElement;
+                for (j = 0; j < table.rows.length; j++) {
+                    table.rows[j].cells[tTD.cellIndex].width = tTD.width;
+                }
+                //调整整个表
+                //table.width = tTD.tableWidth + (tTD.offsetWidth – tTD.oldWidth);
+                //table.style.width = table.width;
+
+                //防止触发排序
+                resize = true;
+            }
+
+        };
+    }
+}
