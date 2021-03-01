@@ -27,8 +27,6 @@ document.querySelector('#table-choose').addEventListener('change', function () {
     fetch_data2(table_name);
 });
 
-// table_resize(document.querySelector('.table-product table'));
-
 function row_fn(tr) {
     let s1 = "";
     let s2 = "";
