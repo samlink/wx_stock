@@ -9,7 +9,7 @@ import * as service from '../parts/service.mjs';
 document.querySelector('#customers .nav-icon').classList.add('show-chosed');
 document.querySelector('#customers .menu-text').classList.add('show-chosed');
 
-let cate = document.querySelector('#category').textContent;
+let cus_cate = document.querySelector('#category').textContent;
 
 let global = {
     row_id: 0,
@@ -21,7 +21,7 @@ let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 30);
 
 let table_name = {
-    name: cate,
+    name: cus_cate,
 };
 
 let table_fields;
@@ -34,7 +34,7 @@ let init_data = {
         name: '',
         sort: "名称 ASC",
         rec: row_num,
-        cate: cate,
+        cate: cus_cate,
     },
     edit: false,
 
@@ -106,7 +106,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
 
     document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
 
-    document.querySelector('.modal-title').textContent = "增加" + cate;
+    document.querySelector('.modal-title').textContent = "增加" + cus_cate;
     document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
 
     document.querySelector('.modal').style.display = "block";
@@ -125,14 +125,14 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, table_fields, chosed); //3 是起始位置
 
-        document.querySelector('.modal-title').textContent = "编辑" + cate;
+        document.querySelector('.modal-title').textContent = "编辑" + cus_cate;
         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
     }
     else {
-        notifier.show('请先选择' + cate, 'danger');
+        notifier.show('请先选择' + cus_cate, 'danger');
     }
 });
 
@@ -169,7 +169,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
             let data = {
                 data: customer,
-                cate: cate,
+                cate: cus_cate,
             };
 
             let url = global.eidt_cate == "edit" ? `/${code}/update_customer` : `/${code}/add_customer`;
@@ -185,7 +185,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
-                        notifier.show(cate + '修改成功', 'success');
+                        notifier.show(cus_cate + '修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {
                             for (let input of all_input) {
@@ -209,7 +209,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ cate: cate }),
+            body: JSON.stringify({ cate: cus_cate }),
         })
             .then(response => response.json())
             .then(content => {
@@ -276,12 +276,12 @@ document.querySelector('#data-out').addEventListener('click', function () {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cate: cate }),
+        body: JSON.stringify({ cate: cus_cate }),
     })
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                download_file(`/download/${content}.xlsx`);
+                download_file(`/${code}/download/${content}.xlsx`);
                 notifier.show('成功导出至 Excel 文件', 'success');
             }
             else {
@@ -316,7 +316,8 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        let url = cate == "客户" ? `/${code}/customer_in` : `/${code}/supplier_in`;
+        let url = cus_cate == "客户" ? `/${code}/customer_in` : `/${code}/supplier_in`;
+        
         fetch(url, {
             method: 'POST',
             body: fd,
