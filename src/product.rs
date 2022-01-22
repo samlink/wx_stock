@@ -96,7 +96,7 @@ pub async fn update_product(
 
         sql += &format!(r#"商品id='{}' WHERE id={}"#, product[1], product[0]);
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -124,7 +124,7 @@ pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identit
 
         sql += &format!("'{}')", product[1]);
 
-        &conn.query(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -361,7 +361,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
                     sql += &format!("'{}')", r[(j + 1, 1)]);
 
-                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                    let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
         }
@@ -407,7 +407,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     sql = sql.trim_end_matches(',').to_owned();
                     sql += &format!(r#" WHERE id={}"#, r[(j + 1, 0)]);
 
-                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                    let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
         }

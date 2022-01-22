@@ -71,7 +71,7 @@ fetch(`/${code}/fetch_inout_fields`, {
                             rem.classList.add('remembered');
                         }
                         else {
-                            rem.textContent = "未记账";
+                            rem.textContent = "记账";
                             rem.classList.remove('remembered');
                         }
 
@@ -92,7 +92,7 @@ fetch(`/${code}/fetch_inout_fields`, {
             else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
-                document.querySelector('#remember-button').textContent = '未记账'
+                document.querySelector('#remember-button').textContent = '记账'
             }
         }
     });
@@ -852,7 +852,7 @@ function clear_page(info, text1, text2) {
             document.querySelector('#history-info').textContent = "";
             document.querySelector('#total-records').textContent = "";
             document.querySelector('#sum-money').textContent = "金额合计：元";
-            document.querySelector('#remember-button').textContent = "未记账";
+            document.querySelector('#remember-button').textContent = "记账";
             document.querySelector('#remember-button').classList.remove('remembered');
 
             //清空表格

@@ -41,7 +41,7 @@ pub async fn update_system(
 
         for i in 0..system.len() {
             let n = i as i32 + 1;
-            &conn
+            let _ = &conn
                 .execute("UPDATE system SET value=$1 WHERE id=$2", &[&system[i], &n])   //这里要注意数据库中 id 的可能变化
                 .await
                 .unwrap();

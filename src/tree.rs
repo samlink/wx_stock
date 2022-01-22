@@ -3,7 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use async_recursion::async_recursion;
 use deadpool_postgres::Pool;
-use pinyin::get_pinyin;
+use rust_pinyin::get_pinyin;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -78,7 +78,7 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
             pnum = "#".to_string();
         };
 
-        &conn
+        let _ = &conn
             .execute(
                 r#"INSERT INTO tree (node_name, num, pnum, pinyin) VALUES ($1,$2,$3,$4)"#,
                 &[&data.node_name, &num, &pnum, &pinyin],
@@ -99,7 +99,7 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
         let conn = db.get().await.unwrap();
         let pinyin = get_pinyin(&data.node_name);
 
-        &conn
+        let _ = &conn
             .execute(
                 r#"UPDATE tree SET node_name=$1, pinyin=$3 WHERE num=$2"#,
                 &[&data.node_name, &data.pnum, &pinyin],
@@ -126,12 +126,12 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
             .await
             .unwrap();
         if rows.is_empty() {
-            &conn
+            let _ = &conn
                 .execute(r#"DELETE FROM tree WHERE num=$1"#, &[&data.pnum])
                 .await
                 .unwrap();
         } else {
-            &conn
+            let _ = &conn
                 .execute(
                     r#"UPDATE products SET 停用=true WHERE 商品id=$1"#,
                     &[&data.pnum],
@@ -139,7 +139,7 @@ pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
                 .await
                 .unwrap();
 
-            &conn
+            let _ = &conn
                 .execute(
                     r#"UPDATE tree SET not_use=true WHERE num=$1"#,
                     &[&data.pnum],
@@ -247,7 +247,7 @@ pub async fn tree_drag(
     let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        &conn
+        let _ = &conn
             .execute(
                 r#"UPDATE tree SET pnum = $2 WHERE num = $1"#,
                 &[&tree_id.num, &tree_id.pnum],

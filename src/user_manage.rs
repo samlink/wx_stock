@@ -82,7 +82,7 @@ pub async fn edit_user(
     let user = get_user(db.clone(), id, "用户设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        &conn
+        let _ = &conn
             .execute(
                 r#"UPDATE users SET confirm=$1, rights=$2 WHERE name=$3"#,
                 &[&post_data.confirm, &post_data.rights, &post_data.name],
@@ -110,7 +110,7 @@ pub async fn del_user(
     let user = get_user(db.clone(), id, "用户设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        &conn
+        let _ = &conn
             .execute(r#"DELETE FROM users WHERE name=$1"#, &[&post_data.name])
             .await
             .unwrap();

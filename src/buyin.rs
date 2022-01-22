@@ -573,7 +573,7 @@ pub async fn make_formal(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let dh_id = format!("{}", dh_id); //这里转换一下，直接写入查询报错，说不支持Json<String>
-        &conn
+        let _ = &conn
             .execute("UPDATE documents SET 已记账=true WHERE 单号=$1", &[&dh_id])
             .await
             .unwrap();

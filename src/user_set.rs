@@ -67,7 +67,7 @@ pub async fn logon(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
     } else {
         let md5_pass = md5(user.password.clone(), SALT);
 
-        &conn
+        let _ = &conn
             .execute(
                 r#"INSERT INTO users (name, password) VALUES($1,$2)"#,
                 &[&user.name, &md5_pass],
@@ -123,7 +123,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
                 }
 
                 // let encrypted_data = encrypt(name.as_bytes(), KEY, IV).ok().unwrap(); //将 name 用 aes 加密保存到前端存储
-                &conn
+                let _ = &conn
                     .execute(r#"UPDATE users SET failed=0 WHERE name=$1"#, &[&user.name])
                     .await
                     .unwrap();
@@ -133,7 +133,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
                 HttpResponse::Ok().json("succeed")
             } else {
                 failed += 1;
-                &conn
+                let _ = &conn
                     .execute(
                         r#"UPDATE users SET failed=$1 WHERE name=$2"#,
                         &[&failed, &user.name],
@@ -184,7 +184,7 @@ pub async fn change_pass(
             HttpResponse::Ok().json(0)
         } else {
             let new_pass = md5(user.new_pass.clone(), SALT);
-            &conn
+            let _ = &conn
                 .execute(
                     r#"UPDATE users SET password=$1 WHERE name=$2"#,
                     &[&new_pass, &user_get.name],
@@ -209,7 +209,7 @@ pub async fn phone_number(
     let user_get = get_user(db.clone(), id, "".to_owned()).await;
     if user_get.name != "" {
         let conn = db.get().await.unwrap();
-        &conn
+        let _ = &conn
             .execute(
                 r#"UPDATE users SET phone=$1 WHERE name=$2"#,
                 &[&user.phone_number, &user_get.name],
@@ -232,7 +232,7 @@ pub async fn change_theme(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap();
     let conn = db.get().await.unwrap();
-    &conn
+    let _ = &conn
         .execute(
             r#"UPDATE users SET theme=$1 WHERE name=$2"#,
             &[&theme.name, &user_name],
@@ -286,7 +286,7 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
             let salt_pass = md5(new_pass.clone(), SALT);
             get_pass += 1;
 
-            &conn
+            let _ = &conn
                 .execute(
                     r#"UPDATE users SET password=$1, get_pass=$3 WHERE name=$2"#,
                     &[&salt_pass, &user_name, &get_pass],

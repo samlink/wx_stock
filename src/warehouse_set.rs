@@ -62,7 +62,7 @@ pub async fn update_house(
             format!("UPDATE warehouse SET not_use=true WHERE id={}", data.id)
         };
 
-        &conn.query(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -87,7 +87,7 @@ pub async fn house_drag(
                 i + 1,
                 ids[i]
             );
-            &conn.query(sql.as_str(), &[]).await.unwrap();
+            let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
         }
 
         HttpResponse::Ok().json(1)

@@ -178,7 +178,7 @@ pub async fn update_tableset(
                 data.id
             );
 
-            &conn.execute(sql.as_str(), &[]).await.unwrap();
+            let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
         }
 
         HttpResponse::Ok().json(1)
@@ -214,7 +214,7 @@ pub async fn update_tableset2(
                 data.id
             );
 
-            &conn.execute(sql.as_str(), &[]).await.unwrap();
+            let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
         }
 
         HttpResponse::Ok().json(1)

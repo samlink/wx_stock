@@ -104,7 +104,7 @@ pub async fn save_model(
                 r#"UPDATE print_model SET 默认=false WHERE 打印单据id={}"#,
                 data.print_id
             );
-            &conn.execute(sql.as_str(), &[]).await.unwrap();
+            let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
         }
 
         if data.cate == "新增" {
@@ -126,7 +126,7 @@ pub async fn save_model(
             }
         }
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -240,7 +240,7 @@ pub async fn del_model(
         let conn = db.get().await.unwrap();
         let sql = format!(r#"DELETE FROM print_model WHERE id={}"#, model_id);
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {

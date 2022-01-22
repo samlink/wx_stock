@@ -129,7 +129,7 @@ pub async fn update_rem(db: web::Data<Pool>, rem: web::Json<Rem>, id: Identity) 
             rem.has, rem.id
         );
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -151,11 +151,11 @@ pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identit
 
         let sql = format!(r#"DELETE FROM document_items WHERE 单号id='{}'"#, del.id);
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         let sql = format!(r#"DELETE FROM documents WHERE 单号='{}'"#, del.id);
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {

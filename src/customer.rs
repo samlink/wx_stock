@@ -76,12 +76,12 @@ pub async fn update_customer(
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
-        let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
+        let py = rust_pinyin::get_pinyin(&field_names[2]); //[2] 是名称
         let init = "UPDATE customers SET ".to_owned();
         let mut sql = build_sql_for_update(field_names.clone(), init, fields, 2);
         sql += &format!(r#"助记码='{}' WHERE id={}"#, py, field_names[0]);
 
-        &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ =  &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -101,7 +101,7 @@ pub async fn add_customer(
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), &p.cate).await;
         let field_names: Vec<&str> = p.data.split(SPLITER).collect();
-        let py = pinyin::get_pinyin(&field_names[2]); //[2] 是名称
+        let py = rust_pinyin::get_pinyin(&field_names[2]); //[2] 是名称
 
         let mut init = "INSERT INTO customers (".to_owned();
 
@@ -113,7 +113,7 @@ pub async fn add_customer(
         let mut sql = build_sql_for_insert(field_names.clone(), init, fields, 2);
         sql += &format!("'{}', '{}')", py, p.cate);
 
-        &conn.query(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -348,10 +348,10 @@ pub async fn customer_addin(
                     }
 
                     let name = &format!("{}", r[(j + 1, 1)]);
-                    let py = pinyin::get_pinyin(name);
+                    let py = rust_pinyin::get_pinyin(name);
                     sql += &format!("'{}','{}')", py, data_cate.cate);
 
-                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                    let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
         }
@@ -396,10 +396,10 @@ pub async fn customer_updatein(
                     }
                     let name = &format!("{}", r[(i + 1, 1)]);
                     let id = format!("{}", r[(i + 1, 0)]);
-                    let py = pinyin::get_pinyin(name);
+                    let py = rust_pinyin::get_pinyin(name);
                     sql += &format!(r#"助记码='{}' WHERE id={}"#, py, id);
 
-                    &conn.query(sql.as_str(), &[]).await.unwrap();
+                    let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
         }
