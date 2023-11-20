@@ -22,7 +22,7 @@ var data = {
         '工作权限': 'rights',
         '是否确认': 'confirm',
     },
-    url: `/${code}/pull_users`,
+    url: `/pull_users`,
     post_data: {
         id: '',
         name: '',
@@ -233,7 +233,7 @@ document.querySelector('#sumit-button').addEventListener('click', function () {
         rights: rights,
     };
 
-    fetch(`/${code}/edit_user`, {
+    fetch(`/edit_user`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -276,7 +276,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
                         name: name,
                     }
 
-                    fetch(`/${code}/del_user`, {
+                    fetch(`/del_user`, {
                         method: 'post',
                         headers: {
                             "Content-Type": "application/json",

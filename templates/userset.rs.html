@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, code: String)
+@(user: UserData)
 
 @:base({
 <div class="user-set">
@@ -74,5 +74,5 @@
         </div>
     </div>
 </div>
-<script type="module" src="/@code/assets/min/pages/userset.js"></script>
-}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())
+<script type="module" src="/assets/pages/userset.js"></script>
+}, user.name.clone(), format!("{}.css", user.theme.clone()))

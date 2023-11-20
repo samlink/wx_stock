@@ -21,7 +21,7 @@ let position_select = document.querySelector('#position-select');
 let spliter_check = document.querySelector('#spliter-check');
 let date_example = document.querySelector('#example-dh');
 
-fetch(`/${code}/fetch_system`)
+fetch(`/fetch_system`)
     .then(response => response.json())
     .then(data => {
         let system = data.split(',');
@@ -96,7 +96,7 @@ function change_dh() {
 document.querySelector('#sumit-button').addEventListener('click', function () {
     let data = `${price_select.value},${mount_select.value},${date_select.value},${position_select.value},${spliter_check.checked},${date_example.textContent.trim()}`;
 
-    fetch(`/${code}/update_system`, {
+    fetch(`/update_system`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

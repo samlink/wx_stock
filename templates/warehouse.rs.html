@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, code: String)
+@(user: UserData)
 
 @:base({
 <div class="ware-house">
@@ -28,6 +28,6 @@
     </div>
 
 </div>
-<script type="module" src="/@code/assets/min/pages/warehouse.js"></script>
+<script type="module" src="/assets/pages/warehouse.js"></script>
 
-}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())
+}, user.name.clone(), format!("{}.css", user.theme.clone()))

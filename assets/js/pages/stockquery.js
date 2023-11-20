@@ -22,7 +22,7 @@ let init_data = {
     total_pages: document.querySelector(container + ' #pages'),
     total_records: document.querySelector(container + ' #total-records'),
 
-    url: `/${code}/fetch_limit`,
+    url: `/fetch_limit`,
     post_data: {
         id: "",
         name: '',
@@ -95,7 +95,7 @@ let init_data2 = {
     total_pages: document.querySelector(container + ' #pages2'),
     total_records: document.querySelector(container + ' #total-records2'),
 
-    url: `/${code}/fetch_stay`,
+    url: `/fetch_stay`,
     post_data: {
         id: "",
         name: '',
