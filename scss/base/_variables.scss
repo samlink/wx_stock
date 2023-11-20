@@ -158,7 +158,7 @@ $dropdown-xl-width: 21.875rem !default;
 $dropdown-lg-width: 17.5rem !default;
 $dropdown-md-width: 14rem !default;
 $dropdown-sm-width: 8rem !default;
-$dropdown-shadow: 0 0 15px 1px rgba(desaturate($primary-900, 20%), (20/100));
+$dropdown-shadow: 0 0 15px 1px rgba(desaturate($primary-900, 20%), calc(20/100));
 
 //字体尺寸
 $h1-font-size: 1.5rem;

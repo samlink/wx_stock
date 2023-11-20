@@ -270,7 +270,7 @@ export function build_inout_form(table_fields, data) {
         } else if (name.ctr_type == "二值选一") {
             let has_value = value ? value : name.default_value;
             let checked = name.option_value.split('_')[0] == has_value ? 'checked' : '';
-            control = `<div class="form-group">
+            control = `<div class="form-group" style="display: flex;">
                                 <div class="form-label">                                    
                                     <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
                                 </div>
