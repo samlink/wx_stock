@@ -1,5 +1,5 @@
 @use super::base;
-@(user: String, theme: String, code: String)
+@(user: String, theme: String)
 
 @:base({
 <div class="home-page">
@@ -58,6 +58,6 @@
     </div>
 </div>
 
-<script src="/@code/assets/plugins/chart/Chart2.min.js"></script>
-<script type="module" src="/@code/assets/min/pages/home.js"></script>
-}, user, theme, code.clone())
+<script src="/assets/plugins/chart/Chart2.min.js"></script>
+<script type="module" src="/assets/pages/home.js"></script>
+}, user, theme)

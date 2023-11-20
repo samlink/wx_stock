@@ -1,7 +1,5 @@
 import { notifier } from '../parts/notifier.mjs';
 
-var code = document.querySelector('#user-code').textContent;
-
 var login_show = document.querySelector('#login-form');
 var logon_show = document.querySelector('#logon-form');
 var login = document.querySelector('#login');
@@ -51,7 +49,7 @@ document.querySelector('#logon-button').addEventListener('click', function (even
     password: logon_pass
   }
 
-  fetch(`/${code}/logon`, {
+  fetch(`/logon`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",
@@ -87,7 +85,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
 
   let MAX_FAILED = 6;
 
-  fetch(`/${code}/login`, {
+  fetch(`/login`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",
@@ -110,7 +108,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
         notifier.show('用户已被锁定', 'danger');
       }
       else {
-        window.location = `/${code}/`;
+        window.location = `/`;
       }
     });
 });
@@ -128,7 +126,7 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
     password: ""
   }
 
-  fetch(`/${code}/forget_pass`, {
+  fetch(`/forget_pass`, {
     method: 'post',
     headers: {
       "Content-Type": "application/json",

@@ -1,12 +1,10 @@
-var code = document.querySelector('#user-code').textContent;
-
 let class_theme = document.querySelector('body').className;
 let theme_name = class_theme.split('.')[0];
-document.querySelector('#help-info img').setAttribute('src', `/${code}/assets/img/${theme_name}.png`);
-document.querySelector('#logo img').setAttribute('src', `/${code}/assets/img/logo_${theme_name}.png`);
+document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
+document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
 
-document.styleSheets[0].insertRule(`#tree .item::before{content:url("/${code}/assets/img/folder_${theme_name}.png")}`, document.styleSheets[0].cssRules.length);
-document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/${code}/assets/img/folder_${theme_name}2.png")}`, document.styleSheets[0].cssRules.length);
+document.styleSheets[0].insertRule(`#tree .item::before{content:url("/assets/img/folder_${theme_name}.png")}`, document.styleSheets[0].cssRules.length);
+document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/assets/img/folder_${theme_name}2.png")}`, document.styleSheets[0].cssRules.length);
 
 //去除字符串左右空格
 String.prototype.trim = function (char, type) {
@@ -44,7 +42,7 @@ document.querySelector('#help-info').addEventListener('click', function () {
     this.setAttribute('show', 'on');
     let name = document.querySelector('.top-title .t1').textContent.trim();
 
-    fetch(`/${code}/fetch_help`, {
+    fetch(`/fetch_help`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

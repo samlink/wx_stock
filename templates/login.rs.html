@@ -1,27 +1,26 @@
 @use time::now;
-@(compay: String, code: String)
+@(compay: String)
 
 <html lang="zh-CN">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1">
-  <link rel="shortcut icon" type="favicon" href="/@code/assets/img/favicon.png" />
-  <link rel="stylesheet" type="text/css" href="/@code/assets/css/login.css" />
+  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+  <link rel="stylesheet" type="text/css" href="/assets/css/login.css" />
   <title id='title-show'>仓储销售管理</title>
 </head>
 
 <body>
   <div class="top">
     <div id="logo">
-      <img src="/@code/assets/img/logo_blue.png" />
+      <img src="/assets/img/logo_blue.png" />
       <span id="title">仓储销售管理</span>
     </div>
     <div class="menu-log" id="logon"> <a href="javascript:;">注册新用户</a></div>
     <div class="menu-log" id="login" style="display: none;"><a href="javascript:;">用户登录</a></div>
   </div>
-  <p id="user-code" hidden>@code</p>
-  <div class="main" style="background: url(/@code/assets/img/pattern-1.svg) no-repeat center bottom fixed;">
+  <div class="main" style="background: url(/assets/img/pattern-1.svg) no-repeat center bottom fixed;">
     <div id="login-form" class="log-show">
       <form>
         <div class="form-group">
@@ -65,7 +64,7 @@
       </p>
     </footer>
   </div>
-  <script type="module" src="/@code/assets/min/pages/login.js"></script>
+  <script type="module" src="/assets/pages/login.js"></script>
 </body>
 
 </html>

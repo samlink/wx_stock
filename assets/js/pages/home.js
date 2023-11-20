@@ -4,7 +4,7 @@ let now = new Intl.DateTimeFormat('fr-CA').format(new Date());
 let now2 = now.split('-');
 document.querySelector('#date-now').textContent = `${now2[0]}年${now2[1]}月${now2[2]}日`;
 
-fetch(`/${code}/start_date`, {
+fetch(`/start_date`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -78,7 +78,7 @@ let moni_sale = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 let moni_cost = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 
 
-fetch(`/${code}/home_statis`, {
+fetch(`/home_statis`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -95,19 +95,19 @@ fetch(`/${code}/home_statis`, {
     });
 
 document.querySelector('#sale-tip').addEventListener('click', function () {
-    window.open(`/${code}/sale_query`);
+    window.open(`/sale_query`);
 });
 
 document.querySelector('#buy-tip').addEventListener('click', function () {
-    window.open(`/${code}/buy_query`);
+    window.open(`/buy_query`);
 });
 
 document.querySelector('#warn-tip2').addEventListener('click', function () {
-    window.open(`/${code}/stock_query`);
+    window.open(`/stock_query`);
 });
 
 document.querySelector('#warn-tip').addEventListener('click', function () {
-    window.open(`/${code}/stock_query`);
+    window.open(`/stock_query`);
 });
 
 setInterval(() => {
@@ -115,7 +115,7 @@ setInterval(() => {
 }, 600000);
 
 function set_chart1(data) {
-    fetch(`/${code}/fetch_statis`, {
+    fetch(`/fetch_statis`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -139,7 +139,7 @@ function set_chart1(data) {
 }
 
 function set_chart2(data) {
-    fetch(`/${code}/fetch_cost`, {
+    fetch(`/fetch_cost`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

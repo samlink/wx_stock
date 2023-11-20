@@ -48,7 +48,7 @@ fetch_tree();
 
 let input = document.querySelector('#auto_input');
 
-let auto_comp = new AutoInput(input, "", `/${code}/tree_auto`, () => {
+let auto_comp = new AutoInput(input, "", `/tree_auto`, () => {
     tree_search(input.value);
 });
 
@@ -143,7 +143,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 data: product,
             };
 
-            let url = global.eidt_cate == "edit" ? `/${code}/update_product` : `/${code}/add_product`;
+            let url = global.eidt_cate == "edit" ? `/update_product` : `/add_product`;
 
             fetch(url, {
                 method: 'post',
@@ -175,7 +175,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         }
     }
     else {
-        let url = global.eidt_cate == "批量导入" ? `/${code}/product_datain` : `/${code}/product_updatein`;
+        let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
         fetch(url, {
             method: 'post',
         })
@@ -245,7 +245,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
             name: global.product_name,
         };
 
-        fetch(`/${code}/product_out`, {
+        fetch(`/product_out`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -255,7 +255,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
             .then(response => response.json())
             .then(content => {
                 if (content != -1) {
-                    download_file(`/${code}/download/${content}.xlsx`);
+                    download_file(`/download/${content}.xlsx`);
                     notifier.show('成功导出至 Excel 文件', 'success');
                 }
                 else {
@@ -294,7 +294,7 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        fetch(`/${code}/product_in`, {
+        fetch(`/product_in`, {
             method: 'POST',
             body: fd,
         })

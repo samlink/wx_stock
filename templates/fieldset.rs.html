@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, code: String)
+@(user: UserData)
 
 @:base({
 <div class="fields-set">
@@ -98,5 +98,5 @@
         请于左上角选择数据表格
     </div>
 </div>
-<script type="module" src="/@code/assets/min/pages/fieldset.js"></script>
-}, user.name.clone(), format!("{}.css", user.theme.clone()), code.clone())
+<script type="module" src="/assets/min/pages/fieldset.js"></script>
+}, user.name.clone(), format!("{}.css", user.theme.clone()))

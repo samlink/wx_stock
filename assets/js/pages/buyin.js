@@ -35,7 +35,7 @@ else {
     document_name = "库存调整";
 }
 
-fetch(`/${code}/fetch_inout_fields`, {
+fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -49,7 +49,7 @@ fetch(`/${code}/fetch_inout_fields`, {
             let dh = dh_div.textContent;
             if (dh != "新单据") {
                 let data = dh_data(dh);
-                fetch(`/${code}/fetch_document`, {
+                fetch(`/fetch_document`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -154,7 +154,7 @@ function document_top_handle(html, has_date) {
 
 //供应商自动完成
 let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
-    customer_supplier, `/${code}/customer_auto`, () => {
+    customer_supplier, `/customer_auto`, () => {
         supplier_auto_show();
     });
 
@@ -186,17 +186,17 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
                         <div class="table-ctrl">
                             <div class="tools-button"></div>
                             <div class="table-button">
-                                <button class="page-button btn" id="first" title="首页"><img src="/${code}/assets/img/backward.png"
+                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
                                         width="12px"></button>
-                                <button class="page-button btn" id="pre" title="前一页"><img src="/${code}/assets/img/backward2.png"
+                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
                                         width="12px"></button>
                                 <p class="seperator"></p>
                                 <span>第</span><input type="text" class="form-control" id="page-input" value="1">
                                 <span>页，共</span><span id="pages"></span><span>页</span>
                                 <p class="seperator"></p>
-                                <button class="page-button btn" id="aft" title="后一页"><img src="/${code}/assets/img/forward2.png"
+                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
                                         width="12px"></button>
-                                <button class="page-button btn" id="last" title="尾页"><img src="/${code}/assets/img/forward.png"
+                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
                                         width="12px"></button>
                             </div>
 
@@ -210,7 +210,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
         document.querySelector('.modal-body').innerHTML = html;
 
-        fetch(`/${code}/fetch_inout_fields`, {
+        fetch(`/fetch_inout_fields`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -227,7 +227,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
                 let init_data = {
                     container: '.table-customer',
-                    url: `/${code}/fetch_inout_customer`,
+                    url: `/fetch_inout_customer`,
                     header_names: data.header_names,
                     post_data: {
                         id: "",
@@ -249,7 +249,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
             });
 
         let auto_complete = new AutoInput(document.querySelector('#search-input'),
-            customer_supplier, `/${code}/customer_auto`, () => {
+            customer_supplier, `/customer_auto`, () => {
                 search_table();
             });
 
@@ -272,7 +272,7 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 let show_names, all_width, ware_option, ware_value, direct_check,
     product_table_fields, table_lines, blank_row, sale_cut;
 
-fetch(`/${code}/fetch_inout_fields`, {
+fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -349,7 +349,7 @@ fetch(`/${code}/fetch_inout_fields`, {
         }
         else {
             let data = dh_data(dh);
-            fetch(`/${code}/fetch_document_items`, {
+            fetch(`/fetch_document_items`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -574,7 +574,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     // console.log(data);
 
-    fetch(`/${code}/save_document`, {
+    fetch(`/save_document`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -602,7 +602,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     };
 
     let id = document.querySelector('#print-choose').value;
-    fetch(`/${code}/fetch_provider_model`, {
+    fetch(`/fetch_provider_model`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -624,7 +624,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                                 new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
                                 new hiprint.PrintElementTypeGroup("自定义", [
                                     { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
-                                    { tid: 'configModule.image', title: '图片', data: `/${code}/assets/img/logo.png`, type: 'image' },
+                                    { tid: 'configModule.image', title: '图片', data: `/assets/img/logo.png`, type: 'image' },
                                     {
                                         tid: 'configModule.tableCustom',
                                         title: '表格',
@@ -770,7 +770,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         confirmText: "确认",
         cancelText: "取消",
         confirmCallBack: () => {
-            fetch(`/${code}/make_formal`, {
+            fetch(`/make_formal`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -894,7 +894,7 @@ function fetch_print_models(value) {
         print_id = 5;
     }
 
-    fetch(`/${code}/fetch_models`, {
+    fetch(`/fetch_models`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -1127,7 +1127,7 @@ function build_input_row(show_names, all_width, num) {
     //构造商品规格自动完成
     let [...show_th] = show_names;
     show_th.push({ name: "库存", width: 60 });
-    auto_table(auto_input, "", `/${code}/buyin_auto`, show_th, () => {
+    auto_table(auto_input, "", `/buyin_auto`, show_th, () => {
         fill_gg(auto_input, input_row);
     });
 
@@ -1161,7 +1161,7 @@ function build_input_row(show_names, all_width, num) {
                         <div class="tree-show">
                             <div class="autocomplete table-top">
                                 <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
-                                <button id="auto_search" class="btn btn-info btn-sm"><img src="/${code}/assets/img/zoom.png"
+                                <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
                                         width="20px"></button>
                             </div>
                             <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
@@ -1194,17 +1194,17 @@ function build_input_row(show_names, all_width, num) {
                                 <div class="table-ctrl">
                                     <div class="tools-button"></div>
                                     <div class="table-button">
-                                        <button class="page-button btn" id="first" title="首页"><img src="/${code}/assets/img/backward.png"
+                                        <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
                                                 width="12px"></button>
-                                        <button class="page-button btn" id="pre" title="前一页"><img src="/${code}/assets/img/backward2.png"
+                                        <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
                                                 width="12px"></button>
                                         <p class="seperator"></p>
                                         <span>第</span><input type="text" class="form-control" id="page-input" value="1">
                                         <span>页，共</span><span id="pages"></span><span>页</span>
                                         <p class="seperator"></p>
-                                        <button class="page-button btn" id="aft" title="后一页"><img src="/${code}/assets/img/forward2.png"
+                                        <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
                                                 width="12px"></button>
-                                        <button class="page-button btn" id="last" title="尾页"><img src="/${code}/assets/img/forward.png"
+                                        <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
                                                 width="12px"></button>
                                     </div>
                 
@@ -1251,7 +1251,7 @@ function build_input_row(show_names, all_width, num) {
 
             let input = document.querySelector('#auto_input');
 
-            let auto_com = new AutoInput(input, "", `/${code}/tree_auto`, () => {
+            let auto_com = new AutoInput(input, "", `/tree_auto`, () => {
                 tree_search(input.value);
             });
 
@@ -1325,7 +1325,7 @@ function fill_gg(auto_input, input_row) {
 
 //构造仓库下拉选单，并记住 option 内容
 function build_ware_house(input_row, value) {
-    fetch(`/${code}/fetch_house`)
+    fetch(`/fetch_house`)
         .then(response => response.json())
         .then(content => {
             ware_option = "";
@@ -1390,7 +1390,7 @@ function add_line(show_names, all_width) {
     }
 
     //获取历史交易记录
-    fetch(`/${code}/fetch_history`, {
+    fetch(`/fetch_history`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -1475,7 +1475,7 @@ function supplier_auto_show() {
         id: Number(document.querySelector('#supplier-input').getAttribute('data')),
     };
 
-    fetch(`/${code}/fetch_supplier`, {
+    fetch(`/fetch_supplier`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -1556,7 +1556,7 @@ function chose_exit(selected_row) {
             close_modal();
         }
         else {
-            fetch(`/${code}/fetch_one_product`, {
+            fetch(`/fetch_one_product`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",

@@ -63,7 +63,7 @@ function blank_row_fn() {
 }
 
 function fetch_data(data) {
-    fetch(`/${code}/fetch_fields`, {
+    fetch(`/fetch_fields`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -123,7 +123,7 @@ function fetch_data(data) {
 }
 
 function fetch_data2(data) {
-    fetch(`/${code}/fetch_fields2`, {
+    fetch(`/fetch_fields2`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -254,7 +254,7 @@ sumit_button.addEventListener('click', () => {
         }
     }
 
-    fetch(`/${code}/update_tableset`, {
+    fetch(`/update_tableset`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -292,7 +292,7 @@ sumit_button2.addEventListener('click', () => {
         }
     }
 
-    fetch(`/${code}/update_tableset2`, {
+    fetch(`/update_tableset2`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

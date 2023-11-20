@@ -28,7 +28,7 @@ let table_fields;
 
 let init_data = {
     container: '.table-customer',
-    url: `/${code}/fetch_customer`,
+    url: `/fetch_customer`,
     post_data: {
         id: "",
         name: '',
@@ -42,7 +42,7 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch(`/${code}/fetch_fields`, {
+fetch(`/fetch_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -172,7 +172,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 cate: cus_cate,
             };
 
-            let url = global.eidt_cate == "edit" ? `/${code}/update_customer` : `/${code}/add_customer`;
+            let url = global.eidt_cate == "edit" ? `/update_customer` : `/add_customer`;
 
             fetch(url, {
                 method: 'post',
@@ -203,7 +203,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         }
     }
     else {
-        let url = global.eidt_cate == "批量导入" ? `/${code}/customer_addin` : `/${code}/customer_updatein`;
+        let url = global.eidt_cate == "批量导入" ? `/customer_addin` : `/customer_updatein`;
         fetch(url, {
             method: 'post',
             headers: {
@@ -271,7 +271,7 @@ function leave_alert() {
 //数据导入和导出 ------------------------------------------------------------------------------
 
 document.querySelector('#data-out').addEventListener('click', function () {
-    fetch(`/${code}/customer_out`, {
+    fetch(`/customer_out`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -281,7 +281,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                download_file(`/${code}/download/${content}.xlsx`);
+                download_file(`/download/${content}.xlsx`);
                 notifier.show('成功导出至 Excel 文件', 'success');
             }
             else {
@@ -316,7 +316,7 @@ function data_in(fileBtn, info1, info2, cate) {
     if (checkFileType(fileBtn)) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
-        let url = cus_cate == "客户" ? `/${code}/customer_in` : `/${code}/supplier_in`;
+        let url = cus_cate == "客户" ? `/customer_in` : `/supplier_in`;
         
         fetch(url, {
             method: 'POST',

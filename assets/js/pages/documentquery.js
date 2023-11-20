@@ -16,22 +16,22 @@ let row_num = Math.floor(get_height / 30);
 let document_cate, address;
 if (cate == "采购查询") {
     document_cate = "采购单据";
-    address = `/${code}/buy_in/`;
+    address = `/buy_in/`;
 }
 else if (cate == "销售查询") {
     document_cate = "销售单据";
-    address = `/${code}/sale/`;
+    address = `/sale/`;
 }
 else {
     document_cate = "库存调整";
-    address = `/${code}/stock_change/`;
+    address = `/stock_change/`;
 }
 
 let table_fields;
 
 let init_data = {
     container: '.table-documents',
-    url: `/${code}/fetch_all_documents`,
+    url: `/fetch_all_documents`,
     post_data: {
         id: "",
         name: '',
@@ -45,7 +45,7 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch(`/${code}/fetch_inout_fields`, {
+fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -147,7 +147,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 });
 
 function remember(rem) {
-    fetch(`/${code}/update_rem`, {
+    fetch(`/update_rem`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -190,7 +190,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
     if (id != "") {
         alert_confirm(`确认删除单据 ${id} 吗？`, {
             confirmCallBack: () => {
-                fetch(`/${code}/documents_del`, {
+                fetch(`/documents_del`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
