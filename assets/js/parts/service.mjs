@@ -306,7 +306,7 @@ export function build_inout_form(table_fields, data) {
 export function build_product_table(row_num, cb) {
     let init_data = {
         container: '.table-product',
-        url: `/${code}/fetch_blank`,
+        url: `/fetch_blank`,
         post_data: {
             id: "",
             name: '',
@@ -320,7 +320,7 @@ export function build_product_table(row_num, cb) {
         blank_row_fn: blank_row,
     };
 
-    fetch(`/${code}/fetch_fields`, {
+    fetch(`/fetch_fields`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -348,7 +348,7 @@ export function build_product_table(row_num, cb) {
                 fetch_table();
 
                 let data = {
-                    url: `/${code}/fetch_product`,
+                    url: `/fetch_product`,
                 }
 
                 let post_data = {
@@ -377,7 +377,7 @@ export function build_product_table(row_num, cb) {
     let search_input = document.querySelector('#search-input');
     let cate = document.querySelector('#product-id');
 
-    let auto_comp = new AutoInput(search_input, cate, `/${code}/product_auto`, () => {
+    let auto_comp = new AutoInput(search_input, cate, `/product_auto`, () => {
         search_table();
     });
 
