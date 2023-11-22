@@ -332,7 +332,12 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                             sql += &format!("'{}',", r[(j + 1, i + 2)]);
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
-                            sql += &format!("{},", r[(j + 1, i + 2)]);
+                            let num = format!("{}", r[(j + 1, i + 2)]);
+                            if num != "" {
+                                sql += &format!("{},", num);
+                            } else {
+                                sql += &format!("{},", "0");
+                            }
                         } else {
                             let op: Vec<&str> = fields[i].option_value.split("_").collect();
                             let val = if format!("{}", r[(j + 1, i + 2)]) == op[0] {

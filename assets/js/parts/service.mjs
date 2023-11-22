@@ -125,10 +125,10 @@ export function build_row_from_string(rec, row, table_fields, n) {
         if (name.data_type == "文本") {
             row += `<td  title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
-            row += `<td style="text-align: right;">${rec[n]}</td>`;
+            row += `<td>${rec[n]}</td>`;
         }
         else {
-            row += `<td style="text-align: center;">${rec[n]}</td>`;
+            row += `<td>${rec[n]}</td>`;
         }
         n++;
     }
@@ -362,7 +362,7 @@ export function build_product_table(row_num, cb) {
 
     function table_row(tr) {
         let rec = tr.split(SPLITER);
-        let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
+        let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td>`;
         let row_build = build_row_from_string(rec, row, table_fields);
         let rows = row_build.replace("</tr>", `<td>${rec[rec.length - 2]}</td></tr>`);  //将库存加入
         return rows;

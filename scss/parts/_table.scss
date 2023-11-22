@@ -1,133 +1,138 @@
 /* 基本的table样式 */
 .table-container {
-  border: 1.8px solid $table-border-color;
-  border-radius: 8px;
+    border: 1.8px solid $table-border-color;
+    border-radius: 8px;
 
-  table {
-    font-size: 14px;
-    border-collapse: collapse;
-    border-spacing: 0;
-    width: 100%;
-    table-layout: fixed;
+    table {
+        font-size: 14px;
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        table-layout: fixed;
 
-    td,
-    th {
-      vertical-align: middle;
-      border: 1px solid $table-border-color;
-      border-top: none;
-      padding: 2px 6.3px;
-      line-height: 20px;
-      word-break: keep-all; /* 不换行 */
-      white-space: nowrap; /* 不换行 */
-      overflow: hidden;
-      text-overflow: ellipsis;
+        td,
+        th {
+            text-align: center;
+            vertical-align: middle;
+            border: 1px solid $table-border-color;
+            border-top: none;
+            padding: 2px 6.3px;
+            line-height: 20px;
+            word-break: keep-all; /* 不换行 */
+            white-space: nowrap; /* 不换行 */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        td:nth-child(1),
+        th:nth-child(1) {
+            border-left: none !important;
+        }
+
+        td:nth-last-child(1),
+        th:nth-last-child(1) {
+            border-right: none;
+        }
+
+        tr:nth-last-child(1) {
+            border-bottom: none;
+        }
+
+        thead th {
+            color: #333333;
+            // background: $info-400;
+            height: 36px;
+            cursor: pointer;
+        }
+
+        tr {
+            height: 30px;
+        }
+
+        tr:hover {
+            background-color: $table-hover-color;
+        }
+
+        .focus {
+            background-color: $table-focus-color;
+        }
+
+        input {
+            text-align: center;
+        }
     }
 
-    td:nth-child(1),
-    th:nth-child(1) {
-      border-left: none !important;
+    .table-ctrl {
+        height: 50px;
+        // background-color: #edf5fb;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        // border: 1.4px solid #ededed;
+        // border-top: none;
     }
 
-    td:nth-last-child(1),
-    th:nth-last-child(1) {
-      border-right: none;
+    .tools-button {
+        width: 20%;
+        margin-left: 20px;
     }
 
-    tr:nth-last-child(1) {
-      border-bottom: none;
+    .page-button {
+        width: 30px;
+        height: 30px;
+        padding: 0.4rem 0.6rem !important;
+        margin: 0 3px;
+
+        &:hover {
+            background-color: $primary-700;
+        }
+
+        &:disabled {
+            background-color: $primary-100;
+            cursor: default;
+        }
     }
 
-    thead th {
-      color: #333333;
-      // background: $info-400;
-      height: 36px;
-      cursor: pointer;
+    .table-button {
+        display: flex;
+        align-items: center;
+
+        span {
+            display: inline-block;
+            margin-bottom: 3px;
+        }
     }
 
-    tr {
-      height: 30px;
+    #page-input,
+    #page-input2 {
+        width: 40px;
+        height: 15px;
+        text-align: center;
+        padding: 0.5rem 0.2rem;
+        margin: 0 3px;
+
+        &:hover,
+        &:focus {
+            border-color: $primary-400;
+        }
     }
 
-    tr:hover {
-      background-color: $table-hover-color;
+    .table-info {
+        width: 20%;
+        text-align: right;
+        padding-right: 15px;
     }
 
-    .focus {
-      background-color: $table-focus-color;
-    }
-  }
-
-  .table-ctrl {
-    height: 50px;
-    // background-color: #edf5fb;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    // border: 1.4px solid #ededed;
-    // border-top: none;
-  }
-
-  .tools-button {
-    width: 20%;
-    margin-left: 20px;
-  }
-
-  .page-button {
-    width: 30px;
-    height: 30px;
-    padding: 0.4rem 0.6rem !important;
-    margin: 0 3px;
-
-    &:hover {
-      background-color: $primary-700;
+    #pages,
+    #pages2 {
+        display: inline-block;
+        margin-left: 3px;
+        margin-right: 3px;
     }
 
-    &:disabled {
-      background-color: $primary-100;
-      cursor: default;
+    .seperator {
+        height: 15px;
+        border-right: 2px solid #ccc;
+        margin: 0 5px;
     }
-  }
-
-  .table-button {
-    display: flex;
-    align-items: center;
-
-    span {
-      display: inline-block;
-      margin-bottom: 3px;
-    }
-  }
-
-  #page-input,
-  #page-input2 {
-    width: 40px;
-    height: 15px;
-    text-align: center;
-    padding: 0.5rem 0.2rem;
-    margin: 0 3px;
-
-    &:hover,
-    &:focus {
-      border-color: $primary-400;
-    }
-  }
-
-  .table-info {
-    width: 20%;
-    text-align: right;
-    padding-right: 15px;
-  }
-
-  #pages,
-  #pages2 {
-    display: inline-block;
-    margin-left: 3px;
-    margin-right: 3px;
-  }
-
-  .seperator {
-    height: 15px;
-    border-right: 2px solid #ccc;
-    margin: 0 5px;
-  }
 }

@@ -317,7 +317,7 @@ function gener_tree(tree_node, data) {
     if (data.length > 0) {
         for (let i in data) {
             var node = document.createElement('li');
-            node.setAttribute('id', data[i].num);
+            node.setAttribute('id', 't_' + data[i].num);
             node.setAttribute('draggable', 'true');
             if (data[i].children.length > 0) {
                 node.innerHTML = '<span class="item" data-num="' + data[i].num + '">' + data[i].node_name + '</span>';

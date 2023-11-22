@@ -1,4 +1,4 @@
-$mini-wd: 305px;
+$mini-wd: 280px;
 .tree-show {
   height: 95%;
   width: $mini-wd;
@@ -56,7 +56,7 @@ $mini-wd: 305px;
   border-radius: 3px;
   height: 90%;
   overflow-y: auto;
-  overflow-x: auto;
+  overflow-x: hidden;
   // max-height: 560px;
   max-width: $mini-wd;
 }

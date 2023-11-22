@@ -347,3 +347,8 @@ function data_in(fileBtn, info1, info2, cate) {
         notifier.show('需要 excel 文件', 'danger');
     }
 }
+
+setTimeout(() => {
+    document.querySelector('#t_4 span').click();    
+    document.querySelector('#t_3 span').click();    
+}, 100);

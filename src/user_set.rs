@@ -4,7 +4,7 @@ use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
 use crypto::md5::Md5;
 use deadpool_postgres::{Client, Pool};
-use dotenv::dotenv;
+// use dotenv::dotenv;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
@@ -153,11 +153,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 #[get("/logout")]
 pub fn logout(id: Identity) -> HttpResponse {
     id.forget();
-    dotenv().ok();
-    let goto_login = format!("/{}/login", dotenv::var("code").unwrap());
-    HttpResponse::Found()
-        .header("location", goto_login)
-        .finish()
+    HttpResponse::Found().header("location", "/login").finish()
 }
 
 ///更改用户密码
