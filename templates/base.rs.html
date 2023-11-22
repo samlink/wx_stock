@@ -4,158 +4,184 @@
 <html lang="zh-CN">
 
 <head>
-  <meta charset="utf-8">
-  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
-  <link rel="stylesheet" href="/assets/plugins/font-awesome/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="/assets/css/sales.css" />
-  <title id='title-show'>码行仓储销售</title>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+    <link rel="stylesheet" href="/assets/plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/sales.css" />
+    <title id='title-show'>码行仓储销售</title>
 </head>
 
 <body class="@theme">
-  <div class="header">
-    <div id="logo">
-      <a href="/">
-        <img width="80px" />
-        <span id="title">仓储销售管理</span></a>
-    </div>
-    <div id="menu">
-      <ul class="menu-ul">
-        <li class="menu-li" id="goods-in">
-          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-retweet"></i><span
-              class="menu-text">商品出入库</span></a>
-          <div class="sub-menu">
-            <b class="caret fa fa-caret-up"></b>
-            <ul class="sub-ul">
-              <li class="nav-item"><a class="nav-link" href="/buy_in/new"><span class="nav-text">商品采购</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/sale/new"><span class="nav-text">商品销售</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/stock_change/new"><span
-                    class="nav-text">库存调整</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/buy_query"><span class="nav-text">采购查询</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/sale_query"><span class="nav-text">销售查询</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/change_query"><span class="nav-text">调整查询</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/stock_query"><span class="nav-text">库存检查</span></a>
-              </li>
-            </ul>
-          </div>
-        </li>
-        <li class="menu-li" id="customers">
-          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-user"></i><span
-              class="menu-text">客户供应商</span></a>
-          <div class="sub-menu">
-            <b class="caret fa fa-caret-up"></b>
-            <ul class="sub-ul">
-              <li class="nav-item"><a class="nav-link" href="/customer_manage"><span
-                    class="nav-text">客户管理</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/supplier_manage"><span
-                    class="nav-text">供应商管理</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/business_query"><span
-                    class="nav-text">业务往来</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/debt"><span class="nav-text">债务结算</span></a></li>
-            </ul>
-          </div>
-        </li>
-        <li class="menu-li" id="statics">
-          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-bar-chart"></i><span
-              class="menu-text">统计分析</span></a>
-          <div class="sub-menu">
-            <b class="caret fa fa-caret-up"></b>
-            <ul class="sub-ul">
-              <li class="nav-item"><a class="nav-link" href="/analys"><span class="nav-text">综合分析</span></a></li>
-              <li class="nav-item"><a class="nav-link" href="/statistic"><span class="nav-text">销售统计</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/cost"><span class="nav-text">库存成本</span></a></li>
-            </ul>
-          </div>
-        </li>
-        <li class="menu-li" id="function-set">
-          <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-wrench"></i><span
-              class="menu-text">功能设置</span></a>
-          <div class="sub-menu">
-            <b class="caret fa fa-caret-up"></b>
-            <ul class="sub-ul">
-              <li class="nav-item"><a class="nav-link" href="/product_set"><span class="nav-text">商品设置</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/user_manage"><span class="nav-text">用户设置</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/warehouse_set"><span
-                    class="nav-text">仓库设置</span></a></li>
-              <li class="nav-item"><a class="nav-link" href="/field_set"><span class="nav-text">字段设置</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/report_design"><span
-                    class="nav-text">报表设计</span></a></li>
-              <li class="nav-item"><a class="nav-link" href="/system_set"><span class="nav-text">系统参数</span></a>
-              </li>
-              <li class="nav-item"><a class="nav-link" href="/help"><span class="nav-text">帮助信息</span></a></li>
-            </ul>
-          </div>
-        </li>
-      </ul>
-
-      <div id="user">
-        <a href="/user_set" id="user-name">@user</a>
-        <a id="exit" href="/logout" title="退出"><i class="nav-icon fa fa-sign-out"></i></a>
-      </div>
-    </div>
-  </div>
-
-  <div class="content">
-    @:content()
-  </div>
-
-  <div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
-    <div class="roar-alert-mask"></div>
-    <div class="roar-alert-message-body" role="alert" aria-relevant="all">
-      <div class="roar-alert-message-tbf roar-alert-message-content"></div>
-      <div class="roar-alert-message-tbf roar-alert-message-button">
-        <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-confirm"></a>
-        <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-cancel"></a>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal" id="for-click-close">
-    <div class="modal-dialog">
-      <div class="modal-content">
-
-        <div class="modal-header">
-          <p class="modal-title"></p>
-
-          <button type="button" class="top-close close">
-            <span>&times;</span>
-          </button>
+    <div class="header">
+        <div id="logo">
+            <a href="/">
+                <img width="80px" />
+                <span id="title">仓储销售管理</span></a>
         </div>
+        <div id="menu">
+            <ul class="menu-ul">
+                <li class="menu-li" id="goods-in">
+                    <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-retweet"></i><span
+                            class="menu-text">采购销售</span></a>
+                    <div class="sub-menu">
+                        <b class="caret fa fa-caret-up"></b>
+                        <ul class="sub-ul">
+                            <li class="nav-item"><a class="nav-link" href="/buy_in/new"><span
+                                        class="nav-text">商品采购</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/sale/new"><span
+                                        class="nav-text">商品销售</span></a>
+                            </li>
 
-        <div class="modal-body"></div>
+                            <li class="nav-item"><a class="nav-link" href="/buy_query"><span
+                                        class="nav-text">采购查询</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/sale_query"><span
+                                        class="nav-text">销售查询</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="menu-li" id="goods-in">
+                    <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-retweet"></i><span
+                            class="menu-text">库存管理</span></a>
+                    <div class="sub-menu">
+                        <b class="caret fa fa-caret-up"></b>
+                        <ul class="sub-ul">
+                            <li class="nav-item"><a class="nav-link" href="/product_set"><span
+                                        class="nav-text">库存查询</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/stock_change/new"><span
+                                        class="nav-text">库存调整</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/change_query"><span
+                                        class="nav-text">调整查询</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/stock_query"><span
+                                        class="nav-text">库存检查</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="menu-li" id="customers">
+                    <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-user"></i><span
+                            class="menu-text">客户供应商</span></a>
+                    <div class="sub-menu">
+                        <b class="caret fa fa-caret-up"></b>
+                        <ul class="sub-ul">
+                            <li class="nav-item"><a class="nav-link" href="/customer_manage"><span
+                                        class="nav-text">客户管理</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/supplier_manage"><span
+                                        class="nav-text">供应商管理</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/business_query"><span
+                                        class="nav-text">业务往来</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/debt"><span class="nav-text">债务结算</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="menu-li" id="statics">
+                    <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-bar-chart"></i><span
+                            class="menu-text">统计分析</span></a>
+                    <div class="sub-menu">
+                        <b class="caret fa fa-caret-up"></b>
+                        <ul class="sub-ul">
+                            <li class="nav-item"><a class="nav-link" href="/analys"><span
+                                        class="nav-text">综合分析</span></a></li>
+                            <li class="nav-item"><a class="nav-link" href="/statistic"><span
+                                        class="nav-text">销售统计</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/cost"><span class="nav-text">库存成本</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="menu-li" id="function-set">
+                    <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-wrench"></i><span
+                            class="menu-text">功能设置</span></a>
+                    <div class="sub-menu">
+                        <b class="caret fa fa-caret-up"></b>
+                        <ul class="sub-ul">
 
-        <div class="modal-footer">
-          <div id="modal-info"></div>
-          <button type="button" class="btn btn-info" id="modal-sumit-button">
-            提交
-          </button>
-          <button type="button" class="btn btn-second" id="modal-close-button">
-            返回
-          </button>
+                            <li class="nav-item"><a class="nav-link" href="/user_manage"><span
+                                        class="nav-text">用户设置</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/warehouse_set"><span
+                                        class="nav-text">仓库设置</span></a></li>
+                            <li class="nav-item"><a class="nav-link" href="/field_set"><span
+                                        class="nav-text">字段设置</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/report_design"><span
+                                        class="nav-text">报表设计</span></a></li>
+                            <li class="nav-item"><a class="nav-link" href="/system_set"><span
+                                        class="nav-text">系统参数</span></a>
+                            </li>
+                            <li class="nav-item"><a class="nav-link" href="/help"><span class="nav-text">帮助信息</span></a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+
+            <div id="user">
+                <a href="/user_set" id="user-name">@user</a>
+                <a id="exit" href="/logout" title="退出"><i class="nav-icon fa fa-sign-out"></i></a>
+            </div>
         </div>
-
-      </div>
     </div>
-  </div>
 
-  <footer>
-    <p><a href="http://www.marthing.com" target="_blank"> 码行（北京）技术有限公司 </a>
-      &#169; @now().strftime("%Y").unwrap().to_string()
-    </p>
-  </footer>
-  <script src="/assets/js/pages/general.js"></script>
+    <div class="content">
+        @:content()
+    </div>
+
+    <div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
+        <div class="roar-alert-mask"></div>
+        <div class="roar-alert-message-body" role="alert" aria-relevant="all">
+            <div class="roar-alert-message-tbf roar-alert-message-content"></div>
+            <div class="roar-alert-message-tbf roar-alert-message-button">
+                <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-confirm"></a>
+                <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-cancel"></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="for-click-close">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <p class="modal-title"></p>
+
+                    <button type="button" class="top-close close">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body"></div>
+
+                <div class="modal-footer">
+                    <div id="modal-info"></div>
+                    <button type="button" class="btn btn-info" id="modal-sumit-button">
+                        提交
+                    </button>
+                    <button type="button" class="btn btn-second" id="modal-close-button">
+                        返回
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p><a href="http://www.marthing.com" target="_blank"> 码行（北京）技术有限公司 </a>
+            &#169; @now().strftime("%Y").unwrap().to_string()
+        </p>
+    </footer>
+    <script src="/assets/js/pages/general.js"></script>
 </body>
 
 </html>
