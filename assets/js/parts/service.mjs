@@ -310,7 +310,7 @@ export function build_product_table(row_num, cb) {
         post_data: {
             id: "",
             name: '',
-            sort: "规格型号 ASC",
+            sort: "文本字段1 ASC",
             rec: row_num,
             cate: '',
         },
@@ -374,14 +374,14 @@ export function build_product_table(row_num, cb) {
     }
 
     //搜索规格
-    let search_input = document.querySelector('#search-input');
-    let cate = document.querySelector('#product-id');
+    // let search_input = document.querySelector('#search-input');
+    // let cate = document.querySelector('#product-id');
 
-    let auto_comp = new AutoInput(search_input, cate, `/product_auto`, () => {
-        search_table();
-    });
+    // let auto_comp = new AutoInput(search_input, cate, `/product_auto`, () => {
+    //     search_table();
+    // });
 
-    auto_comp.init();
+    // auto_comp.init();
 
     document.querySelector('#serach-button').addEventListener('click', function () {
         search_table();

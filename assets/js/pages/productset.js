@@ -44,7 +44,12 @@ let tree_data = {
 }
 
 tree_init(tree_data);
-fetch_tree();
+fetch_tree(open_node);
+
+function open_node() {
+    document.querySelector('#t_4 span').click();
+    document.querySelector('#t_3 span').click();
+}
 
 let input = document.querySelector('#auto_input');
 
@@ -58,9 +63,9 @@ document.querySelector("#auto_search").addEventListener('click', () => {
     tree_search(input.value);
 });
 
-document.querySelector(".tree-title").addEventListener('click', () => {
-    fetch_tree();
-});
+// document.querySelector(".tree-title").addEventListener('click', () => {
+//     fetch_tree();
+// });
 
 //商品规格表格数据 -------------------------------------------------------------------
 
@@ -347,8 +352,3 @@ function data_in(fileBtn, info1, info2, cate) {
         notifier.show('需要 excel 文件', 'danger');
     }
 }
-
-setTimeout(() => {
-    document.querySelector('#t_4 span').click();    
-    document.querySelector('#t_3 span').click();    
-}, 100);

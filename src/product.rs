@@ -23,7 +23,11 @@ pub async fn fetch_product(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
-        let name = post_data.name.to_lowercase();
+        let conditions = "".to_owned();
+        if post_data.name != "" {
+            let name: Vec<&str> = post_data.name.to_lowercase().split(" ").collect();
+            conditions = format!(r#"AND LOWER(规格型号) LIKE '%{}%' OR LOWER() LIKE '%{}%'"#,)
+        }
 
         let fields = get_fields(db.clone(), "商品规格").await;
 

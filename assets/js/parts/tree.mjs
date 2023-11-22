@@ -16,7 +16,7 @@ var selected_node, menu, zhezhao;
 var input_html = '<input type="text" id="input_node" value="新节点">';
 
 //从数据库获取 tree 数据
-export var fetch_tree = function () {
+export var fetch_tree = function (func) {
     fetch(`/tree`)
         .then(response => response.json())
         .then(data => {
@@ -36,8 +36,8 @@ export var fetch_tree = function () {
                 });
             }
 
-            if (typeof global.fech_call == "function") {
-                fech_call();
+            if (typeof func == "function") {
+                func();
             }
         });
 }
