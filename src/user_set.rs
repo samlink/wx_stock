@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct User {
+    area: String,
     name: String,
     password: String,
 }
@@ -69,8 +70,8 @@ pub async fn logon(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
         let _ = &conn
             .execute(
-                r#"INSERT INTO users (name, password) VALUES($1,$2)"#,
-                &[&user.name, &md5_pass],
+                r#"INSERT INTO users (area, name, password) VALUES($1, $2, $3)"#,
+                &[&user.area, &user.name, &md5_pass],
             )
             .await
             .unwrap();
@@ -112,11 +113,12 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
             let rows = &conn
                 .query(
-                    r#"SELECT name FROM users Where name=$1 AND password=$2"#,
-                    &[&user.name, &md5_pass],
+                    r#"SELECT name FROM users Where name=$1 AND password=$2 AND area=$3"#,
+                    &[&user.name, &md5_pass, &user.area],
                 )
                 .await
                 .unwrap();
+
             if !rows.is_empty() {
                 for row in rows {
                     name = row.get("name");

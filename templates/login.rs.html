@@ -4,67 +4,82 @@
 <html lang="zh-CN">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="initial-scale=1">
-  <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
-  <link rel="stylesheet" type="text/css" href="/assets/css/login.css" />
-  <title id='title-show'>仓储销售管理</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1">
+    <link rel="shortcut icon" type="favicon" href="/assets/img/favicon.png" />
+    <link rel="stylesheet" type="text/css" href="/assets/css/login.css" />
+    <title id='title-show'>仓储销售管理</title>
 </head>
 
 <body>
-  <div class="top">
-    <div id="logo">
-      <img src="/assets/img/logo_blue.png" />
-      <span id="title">仓储销售管理</span>
-    </div>
-    <div class="menu-log" id="logon"> <a href="javascript:;">注册新用户</a></div>
-    <div class="menu-log" id="login" style="display: none;"><a href="javascript:;">用户登录</a></div>
-  </div>
-  <div class="main" style="background: url(/assets/img/pattern-1.svg) no-repeat center bottom fixed;">
-    <div id="login-form" class="log-show">
-      <form>
-        <div class="form-group">
-          <label for="uname">用户名</label>
-          <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="login-name" required>
+    <div class="top">
+        <div id="logo">
+            <img src="/assets/img/logo_blue.png" />
+            <span id="title">仓储销售管理</span>
         </div>
-        <div class="form-group">
-          <label for="psw">密码</label>
-          <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="login-pass" required>
+        <div class="menu-log" id="logon"> <a href="javascript:;">注册新用户</a></div>
+        <div class="menu-log" id="login" style="display: none;"><a href="javascript:;">用户登录</a></div>
+    </div>
+    <div class="main" style="background: url(/assets/img/pattern-1.svg) no-repeat center bottom fixed;">
+        <div id="login-form" class="log-show">
+            <form>
+                <div class="form-group">
+                    <label for="uname">区域</label>
+                    <select id="area" class="select-large">
+                        <option value="天津">天津</option>
+                        <option value="武汉">武汉</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="uname">用户名</label>
+                    <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="login-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="psw">密码</label>
+                    <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="login-pass" required>
+                </div>
+
+                <div class="form-group to-center">
+                    <button type="submit" id="login-button">登录</button>
+                </div>
+                <div class="psw to-center">忘记了密码？<a href="javascript:;" id="forget-pass">点此找回</a></div>
+            </form>
+        </div>
+        <div id="logon-form" class="log-show" style="display: none;">
+            <form>
+                <div class="form-group">
+                    <label for="area">区域</label>
+                    <select id="area" class="select-large">
+                        <option value="天津">天津</option>
+                        <option value="武汉">武汉</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="uname">用户名</label>
+                    <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="logon-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="psw">密码</label>
+                    <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="logon-pass" required>
+                </div>
+                <div class="form-group">
+                    <label for="psw">确认密码</label>
+                    <input class="form-control" type="password" placeholder="请再次输入密码" name="psw" id="logon-pass2"
+                        required>
+                </div>
+                <div class="to-center">
+                    <button type="submit" id="logon-button">注册</button>
+                </div>
+            </form>
         </div>
 
-        <div class="form-group to-center">
-          <button type="submit" id="login-button">登录</button>
-        </div>
-        <div class="psw to-center">忘记了密码？<a href="javascript:;" id="forget-pass">点此找回</a></div>
-      </form>
+        <footer>
+            <p><a href="https://www.marthing.com" target="_blank"> 码行（北京）技术有限公司</a>
+                授权 @compay 使用 &#169; @now().strftime("%Y").unwrap().to_string()
+            </p>
+        </footer>
     </div>
-    <div id="logon-form" class="log-show" style="display: none;">
-      <form>
-        <div class="form-group">
-          <label for="uname">用户名</label>
-          <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="logon-name" required>
-        </div>
-        <div class="form-group">
-          <label for="psw">密码</label>
-          <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="logon-pass" required>
-        </div>
-        <div class="form-group">
-          <label for="psw">确认密码</label>
-          <input class="form-control" type="password" placeholder="请再次输入密码" name="psw" id="logon-pass2" required>
-        </div>
-        <div class="to-center">
-          <button type="submit" id="logon-button">注册</button>
-        </div>
-      </form>
-    </div>
-
-    <footer>
-      <p><a href="https://www.marthing.com" target="_blank"> 码行（北京）技术有限公司</a>
-         授权 @compay 使用 &#169; @now().strftime("%Y").unwrap().to_string()
-      </p>
-    </footer>
-  </div>
-  <script type="module" src="/assets/js/pages/login.js"></script>
+    <script type="module" src="/assets/js/pages/login.js"></script>
 </body>
 
 </html>

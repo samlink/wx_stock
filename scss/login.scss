@@ -121,7 +121,7 @@ a {
         }
 
         .form-control {
-            height: calc(1.5em + 1.5rem + 2px);
+            height: 45px;
             padding: 0.75rem 1.5rem;
             font-size: 1rem;
             line-height: 1.5;
@@ -175,5 +175,17 @@ a {
         }
     }
 }
+
+.select-large {
+    font-size: 14px;
+    height: 45px;
+    width: 100%;
+    margin-top: 10px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background-color: #fff;
+    outline: none;
+    padding-left: 23px;
+  }
 
 @import "parts/notify";
