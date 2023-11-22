@@ -45,6 +45,8 @@ pub struct SendMessage {
 }
 
 static SALT: &str = "samlink82";
+static MAX_PASS: i32 = 6;
+static MAX_FAILED: i32 = 6;
 
 ///获取 md5 码
 fn md5(password: String, salt: &str) -> String {
@@ -85,7 +87,6 @@ pub async fn logon(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 #[post("/login")]
 pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> HttpResponse {
     let conn: Client = db.get().await.unwrap();
-    static MAX_FAILED: i32 = 6;
 
     let rows = &conn
         .query(
@@ -245,11 +246,10 @@ pub async fn change_theme(
 #[post("/forget_pass")]
 pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResponse {
     let conn = db.get().await.unwrap();
-    static MAX_PASS: i32 = 6;
 
     let rows = &conn
         .query(
-            r#"SELECT name, phone, get_pass FROM users Where name=$1 AND confirm=true"#,
+            r#"SELECT name, phone, get_pass, failed FROM users Where name=$1 AND confirm=true"#,
             &[&user.name],
         )
         .await
@@ -261,17 +261,21 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
         let mut user_name = "".to_owned();
         let mut phone = "".to_owned();
         let mut get_pass = 0i32;
+        let mut failed = 0i32;
 
         for row in rows {
             user_name = row.get("name");
             phone = row.get("phone");
             get_pass = row.get("get_pass");
+            failed = row.get("failed");
         }
 
         if phone == "" {
             HttpResponse::Ok().json(-2)
         } else if get_pass >= MAX_PASS {
             HttpResponse::Ok().json(-3)
+        } else if failed >= MAX_FAILED {
+            HttpResponse::Ok().json(-4)
         } else {
             let words = "abcdefghijklmnpqrstuvwxyz123456789";
             let mut new_pass = "".to_owned();

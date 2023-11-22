@@ -108,8 +108,8 @@ document.querySelector('#login-button').addEventListener('click', function (even
                 notifier.show('密码错误', 'danger');
                 setTimeout(() => notifier.show('还有 ' + data + ' 次机会', 'warning'), 500);
             }
-            else if (data == 0 || data == MAX_FAILED) {
-                notifier.show('用户已被锁定', 'danger');
+            else if (data == 0 || data >= MAX_FAILED) {
+                notifier.show('帐户被锁定，请联系管理员', 'danger');
             }
             else {
                 window.location = `/`;
@@ -126,6 +126,7 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
     }
 
     var user = {
+        area: "",
         name: name,
         password: ""
     }
@@ -147,6 +148,9 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
             }
             else if (data == -3) {
                 notifier.show('找回密码机会已用完', 'danger');
+            }
+            else if (data == -4) {
+                notifier.show('帐户被锁定，请联系管理员', 'danger');
             }
             else {
                 notifier.show('新密码已发送至预留手机号', 'success');

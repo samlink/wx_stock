@@ -26,7 +26,9 @@ pub struct SearchCate {
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub name: String,
+    pub duty: String,
     pub phone: String,
+    pub area: String,
     pub get_pass: i32,
     pub rights: String,
     pub confirm: bool,
@@ -105,7 +107,9 @@ where
 pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserData {
     let mut user = UserData {
         name: "".to_owned(),
+        duty: "".to_owned(),
         phone: "".to_owned(),
+        area: "".to_owned(),
         get_pass: 0,
         rights: "".to_owned(),
         confirm: false,
@@ -117,19 +121,22 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
         let conn = db.get().await.unwrap();
         let right = format!("%{}%", right);
         let rows = &conn
-        .query(
-            r#"SELECT name, phone, 6-get_pass as get_pass, rights, confirm, theme FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
-            &[&user_name, &right],
-        )
-        .await
-        .unwrap();
+            .query(
+                r#"SELECT name, duty, phone, area, 6-get_pass as get_pass, rights, confirm, theme 
+                FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
+                &[&user_name, &right],
+            )
+            .await
+            .unwrap();
 
         if rows.is_empty() {
             user
         } else {
             for row in rows {
                 user.name = row.get("name");
+                user.duty = row.get("duty");
                 user.phone = row.get("phone");
+                user.area = row.get("area");
                 user.get_pass = row.get("get_pass");
                 user.rights = row.get("rights");
                 user.confirm = row.get("confirm");

@@ -18,7 +18,9 @@ var data = {
     header_names: {
         '序号': 'confirm',                                                     //排序可选,若不需要排序,去掉此属性
         '用户名': 'name',
+        '职务': 'duty',
         '手机号': 'phone',
+        '区域': 'area',
         '工作权限': 'rights',
         '是否确认': 'confirm',
     },
@@ -26,7 +28,7 @@ var data = {
     post_data: {
         id: '',
         name: '',
-        sort: "confirm ASC, name",
+        sort: "confirm ASC, duty DESC",
         rec: row_num,
         cate: '',
     },
@@ -39,17 +41,19 @@ var data = {
             con = "未确认";
             color = "red";
         }
-        return `<tr><td>${tr.num}</td><td>${tr.name}</td><td>${tr.phone}</td><td title='${tr.rights}'>${tr.rights}</td>
-            <td><span class='confirm-info ${color}'>${con}</span></td></tr>`;
+
+        return `<tr><td>${tr.num}</td><td>${tr.name}</td>
+                <td>${tr.duty}</td><td>${tr.phone}</td><td>${tr.area}</td>
+                <td title='${tr.rights}'>${tr.rights}</td><td><span class='confirm-info ${color}'>${con}</span></td></tr>`;
     },
 
     blank_row_fn: function () {
-        return `<tr><td></td><td></td><td></td><td></td><td></td></tr>`;
+        return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
     },
 
     row_click: function (tr) {
         document.querySelector('.rights-top').textContent = `工作权限 - ${tr.children[1].textContent}：`;
-        let rights = tr.children[3].textContent;
+        let rights = tr.children[5].textContent;
         let rights_arr = rights.split("，");
         let rights_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
         for (let check of rights_checks) {
@@ -60,7 +64,7 @@ var data = {
             for (let check of rights_checks) {
                 if (right == check.value) {
                     check.checked = true;
-                    check.parentNode.setAttribute("style", "font-weight: 600;");
+                    check.parentNode.setAttribute("style", "font-weight: 600;color:#36ad82");
                     break;
                 }
             }
@@ -147,7 +151,7 @@ for (let mark of marks) {
 
 //编辑用户数据 -----------------------------------------------------------
 
-let confirm_save;  //取消时，恢复数据用
+let confirm_save, select_save;  //取消时，恢复数据用
 
 //编辑按钮
 document.querySelector('#edit-button').addEventListener('click', function () {
@@ -156,9 +160,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         notifier.show('请先选择用户', 'danger');
     }
     else {
-        let user_name = document.querySelector('#user-name').textContent;
-        let focus_name = focus.children[1].textContent;
-        if (user_name != "adm" && user_name != "admin" && focus_name == "adm") {
+        let duty = focus.children[2].textContent;
+        if (duty == "总经理") {
             notifier.show('无法编辑超级用户', 'danger');
         }
         else {
@@ -177,14 +180,25 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
             table_data.edit = true;
 
-            confirm_save = focus.children[4].textContent;
+            confirm_save = focus.children[6].textContent;
+            select_save = focus.children[2].textContent;
+
+            let select = "<select class='select-sm'>"
+            let options = ["销售", "库管", "主管"];
+            for (let value of options) {
+                let selected = value == select_save ? 'selected' : '';
+                select += `<option value="${value}" ${selected}>${value}</option>`;
+            }
+            select += "</select>";
+
+            focus.children[2].innerHTML = select;
 
             let confirm = confirm_save == "未确认" ? "" : "checked";
 
-            focus.children[4].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+            focus.children[6].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
                                                 <span class="checkmark"></span></label>`;
 
-            focus.children[4].setAttribute("style", "padding-top: 0;");
+            focus.children[6].setAttribute("style", "padding-top: 0;");
         }
     }
 });
@@ -207,10 +221,12 @@ document.querySelector('#cancel-button').addEventListener('click', function () {
 
     table_data.edit = false;
 
+    focus.children[2].innerHTML = select_save;
+
     let confirm = confirm_save == "未确认" ? '<span class="confirm-info red">未确认</span>' : '<span class="confirm-info green">已确认</span>';
 
-    focus.children[4].innerHTML = confirm;
-    focus.children[4].removeAttribute("style");
+    focus.children[6].innerHTML = confirm;
+    focus.children[6].removeAttribute("style");
 
     focus.click();
 });
@@ -218,7 +234,8 @@ document.querySelector('#cancel-button').addEventListener('click', function () {
 //提交按钮
 document.querySelector('#sumit-button').addEventListener('click', function () {
     let focus = document.querySelector('.table-users .focus');
-    let confirm = focus.children[4].querySelector('input').checked;
+    select_save = focus.querySelector('select').value;
+    let confirm = focus.children[6].querySelector('input').checked;
     let rights_checks = document.querySelectorAll('.rights-show tbody input[type=checkbox');
     let rights = "";
     for (let check of rights_checks) {
@@ -229,6 +246,7 @@ document.querySelector('#sumit-button').addEventListener('click', function () {
 
     let data = {
         name: focus.children[1].textContent,
+        duty: select_save,
         confirm: confirm,
         rights: rights,
     };
@@ -244,8 +262,8 @@ document.querySelector('#sumit-button').addEventListener('click', function () {
         .then(content => {
             if (content == 1) {
                 confirm_save = confirm ? '已确认' : '未确认';
-                focus.children[3].innerHTML = rights;
-                focus.children[3].setAttribute("title", rights);
+                focus.children[5].innerHTML = rights;
+                focus.children[5].setAttribute("title", rights);
                 document.querySelector('#cancel-button').click();
                 notifier.show('用户修改成功', 'success');
             }
@@ -263,7 +281,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
     }
     else {
         let name = focus.children[1].textContent;
-        if (name == "adm") {
+        if (focus.children[2].textContent == "总经理") {
             notifier.show('无法删除超级用户', 'danger');
         }
         else if (name == document.querySelector('#user-name').textContent) {
