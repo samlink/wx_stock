@@ -337,7 +337,7 @@ export function build_product_table(row_num, cb) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, [{ name: '库存', field: '库存', width: 3 }]);
+                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields);
                 table.querySelector('thead tr').innerHTML = header.th_row;
                 // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 

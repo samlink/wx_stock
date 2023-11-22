@@ -34,29 +34,14 @@ pub async fn fetch_product(
         }
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号, COALESCE(库存, '0') as 库存 FROM products 
-            left join (select 商品id, sum(数量) as 库存 from document_items group by 商品id) as foo
-            on products.id=foo.商品id
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products 
             WHERE products.商品id='{}' AND 
             LOWER(规格型号) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, post_data.id, name, post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-        //这部分是取自 build_string_from_base（），但由于需加入库存，不能使用原函数
-        let mut products = Vec::new();
-        for row in rows {
-            let mut product = "".to_owned();
-            let num: i32 = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
-            product += &format!("{}{}", num, SPLITER);
-            let num: i64 = row.get("序号");
-            product += &format!("{}{}", num, SPLITER);
-            product += &simple_string_from_base(row, &fields);
-            let stock: f32 = row.get("库存");
-            product += &format!("{}{}", stock, SPLITER);
-            products.push(product);
-        }
+        let products = build_string_from_base(rows, fields);
 
         let rows = &conn
             .query(
