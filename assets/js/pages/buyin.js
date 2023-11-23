@@ -686,10 +686,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     row_data["数量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
                     row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
 
-                    let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
-                    row_data["仓库"] = ware_select.options[ware_select.selectedIndex].textContent;
-
-                    row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    // let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
+                   
+                    // row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
 
                     table_data.push(row_data);
 
@@ -712,13 +711,12 @@ document.querySelector('#print-button').addEventListener('click', function () {
         });
 });
 
-let inout_cate = document.querySelector('#inout-cate');
-fetch_print_models(inout_cate.value);
+fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
-inout_cate.addEventListener('change', function () {
-    init_page();
-    fetch_print_models(this.value);
-});
+// inout_cate.addEventListener('change', function () {
+//     init_page();
+//     fetch_print_models(this.value);
+// });
 
 document.querySelector('#document-new-button').addEventListener('click', function () {
     clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
@@ -845,8 +843,9 @@ function clear_page(info, text1, text2) {
 
 //获取打印模板
 function fetch_print_models(value) {
+    console.log(value);
     let print_id;
-    if (value == "材料采购") {
+    if (value == "商品采购") {
         print_id = 3;
     }
     else if (value == "采购退货") {
@@ -1392,7 +1391,7 @@ function supplier_auto_show() {
             let supplier = content[1].split(SPLITER);
             let join_sup = "";
             for (let i = 0; i < content[0].length; i++) {
-                join_sup += `${content[0][i].show_name}：${supplier[i]}； `;
+                join_sup += `${supplier[i]}　 `;
             }
 
             let info = document.querySelector('#supplier-info');
