@@ -10,6 +10,7 @@
         display: flex;
         flex-wrap: wrap;
         overflow-y: auto;
+        margin-left: -15px;
 
         // .form-group {
         //     display: flex;
@@ -19,6 +20,7 @@
         .form-label {
             width: 80px;
             flex-shrink: 0;
+            margin-top: 2px;
         }
 
         .form-input {
@@ -72,8 +74,8 @@
     }
 
     #supplier-serach {
-        margin-top: -3px;
-        margin-left: -6px;
+        margin-top: -3.8px;
+        margin-left: -10px;
         height: 28px;
         // border-radius: 3px;
 
@@ -82,10 +84,10 @@
         // border-top-right-radius: 3px;
     }
 
-    .has-auto {
-        position: absolute;
-        + div {
-            margin-left: 410px;
-        }
-    }
+    // .has-auto {
+    //     position: absolute;
+    //     // + div {
+    //     //     margin-left: 410px;
+    //     // }
+    // }
 }

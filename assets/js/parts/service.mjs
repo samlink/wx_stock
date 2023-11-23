@@ -253,7 +253,7 @@ export function build_inout_form(table_fields, data) {
     let n = 0;
     for (let name of table_fields) {
         let control;
-        let id = name.all_edit ? "" : `id="${name.field_name}"`;
+        let id = `id="${name.field_name}"`;
         let value = values ? values[n] : "";
 
         if (name.ctr_type == "普通输入") {

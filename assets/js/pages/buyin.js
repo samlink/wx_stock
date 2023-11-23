@@ -25,15 +25,6 @@ if (document_bz == "商品销售") {
 else if (document_bz == "商品采购") {
     document_name = "采购单据";
 }
-else {
-    let customer = document.querySelector('#customer-div');
-    customer.style.display = "none";
-    customer.querySelector('input').setAttribute('data', 0);
-    document.querySelector('#sum-money').style.display = "none";
-    document.querySelector('#supplier-info').style.cssText = "color: black";
-    document.querySelector('#supplier-info').textContent = "库存增加，数量为正；库存减少，数量为负";
-    document_name = "库存调整";
-}
 
 fetch(`/fetch_inout_fields`, {
     method: 'post',
@@ -67,11 +58,11 @@ fetch(`/fetch_inout_fields`, {
 
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] == "true") {
-                            rem.textContent = "已记账";
+                            rem.textContent = "已审核";
                             rem.classList.add('remembered');
                         }
                         else {
-                            rem.textContent = "记账";
+                            rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
 
@@ -79,9 +70,7 @@ fetch(`/fetch_inout_fields`, {
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
 
-                        if (document_bz != "库存调整") {
-                            supplier_auto_show();
-                        }
+                        supplier_auto_show();
 
                         setTimeout(() => {
                             sum_money();
@@ -92,7 +81,7 @@ fetch(`/fetch_inout_fields`, {
             else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
-                document.querySelector('#remember-button').textContent = '记账'
+                document.querySelector('#remember-button').textContent = '审核'
             }
         }
     });
@@ -104,9 +93,6 @@ function dh_data(dh) {
     }
     else if (document_bz == "商品采购") {
         cate = "采购单据";
-    }
-    else {
-        cate = "库存调整";
     }
 
     return {
@@ -130,10 +116,6 @@ function document_top_handle(html, has_date) {
         // theme: 'molv',
         // theme: '#62468d',
     });
-
-    if (document_bz == "库存调整") {
-        document.querySelector('#customer-div + div').style.marginLeft = "0";
-    }
 
     let fields_show = document.querySelector('.fields-show');
     let has_auto = document.querySelector('.has-auto');
@@ -307,7 +289,7 @@ fetch(`/fetch_inout_fields`, {
             all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
 
         let hide = document_bz == "商品销售" ? "" : "hidden";
-        let hide2 = document_bz != "库存调整" ? "" : "hidden";
+        let hide2 = "";
 
         let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th>
                 <th width=${40 * 100 / all_width}% ${hide}>直销</th>
@@ -381,16 +363,8 @@ fetch(`/fetch_inout_fields`, {
                         input_row.querySelector(`td:nth-last-child(3)`).textContent =
                             Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
 
-                        input_row.querySelector(`td:nth-last-child(4) input`).value = document_bz != "库存调整" ?
-                            Math.abs(product[len - 4]) : product[len - 4];
+                        input_row.querySelector(`td:nth-last-child(4) input`).value = Math.abs(product[len - 4]);
                         input_row.querySelector(`td:nth-last-child(5) input`).value = product[len - 5];
-
-                        if (!ware_option) {
-                            build_ware_house(input_row, Number(product[len - 3]));
-                        }
-                        else {
-                            build_ware_position(ware_option, input_row, Number(product[len - 3]));
-                        }
 
                         num++;
                     }
@@ -414,10 +388,6 @@ fetch(`/fetch_inout_fields`, {
         tbody.style.height = table_lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
         //构造第二张历史记录表----------
-        if (document_bz == "库存调整") {
-            document.querySelector('.table-history thead th:nth-child(2)').style.display = "none";
-        }
-
         init_history();
 
         //这部分是解决滚动时， 自动完成功能可正常使用-----
@@ -514,7 +484,7 @@ document.querySelector('#row-down').addEventListener('click', function (e) {
     }
 });
 
-//保存、打印和记账 -------------------------------------------------------------------
+//保存、打印和审核 -------------------------------------------------------------------
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
@@ -754,9 +724,9 @@ document.querySelector('#document-new-button').addEventListener('click', functio
     clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
 });
 
-//记账
+//审核
 document.querySelector('#remember-button').addEventListener('click', function () {
-    if (this.textContent == "已记账") {
+    if (this.textContent == "已审核") {
         return false;
     }
 
@@ -766,7 +736,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
     }
 
     let that = this;
-    alert_confirm("单据记账后，编辑需要权限，确认记账吗？", {
+    alert_confirm("单据审核后，编辑需要权限，确认审核吗？", {
         confirmText: "确认",
         cancelText: "取消",
         confirmCallBack: () => {
@@ -780,9 +750,9 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                 .then(response => response.json())
                 .then(content => {
                     if (content != -1) {
-                        that.textContent = '已记账';
+                        that.textContent = '已审核';
                         that.classList.add('remembered');
-                        notifier.show('记账完成', 'success');
+                        notifier.show('审核完成', 'success');
                     }
                     else {
                         notifier.show('权限不够', 'danger');
@@ -798,7 +768,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 //清空历史记录表
 function init_history() {
 
-    let row2 = document_bz != "库存调整" ? "<tr><td></td><td></td><td></td></tr>" : "<tr><td></td><td></td></tr>";
+    let row2 = "<tr><td></td><td></td><td></td></tr>";
     let rows2 = "";
     for (let i = 0; i < table_lines; i++) {
         rows2 += row2;
@@ -820,11 +790,9 @@ function clear_page(info, text1, text2) {
         confirmText: text1,
         cancelText: text2,
         confirmCallBack: () => {
-            if (document_bz != "库存调整") {
-                let customer_input = document.querySelector('#supplier-input');
-                customer_input.removeAttribute('data');
-                customer_input.value = "";
-            }
+            let customer_input = document.querySelector('#supplier-input');
+            customer_input.removeAttribute('data');
+            customer_input.value = "";
 
             let all_inputs = document.querySelectorAll('.document-value');
             let n = 0;
@@ -852,7 +820,7 @@ function clear_page(info, text1, text2) {
             document.querySelector('#history-info').textContent = "";
             document.querySelector('#total-records').textContent = "";
             document.querySelector('#sum-money').textContent = "金额合计：元";
-            document.querySelector('#remember-button').textContent = "记账";
+            document.querySelector('#remember-button').textContent = "审核";
             document.querySelector('#remember-button').classList.remove('remembered');
 
             //清空表格
@@ -878,10 +846,10 @@ function clear_page(info, text1, text2) {
 //获取打印模板
 function fetch_print_models(value) {
     let print_id;
-    if (value == "采购入库") {
+    if (value == "材料采购") {
         print_id = 3;
     }
-    else if (value == "退货出库") {
+    else if (value == "采购退货") {
         print_id = 4;
     }
     else if (value == "商品销售") {
@@ -912,7 +880,7 @@ function fetch_print_models(value) {
         });
 }
 
-//保存、打印和记账前的错误检查
+//保存、打印和审核前的错误检查
 function error_check() {
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
     if (customer_id == null) {
@@ -964,35 +932,31 @@ function error_check() {
 
 //计算行金额
 function calc_money(input_row) {
-    if (document_bz != "库存调整") {
-        let price = input_row.querySelector('.price').value;
-        let mount = input_row.querySelector('.mount').value;
-        let money = "";
-        if (price && regReal.test(price) && mount && regReal.test(mount)) {
-            money = (price * mount).toFixed(Number(num_position[1]));
-        }
-
-        input_row.querySelector('.money').textContent = money;
+    let price = input_row.querySelector('.price').value;
+    let mount = input_row.querySelector('.mount').value;
+    let money = "";
+    if (price && regReal.test(price) && mount && regReal.test(mount)) {
+        money = (price * mount).toFixed(Number(num_position[1]));
     }
+
+    input_row.querySelector('.money').textContent = money;
 }
 
 //计算合计金额
 function sum_money() {
-    if (document_bz != "库存调整") {
-        let all_input = document.querySelectorAll('.has-input');
-        let sum = 0;
-        for (let i = 0; i < all_input.length; i++) {
-            let price = all_input[i].querySelector('.price').value;
-            let mount = all_input[i].querySelector('.mount').value;
-            if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
-                price && regReal.test(price) && mount && regReal.test(mount)) {
-                sum += price * mount;
-            }
+    let all_input = document.querySelectorAll('.has-input');
+    let sum = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        let price = all_input[i].querySelector('.price').value;
+        let mount = all_input[i].querySelector('.mount').value;
+        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
+            price && regReal.test(price) && mount && regReal.test(mount)) {
+            sum += price * mount;
         }
-
-        document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
-        document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
     }
+
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
+    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
 }
 
 //计算记录数
@@ -1068,8 +1032,8 @@ function build_input_row(show_names, all_width, num) {
     input_row.classList.add("has-input");
 
     let hide = document_bz == "商品销售" ? "" : "hidden";
-    let hide2 = document_bz != "库存调整" ? "" : "hidden";
-    let hide_value = document_bz != "库存调整" ? "" : 0;
+    let hide2 = "";
+    let hide_value = "";
     let check = direct_check ? "checked" : "";
 
     let row = `<td width=${40 * 100 / all_width}%>${num}</td>
@@ -1131,19 +1095,17 @@ function build_input_row(show_names, all_width, num) {
         fill_gg(auto_input, input_row);
     });
 
-    if (document_bz != "库存调整") {
-        //添加价格和数量变化事件
-        input_row.querySelector('.price').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
+    //添加价格和数量变化事件
+    input_row.querySelector('.price').addEventListener('blur', function () {
+        calc_money(input_row);
+        sum_money();
 
-        });
+    });
 
-        input_row.querySelector('.mount').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
-        });
-    }
+    input_row.querySelector('.mount').addEventListener('blur', function () {
+        calc_money(input_row);
+        sum_money();
+    });
 
     //商品规格查找按钮
     input_row.querySelector('.product-search-button').addEventListener('click', function () {
@@ -1276,14 +1238,6 @@ function build_input_row(show_names, all_width, num) {
         document.querySelector('.modal').style.display = "block";
     });
 
-    if (!ware_option) {
-        build_ware_house(input_row);
-    }
-    else {
-        build_ware_position(ware_option, input_row);
-    }
-
-
     return input_row;
 }
 
@@ -1308,11 +1262,8 @@ function fill_gg(auto_input, input_row) {
         price_input.value = (price * sale_cut).toFixed(Number(num_position[0]));
         price_input.select();
     }
-    else if (document_bz != "库存调整") {
-        price_input.focus();
-    }
     else {
-        document.querySelector('.inputting .mount').focus();
+        price_input.focus();
     }
 
     if (ware_value) {
@@ -1321,45 +1272,6 @@ function fill_gg(auto_input, input_row) {
 
     add_line(show_names, all_width);
     edited = true;
-}
-
-//构造仓库下拉选单，并记住 option 内容
-function build_ware_house(input_row, value) {
-    fetch(`/fetch_house`)
-        .then(response => response.json())
-        .then(content => {
-            ware_option = "";
-            for (let house of content) {
-                ware_option += `<option value="${house.id}">${house.name}</option>`;
-            }
-
-            build_ware_position(ware_option, input_row, value);
-        });
-}
-
-//构建仓库和库位
-function build_ware_position(ware_option, input_row, value) {
-    let ware_house_select = document.createElement('select');
-    ware_house_select.classList.add("select-sm");
-    ware_house_select.classList.add("has-value");
-
-    ware_house_select.innerHTML = ware_option;
-
-    if (value) {
-        ware_house_select.value = value;
-    }
-    // else {
-    //     if (ware_value) {
-    //         ware_house_select.value = ware_value;
-    //     }
-    // }
-
-    ware_house_select.addEventListener('change', function () {
-        ware_value = this.value;
-    });
-
-    input_row.querySelector('td:nth-last-child(2)').innerHTML = "";
-    input_row.querySelector('td:nth-last-child(2)').appendChild(ware_house_select);
 }
 
 //设置元素的位置
@@ -1405,18 +1317,11 @@ function add_line(show_names, all_width) {
                 document.querySelector('#history-info').textContent = `${num} - ${name}`;
 
                 let tr = "";
-                if (document_bz != "库存调整") {
-                    for (let row of content) {
-                        tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
-                    }
-                }
-                else {
-                    for (let row of content) {
-                        tr += `<tr><td>${row.date}</td><td>${row.count}</td></tr>`;
-                    }
+                for (let row of content) {
+                    tr += `<tr><td>${row.date}</td><td>${row.price}</td><td>${row.count}</td></tr>`;
                 }
 
-                let row2 = document_bz != "库存调整" ? "<tr><td></td><td></td><td></td></tr>" : "<tr><td></td><td></td></tr>";
+                let row2 = "<tr><td></td><td></td><td></td></tr>";
                 let len = table_lines - content.length;
 
                 for (let i = 0; i < len; i++) {
