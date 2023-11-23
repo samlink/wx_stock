@@ -302,7 +302,7 @@ fetch(`/fetch_inout_fields`, {
 
         show_names.forEach((v, k) => {
             th += `<th width=${v * 100 / all_width}%>${k}</th>`;
-            blank += `<th width=${v * 100 / all_width}%></th>`;
+            blank += `<td width=${v * 100 / all_width}%></td>`;
         });
 
         th += "</tr>";
@@ -350,9 +350,8 @@ fetch(`/fetch_inout_fields`, {
                         }
 
                         // input_row.querySelector(`td:nth-child(1)`).textContent = num;
-                        input_row.querySelector(`td:nth-child(2) input`).checked = product[len - 8] == "true" ? true : false;
-                        input_row.querySelector(`td:nth-child(3) input`).value = product[len - 6];
-                        input_row.querySelector(`td:nth-child(3) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
+                        input_row.querySelector(`td:nth-child(2) input`).value = product[len - 6];
+                        input_row.querySelector(`td:nth-child(2) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
                         input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
 
                         input_row.querySelector(`td:nth-last-child(3)`).textContent =
@@ -408,7 +407,7 @@ document.querySelector('#row-insert').addEventListener('click', function (e) {
         rebuild_index();
         sum_records();
 
-        input_row.querySelector('td:nth-child(3)').click();
+        input_row.querySelector('td:nth-child(2)').click();
     }
     else {
         notifier.show('请先选择行', 'danger');
@@ -516,16 +515,16 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(3) input').value != "") {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
             let cate = document.querySelector('#inout-cate').value;
             let mount = row.querySelector('.mount').value;
             if (cate == "商品销售" || cate == "退货出库") {
                 mount = mount * -1;
             }
 
-            let row_data = `${row.querySelector('td:nth-child(2) input').checked}${SPLITER}${row.querySelector('td:nth-child(3) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+            let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
             row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
-            row_data += `${row.querySelector('select').value}${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
+            row_data += `${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
             table_data.push(row_data);
         }
     }
@@ -666,10 +665,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
             let count = 0;
             let sum = 0;
             for (let row of all_rows) {
-                if (row.querySelector('td:nth-child(3) input').value != "") {
+                if (row.querySelector('td:nth-child(2) input').value != "") {
                     let row_data = {};
                     row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
-                    row_data["名称"] = row.querySelector('td:nth-child(3) input').value;
+                    row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
 
                     let n = 4;
                     for (let f of product_table_fields) {
@@ -681,9 +680,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     row_data["数量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
                     row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
 
-                    // let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
-
-                    // row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
 
                     table_data.push(row_data);
 
@@ -907,7 +904,7 @@ function error_check() {
 
     let lines = 0;
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(3) input').value != "") {
+        if (row.querySelector('td:nth-child(2) input').value != "") {
             lines = 1;
             if (!regReal.test(row.querySelector('.price').value) || !regReal.test(row.querySelector('.mount').value)) {
                 notifier.show(`单价或数量输入错误`, 'danger');
@@ -943,7 +940,7 @@ function sum_money() {
     for (let i = 0; i < all_input.length; i++) {
         let price = all_input[i].querySelector('.price').value;
         let mount = all_input[i].querySelector('.mount').value;
-        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "" &&
+        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
             price && regReal.test(price) && mount && regReal.test(mount)) {
             sum += price * mount;
         }
@@ -958,7 +955,7 @@ function sum_records() {
     let all_input = document.querySelectorAll('.has-input');
     let num = 0;
     for (let i = 0; i < all_input.length; i++) {
-        if (all_input[i].querySelector('td:nth-child(3) .auto-input').value != "") {
+        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "") {
             num++;
         }
     }
@@ -971,7 +968,7 @@ function rebuild_index() {
     let all_input = document.querySelectorAll('.has-input');
     for (let i = 0; i < all_input.length; i++) {
         all_input[i].querySelector('td:nth-child(1)').textContent = i + 1;
-        all_input[i].querySelector('td:nth-child(3) .autocomplete').style.zIndex = 900 - i;
+        all_input[i].querySelector('td:nth-child(2) .autocomplete').style.zIndex = 900 - i;
     }
 }
 
@@ -1297,7 +1294,7 @@ function add_line(show_names, all_width) {
         .then(content => {
             if (content != -1) {
                 let num = document.querySelector('.inputting td:nth-child(1)').textContent;
-                let name = document.querySelector('.inputting td:nth-child(3) input').value;
+                let name = document.querySelector('.inputting td:nth-child(2) input').value;
                 document.querySelector('#history-info').textContent = `${num} - ${name}`;
 
                 let tr = "";
@@ -1319,10 +1316,9 @@ function add_line(show_names, all_width) {
             }
         });
 
-    direct_check = document.querySelector('.inputting .direct-check').checked;
-
     let new_row = build_input_row(show_names, all_width);
     let next = document.querySelector(`.inputting + tr`);
+    console.log(next);
 
     if (next && next.querySelector('td:nth-child(1)').textContent == "") {
         next.parentNode.replaceChild(new_row, next);
