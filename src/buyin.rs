@@ -123,6 +123,7 @@ pub async fn buyin_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let fields = get_inout_fields(db.clone(), "商品规格").await;
+        let f_map = map_fields(db.clone(), "商品规格").await;
         let mut s: Vec<&str> = search.s.split(" ").collect();
         if s.len() == 1 {
             s.push("");
@@ -140,28 +141,26 @@ pub async fn buyin_auto(
         let str_match = format!(" || '{}' ||", SPLITER);
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
         sql_where = sql_where.trim_end_matches(" OR ").to_owned();
-        let p_id = s[0].parse::<i32>().unwrap_or(-1);
 
         let sql = &format!(
-            r#"SELECT id, node_name || '{}' || {} || '{}' || COALESCE(库存, '0') || '{}' || 出售价格 AS label FROM products 
+            r#"SELECT id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || 0 AS label FROM products 
             JOIN tree ON products.商品id = tree.num
-            LEFT JOIN  
-                (SELECT 商品id, SUM(数量) AS 库存 FROM document_items 
-                JOIN documents ON document_items.单号id=documents.单号
-                WHERE 直销=false AND 已记账=true GROUP BY 商品id) as foo
-            ON products.id = foo.商品id 
-            WHERE (products.id={} OR pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            SPLITER,
             SPLITER,
             sql_fields,
             SPLITER,
+            f_map["库存长度"],
             SPLITER,
-            p_id,
+            f_map["理论重量"],
+            SPLITER,
+
             s[0].to_lowercase(),
             s[0].to_lowercase(),
             sql_where,
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {

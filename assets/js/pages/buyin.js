@@ -26,6 +26,7 @@ else if (document_bz == "商品采购") {
     document_name = "采购单据";
 }
 
+//获取单据表头部分的字段（字段设置中的右表内容）
 fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
@@ -251,9 +252,10 @@ document.querySelector('#supplier-serach').addEventListener('click', function ()
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_option, ware_value, direct_check,
+let show_names, all_width, ware_value, direct_check,
     product_table_fields, table_lines, blank_row, sale_cut;
 
+//获取商品规格表字段，字段设置中的右表数据
 fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
@@ -268,13 +270,19 @@ fetch(`/fetch_inout_fields`, {
         let line_height = 33; //行高，与 css 设置一致
         table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / line_height);
 
-        all_width = 0;
-        show_names = [{ name: "名称", width: 140 }];    //显示字段，用于商品规格自动输入
+        show_names = new Map();
+        show_names.set("序号", 40);
+        show_names.set("名称", 80);
+        show_names.set("材质", 100);
 
         for (let item of content) {
-            all_width += item.show_width;
-            show_names.push({ name: item.show_name, width: item.show_width * 18 });
+            show_names.set(item.show_name, item.show_width * 18);
         }
+
+        show_names.set("单价", 60);
+        show_names.set("数量", 60);
+        show_names.set("金额", 80);
+        show_names.set("备注", 100);
 
         let table_container = document.querySelector('.table-items');
         let table_width = document.querySelector('.content').clientWidth -
@@ -284,36 +292,23 @@ fetch(`/fetch_inout_fields`, {
 
         //构造表头和空行------------
 
-        all_width = customer_supplier.textContent == "客户" ?
-            all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100 + 40 :
-            all_width * 18 + 40 + 140 + 60 + 60 + 80 + 100 + 100;
+        all_width = 0;
+        show_names.forEach(v => {
+            all_width += v;
+        });
 
-        let hide = document_bz == "商品销售" ? "" : "hidden";
-        let hide2 = "";
+        let th = "<tr>";
+        let blank = "<tr>";
 
-        let th_row = `<tr><th width=${40 * 100 / all_width}%>序号</th>
-                <th width=${40 * 100 / all_width}% ${hide}>直销</th>
-                <th width=${140 * 100 / all_width}%>名称</th>`;
+        show_names.forEach((v, k) => {
+            th += `<th width=${v * 100 / all_width}%>${k}</th>`;
+            blank += `<th width=${v * 100 / all_width}%></th>`;
+        });
 
-        blank_row = `<tr><td width=${40 * 100 / all_width}%></td>
-                <td width=${40 * 100 / all_width}% ${hide}></td>
-                <td width=${140 * 100 / all_width}%></td>`;
+        th += "</tr>";
+        blank += "</tr>";
 
-        for (let th of content) {
-            th_row += `<th width=${th.show_width * 18 * 100 / all_width}%>${th.show_name}</th>`;
-            blank_row += `<td width=${th.show_width * 18 * 100 / all_width}%></td>`;
-        }
-
-        th_row += `<th width=${60 * 100 / all_width}% ${hide2}>单价</th><th width=${60 * 100 / all_width}%>数量</th>
-                <th width=${80 * 100 / all_width}% ${hide2}>金额</th><th width=${100 * 100 / all_width}%>仓库</th>
-                <th width=${100 * 100 / all_width}%>备注</th></tr>`;
-
-        table_container.querySelector('thead').innerHTML = th_row;
-
-        blank_row += `<td width=${60 * 100 / all_width}% ${hide2}></td><td width=${60 * 100 / all_width}%></td>
-                    <td width=${80 * 100 / all_width}% ${hide2}></td><td width=${100 * 100 / all_width}%></td>
-                    <td width=${100 * 100 / all_width}%></td></tr>`;
-
+        table_container.querySelector('thead').innerHTML = th;
 
         let tbody = table_container.querySelector('tbody');
         let dh = dh_div.textContent;
@@ -324,7 +319,7 @@ fetch(`/fetch_inout_fields`, {
 
             let rows = "";
             for (let i = 0; i < table_lines - 1; i++) {
-                rows += blank_row;
+                rows += blank;
             }
 
             tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
@@ -372,9 +367,9 @@ fetch(`/fetch_inout_fields`, {
                     let input_row = build_input_row(show_names, all_width, num);
                     tbody.appendChild(input_row);
 
-                    setTimeout(function () {
-                        build_ware_position(ware_option, input_row);
-                    }, 200);
+                    // setTimeout(function () {
+                    //     build_ware_position(ware_option, input_row);
+                    // }, 200);
 
                     let rows = "";
                     for (let i = 0; i < table_lines - data.length - 1; i++) {
@@ -687,7 +682,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
 
                     // let ware_select = row.querySelector(`td:nth-child(${++n}) select`);
-                   
+
                     // row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
 
                     table_data.push(row_data);
@@ -775,12 +770,12 @@ function init_history() {
     document.querySelector('.table-history tbody').innerHTML = rows2;
 }
 
-//初始化页面数据，供类别变换时调用
-function init_page() {
-    if (edited) {
-        clear_page("清空页面所有数据吗？", "清空", "保留");
-    }
-}
+// //初始化页面数据，供类别变换时调用
+// function init_page() {
+//     if (edited) {
+//         clear_page("清空页面所有数据吗？", "清空", "保留");
+//     }
+// }
 
 //清空页面数据
 function clear_page(info, text1, text2) {
@@ -1029,42 +1024,29 @@ function build_input_row(show_names, all_width, num) {
     if (!num) num = 1;
     let input_row = document.createElement("tr");
     input_row.classList.add("has-input");
-
-    let hide = document_bz == "商品销售" ? "" : "hidden";
-    let hide2 = "";
-    let hide_value = "";
-    let check = direct_check ? "checked" : "";
-
-    let row = `<td width=${40 * 100 / all_width}%>${num}</td>
-                <td width=${40 * 100 / all_width}% ${hide} class="editable">
-                    <label class="check-radio">
-                        <input class="has-value direct-check" type="checkbox" ${check}>
-                            <span class="checkmark td-check"></span>
-                    </label>
-                </td>
-                <td width=${140 * 100 / all_width}% class="editable">
-                    <div class="form-input autocomplete" style="z-index: 900;">
-                        <input class="form-control input-sm has-value auto-input" type="text" />
-                        <button class="btn btn-info btn-sm product-search-button"> ... </button>
-                    </div>
-                </td>`;
-
-    for (let i = 1; i < show_names.length; i++) {
-        row += `<td width=${show_names[i].width * 100 / all_width}%></td>`;
-    }
-
-    row += `
-        <td width=${60 * 100 / all_width}% class="editable" ${hide2}>
-            <div class="form-input">
-                <input class="form-control input-sm has-value price" value='${hide_value}' type="text" />
+    let row = `
+        <td width=${show_names.get("序号") * 100 / all_width}%>${num}</td>
+        <td width=${show_names.get("名称") * 100 / all_width}% class="editable">
+            <div class="form-input autocomplete" style="z-index: 900;">
+                <input class="form-control input-sm has-value auto-input" type="text" />
+                <button class="btn btn-info btn-sm product-search-button"> ... </button>
             </div>
-        </td><td width=${60 * 100 / all_width}%} class="editable">
+        </td>
+        <td width=${show_names.get("材质") * 100 / all_width}% class="editable"></td>
+        <td width=${show_names.get("规格") * 100 / all_width}%></td>
+        <td width=${show_names.get("状态") * 100 / all_width}%></td>    
+        <td width=${show_names.get("单价") * 100 / all_width}% class="editable">
+            <div class="form-input">
+                <input class="form-control input-sm has-value price" type="text" />
+            </div>
+        </td>
+        <td width=${show_names.get("数量") * 100 / all_width}%} class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value mount" type="text" />
             </div>
-        </td><td class="money" width=${80 * 100 / all_width}% ${hide2}></td>
-        <td width=${100 * 100 / all_width}% class="editable"></td>
-        <td width=${100 * 100 / all_width}% class="editable">
+        </td>
+        <td class="money" width=${show_names.get("金额") * 100 / all_width}%></td>
+        <td width=${show_names.get("备注") * 100 / all_width}% class="editable">
             <div class="form-input">
                 <input class="form-control input-sm has-value" type="text" />
             </div>
@@ -1073,8 +1055,8 @@ function build_input_row(show_names, all_width, num) {
     input_row.innerHTML = row;
 
     let auto_input = input_row.querySelector('.auto-input');
-    let auto_td = input_row.querySelector('td:nth-child(3)');
-    let auto_th = document.querySelector('.table-items th:nth-child(3)');
+    let auto_td = input_row.querySelector('td:nth-child(2)');
+    let auto_th = document.querySelector('.table-items th:nth-child(2)');
     auto_input.style.width = (auto_th.clientWidth - 36) + "px";
 
     auto_td.addEventListener('click', function () {
@@ -1088,8 +1070,14 @@ function build_input_row(show_names, all_width, num) {
     });
 
     //构造商品规格自动完成
-    let [...show_th] = show_names;
-    show_th.push({ name: "库存", width: 60 });
+    let show_th = [
+        { name: "名称", width: 60 },
+        { name: "材质", width: 80 },
+        { name: "规格", width: 80 },
+        { name: "状态", width: 100 },
+        { name: "库存长度", width: 80 },
+        { name: "库存重量", width: 80 },
+    ];
     auto_table(auto_input, "", `/buyin_auto`, show_th, () => {
         fill_gg(auto_input, input_row);
     });
@@ -1243,19 +1231,20 @@ function build_input_row(show_names, all_width, num) {
 //填充规格字段
 function fill_gg(auto_input, input_row) {
     let field_values = auto_input.getAttribute("data").split(SPLITER);
-    let n = 4;
-    for (let i = 2; i < field_values.length - 2; i++) {     //不计末尾的库存和售价两个字段
+    let n = 3;
+    for (let i = 2; i < field_values.length - 3; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
-        if (product_table_fields[i - 2].ctr_type == "二值选一") {
-            val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
-        }
+
+        // if (product_table_fields[i - 2].ctr_type == "二值选一") {
+        //     val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
+        // }
 
         document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
         n++;
     }
 
-    let price_input = document.querySelector(`.inputting td:nth-child(${n}) input`);
-    let price = field_values[field_values.length - 1];
+    let price_input = document.querySelector(`.inputting .price`);
+    // let price = field_values[field_values.length - 1];
 
     if (document_bz == "商品销售" && regReal.test(sale_cut) && regReal.test(price)) {
         price_input.value = (price * sale_cut).toFixed(Number(num_position[0]));
@@ -1263,10 +1252,6 @@ function fill_gg(auto_input, input_row) {
     }
     else {
         price_input.focus();
-    }
-
-    if (ware_value) {
-        input_row.querySelector('select').value = ware_value;
     }
 
     add_line(show_names, all_width);

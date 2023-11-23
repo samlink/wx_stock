@@ -133,7 +133,6 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
-
             .service(systemset::fetch_system)
             .service(systemset::update_system)
             .service(report_design::fetch_print_documents)

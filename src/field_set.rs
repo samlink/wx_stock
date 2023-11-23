@@ -18,6 +18,7 @@ pub struct FieldsReturn {
     pub is_show: bool,
     pub show_order: i32,
     pub all_edit: bool,
+    pub is_use: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -37,7 +38,7 @@ pub async fn fetch_fields(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,default_value,
-                is_show,show_order,all_edit, ROW_NUMBER () OVER (ORDER BY is_show desc, show_order) as 序号 
+                is_show,show_order,all_edit,is_use, ROW_NUMBER () OVER (ORDER BY is_show desc, show_order) as 序号 
                 FROM tableset WHERE table_name='{}' ORDER BY is_show desc, show_order"#,
             post_data.name
         );
@@ -59,6 +60,7 @@ pub async fn fetch_fields(
                 is_show: row.get("is_show"),
                 show_order: row.get("show_order"),
                 all_edit: row.get("all_edit"),
+                is_use: row.get("is_use"),
             };
 
             fields.push(field);
@@ -103,7 +105,7 @@ pub async fn fetch_fields2(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT id,show_name,inout_show,all_edit, ROW_NUMBER () OVER (ORDER BY all_edit, inout_show desc, inout_order) as 序号 
-                FROM tableset WHERE table_name='{}' AND is_show=true ORDER BY all_edit, inout_show desc, inout_order"#,
+                FROM tableset WHERE table_name='{}' AND is_use=true ORDER BY all_edit, inout_show desc, inout_order"#,
             post_data.name
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -149,6 +151,7 @@ pub struct FieldsData {
     pub option_value: String,
     pub default_value: String,
     pub is_show: bool,
+    pub is_use: bool,
     pub show_order: i32,
 }
 
@@ -167,13 +170,14 @@ pub async fn update_tableset(
         for data in post_data {
             let sql = format!(
                 r#"UPDATE tableset SET show_name='{}', show_width={}, ctr_type='{}', option_value='{}', 
-                default_value='{}', is_show={}, show_order={} WHERE id={}"#,
+                default_value='{}', is_show={}, is_use={}, show_order={} WHERE id={}"#,
                 data.show_name,
                 data.show_width,
                 data.ctr_type,
                 data.option_value,
                 data.default_value,
                 data.is_show,
+                data.is_use,
                 data.show_order,
                 data.id
             );
@@ -209,9 +213,7 @@ pub async fn update_tableset2(
         for data in post_data {
             let sql = format!(
                 r#"UPDATE tableset SET inout_show={}, inout_order={} WHERE id={}"#,
-                data.inout_show,
-                data.inout_order,
-                data.id
+                data.inout_show, data.inout_order, data.id
             );
 
             let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();

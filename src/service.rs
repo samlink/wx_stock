@@ -210,7 +210,7 @@ pub async fn get_fraction(db: web::Data<Pool>) -> String {
     num_position
 }
 
-//获取编辑用的显示字段，非全部字段
+//获取编辑用的显示字段 is_show
 pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();
     let rows = &conn
@@ -225,13 +225,13 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
     return_fields(rows)
 }
 
-//映射显示字段，非全部字段
+//映射使用的字段 is_use
 pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
             r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
-                    FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
+                    FROM tableset WHERE table_name=$1 AND is_use=true ORDER BY show_order"#,
             &[&table_name],
         )
         .await
@@ -246,13 +246,13 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
     f_map
 }
 
-//获取出入库用的显示字段，非全部字段
+//获取出入库用的显示字段 is_show
 pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
             r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit 
-                FROM tableset WHERE table_name=$1 AND is_show=true AND inout_show=true ORDER BY inout_order"#,
+                FROM tableset WHERE table_name=$1 AND is_use =true AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )
         .await
