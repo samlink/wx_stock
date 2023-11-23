@@ -34,6 +34,7 @@ pub struct UserData {
     pub rights: String,
     pub confirm: bool,
     pub theme: String,
+    pub show: String,
 }
 
 //表格分页、搜索和分类参数
@@ -115,6 +116,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
         rights: "".to_owned(),
         confirm: false,
         theme: "".to_owned(),
+        show: "".to_owned(),
     };
 
     let user_name = id.identity().unwrap_or("".to_owned());
