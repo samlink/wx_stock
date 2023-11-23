@@ -121,19 +121,6 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     }
 }
 
-///仓库设置
-#[get("/warehouse_set")]
-pub async fn warehouse_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db, id, "仓库设置".to_owned()).await;
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| warehouse(o, user));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
-
 ///系统参数
 #[get("/system_set")]
 pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {

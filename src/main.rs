@@ -19,7 +19,6 @@ mod systemset;
 mod tree;
 mod user_manage;
 mod user_set;
-mod warehouse_set;
 
 #[derive(Deserialize)]
 struct Config {
@@ -61,7 +60,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::field_set)
             .service(html::customer_manage)
             .service(html::supplier_manage)
-            .service(html::warehouse_set)
             .service(html::system_set)
             .service(html::help)
             .service(html::buy_in)
@@ -135,9 +133,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
-            .service(warehouse_set::fetch_house)
-            .service(warehouse_set::update_house)
-            .service(warehouse_set::house_drag)
+
             .service(systemset::fetch_system)
             .service(systemset::update_system)
             .service(report_design::fetch_print_documents)
