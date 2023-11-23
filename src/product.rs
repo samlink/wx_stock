@@ -89,8 +89,8 @@ pub async fn fetch_product(
         let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(id) as 记录数 FROM products WHERE 商品id='{}' {}"#,
-            post_data.id, conditions
+            r#"SELECT count(id) as 记录数 FROM products WHERE 商品id='{}' {} {}"#,
+            post_data.id, area, conditions
         );
 
         let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();

@@ -59,19 +59,18 @@ pub async fn pull_users(
             users.push(user);
         }
 
-        let rows = &conn
-            .query(
-                r#"SELECT count(name) as 记录数 FROM users WHERE name LIKE '%' || $1 || '%'"#,
-                &[&post_data.name],
-            )
-            .await
-            .unwrap();
+        let sql2 = format!(
+            "SELECT count(name) as 记录数 FROM users WHERE {} name LIKE '%{}%' AND name <> 'admin'",
+            area, post_data.name
+        );
+
+        let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
         for row in rows {
             count = row.get("记录数");
         }
-        count = count - 1; // 将 admin 用户减去
+
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((users, count, pages))
     } else {
