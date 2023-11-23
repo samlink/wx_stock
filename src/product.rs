@@ -23,10 +23,45 @@ pub async fn fetch_product(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
-        let conditions = "".to_owned();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        // 区域限制
+        let mut area = "".to_owned();
+        if !user.rights.contains("跨区查库存") {
+            area = format!(r#"AND {}='{}'"#, f_map["区域"], user.area);
+        }
+        // 构建搜索字符串
+        let mut conditions = "".to_owned();
         if post_data.name != "" {
-            let name: Vec<&str> = post_data.name.to_lowercase().split(" ").collect();
-            conditions = format!(r#"AND LOWER(规格型号) LIKE '%{}%' OR LOWER() LIKE '%{}%'"#,)
+            let post = post_data.name.to_lowercase();
+            let name: Vec<&str> = post.split(" ").collect();
+            for na in name {
+                conditions += &format!(
+                    r#"AND (LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
+                       OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
+                       OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%')
+                    "#,
+                    f_map["物料号"],
+                    na,
+                    f_map["规格"],
+                    na,
+                    f_map["状态"],
+                    na,
+                    f_map["执行标准"],
+                    na,
+                    f_map["生产厂家"],
+                    na,
+                    f_map["炉号"],
+                    na,
+                    f_map["库位"],
+                    na,
+                    f_map["区域"],
+                    na,
+                    f_map["切完"],
+                    na,
+                    f_map["备注"],
+                    na,
+                );
+            }
         }
 
         let fields = get_fields(db.clone(), "商品规格").await;
@@ -39,21 +74,26 @@ pub async fn fetch_product(
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products 
-            WHERE products.商品id='{}' AND 
-            LOWER(规格型号) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, post_data.id, name, post_data.sort, skip, post_data.rec
+            WHERE products.商品id='{}' {} {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields,
+            post_data.sort,
+            post_data.id,
+            area,
+            conditions,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let products = build_string_from_base(rows, fields);
 
-        let rows = &conn
-            .query(
-                r#"SELECT count(id) as 记录数 FROM products WHERE 商品id=$1 AND LOWER(规格型号) LIKE '%' || $2 || '%'"#,
-                &[&post_data.id, &name],
-            )
-            .await
-            .unwrap();
+        let sql2 = format!(
+            r#"SELECT count(id) as 记录数 FROM products WHERE 商品id='{}' {}"#,
+            post_data.id, conditions
+        );
+
+        let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
         for row in rows {

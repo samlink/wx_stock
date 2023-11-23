@@ -96,7 +96,7 @@ var rights = {
     customers: ['客户管理', '供应商管理', '业务往来', '债务结算'],
     statics: ['综合分析', '销售统计', '库存成本'],
     setup: ['商品设置', '用户设置', '销售人员', '仓库设置', '字段设置', '报表设计', '系统参数'],
-    other: ['单据记账', '记账编辑', '批量导入', '导出数据'],
+    other: ['单据记账', '记账编辑', '批量导入', '导出数据', '跨区查库存'],
 };
 
 let rows = "";
@@ -160,46 +160,40 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         notifier.show('请先选择用户', 'danger');
     }
     else {
-        let duty = focus.children[2].textContent;
-        if (duty == "总经理") {
-            notifier.show('无法编辑超级用户', 'danger');
+        document.querySelector('#edit-button').classList.add("hide");
+        document.querySelector('#del-button').classList.add("hide");
+        document.querySelector('#sumit-button').classList.remove("hide");
+        document.querySelector('#cancel-button').classList.remove("hide");
+
+        for (let mark of marks) {
+            mark.removeAttribute("style");
         }
-        else {
-            document.querySelector('#edit-button').classList.add("hide");
-            document.querySelector('#del-button').classList.add("hide");
-            document.querySelector('#sumit-button').classList.remove("hide");
-            document.querySelector('#cancel-button').classList.remove("hide");
 
-            for (let mark of marks) {
-                mark.removeAttribute("style");
-            }
+        for (let check of all_checks) {
+            check.disabled = false;
+        }
 
-            for (let check of all_checks) {
-                check.disabled = false;
-            }
+        table_data.edit = true;
 
-            table_data.edit = true;
+        confirm_save = focus.children[6].textContent;
+        select_save = focus.children[2].textContent;
 
-            confirm_save = focus.children[6].textContent;
-            select_save = focus.children[2].textContent;
+        let select = "<select class='select-sm'>"
+        let options = ["销售", "库管", "主管"];
+        for (let value of options) {
+            let selected = value == select_save ? 'selected' : '';
+            select += `<option value="${value}" ${selected}>${value}</option>`;
+        }
+        select += "</select>";
 
-            let select = "<select class='select-sm'>"
-            let options = ["销售", "库管", "主管"];
-            for (let value of options) {
-                let selected = value == select_save ? 'selected' : '';
-                select += `<option value="${value}" ${selected}>${value}</option>`;
-            }
-            select += "</select>";
+        focus.children[2].innerHTML = select;
 
-            focus.children[2].innerHTML = select;
+        let confirm = confirm_save == "未确认" ? "" : "checked";
 
-            let confirm = confirm_save == "未确认" ? "" : "checked";
-
-            focus.children[6].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
+        focus.children[6].innerHTML = `<label class="check-radio"><input type="checkbox" ${confirm}>
                                                 <span class="checkmark"></span></label>`;
 
-            focus.children[6].setAttribute("style", "padding-top: 0;");
-        }
+        focus.children[6].setAttribute("style", "padding-top: 0;");
     }
 });
 

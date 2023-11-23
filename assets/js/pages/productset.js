@@ -30,6 +30,7 @@ let tree_data = {
 
         document.querySelector('#product-name').textContent = name;
         document.querySelector('#product-id').textContent = id;
+        document.querySelector('#search-input').value = "";
 
         let post_data = {
             id: id,

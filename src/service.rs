@@ -7,6 +7,7 @@ use deadpool_postgres::Pool;
 use dotenv::dotenv;
 use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::io::{self, Write};
 
 pub static SPLITER: &str = "<`*_*`>";
@@ -220,6 +221,27 @@ pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData
         .unwrap();
 
     return_fields(rows)
+}
+
+//映射显示字段，非全部字段
+pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
+    let conn = db.get().await.unwrap();
+    let rows = &conn
+        .query(
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
+                    FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
+            &[&table_name],
+        )
+        .await
+        .unwrap();
+
+    let mut f_map: HashMap<String, String> = HashMap::new();
+
+    for row in rows {
+        f_map.insert(row.get("show_name"), row.get("field_name"));
+    }
+
+    f_map
 }
 
 //获取出入库用的显示字段，非全部字段
