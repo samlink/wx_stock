@@ -160,7 +160,7 @@ pub async fn buyin_auto(
             sql_where,
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {

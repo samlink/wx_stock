@@ -7,8 +7,8 @@ import * as service from '../parts/service.mjs'
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 
 //设置菜单 
-document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
-document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
+// document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
+// document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
 
 let customer_table_fields, document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -835,7 +835,6 @@ function clear_page(info, text1, text2) {
 
 //获取打印模板
 function fetch_print_models(value) {
-    console.log(value);
     let print_id;
     if (value == "商品采购") {
         print_id = 3;
@@ -1029,8 +1028,8 @@ function build_input_row(show_names, all_width, num) {
                 <button class="btn btn-info btn-sm product-search-button"> ... </button>
             </div>
         </td>
-        <td width=${show_names.get("材质") * 100 / all_width}% class="editable"></td>
-        <td width=${show_names.get("规格") * 100 / all_width}%></td>
+        <td width=${show_names.get("材质") * 100 / all_width}%></td>
+        <td width=${show_names.get("规格") * 100 / all_width}% class="editable"></td>
         <td width=${show_names.get("状态") * 100 / all_width}%></td>    
         <td width=${show_names.get("单价") * 100 / all_width}% class="editable">
             <div class="form-input">
@@ -1318,7 +1317,6 @@ function add_line(show_names, all_width) {
 
     let new_row = build_input_row(show_names, all_width);
     let next = document.querySelector(`.inputting + tr`);
-    console.log(next);
 
     if (next && next.querySelector('td:nth-child(1)').textContent == "") {
         next.parentNode.replaceChild(new_row, next);
