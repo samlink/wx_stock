@@ -3,12 +3,8 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
 import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
+import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-
-//设置菜单 
-// document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
-// document.querySelector('#function-set .menu-text').classList.add('show-chosed');
 
 let global = {
     row_id: 0,
@@ -47,11 +43,6 @@ let tree_data = {
 tree_init(tree_data);
 fetch_tree(open_node);
 
-function open_node() {
-    document.querySelector('#t_4 span').click();
-    document.querySelector('#t_3 span').click();
-}
-
 let input = document.querySelector('#auto_input');
 
 let auto_comp = new AutoInput(input, "", `/tree_auto`, () => {
@@ -63,10 +54,6 @@ auto_comp.init();
 document.querySelector("#auto_search").addEventListener('click', () => {
     tree_search(input.value);
 });
-
-// document.querySelector(".tree-title").addEventListener('click', () => {
-//     fetch_tree();
-// });
 
 //商品规格表格数据 -------------------------------------------------------------------
 

@@ -4,7 +4,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER, regReal } from '../parts/tools.mjs';
+import { SPLITER, regReal, open_node } from '../parts/tools.mjs';
 import { close_modal } from '../parts/modal.mjs';
 
 let all_width;
@@ -166,8 +166,8 @@ function build_blank_table() {
 
                     let product = item.split(SPLITER);
                     let len = product.length;
-                    let n = 4;
-                    for (let i = 0; i < input_data.show_names.length - 1; i++) { //减1 是因为“名称”不参与
+                    let n = 3;
+                    for (let i = 0; i < input_data.show_names.length - 2; i++) { //减1 是因为“名称”不参与
                         input_row.querySelector(`td:nth-child(${n})`).textContent = product[i];
                         n++;
                     }
@@ -268,18 +268,8 @@ function build_input_row(show_names, all_width, num) {
 
     input_row.querySelector(`td:nth-child(1)`).textContent = num;
 
-    //构造商品规格自动完成
-    let show_th = [
-        { name: "名称", width: 60 },
-        { name: "材质", width: 80 },
-        { name: "规格", width: 80 },
-        { name: "状态", width: 100 },
-        { name: "库存长度", width: 80 },
-        { name: "库存重量", width: 80 },
-    ];
-
-    auto_table(auto_input, "", `/buyin_auto`, show_th, () => {
-        fill_gg(auto_input, input_data.show_names, 3);
+    auto_table(auto_input, "", `/buyin_auto`, input_data.auto_th, () => {
+        fill_gg(auto_input, input_data.show_names, 3); // 3 为填充规格的单元数
     });
 
     input_row.addEventListener('click', function () {
@@ -318,7 +308,7 @@ function build_input_row(show_names, all_width, num) {
                                 <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
                                         width="20px"></button>
                             </div>
-                            <div class="tree-title">商品分类　<a href="javascript:;" title="刷新"><i class="fa fa-refresh fa-lg"></i></a></div>
+                            <div class="tree-title">商品分类</div>
                             <div class="tree-container">
                                 <ul id="tree">
                                 </ul>
@@ -401,7 +391,7 @@ function build_input_row(show_names, all_width, num) {
             }
 
             tree_init(tree_data);
-            fetch_tree();
+            fetch_tree(open_node);
 
             let input = document.querySelector('#auto_input');
 
@@ -415,9 +405,9 @@ function build_input_row(show_names, all_width, num) {
                 tree_search(input.value);
             });
 
-            document.querySelector(".tree-title").addEventListener('click', () => {
-                fetch_tree();
-            });
+            // document.querySelector(".tree-title").addEventListener('click', () => {
+            //     fetch_tree();
+            // });
 
             let row_num = Math.floor(tbody_height / 30);
             service.build_product_table(row_num, row_dbclick);
@@ -505,7 +495,6 @@ function remove_inputting() {
 //填充规格字段
 function fill_gg(auto_input, show_names, num) {
     let field_values = auto_input.getAttribute("data").split(SPLITER);
-    console.log(auto_input.getAttribute("data"));
     let n = 3;  //从第 3 列开始填入数据
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
@@ -621,7 +610,7 @@ function chose_exit(selected_row) {
                 let input = document.querySelector('.inputting .auto-input');
                 input.value = content.split(SPLITER)[1];
                 input.setAttribute("data", content);
-                fill_gg(input, input_data.show_names, 3);
+                fill_gg(input, input_data.show_names, 3);  // 3 是填入规格数据的数量
                 close_modal();
             });
     }

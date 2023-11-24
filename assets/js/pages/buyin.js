@@ -155,13 +155,25 @@ fetch(`/fetch_inout_fields`, {
                 item.editable = true;
                 return;
             }
-        })
+        });
 
-        table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33); // 33 为 lineHeight
+        //计算表格行数，33 为 lineHeight （行高）
+        table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
+
+        //构造商品规格自动完成
+        let show_th = [
+            { name: "名称", width: 60 },
+            { name: "材质", width: 80 },
+            { name: "规格", width: 80 },
+            { name: "状态", width: 100 },
+            { name: "库存长度", width: 80 },
+            { name: "库存重量", width: 80 },
+        ];
 
         let data = {
             show_names: show_names,
             lines: table_lines,
+            auto_th: show_th,
         }
 
         input_table_init(data);
@@ -169,7 +181,7 @@ fetch(`/fetch_inout_fields`, {
     });
 
 //构造第二张历史记录表----------
-init_history();
+// init_history();
 
 //保存、打印和审核 -------------------------------------------------------------------
 
@@ -445,8 +457,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 
 //清空历史记录表
 function init_history() {
-
-    let row2 = "<tr><td></td><td></td><td></td></tr>";
+    let row2 = "<tr><td></td></tr>";
     let rows2 = "";
     for (let i = 0; i < table_lines; i++) {
         rows2 += row2;

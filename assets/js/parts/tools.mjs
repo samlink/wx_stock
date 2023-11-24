@@ -164,3 +164,9 @@ export function moneyUppercase2(money) {
     }
     return chineseStr;
 }
+
+// 打开树的节点
+export function open_node() {
+    document.querySelector('#t_4 span').click();
+    document.querySelector('#t_3 span').click();
+}
