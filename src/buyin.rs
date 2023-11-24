@@ -154,7 +154,6 @@ pub async fn buyin_auto(
             SPLITER,
             f_map["理论重量"],
             SPLITER,
-
             s[0].to_lowercase(),
             s[0].to_lowercase(),
             sql_where,
@@ -177,27 +176,21 @@ pub async fn fetch_one_product(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
-        let fields = get_inout_fields(db.clone(), "商品规格").await;
-        let mut sql = "SELECT 出售价格,".to_owned();
-        for f in &fields {
-            sql += &format!("{},", f.field_name);
-        }
+        let f_map = map_fields(db.clone(), "商品规格").await;
 
-        sql = sql.trim_end_matches(",").to_owned();
-        let sql = &format!(r#"{} FROM products WHERE id = {}"#, sql, product_id);
+        let sql = format!("SELECT id || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+                            || '{}' || {} || '{}' || {} || '{}' || {} as p from products
+                            JOIN tree ON products.商品id = tree.num
+                            WHERE id = {}",
+                        SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["售价"], product_id);
+
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut data = "".to_owned();
-        let mut field_str = "".to_owned();
-        let mut price = 0f32;
+
         for row in rows {
-            field_str = simple_string_from_base(row, &fields);
-            price = row.get("出售价格");
+            data = row.get("p");
         }
-
-        data += &format!("{}{}{}{}", field_str, "", SPLITER, price);
-
-        // data = data.trim_end_matches(SPLITER).to_owned();
 
         HttpResponse::Ok().json(data)
     } else {
