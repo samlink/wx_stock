@@ -458,9 +458,9 @@ pub async fn fetch_document(
         } else if data.dh.starts_with("XT") {
             cate = "销售退货";
         } else if data.dh.starts_with("CG") {
-            cate = "采购入库";
+            cate = "商品采购";
         } else if data.dh.starts_with("CT") {
-            cate = "退货出库";
+            cate = "采购退货";
         } else {
             cate = "库存调整";
         }
@@ -491,7 +491,7 @@ pub async fn fetch_document(
     }
 }
 
-///获取单据条目
+///获取单据明细
 #[post("/fetch_document_items")]
 pub async fn fetch_document_items(
     db: web::Data<Pool>,

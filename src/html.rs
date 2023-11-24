@@ -158,7 +158,8 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["商品采购", "供应商", "近期采购", dh];        
+        let setup = vec!["商品采购", "供应商", "近期采购", dh, "customer"];       
+
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)

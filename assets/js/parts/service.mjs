@@ -303,7 +303,7 @@ export function build_inout_form(table_fields, data) {
 }
 
 //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
-export function build_product_table(row_num, cb) {
+export function build_product_table(row_num, cb, more) {
     let init_data = {
         container: '.table-product',
         url: `/fetch_blank`,

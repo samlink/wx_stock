@@ -5,24 +5,21 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
+import { customer_init, out_data } from '../parts/customer.mjs';
+import { modal_init, close_modal } from '../parts/modal.mjs';
 
-//设置菜单 
-// document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
-// document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
-
-let customer_table_fields, document_table_fields, edited;
+let document_table_fields, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
-let customer_supplier = document.querySelector('#customer-suplier');
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
 let document_name;
-if (document_bz == "商品销售") {
+if (document_bz.indexOf("销售") != -1) {
     document_name = "销售单据";
 }
-else if (document_bz == "商品采购") {
+else if (document_bz.indexOf("采购") != -1) {
     document_name = "采购单据";
 }
 
@@ -40,13 +37,15 @@ fetch(`/fetch_inout_fields`, {
             document_table_fields = content;
             let dh = dh_div.textContent;
             if (dh != "新单据") {
-                let data = dh_data(dh);
                 fetch(`/fetch_document`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify(data),
+                    body: JSON.stringify({
+                        cate: document_name,
+                        dh: dh,
+                    }),
                 })
                     .then(response => response.json())
                     .then(data => {
@@ -87,23 +86,29 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
-function dh_data(dh) {
-    let cate;
-    if (document_bz == "商品销售") {
-        cate = "销售单据";
-    }
-    else if (document_bz == "商品采购") {
-        cate = "采购单据";
-    }
-
-    return {
-        cate: cate,
-        dh: dh,
-    };
-}
-
 function document_top_handle(html, has_date) {
-    document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+    if (document.querySelector('.has-auto')) {
+        document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+        
+        let fields_show = document.querySelector('.fields-show');
+        let has_auto = document.querySelector('.has-auto');
+        let next_auto = document.querySelector('.has-auto+div');
+
+        //加入滚动事件处理
+        fields_show.addEventListener('scroll', function () {
+            if (fields_show.scrollTop != 0) {
+                has_auto.style.cssText = "position: relative; left: 5px;";
+                next_auto.style.cssText = "margin-left: -3px;"
+            }
+            else {
+                has_auto.style.cssText = "";
+                next_auto.style.cssText = "";
+            }
+        });
+    }
+    else {
+        document.querySelector('.fields-show').innerHTML = html;
+    }
 
     let date = document.querySelector('#日期');
     if (!has_date) {
@@ -117,143 +122,15 @@ function document_top_handle(html, has_date) {
         // theme: 'molv',
         // theme: '#62468d',
     });
-
-    let fields_show = document.querySelector('.fields-show');
-    let has_auto = document.querySelector('.has-auto');
-    let next_auto = document.querySelector('.has-auto+div');
-
-    //加入滚动事件处理
-    fields_show.addEventListener('scroll', function () {
-        if (fields_show.scrollTop != 0) {
-            has_auto.style.cssText = "position: relative; left: 5px;";
-            next_auto.style.cssText = "margin-left: -3px;"
-        }
-        else {
-            has_auto.style.cssText = "";
-            next_auto.style.cssText = "";
-        }
-    });
 }
 
-//供应商自动完成
-let auto_comp = new AutoInput(document.querySelector('#supplier-input'),
-    customer_supplier, `/customer_auto`, () => {
-        supplier_auto_show();
-    });
-
-auto_comp.init();
-
-//客户供应商查找按钮
-document.querySelector('#supplier-serach').addEventListener('click', function () {
-    if (!document.querySelector('#customer-show')) {
-        let width = document.querySelector('body').clientWidth * 0.8;
-        let height = document.querySelector('body').clientHeight * 0.8;
-        let customer_height = height - 270;
-
-        let html = `<div id="customer-show">
-                    <div class="table-top">
-                        <div class="autocomplete customer-search">
-                            <input type="text" class="form-control search-input" id="search-input" placeholder="${customer_supplier.textContent}搜索">
-                            <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
-                        </div>
-                    </div>
-
-                    <div class="table-container table-customer">
-                        <table>
-                            <thead>
-                                <tr></tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
-                        <div class="table-ctrl">
-                            <div class="tools-button"></div>
-                            <div class="table-button">
-                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
-                                        width="12px"></button>
-                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
-                                        width="12px"></button>
-                                <p class="seperator"></p>
-                                <span>第</span><input type="text" class="form-control" id="page-input" value="1">
-                                <span>页，共</span><span id="pages"></span><span>页</span>
-                                <p class="seperator"></p>
-                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
-                                        width="12px"></button>
-                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
-                                        width="12px"></button>
-                            </div>
-
-                            <div class="table-info">
-                                共 <span id="total-records"></span> 条记录
-                            </div>
-
-                        </div>
-                    </div>
-                </div>`;
-
-        document.querySelector('.modal-body').innerHTML = html;
-
-        fetch(`/fetch_inout_fields`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(customer_supplier.textContent),
-        })
-            .then(response => response.json())
-            .then(content => {
-                customer_table_fields = content;
-                let table = document.querySelector('.table-customer');
-                let data = service.build_table_header(table, [{ name: '序号', width: 3 }], customer_table_fields);
-                table.querySelector('thead tr').innerHTML = data.th_row;
-                // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
-
-                let init_data = {
-                    container: '.table-customer',
-                    url: `/fetch_inout_customer`,
-                    header_names: data.header_names,
-                    post_data: {
-                        id: "",
-                        name: '',
-                        sort: "名称 ASC",
-                        rec: Math.floor(customer_height / 30),
-                        cate: customer_supplier.textContent,
-                    },
-                    edit: false,
-
-                    row_fn: customer_table_row,
-                    blank_row_fn: customer_blank_row,
-                };
-
-                table_init(init_data);
-                fetch_table(() => {
-                    row_dbclick(table);
-                });
-            });
-
-        let auto_complete = new AutoInput(document.querySelector('#search-input'),
-            customer_supplier, `/customer_auto`, () => {
-                search_table();
-            });
-
-        auto_complete.init();
-
-        document.querySelector('#serach-button').onclick = function () {
-            search_table();
-        };
-
-        document.querySelector('.modal-title').textContent = `选择${customer_supplier.textContent}`;
-        document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-        document.querySelector('.modal-content').style.cssText = `height: 100%;`
-    }
-
-    document.querySelector('.modal').style.display = "block";
-});
+if (document.querySelector('#supplier-input')) {
+    customer_init();
+}
 
 //表格输入部分 -----------------------------------------------------------------------
 
-let show_names, all_width, ware_value, direct_check,
-    product_table_fields, table_lines, blank_row, sale_cut;
+let show_names, all_width, product_table_fields, table_lines, blank_row, sale_cut;
 
 //获取商品规格表字段，字段设置中的右表数据
 fetch(`/fetch_inout_fields`, {
@@ -325,13 +202,15 @@ fetch(`/fetch_inout_fields`, {
             tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
         }
         else {
-            let data = dh_data(dh);
             fetch(`/fetch_document_items`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(data),
+                body: JSON.stringify({
+                    cate: document_name,
+                    dh: dh,
+                }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -1329,76 +1208,6 @@ function add_line(show_names, all_width) {
     sum_records();
 }
 
-//关闭按键
-document.querySelector('#modal-close-button').addEventListener('click', function () {
-    close_modal();
-});
-
-//关闭按键
-document.querySelector('.top-close').addEventListener('click', function () {
-    close_modal();
-});
-
-//点击提交按钮
-document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    let selected_row = document.querySelector('table .focus');
-    if (selected_row) {
-        chose_exit(selected_row);
-    }
-    else {
-        notifier.show('请先选择再提交', 'danger');
-    }
-});
-
-//自动完成点击后，展示供应商（客户）数据
-function supplier_auto_show() {
-    let data = {
-        rights: customer_supplier.textContent == "客户" ? "商品销售" : "商品采购",
-        cate: customer_supplier.textContent,
-        id: Number(document.querySelector('#supplier-input').getAttribute('data')),
-    };
-
-    fetch(`/fetch_supplier`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            let supplier = content[1].split(SPLITER);
-            let join_sup = "";
-            for (let i = 0; i < content[0].length; i++) {
-                join_sup += `${supplier[i]}　 `;
-            }
-
-            let info = document.querySelector('#supplier-info');
-            if (content[2].indexOf('差') != -1) {
-                info.style.cssText = "color: red; background-color: wheat;";
-            }
-            else {
-                info.style.cssText = "";
-            }
-
-            info.textContent = join_sup;
-            sale_cut = content[3];      //全局变量：折扣优惠
-        });
-}
-
-//显示行数据
-function customer_table_row(tr) {
-    let rec = tr.split(SPLITER);
-    let row = `<tr><td style="text-align: center;">${rec[1]}</td><td hidden>${rec[0]}</td>`;
-    return service.build_row_from_string(rec, row, customer_table_fields);
-}
-
-//显示空行数据
-function customer_blank_row() {
-    let row = "<tr><td></td><td hidden></td>";
-    return service.build_blank_from_fields(row, customer_table_fields);
-}
-
 //给行加上双击事件
 function row_dbclick(table) {
     let rows = table.querySelectorAll('body tr');
@@ -1409,59 +1218,34 @@ function row_dbclick(table) {
     }
 }
 
-//按搜索按钮后的辅助函数
-function search_table() {
-    let table = document.querySelector('.table-customer');
-    let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, { name: search, page: 1 });
-    fetch_table(() => {
-        row_dbclick(table);
-    });
-}
-
-//关闭函数
-function close_modal() {
-    document.querySelector('.modal').style.display = "none";
-    document.querySelector('.modal-content').style.cssText = "";
-    document.querySelector('#modal-info').innerHTML = "";
-}
-
 //选择行数据并退出
 function chose_exit(selected_row) {
     let id = selected_row.children[1].textContent;
     if (id) {
-        if (document.querySelector('.modal-title').textContent != "选择商品") {
-            let name = selected_row.children[2].textContent;
-            let supplier = document.querySelector('#supplier-input');
-            supplier.value = name;
-            supplier.setAttribute('data', id);
-            supplier_auto_show();
-            close_modal();
-        }
-        else {
-            fetch(`/fetch_one_product`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(Number(id)),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    let name = document.querySelector('#product-name').textContent;
-                    let data = ` ${id}${SPLITER}${name}${SPLITER}${content}`;
-                    let input = document.querySelector('.inputting .auto-input');
-                    input.value = name;
-                    input.setAttribute("data", data);
-                    fill_gg(input, document.querySelector('.inputting'));
-                    close_modal();
-                });
-        }
+        fetch(`/fetch_one_product`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(Number(id)),
+        })
+            .then(response => response.json())
+            .then(content => {
+                let name = document.querySelector('#product-name').textContent;
+                let data = ` ${id}${SPLITER}${name}${SPLITER}${content}`;
+                let input = document.querySelector('.inputting .auto-input');
+                input.value = name;
+                input.setAttribute("data", data);
+                fill_gg(input, document.querySelector('.inputting'));
+                close_modal();
+            });
     }
     else {
         notifier.show('请先选择记录', 'danger');
     }
 }
+
+modal_init();
 
 window.onbeforeunload = function (e) {
     if (edited) {
