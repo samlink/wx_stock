@@ -146,7 +146,7 @@ fetch(`/fetch_inout_fields`, {
         }
 
         show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, default: "" });
-        show_names.push({ name: "数量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
+        show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
         show_names.push({ name: "金额", width: 80, class: "money", type: "普通输入", editable: false, default: "" });
         show_names.push({ name: "备注", width: 100, class: "", type: "普通输入", editable: true, default: "" });
 
@@ -180,9 +180,6 @@ fetch(`/fetch_inout_fields`, {
 
     });
 
-//构造第二张历史记录表----------
-// init_history();
-
 //保存、打印和审核 -------------------------------------------------------------------
 
 //保存
@@ -196,9 +193,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let cate = document.querySelector('#inout-cate').value;
+    let cate = document.querySelector('#document-bz').textContent;
     let dh = dh_div.textContent;
-    let user_name = document.querySelector('#user-name').textContent;
+    let user_name = document.querySelector('#user-name').textContent.split('　')[1];
 
     let save_str = `${cate}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
 
@@ -221,12 +218,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
-            let cate = document.querySelector('#inout-cate').value;
             let mount = row.querySelector('.mount').value;
-            if (cate == "商品销售" || cate == "退货出库") {
-                mount = mount * -1;
-            }
-
             let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
             row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
             row_data += `${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
@@ -241,26 +233,26 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
-    fetch(`/save_document`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content != -1) {
-                dh_div.textContent = content;
-                notifier.show('单据保存成功', 'success');
-                edited = false;
-            }
-            else {
-                notifier.show('权限不够，操作失败', 'danger');
-            }
-        });
+    // fetch(`/save_document`, {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    // })
+    //     .then(response => response.json())
+    //     .then(content => {
+    //         if (content != -1) {
+    //             dh_div.textContent = content;
+    //             notifier.show('单据保存成功', 'success');
+    //             edited = false;
+    //         }
+    //         else {
+    //             notifier.show('权限不够，操作失败', 'danger');
+    //         }
+    //     });
 });
 
 //打印
