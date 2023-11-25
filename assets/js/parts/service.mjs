@@ -53,23 +53,20 @@ export function build_table_header(table_container, custom_fields, table_fields,
 
     let header_names = {};
     for (let th of custom_fields) {
-        let key = th.name;
-        header_names[key] = th.field;
+        header_names[th.name] = th.field;
     }
 
     for (let th of table_fields) {
         row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
 
-        let key = th.show_name;
-        header_names[key] = th.field_name;
+        header_names[th.show_name] = th.field_name;
     }
 
     if (last_fields) {
         for (let item of last_fields) {
             row += width_raio < 18 ? `<th width='${item.width * 18}px'>${item.name}</th>` : `<th width='${item.width * 100 / all_width}%'>${item.name}</th>`;
-            let key = item.name;
-            header_names[key] = item.field;
+            header_names[item.name] = item.field;
         }
     }
 
@@ -121,9 +118,12 @@ export function build_table_header(table_container, custom_fields, table_fields,
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields, n) {
     if (!n) n = 2;
+    let m = 0;
     for (let name of table_fields) {
+        console.log(rec[n]);
+        console.log(name);
         if (name.data_type == "文本") {
-            row += `<td  title='${rec[n]}'>${rec[n]}</td>`;
+            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
             row += `<td>${rec[n]}</td>`;
         }
@@ -131,9 +131,12 @@ export function build_row_from_string(rec, row, table_fields, n) {
             row += `<td>${rec[n]}</td>`;
         }
         n++;
+        m++;
+        console.log(m);
+
     }
     row += "</tr>";
-
+    console.log(row);
     return row;
 }
 

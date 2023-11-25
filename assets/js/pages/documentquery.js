@@ -4,9 +4,9 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { getHeight, SPLITER } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
-//设置菜单 
-document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
-document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
+// //设置菜单 
+// document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
+// document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
 
 let cate = document.querySelector('#category').textContent;
 
@@ -45,7 +45,7 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch(`/fetch_inout_fields`, {
+fetch(`/fetch_used_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",
@@ -61,8 +61,8 @@ fetch(`/fetch_inout_fields`, {
                 { name: '单号', field: '单号', width: 7 },
                 { name: '类别', field: 'documents.类别', width: 4 },
                 { name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10 },
-                { name: '已记账', field: '已记账', width: 3 },
-                { name: '制单人', field: '制单人', width: 4 },
+                // { name: '已审核', field: '已记账', width: 3 },
+                // { name: '经办人', field: '制单人', width: 4 },
             ];
 
             let table = document.querySelector('.table-documents');
@@ -92,11 +92,12 @@ function table_row(tr) {
     let row = `<tr class='${border_left} ${bk_color}'><td style="text-align: center;">${rec[0]}</td>
         <td title='${rec[1]}'>${rec[1]}</td>
         <td style="text-align: center;">${rec[2]}</td>
-        <td style="text-align: left;" title='${rec[len - 3]}'>${rec[len - 3]}</td>
-        <td style="text-align: center;">${rec[len - 2]}</td>
-        <td style="text-align: center;">${rec[len - 1]}</td>`;
+        <td style="text-align: center;">${rec[3]}</td>`;
 
-    return service.build_row_from_string(rec, row, table_fields, 3);
+
+    let rrr = service.build_row_from_string(rec, row, table_fields, 4);
+    // console.log(rrr);
+    return rrr;
 }
 
 function blank_row() {

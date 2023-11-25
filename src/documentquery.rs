@@ -5,6 +5,23 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 // use time::now;
 
+///获取单据显示字段
+#[post("/fetch_used_fields")]
+pub async fn fetch_used_fields(
+    db: web::Data<Pool>,
+    name: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name != "" {
+        let fields = get_used_fields(db.clone(), &name).await;
+        HttpResponse::Ok().json(fields)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取全部单据
 #[post("/fetch_all_documents")]
 pub async fn fetch_all_documents(
@@ -31,9 +48,9 @@ pub async fn fetch_all_documents(
         let skip = (post_data.page - 1) * post_data.rec;
         // let name = post_data.name.to_lowercase();
 
-        let fields = get_inout_fields(db.clone(), doc_cate).await;
+        let fields = get_used_fields(db.clone(), doc_cate).await;
 
-        let mut sql_fields = "SELECT 单号,documents.类别,已记账,".to_owned();
+        let mut sql_fields = "SELECT 单号,documents.类别,".to_owned();
         let mut sql_where = "".to_owned();
 
         for f in &fields {
@@ -54,7 +71,7 @@ pub async fn fetch_all_documents(
         // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,经办人 FROM documents 
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
             JOIN customers ON documents.客商id=customers.id
             WHERE 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, doc_pre, sql_where, post_data.sort, skip, post_data.rec
@@ -69,23 +86,24 @@ pub async fn fetch_all_documents(
             let dh: String = row.get("单号");
             let cate: String = row.get("类别");
             let customer_name: String = row.get("名称");
-            let rem: bool = row.get("已记账");
-            let remembered = if rem == true { "是" } else { "否" };
-            let maker: String = row.get("经办人");
+            // let rem: bool = row.get("已记账");
+            // let remembered = if rem == true { "是" } else { "否" };
+            // let maker: String = row.get("经办人");
             let row_str = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}",
                 num,
                 SPLITER,
                 dh,
                 SPLITER,
                 cate,
                 SPLITER,
-                simple_string_from_base(row, &fields),
                 customer_name,
                 SPLITER,
-                remembered,
-                SPLITER,
-                maker,
+                // remembered,
+                // SPLITER,
+                simple_string_from_base(row, &fields),
+                // SPLITER,
+                // maker,
             );
 
             doc_rows.push(row_str);
