@@ -332,7 +332,7 @@ pub async fn save_document(
             let init = "UPDATE documents SET ".to_owned();
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
-                "客商id={}, 类别='{}', {}='{}' {}='{}' WHERE 单号='{}'",
+                "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
                 doc_data[2],
                 doc_data[0],
                 f_map["经办人"],
@@ -342,8 +342,6 @@ pub async fn save_document(
                 dh
             );
         }
-
-        println!("{}", doc_sql);
 
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
@@ -363,6 +361,8 @@ pub async fn save_document(
                 VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
                 dh, value[0], value[1], value[2], value[3], value[4], value[5], n
             );
+            // println!("{}", items_sql);
+
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
             n += 1;
         }
@@ -525,7 +525,7 @@ pub async fn fetch_document_items(
 
         let sql = format!(
             r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
-                规格, 状态, 单价, 重量, '' as 金额, 备注 FROM document_items 
+                规格, 状态, 单价, 重量, (单价*重量)::real as 金额, 备注 FROM document_items 
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -543,7 +543,7 @@ pub async fn fetch_document_items(
             let status: String = row.get("状态");
             let price: f32 = row.get("单价");
             let weight: f32 = row.get("重量");
-            let money: String = row.get("金额");    //金额是占位用，与前端字段一致
+            let money: f32 = row.get("金额");
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",

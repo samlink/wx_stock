@@ -189,16 +189,7 @@ fetch(`/fetch_inout_fields`, {
                 }),
             })
                 .then(response => response.json())
-                .then(data => {
-                    let rows = [];
-                    for (let row of data) {
-                        let da = row.split(SPLITER);
-                        for (let i in show_names) {
-                            show_names[i].value = da[i];
-                        }
-                        rows.push(show_names);
-                    }
-
+                .then(content => {
                     // let num = 1;    //序号
                     // for (let item of data) {
                     //     let input_row = build_input_row(input_data.show_names, all_width, num);
@@ -242,7 +233,8 @@ fetch(`/fetch_inout_fields`, {
                     // }, 200);
 
                     let data2 = {
-                        rows: rows,
+                        show_names: show_names,
+                        rows: content,
                         lines: table_lines,
                         auto_th: show_th,
                         dh: dh,

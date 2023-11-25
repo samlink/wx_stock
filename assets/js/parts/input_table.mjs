@@ -27,7 +27,7 @@ export function input_table_init(data) {
     document.querySelector('#row-insert').addEventListener('click', function (e) {
         let edit = document.querySelector('.inputting');
         if (edit) {
-            let table_body = document.querySelector('.table-items tbody');            
+            let table_body = document.querySelector('.table-items tbody');
             let input_row = build_input_row(input_data.show_names, all_width);
 
             remove_absolute();
@@ -37,6 +37,7 @@ export function input_table_init(data) {
 
             rebuild_index();
             sum_records();
+            keep_up();
 
             input_row.querySelector('td:nth-child(2)').click();
         }
@@ -56,6 +57,7 @@ export function input_table_init(data) {
                         remove_absolute();
                         remove_inputting();
                         rebuild_index();
+                        keep_up();
                     }
                     else {
                         let new_row = build_input_row(input_data.show_names, all_width);
@@ -124,8 +126,8 @@ function build_blank_table() {
     let th = "<tr>";
     let blank = "<tr>";
     input_data.show_names.forEach(obj => {
-        th += `<th width=${obj.width * 100 / all_width}%>${obj.name}</th>`;
-        blank += `<td width=${obj.width * 100 / all_width}%></td>`;
+        th += `<th width=${obj.width * 100 / all_width}>${obj.name}</th>`;
+        blank += `<td width=${obj.width * 100 / all_width}></td>`;
     });
 
     th += "</tr>";
@@ -148,7 +150,41 @@ function build_blank_table() {
         tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
     }
     else {
-        
+        let num = 1;
+        for (let row of input_data.rows) {
+            let da = row.split(SPLITER);
+            for (let i in input_data.show_names) {
+                input_data.show_names[i].value = da[i];
+            }
+
+            let input_row = build_input_row(input_data.show_names, all_width, num);
+            tbody.appendChild(input_row);
+
+            num += 1;
+        }
+
+        //清空数据
+        for (let i in input_data.show_names) {
+            input_data.show_names[i].value = "";
+        }
+
+        //在数据行最后创建一个新的空行，供输入新内容
+        let input_row = build_input_row(input_data.show_names, all_width, num);
+        tbody.appendChild(input_row);
+
+        keep_up();
+
+        let rows = "";
+        for (let i = 0; i < input_data.lines - num; i++) {
+            rows += blank;
+        }
+
+        tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
+
+        setTimeout(() => {
+            sum_money();
+            sum_records();
+        }, 200);
     }
 
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
@@ -167,35 +203,42 @@ function build_input_row(show_names, all_width, num) {
     let control = "";
     for (let obj of show_names) {
         if (obj.type == "普通输入" && obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}% class="editable">
-            <input class="form-control input-sm has-value ${obj.class}" type="text"></td>`;
+            control += `<td width=${obj.width * 100 / all_width} class="editable">
+            <input class="form-control input-sm has-value ${obj.class}" type="text" value = ${obj.value ? obj.value : ''}></td>`;
         }
         else if (obj.type == "普通输入" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}% class='${obj.class}'></td >`;
+            control += `<td width=${obj.width * 100 / all_width} class='${obj.class}'>${obj.value ? obj.value : ''}</td >`;
         } else if (obj.type == "二值选一" && obj.editable) {
-            let checked = obj.default.split('_')[0] == obj.default ? 'checked' : '';
-            control += `<td width=${obj.width * 100 / all_width}% class="editable"><label class="check-radio">
+            let checked;
+            if (obj.value) {
+                checked = obj.value;
+            } else {
+                checked = obj.default.split('_')[0] == obj.default ? 'checked' : '';
+            }
+            control += `<td width=${obj.width * 100 / all_width} class="editable"><label class="check-radio">
                                 <input class="has-value" type="checkbox" ${checked}>
                                 <span class="checkmark"></span>
                             </label>
                         </td>`;
         } else if (obj.type == "二值选一" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}%></td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''}</td >`;
         }
         else if (obj.type == "下拉列表" && obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}% class="editable"><select class='select-sm has-value'>`;
+            control += `<td width=${obj.width * 100 / all_width} class="editable"><select class='select-sm has-value'>`;
             let options = obj.default.split('_');
             for (let value of options) {
-                control += `<option value="${value}">${value}</option>`;
+                let select = value == obj.value ? 'select' : '';
+                control += `<option value="${value}" ${select}>${value}</option>`;
             }
             control += "</select></td>";
         } else if (obj.type == "下拉列表" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}%></td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''}</td >`;
         } else if (obj.type == "autocomplete" && obj.editable) {
             control += `
-            <td width=${obj.width * 100 / all_width}% class="editable" >
+            <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900;">
-                    <input class="form-control input-sm has-value auto-input" type="text" />
+                    <input class="form-control input-sm has-value auto-input" type="text" 
+                        value="${obj.value ? obj.value.split(' ')[1] : ''}" data="${obj.value ? obj.value.split(' ')[0] : ''}"/>
                     <button class="btn btn-info btn-sm product-search-button"> ... </button>
                 </div>
             </td>`;
@@ -418,6 +461,24 @@ function rebuild_index() {
     }
 }
 
+//避免表头错位（出现滚动条时）
+function keep_up() {
+    let trs = document.querySelectorAll(".table-items tbody tr");
+    let i = 0;
+    trs.forEach(tr => {
+        if (tr.querySelector('td:nth-child(1)').textContent != "") {
+            i++;
+        }
+    });
+
+    if (i > input_data.lines) {
+        document.querySelector(".table-items thead").style.width = "calc(100% - 1em)";
+    }
+    else {
+        document.querySelector(".table-items thead").style.width = "100%";
+    }
+}
+
 //去除绝对定位
 function remove_absolute() {
     let all_auto = document.querySelectorAll('.table-items .autocomplete');
@@ -500,6 +561,7 @@ function add_line(show_names, all_width) {
 
     rebuild_index();
     sum_records();
+    keep_up();
 }
 
 //获取距屏幕左边值
