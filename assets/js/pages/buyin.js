@@ -8,7 +8,7 @@ import { input_table_init, input_table_outdata } from '../parts/input_table.mjs'
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
-let dh_div = document.querySelector('#dh');
+let dh = document.querySelector('#dh').textContent;
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
@@ -32,7 +32,6 @@ fetch(`/fetch_inout_fields`, {
     .then(content => {
         if (content != -1) {
             document_table_fields = content;
-            let dh = dh_div.textContent;
             if (dh != "新单据") {
                 fetch(`/fetch_document`, {
                     method: 'post',
@@ -50,7 +49,6 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let values = data.split(SPLITER);
                         let len = values.length;
-                        document.querySelector('#inout-cate').value = values[len - 1];
                         fetch_print_models(values[len - 1]);
 
                         let rem = document.querySelector('#remember-button');
@@ -66,8 +64,6 @@ fetch(`/fetch_inout_fields`, {
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
-
-                        // supplier_auto_show();
 
 
                     });
@@ -171,14 +167,90 @@ fetch(`/fetch_inout_fields`, {
             { name: "库存重量", width: 80 },
         ];
 
-        let data = {
-            show_names: show_names,
-            lines: table_lines,
-            auto_th: show_th,
+        if (dh == "新单据") {
+            let data = {
+                show_names: show_names,
+                lines: table_lines,
+                auto_th: show_th,
+                dh: dh,
+            }
+
+            input_table_init(data);
         }
+        else {
+            fetch(`/fetch_document_items`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    cate: document_name,
+                    dh: dh,
+                }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    let rows = [];
+                    for (let row of data) {
+                        let da = row.split(SPLITER);
+                        for (let i in show_names) {
+                            show_names[i].value = da[i];
+                        }
+                        rows.push(show_names);
+                    }
 
-        input_table_init(data);
+                    // let num = 1;    //序号
+                    // for (let item of data) {
+                    //     let input_row = build_input_row(input_data.show_names, all_width, num);
+                    //     tbody.appendChild(input_row);
 
+                    //     let product = item.split(SPLITER);
+                    //     let len = product.length;
+                    //     let n = 3;
+                    //     for (let i = 0; i < input_data.show_names.length - 2; i++) { 
+                    //         input_row.querySelector(`td:nth-child(${n})`).textContent = product[i];
+                    //         n++;
+                    //     }
+
+                    //     // input_row.querySelector(`td:nth-child(1)`).textContent = num;
+                    //     input_row.querySelector(`td:nth-child(2) input`).value = product[len - 6];
+                    //     input_row.querySelector(`td:nth-child(2) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
+                    //     input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
+
+                    //     input_row.querySelector(`td:nth-last-child(3)`).textContent =
+                    //         Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
+
+                    //     input_row.querySelector(`td:nth-last-child(4) input`).value = Math.abs(product[len - 4]);
+                    //     input_row.querySelector(`td:nth-last-child(5) input`).value = product[len - 5];
+
+                    //     num++;
+                    // }
+
+                    // let input_row = build_input_row(input_data.show_names, all_width, num);
+                    // tbody.appendChild(input_row);
+
+                    // let rows = "";
+                    // for (let i = 0; i < input_data.lines - data.length - 1; i++) {
+                    //     rows += blank;
+                    // }
+
+                    // tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
+
+                    // setTimeout(() => {
+                    //     sum_money();
+                    //     sum_records();
+                    // }, 200);
+
+                    let data2 = {
+                        rows: rows,
+                        lines: table_lines,
+                        auto_th: show_th,
+                        dh: dh,
+                    }
+
+                    input_table_init(data2);
+                });
+        }
     });
 
 //保存、打印和审核 -------------------------------------------------------------------
@@ -194,7 +266,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let dh = dh_div.textContent;
     let user_name = document.querySelector('#user-name').textContent.split('　')[1];
 
     let save_str = `${document_bz}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
@@ -248,8 +319,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
-
     fetch(`/save_document`, {
         method: 'post',
         headers: {
@@ -260,7 +329,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                dh_div.textContent = content;
+                document.querySelector('#dh').textContent = content;
                 notifier.show('单据保存成功', 'success');
                 edited = false;
             }
@@ -356,9 +425,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 供应商: document.querySelector('#supplier-input').value,
                 客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
-                dh: dh_div.textContent,
+                dh: dh,
                 maker: document.querySelector('#user-name').textContent,
-                barCode: dh_div.textContent,
+                barCode: dh,
             };
             let show_fields = document.querySelectorAll('.document-value');
             let n = 0;
@@ -427,7 +496,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         return false;
     }
 
-    if (dh_div.textContent == "新单据" || edited || input_table_outdata.edited) {
+    if (dh == "新单据" || edited || input_table_outdata.edited) {
         notifier.show('请先保存单据', 'danger');
         return false;
     }
@@ -442,7 +511,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dh_div.textContent),
+                body: JSON.stringify(dh),
             })
                 .then(response => response.json())
                 .then(content => {
@@ -461,17 +530,6 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
-
-//清空历史记录表
-function init_history() {
-    let row2 = "<tr><td></td></tr>";
-    let rows2 = "";
-    for (let i = 0; i < table_lines; i++) {
-        rows2 += row2;
-    }
-
-    document.querySelector('.table-history tbody').innerHTML = rows2;
-}
 
 //获取打印模板
 function fetch_print_models(value) {

@@ -27,7 +27,7 @@ export function input_table_init(data) {
     document.querySelector('#row-insert').addEventListener('click', function (e) {
         let edit = document.querySelector('.inputting');
         if (edit) {
-            let table_body = document.querySelector('.table-items tbody');
+            let table_body = document.querySelector('.table-items tbody');            
             let input_row = build_input_row(input_data.show_names, all_width);
 
             remove_absolute();
@@ -115,6 +115,7 @@ function build_blank_table() {
     let line_height = 33; //行高，与 css 设置一致
     input_data.container.style.width = input_data.width;
 
+    // 构建表头和一个空表行
     all_width = 0;
     input_data.show_names.forEach(obj => {
         all_width += obj.width;
@@ -132,6 +133,7 @@ function build_blank_table() {
 
     input_data.container.querySelector('thead').innerHTML = th;
 
+
     let tbody = input_data.container.querySelector('tbody');
 
     if (input_data.dh == "新单据") {
@@ -146,61 +148,7 @@ function build_blank_table() {
         tbody.querySelector('.has-input').insertAdjacentHTML('afterend', rows);
     }
     else {
-        fetch(`/fetch_document_items`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                cate: input_data.document,
-                dh: dh,
-            }),
-        })
-            .then(response => response.json())
-            .then(data => {
-                // console.log(data);
-                let num = 1;    //序号
-                for (let item of data) {
-                    let input_row = build_input_row(input_data.show_names, all_width, num);
-                    tbody.appendChild(input_row);
-
-                    let product = item.split(SPLITER);
-                    let len = product.length;
-                    let n = 3;
-                    for (let i = 0; i < input_data.show_names.length - 2; i++) { //减1 是因为“名称”不参与
-                        input_row.querySelector(`td:nth-child(${n})`).textContent = product[i];
-                        n++;
-                    }
-
-                    // input_row.querySelector(`td:nth-child(1)`).textContent = num;
-                    input_row.querySelector(`td:nth-child(2) input`).value = product[len - 6];
-                    input_row.querySelector(`td:nth-child(2) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
-                    input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
-
-                    input_row.querySelector(`td:nth-last-child(3)`).textContent =
-                        Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
-
-                    input_row.querySelector(`td:nth-last-child(4) input`).value = Math.abs(product[len - 4]);
-                    input_row.querySelector(`td:nth-last-child(5) input`).value = product[len - 5];
-
-                    num++;
-                }
-
-                let input_row = build_input_row(input_data.show_names, all_width, num);
-                tbody.appendChild(input_row);
-
-                let rows = "";
-                for (let i = 0; i < input_data.lines - data.length - 1; i++) {
-                    rows += blank;
-                }
-
-                tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
-
-                setTimeout(() => {
-                    sum_money();
-                    sum_records();
-                }, 200);
-            });
+        
     }
 
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
@@ -404,10 +352,6 @@ function build_input_row(show_names, all_width, num) {
             document.querySelector("#auto_search").addEventListener('click', () => {
                 tree_search(input.value);
             });
-
-            // document.querySelector(".tree-title").addEventListener('click', () => {
-            //     fetch_tree();
-            // });
 
             let row_num = Math.floor(tbody_height / 30);
             service.build_product_table(row_num, row_dbclick);

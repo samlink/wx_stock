@@ -47,14 +47,14 @@ pub async fn fetch_all_documents(
         }
 
         sql_where += &format!(
-            "单号 LIKE '%{}%' OR 名称 LIKE '%{}%' OR documents.类别 LIKE '%{}%' OR 制单人 LIKE '%{}%'",
+            "单号 LIKE '%{}%' OR 名称 LIKE '%{}%' OR documents.类别 LIKE '%{}%' OR 经办人 like '%{}%'",
             post_data.name, post_data.name, post_data.name, post_data.name
         );
 
         // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,制单人 FROM documents 
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称,经办人 FROM documents 
             JOIN customers ON documents.客商id=customers.id
             WHERE 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, doc_pre, sql_where, post_data.sort, skip, post_data.rec
@@ -71,7 +71,7 @@ pub async fn fetch_all_documents(
             let customer_name: String = row.get("名称");
             let rem: bool = row.get("已记账");
             let remembered = if rem == true { "是" } else { "否" };
-            let maker: String = row.get("制单人");
+            let maker: String = row.get("经办人");
             let row_str = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}",
                 num,

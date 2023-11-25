@@ -318,7 +318,10 @@ pub async fn save_document(
                 init += &format!("{},", &*f.field_name);
             }
 
-            init += &format!("客商id,类别,制单人, {}) VALUES('{}',", f_map["区域"], dh);
+            init += &format!(
+                "客商id,类别,{},{}) VALUES('{}',",
+                f_map["经办人"], f_map["区域"], dh
+            );
 
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
@@ -329,8 +332,14 @@ pub async fn save_document(
             let init = "UPDATE documents SET ".to_owned();
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
-                "客商id={}, 类别='{}', 制单人='{}' {}='{}' WHERE 单号='{}'",
-                doc_data[2], doc_data[0], doc_data[3], f_map["区域"], user.area, dh
+                "客商id={}, 类别='{}', {}='{}' {}='{}' WHERE 单号='{}'",
+                doc_data[2],
+                doc_data[0],
+                f_map["经办人"],
+                doc_data[3],
+                f_map["区域"],
+                user.area,
+                dh
             );
         }
 
@@ -506,21 +515,20 @@ pub async fn fetch_document_items(
     if user_name != "" {
         let conn = db.get().await.unwrap();
 
-        let fields = get_inout_fields(db.clone(), "商品规格").await;
+        // let fields = get_inout_fields(db.clone(), "商品规格").await;
 
-        let mut sql_fields = "SELECT ".to_owned();
+        // let mut sql_fields = "SELECT ".to_owned();
 
-        for f in &fields {
-            sql_fields += &format!("products.{},", f.field_name);
-        }
+        // for f in &fields {
+        //     sql_fields += &format!("products.{},", f.field_name);
+        // }
 
         let sql = format!(
-            r#"{} 直销, document_items.商品id, node_name, 单价, 数量, 仓库id, name, document_items.备注 FROM document_items 
-                JOIN products ON document_items.商品id=products.id
-                JOIN warehouse ON document_items.仓库id=warehouse.id
-                JOIN tree ON products.商品id=tree.num
+            r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
+                规格, 状态, 单价, 重量, '' as 金额, 备注 FROM document_items 
+                JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
-            sql_fields, data.dh
+            data.dh
         );
 
         // println!("{}", sql);
@@ -528,34 +536,36 @@ pub async fn fetch_document_items(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
         for row in rows {
-            let direct: bool = row.get("直销");
-            let id: i32 = row.get("商品id");
-            let name: String = row.get("node_name");
+            let order: i32 = row.get("顺序");
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
             let price: f32 = row.get("单价");
-            let count: f32 = row.get("数量");
-            let ware_id: i32 = row.get("仓库id");
-            let ware_name: String = row.get("name");
+            let weight: f32 = row.get("重量");
+            let money: String = row.get("金额");    //金额是占位用，与前端字段一致
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields),
-                SPLITER,
-                direct,
-                SPLITER,
-                id,
+                order,
                 SPLITER,
                 name,
                 SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
                 price,
                 SPLITER,
-                count,
+                weight,
                 SPLITER,
-                ware_id,
-                SPLITER,
-                ware_name,
+                money,
                 SPLITER,
                 note,
             );
+
             document_items.push(item)
         }
 
