@@ -248,7 +248,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                         let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
                         save_str = `${value}${SPLITER}`;
                     }
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {
+                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         save_str += `${value}${SPLITER}`;
                     }
@@ -401,12 +401,15 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     let row_data = {};
                     row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
                     row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
+                    row_data["材质"] = row.querySelector('td:nth-child(3)').textContent;
+                    row_data["规格"] = row.querySelector('td:nth-child(4) input').value;
+                    row_data["状态"] = row.querySelector('td:nth-child(5) input').value;
 
-                    let n = 4;
-                    for (let f of product_table_fields) {
-                        row_data[f.show_name] = row.querySelector(`td:nth-child(${n})`).textContent;
-                        n++
-                    }
+                    let n = 6;
+                    // for (let f of product_table_fields) {
+                    //     row_data[f.show_name] = row.querySelector(`td:nth-child(${n})`).textContent;
+                    //     n++
+                    // }
 
                     row_data["单价"] = row.querySelector(`td:nth-child(${n}) input`).value;
                     row_data["数量"] = row.querySelector(`td:nth-child(${++n}) input`).value;

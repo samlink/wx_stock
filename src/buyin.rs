@@ -515,14 +515,6 @@ pub async fn fetch_document_items(
     if user_name != "" {
         let conn = db.get().await.unwrap();
 
-        // let fields = get_inout_fields(db.clone(), "商品规格").await;
-
-        // let mut sql_fields = "SELECT ".to_owned();
-
-        // for f in &fields {
-        //     sql_fields += &format!("products.{},", f.field_name);
-        // }
-
         let sql = format!(
             r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
                 规格, 状态, 单价, 重量, (单价*重量)::real as 金额, 备注 FROM document_items 
