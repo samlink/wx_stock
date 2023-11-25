@@ -309,7 +309,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
         .then(content => {
             var configElementTypeProvider = (function () {
                 return function (options) {
-
                     var addElementTypes = function (context) {
                         context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
                         context.testModule = [];
@@ -331,29 +330,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
                                         }
                                     },
                                 ]),
-
-                                new hiprint.PrintElementTypeGroup("辅助", [
-                                    {
-                                        tid: 'configModule.hline',
-                                        title: '横线',
-                                        type: 'hline'
-                                    },
-                                    {
-                                        tid: 'configModule.vline',
-                                        title: '竖线',
-                                        type: 'vline'
-                                    },
-                                    {
-                                        tid: 'configModule.rect',
-                                        title: '矩形',
-                                        type: 'rect'
-                                    },
-                                    {
-                                        tid: 'configModule.oval',
-                                        title: '椭圆',
-                                        type: 'oval'
-                                    }
-                                ])
                             ]
                         );
                     };
@@ -377,9 +353,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
                 dh: dh,
-                maker: document.querySelector('#user-name').textContent,
-                barCode: dh,
+                maker: document.querySelector('#user-name').textContent.split('　')[1],
+                // barCode: dh,
             };
+            
             let show_fields = document.querySelectorAll('.document-value');
             let n = 0;
             for (let field of document_table_fields) {
@@ -412,7 +389,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                     // }
 
                     row_data["单价"] = row.querySelector(`td:nth-child(${n}) input`).value;
-                    row_data["数量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    row_data["重量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
                     row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
 
                     row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
