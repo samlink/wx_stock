@@ -143,9 +143,10 @@ pub async fn buyin_auto(
         sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = &format!(
-            r#"SELECT id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || 0 AS label FROM products 
-            JOIN tree ON products.商品id = tree.num
-            WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+                || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || 0 AS label FROM products 
+                JOIN tree ON products.商品id = tree.num
+                WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER,
             SPLITER,
             sql_fields,
@@ -178,7 +179,7 @@ pub async fn fetch_one_product(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
 
-        let sql = format!("SELECT id || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+        let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                             || '{}' || {} || '{}' || {} || '{}' || {} as p from products
                             JOIN tree ON products.商品id = tree.num
                             WHERE id = {}",
@@ -215,8 +216,8 @@ pub async fn save_document(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
     if user.name != "" {
-        if data.remember == "已记账" {
-            let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+        if data.remember == "已审核" {
+            let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
             if user.name == "" {
                 return HttpResponse::Ok().json(-1);
             }
@@ -226,27 +227,33 @@ pub async fn save_document(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields_cate = if data.rights == "商品销售" {
+        let fields_cate = if data.rights.contains("销售") {
             "销售单据"
-        } else if data.rights == "商品采购" {
+        } else if data.rights.contains("采购") {
             "采购单据"
         } else {
             "库存调整"
         };
+
+        let f_map = map_fields(db.clone(), fields_cate).await;
 
         let fields = get_inout_fields(db.clone(), fields_cate).await;
         let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
         if dh_data == "新单据" {
-            let dh_pre = if doc_data[0] == "采购入库" {
+            let dh_pre = if doc_data[0] == "商品采购" {
                 "CG"
-            } else if doc_data[0] == "退货出库" {
+            } else if doc_data[0] == "采购退货" {
                 "CT"
             } else if doc_data[0] == "商品销售" {
                 "XS"
             } else if doc_data[0] == "销售退货" {
                 "XT"
+            } else if doc_data[0] == "商品入库" {
+                "Rk"
+            } else if doc_data[0] == "商品出库" {
+                "Ck"
             } else {
                 "KT"
             };
@@ -311,19 +318,23 @@ pub async fn save_document(
                 init += &format!("{},", &*f.field_name);
             }
 
-            init += &format!("客商id,类别,制单人) VALUES('{}',", dh);
+            init += &format!("客商id,类别,制单人, {}) VALUES('{}',", f_map["区域"], dh);
+
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
-            doc_sql += &format!("{},'{}','{}')", doc_data[2], doc_data[0], doc_data[3]);
+            doc_sql += &format!(
+                "{},'{}','{}', '{}')",
+                doc_data[2], doc_data[0], doc_data[3], user.area
+            );
         } else {
             let init = "UPDATE documents SET ".to_owned();
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
-                "客商id={}, 类别='{}', 制单人='{}' WHERE 单号='{}'",
-                doc_data[2], doc_data[0], doc_data[3], dh
+                "客商id={}, 类别='{}', 制单人='{}' {}='{}' WHERE 单号='{}'",
+                doc_data[2], doc_data[0], doc_data[3], f_map["区域"], user.area, dh
             );
         }
 
-        // println!("{}", doc_sql);
+        println!("{}", doc_sql);
 
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
@@ -339,8 +350,8 @@ pub async fn save_document(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 直销, 商品id, 单价, 数量, 仓库id, 备注, 顺序) 
-                VALUES('{}', {}, {}, {}, {}, {}, '{}', {})"#,
+                r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 重量, 备注, 顺序) 
+                VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
                 dh, value[0], value[1], value[2], value[3], value[4], value[5], n
             );
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();

@@ -5,7 +5,7 @@ import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tool
 import { customer_init } from '../parts/customer.mjs';
 import { input_table_init, input_table_outdata } from '../parts/input_table.mjs';
 
-let document_table_fields, table_lines, edited;
+let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
@@ -132,30 +132,31 @@ fetch(`/fetch_inout_fields`, {
 })
     .then(response => response.json())
     .then(content => {
-        let show_names = [
-            { name: "序号", width: 40, class: "", type: "普通输入", editable: false, default: 1 },
+        show_names = [
+            { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, default: 1 },
             { name: "名称", width: 80, class: "auto-input", type: "autocomplete", editable: true, default: "" },
-            { name: "材质", width: 100, class: "", type: "普通输入", editable: false, default: "" },
+            { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, default: "" },
         ];
 
         for (let item of content) {
             show_names.push({
                 name: item.show_name, width: item.show_width * 18, type: item.ctr_type,
-                editable: false, default: item.option_value
+                class: item.show_name, editable: true, default: item.option_value
             });
         }
 
         show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, default: "" });
         show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
         show_names.push({ name: "金额", width: 80, class: "money", type: "普通输入", editable: false, default: "" });
-        show_names.push({ name: "备注", width: 100, class: "", type: "普通输入", editable: true, default: "" });
+        show_names.push({ name: "备注", width: 100, class: "note", type: "普通输入", editable: true, default: "" });
 
-        show_names.forEach(item => {
-            if (item.name == "规格") {
-                item.editable = true;
-                return;
-            }
-        });
+        // show_names.forEach(item => {
+        //     if (item.name == "规格") {
+        //         item.editable = true;
+        //         item.class ="规格";
+        //         return;
+        //     }
+        // });
 
         //计算表格行数，33 为 lineHeight （行高）
         table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
@@ -193,11 +194,10 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let cate = document.querySelector('#document-bz').textContent;
     let dh = dh_div.textContent;
     let user_name = document.querySelector('#user-name').textContent.split('　')[1];
 
-    let save_str = `${cate}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
+    let save_str = `${document_bz}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
@@ -218,11 +218,26 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
-            let mount = row.querySelector('.mount').value;
-            let row_data = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
-            row_data += `${row.querySelector('.price').value}${SPLITER}${mount}${SPLITER}`;
-            row_data += `${SPLITER}${row.querySelector('td:nth-last-child(1) input').value}${SPLITER}`;
-            table_data.push(row_data);
+            let len = show_names.length;
+            let save_str = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+
+            for (let i = 2; i < len; i++) {
+                if (show_names[i].editable) {
+                    if (show_names[i].type == "autocomplete") {
+                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
+                        save_str = `${value}${SPLITER}`;
+                    }
+                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {
+                        let value = row.querySelector(`.${show_names[i].class}`).value;
+                        save_str += `${value}${SPLITER}`;
+                    }
+                    else {
+                        let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
+                        save_str += `${value}${SPLITER}`;
+                    }
+                }
+            }
+            table_data.push(save_str);
         }
     }
 
@@ -235,24 +250,24 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     console.log(data);
 
-    // fetch(`/save_document`, {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    // })
-    //     .then(response => response.json())
-    //     .then(content => {
-    //         if (content != -1) {
-    //             dh_div.textContent = content;
-    //             notifier.show('单据保存成功', 'success');
-    //             edited = false;
-    //         }
-    //         else {
-    //             notifier.show('权限不够，操作失败', 'danger');
-    //         }
-    //     });
+    fetch(`/save_document`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                dh_div.textContent = content;
+                notifier.show('单据保存成功', 'success');
+                edited = false;
+            }
+            else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
 });
 
 //打印

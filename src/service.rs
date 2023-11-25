@@ -51,7 +51,7 @@ pub struct TablePager {
 //自动完成使用
 #[derive(Deserialize, Serialize)]
 pub struct Message {
-    pub id: i32,
+    pub id: String,
     pub label: String,
 }
 

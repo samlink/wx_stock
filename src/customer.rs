@@ -137,7 +137,7 @@ pub async fn customer_auto(
             "".to_string()
         };
         let sql = &format!(
-            r#"SELECT id, 名称 AS label FROM customers 
+            r#"SELECT id::text, 名称 AS label FROM customers 
             WHERE {} (助记码 LIKE '%{}%' OR LOWER(名称) LIKE '%{}%') AND 停用=false LIMIT 10"#,
             cate_s, s, s
         );
