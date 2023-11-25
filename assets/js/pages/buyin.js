@@ -2,7 +2,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import * as service from '../parts/service.mjs'
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
-import { customer_init } from '../parts/customer.mjs';
+import { customer_init, out_data } from '../parts/customer.mjs';
 import { input_table_init, input_table_outdata } from '../parts/input_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
@@ -190,49 +190,7 @@ fetch(`/fetch_inout_fields`, {
             })
                 .then(response => response.json())
                 .then(content => {
-                    // let num = 1;    //序号
-                    // for (let item of data) {
-                    //     let input_row = build_input_row(input_data.show_names, all_width, num);
-                    //     tbody.appendChild(input_row);
-
-                    //     let product = item.split(SPLITER);
-                    //     let len = product.length;
-                    //     let n = 3;
-                    //     for (let i = 0; i < input_data.show_names.length - 2; i++) { 
-                    //         input_row.querySelector(`td:nth-child(${n})`).textContent = product[i];
-                    //         n++;
-                    //     }
-
-                    //     // input_row.querySelector(`td:nth-child(1)`).textContent = num;
-                    //     input_row.querySelector(`td:nth-child(2) input`).value = product[len - 6];
-                    //     input_row.querySelector(`td:nth-child(2) input`).setAttribute('data', `${product[len - 7]}${SPLITER}`);
-                    //     input_row.querySelector(`td:nth-last-child(1) input`).value = product[len - 1];
-
-                    //     input_row.querySelector(`td:nth-last-child(3)`).textContent =
-                    //         Math.abs(product[len - 4] * product[len - 5]).toFixed(Number(num_position[1]));
-
-                    //     input_row.querySelector(`td:nth-last-child(4) input`).value = Math.abs(product[len - 4]);
-                    //     input_row.querySelector(`td:nth-last-child(5) input`).value = product[len - 5];
-
-                    //     num++;
-                    // }
-
-                    // let input_row = build_input_row(input_data.show_names, all_width, num);
-                    // tbody.appendChild(input_row);
-
-                    // let rows = "";
-                    // for (let i = 0; i < input_data.lines - data.length - 1; i++) {
-                    //     rows += blank;
-                    // }
-
-                    // tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
-
-                    // setTimeout(() => {
-                    //     sum_money();
-                    //     sum_records();
-                    // }, 200);
-
-                    let data2 = {
+                    let data = {
                         show_names: show_names,
                         rows: content,
                         lines: table_lines,
@@ -240,7 +198,7 @@ fetch(`/fetch_inout_fields`, {
                         dh: dh,
                     }
 
-                    input_table_init(data2);
+                    input_table_init(data);
                 });
         }
     });
@@ -324,6 +282,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 document.querySelector('#dh').textContent = content;
                 notifier.show('单据保存成功', 'success');
                 edited = false;
+                input_table_outdata.edited = false;
             }
             else {
                 notifier.show('权限不够，操作失败', 'danger');
@@ -478,8 +437,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
+//开新单
 document.querySelector('#document-new-button').addEventListener('click', function () {
-    clear_page("将清空页面所有数据，确认继续吗？", "确认", "取消");
+    window.location = "/buy_in/new";
 });
 
 //审核
