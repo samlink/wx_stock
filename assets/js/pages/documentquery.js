@@ -95,9 +95,7 @@ function table_row(tr) {
         <td style="text-align: center;">${rec[3]}</td>`;
 
 
-    let rrr = service.build_row_from_string(rec, row, table_fields, 4);
-    // console.log(rrr);
-    return rrr;
+    return service.build_row_from_string(rec, row, table_fields, 4);
 }
 
 function blank_row() {

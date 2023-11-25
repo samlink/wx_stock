@@ -118,10 +118,7 @@ export function build_table_header(table_container, custom_fields, table_fields,
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields, n) {
     if (!n) n = 2;
-    let m = 0;
     for (let name of table_fields) {
-        console.log(rec[n]);
-        console.log(name);
         if (name.data_type == "文本") {
             row += `<td title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
@@ -131,12 +128,8 @@ export function build_row_from_string(rec, row, table_fields, n) {
             row += `<td>${rec[n]}</td>`;
         }
         n++;
-        m++;
-        console.log(m);
-
     }
     row += "</tr>";
-    console.log(row);
     return row;
 }
 
