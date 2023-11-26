@@ -655,6 +655,20 @@ function row_dbclick(table) {
     }
 }
 
+//点击提交按钮
+document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
+    if (document.querySelector('.modal-title').textContent == "选择商品") {
+        e.stopImmediatePropagation();
+        let selected_row = document.querySelector('table .focus');
+        if (selected_row) {
+            chose_exit(selected_row);
+        }
+        else {
+            notifier.show('请先选择再提交', 'danger');
+        }
+    }
+}, false);
+
 //选择行数据并退出
 function chose_exit(selected_row) {
     let id = selected_row.children[1].textContent;

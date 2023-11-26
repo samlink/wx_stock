@@ -275,7 +275,7 @@ pub async fn save_document(
             );
         }
 
-        println!("{}", doc_sql);
+        // println!("{}", doc_sql);
 
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
@@ -469,7 +469,7 @@ pub async fn fetch_document_items(
 
         let sql = format!(
             r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
-                规格, 状态, 单价, 重量, (单价*重量)::real as 金额, 备注 FROM document_items 
+                规格, 状态, 单价, 重量, round((单价*理重)::numeric,2)::real as 金额, 备注 FROM document_items 
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -532,7 +532,7 @@ pub async fn fetch_document_items_sales(
 
         let sql = format!(
             r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
-                规格, 状态, 单价, 长度, 数量, 理重, 重量, (单价*理重)::real as 金额, 备注 FROM document_items 
+                规格, 状态, 单价, 长度, 数量, 理重, 重量, round((单价*理重)::numeric,2)::real as 金额, 备注 FROM document_items 
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh

@@ -100,7 +100,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
     let local: Vec<&str> = date_string.split("-").collect();
 
-    let date = format!("WX{}{}{}{}-", dh_pre, local[0], local[1], local[2]);
+    let date = format!("{}{}{}{}-", dh_pre, local[0], local[1], local[2]);
 
     //获取尾号
     let sql = format!(

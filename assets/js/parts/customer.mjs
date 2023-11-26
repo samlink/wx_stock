@@ -132,16 +132,17 @@ export function customer_init(data) {
     });
 
     //点击提交按钮
-    document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-        let selected_row = document.querySelector('table .focus');
-        if (selected_row) {
-            chose_exit(selected_row);
+    document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
+        if (document.querySelector('.modal-title').textContent == "选择客户") {
+            let selected_row = document.querySelector('table .focus');
+            if (selected_row) {
+                chose_exit(selected_row);
+            }
+            else {
+                notifier.show('请先选择再提交', 'danger');
+            }
         }
-        else {
-            notifier.show('请先选择再提交', 'danger');
-        }
-    });
-
+    }, false);
     modal_init();
 }
 

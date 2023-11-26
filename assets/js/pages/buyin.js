@@ -292,7 +292,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_document`, {
         method: 'post',
@@ -444,7 +444,8 @@ fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
 //开新单
 document.querySelector('#document-new-button').addEventListener('click', function () {
-    window.location = "/buy_in/new";
+    let url = document_name == "销售单据" ? "/sale/new" : "/buy_in/new";
+    window.location = url;
 });
 
 //审核
@@ -562,8 +563,25 @@ function error_check() {
             lines = 1;
             let mount = row.querySelector('.mount').value ? row.querySelector('.mount').value : row.querySelector('.mount').textContent;
             if (!regReal.test(row.querySelector('.price').value) || !regReal.test(mount)) {
-                notifier.show(`单价或数量输入错误`, 'danger');
+                notifier.show(`单价或重量输入错误`, 'danger');
                 return false;
+            }
+
+            if (row.querySelector('.long')) {
+                if (!regReal.test(row.querySelector('.long').value) || !regReal.test(row.querySelector('.num').value)) {
+                    notifier.show(`长度或数量输入错误`, 'danger');
+                    return false;
+                }
+
+                if (!regReal.test(row.querySelector('.weight').value)) {
+                    if (row.querySelector('.weight').value.trim() == "")
+                        row.querySelector('.weight').value = 0;
+                    else {
+                        notifier.show(`实际重量输入错误`, 'danger');
+                        return false;
+                    }
+                }
+
             }
         }
     }
