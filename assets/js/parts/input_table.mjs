@@ -4,7 +4,7 @@ import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 import { auto_table, AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER, regReal, open_node } from '../parts/tools.mjs';
+import { SPLITER, regReal, open_node, regInt } from '../parts/tools.mjs';
 import { close_modal } from '../parts/modal.mjs';
 
 let all_width;
@@ -280,6 +280,53 @@ function build_input_row(show_names, all_width, num) {
         sum_money();
     });
 
+    if (input_row.querySelector('.long')) {
+        input_row.querySelector('.long').addEventListener('blur', function () {
+            calc_weight();
+            calc_money(input_row);
+            sum_money();
+        });
+
+        input_row.querySelector('.num').addEventListener('blur', function () {
+            calc_weight();
+            calc_money(input_row);
+            sum_money();
+        });
+    }
+
+    // 销售时使用的理论重量计算
+    function calc_weight() {
+        let long = document.querySelector('.inputting .long').value;
+        let num = document.querySelector('.inputting .num').value;
+
+        if (long && num && regInt.test(long) && regInt.test(num)) {
+            let weight = 0;
+            let data = document.querySelector('.inputting .auto-input').getAttribute("data").split(SPLITER);
+            let tech;
+            if (data[2] == "718") {
+                tech = 1.05;
+            } else if (data[2] == "17-4" || data[2] == "Super13Cr") {
+                tech = 1.0064;
+            } else {
+                tech = 1;
+            }
+
+            if (data[1] == "圆钢") {
+                weight = data[3] * data[3] * 0.00617 * long * num * tech / 1000;
+            } else {
+                let pipe = data[3].split('*');
+                weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * long * num * tech / 1000;
+            }
+
+            document.querySelector('.inputting .mount').textContent = weight.toFixed(2);
+        }
+        else {
+            document.querySelector('.inputting .mount').textContent = 0;
+        }
+    }
+
+
+
     //商品规格查找按钮
     input_row.querySelector('.product-search-button').addEventListener('click', function () {
         if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
@@ -414,6 +461,9 @@ function build_input_row(show_names, all_width, num) {
 function calc_money(input_row) {
     let price = input_row.querySelector('.price').value;
     let mount = input_row.querySelector('.mount').value;
+    if (!mount) {
+        mount = input_row.querySelector('.mount').textContent;
+    }
     let money = "";
     if (price && regReal.test(price) && mount && regReal.test(mount)) {
         money = (price * mount).toFixed(Number(num_position[1]));
@@ -429,6 +479,9 @@ function sum_money() {
     for (let i = 0; i < all_input.length; i++) {
         let price = all_input[i].querySelector('.price').value;
         let mount = all_input[i].querySelector('.mount').value;
+        if (!mount) {
+            mount = all_input[i].querySelector('.mount').textContent;
+        }
         if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
             price && regReal.test(price) && mount && regReal.test(mount)) {
             sum += price * mount;

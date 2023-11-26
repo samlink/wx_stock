@@ -141,8 +141,18 @@ fetch(`/fetch_inout_fields`, {
             });
         }
 
-        show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, default: "" });
-        show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
+        if (document_name == "销售单据") {
+            show_names.push({ name: "单价", width: 50, class: "price", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "长度", width: 60, class: "long", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "数量", width: 50, class: "num", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: false, default: "" });
+            show_names.push({ name: "实际重量", width: 60, class: "weight", type: "普通输入", editable: true, default: "" });
+        }
+        else if (document_name == "采购单据") {
+            show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
+        }
+
         show_names.push({ name: "金额", width: 80, class: "money", type: "普通输入", editable: false, default: "" });
         show_names.push({ name: "备注", width: 100, class: "note", type: "普通输入", editable: true, default: "" });
 
@@ -356,7 +366,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 maker: document.querySelector('#user-name').textContent.split('　')[1],
                 // barCode: dh,
             };
-            
+
             let show_fields = document.querySelectorAll('.document-value');
             let n = 0;
             for (let field of document_table_fields) {
@@ -535,7 +545,8 @@ function error_check() {
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
             lines = 1;
-            if (!regReal.test(row.querySelector('.price').value) || !regReal.test(row.querySelector('.mount').value)) {
+            let mount = row.querySelector('.mount').value ? row.querySelector('.mount').value : row.querySelector('.mount').textContent;
+            if (!regReal.test(row.querySelector('.price').value) || !regReal.test(mount)) {
                 notifier.show(`单价或数量输入错误`, 'danger');
                 return false;
             }
