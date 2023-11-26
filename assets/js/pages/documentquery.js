@@ -94,7 +94,6 @@ function table_row(tr) {
         <td style="text-align: center;">${rec[2]}</td>
         <td style="text-align: center;">${rec[3]}</td>`;
 
-
     return service.build_row_from_string(rec, row, table_fields, 4);
 }
 
@@ -169,7 +168,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (id != "") {
-        window.open(address + id);
+        window.location = address + id;
     }
     else {
         notifier.show('请先选择单据', 'danger');
