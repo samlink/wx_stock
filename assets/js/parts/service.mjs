@@ -10,8 +10,9 @@ export var table_fields;
  * @param {} custom_fields 自定义字段数组 [{name:'序号', width: 3}...]
  * @param {} table_fields  自动生成字段 [{field_name:'日期', show_name:'日期', data_type:'文本' ...}...]
  * @param {} last_fields  自定义表格最后部分的字段数组 [{name:'库存', field: '库存', width: 3}...]
+ * @param {} table_name  表名，为了避免联合查询时出现名称冲突
  */
-export function build_table_header(table_container, custom_fields, table_fields, last_fields) {
+export function build_table_header(table_container, custom_fields, table_fields, last_fields, table_name) {
     let all_width = 0;
     for (let item of custom_fields) {
         all_width += item.width;
@@ -60,7 +61,7 @@ export function build_table_header(table_container, custom_fields, table_fields,
         row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
 
-        header_names[th.show_name] = th.field_name;
+        header_names[th.show_name] = `${table_name}.${th.field_name}`;
     }
 
     if (last_fields) {

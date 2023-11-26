@@ -260,7 +260,7 @@ function build_input_row(show_names, all_width, num) {
     input_row.querySelector(`td:nth-child(1)`).textContent = num;
 
     auto_table(auto_input, "", `/buyin_auto`, input_data.auto_th, () => {
-        fill_gg(auto_input, input_data.show_names, 3); // 3 为填充规格的单元数
+        fill_gg(auto_input, input_data.show_names, input_data.gg_n);
     });
 
     input_row.addEventListener('click', function () {
@@ -293,39 +293,6 @@ function build_input_row(show_names, all_width, num) {
             sum_money();
         });
     }
-
-    // 销售时使用的理论重量计算
-    function calc_weight() {
-        let long = document.querySelector('.inputting .long').value;
-        let num = document.querySelector('.inputting .num').value;
-
-        if (long && num && regInt.test(long) && regInt.test(num)) {
-            let weight = 0;
-            let data = document.querySelector('.inputting .auto-input').getAttribute("data").split(SPLITER);
-            let tech;
-            if (data[2] == "718") {
-                tech = 1.05;
-            } else if (data[2] == "17-4" || data[2] == "Super13Cr") {
-                tech = 1.0064;
-            } else {
-                tech = 1;
-            }
-
-            if (data[1] == "圆钢") {
-                weight = data[3] * data[3] * 0.00617 * long * num * tech / 1000;
-            } else {
-                let pipe = data[3].split('*');
-                weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * long * num * tech / 1000;
-            }
-
-            document.querySelector('.inputting .mount').textContent = weight.toFixed(2);
-        }
-        else {
-            document.querySelector('.inputting .mount').textContent = 0;
-        }
-    }
-
-
 
     //商品规格查找按钮
     input_row.querySelector('.product-search-button').addEventListener('click', function () {
@@ -455,6 +422,41 @@ function build_input_row(show_names, all_width, num) {
     });
 
     return input_row;
+}
+
+// 销售时使用的理论重量计算
+function calc_weight() {
+    let input_row = document.querySelector('.inputting');
+    let long = input_row.querySelector('.long').value;
+    let num = input_row.querySelector('.num').value;
+
+    if (regInt.test(long) && regInt.test(num)) {
+        let weight = 0;
+        // let  = input_row.querySelector('.auto-input').getAttribute("data").split(SPLITER);
+        let name = input_row.querySelector('.auto-input').value;
+        let cz = input_row.querySelector('.材质').textContent;
+        let gg = input_row.querySelector('.规格').value;
+        let tech;
+        if (cz == "718") {
+            tech = 1.05;
+        } else if (cz == "17-4" || cz == "Super13Cr") {
+            tech = 1.0064;
+        } else {
+            tech = 1;
+        }
+
+        if (name == "圆钢") {
+            weight = gg * gg * 0.00617 * long * num * tech / 1000;
+        } else {
+            let pipe = gg.split('*');
+            weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * long * num * tech / 1000;
+        }
+
+        input_row.querySelector('.mount').textContent = weight.toFixed(2);
+    }
+    else {
+        input_row.querySelector('.mount').textContent = 0;
+    }
 }
 
 //计算行金额

@@ -86,9 +86,6 @@ pub async fn fetch_all_documents(
             let dh: String = row.get("单号");
             let cate: String = row.get("类别");
             let customer_name: String = row.get("名称");
-            // let rem: bool = row.get("已记账");
-            // let remembered = if rem == true { "是" } else { "否" };
-            // let maker: String = row.get("经办人");
             let row_str = format!(
                 "{}{}{}{}{}{}{}{}{}",
                 num,
@@ -99,11 +96,7 @@ pub async fn fetch_all_documents(
                 SPLITER,
                 customer_name,
                 SPLITER,
-                // remembered,
-                // SPLITER,
                 simple_string_from_base(row, &fields),
-                // SPLITER,
-                // maker,
             );
 
             doc_rows.push(row_str);

@@ -8,7 +8,7 @@ import { input_table_init, input_table_outdata } from '../parts/input_table.mjs'
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
-let dh = document.querySelector('#dh').textContent;
+let dh_div = document.querySelector('#dh');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
@@ -32,7 +32,7 @@ fetch(`/fetch_inout_fields`, {
     .then(content => {
         if (content != -1) {
             document_table_fields = content;
-            if (dh != "新单据") {
+            if (dh_div.textContent != "新单据") {
                 fetch(`/fetch_document`, {
                     method: 'post',
                     headers: {
@@ -40,7 +40,7 @@ fetch(`/fetch_inout_fields`, {
                     },
                     body: JSON.stringify({
                         cate: document_name,
-                        dh: dh,
+                        dh: dh_div.textContent,
                     }),
                 })
                     .then(response => response.json())
@@ -112,6 +112,14 @@ function document_top_handle(html, has_date) {
         // theme: 'molv',
         // theme: '#62468d',
     });
+
+    if (document.querySelector('#文本字段2')) {
+        let da = document.querySelector('#文本字段2');
+        laydate.render({
+            elem: da,
+            showBottom: false,
+        })
+    }
 }
 
 if (document.querySelector('#supplier-input')) {
@@ -129,32 +137,32 @@ fetch(`/fetch_inout_fields`, {
     .then(response => response.json())
     .then(content => {
         show_names = [
-            { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, default: 1 },
-            { name: "名称", width: 80, class: "auto-input", type: "autocomplete", editable: true, default: "" },
-            { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, default: "" },
+            { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
+            { name: "名称", width: 80, class: "auto-input", type: "autocomplete", editable: true, is_save: true, default: "" },
+            { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
         ];
 
         for (let item of content) {
             show_names.push({
                 name: item.show_name, width: item.show_width * 18, type: item.ctr_type,
-                class: item.show_name, editable: true, default: item.option_value
+                class: item.show_name, editable: true, is_save: true, default: item.option_value
             });
         }
 
         if (document_name == "销售单据") {
-            show_names.push({ name: "单价", width: 50, class: "price", type: "普通输入", editable: true, default: "" });
-            show_names.push({ name: "长度", width: 60, class: "long", type: "普通输入", editable: true, default: "" });
-            show_names.push({ name: "数量", width: 50, class: "num", type: "普通输入", editable: true, default: "" });
-            show_names.push({ name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: false, default: "" });
-            show_names.push({ name: "实际重量", width: 60, class: "weight", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" });
+            show_names.push({ name: "长度", width: 60, class: "long", type: "普通输入", editable: true, is_save: true, default: "" });
+            show_names.push({ name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" });
+            show_names.push({ name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: false, is_save: true, default: "" });
+            show_names.push({ name: "实际重量", width: 60, class: "weight", type: "普通输入", editable: true, is_save: true, default: "" });
         }
         else if (document_name == "采购单据") {
-            show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, default: "" });
-            show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, default: "" });
+            show_names.push({ name: "单价", width: 60, class: "price", type: "普通输入", editable: true, is_save: true, default: "" });
+            show_names.push({ name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: "" });
         }
 
-        show_names.push({ name: "金额", width: 80, class: "money", type: "普通输入", editable: false, default: "" });
-        show_names.push({ name: "备注", width: 100, class: "note", type: "普通输入", editable: true, default: "" });
+        show_names.push({ name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" });
+        show_names.push({ name: "备注", width: 100, class: "note", type: "普通输入", editable: true, is_save: true, default: "" });
 
         // show_names.forEach(item => {
         //     if (item.name == "规格") {
@@ -168,34 +176,38 @@ fetch(`/fetch_inout_fields`, {
         table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
 
         //构造商品规格自动完成
+        let gg_n = document_name == "销售单据" ? 4 : 3;
         let show_th = [
             { name: "名称", width: 60 },
             { name: "材质", width: 80 },
             { name: "规格", width: 80 },
             { name: "状态", width: 100 },
+            { name: "售价", width: 60 },
             { name: "库存长度", width: 80 },
             { name: "库存重量", width: 80 },
         ];
 
-        if (dh == "新单据") {
+        if (dh_div.textContent == "新单据") {
             let data = {
                 show_names: show_names,
                 lines: table_lines,
                 auto_th: show_th,
-                dh: dh,
+                dh: dh_div.textContent,
+                gg_n: gg_n,     // 自动填充规格单元格的数量
             }
 
             input_table_init(data);
         }
         else {
-            fetch(`/fetch_document_items`, {
+            let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
+            fetch(url, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                     cate: document_name,
-                    dh: dh,
+                    dh: dh_div.textContent,
                 }),
             })
                 .then(response => response.json())
@@ -205,7 +217,7 @@ fetch(`/fetch_inout_fields`, {
                         rows: content,
                         lines: table_lines,
                         auto_th: show_th,
-                        dh: dh,
+                        dh: dh_div.textContent,
                     }
 
                     input_table_init(data);
@@ -228,7 +240,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     //构建数据字符串
     let user_name = document.querySelector('#user-name').textContent.split('　')[1];
 
-    let save_str = `${document_bz}${SPLITER}${dh}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
+    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
@@ -253,13 +265,14 @@ document.querySelector('#save-button').addEventListener('click', function () {
             let save_str = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
 
             for (let i = 2; i < len; i++) {
-                if (show_names[i].editable) {
+                if (show_names[i].is_save) {
                     if (show_names[i].type == "autocomplete") {
                         let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
                         save_str = `${value}${SPLITER}`;
                     }
                     if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
+                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
                         save_str += `${value}${SPLITER}`;
                     }
                     else {
@@ -279,6 +292,8 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
+    console.log(data);
+
     fetch(`/save_document`, {
         method: 'post',
         headers: {
@@ -289,7 +304,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                document.querySelector('#dh').textContent = content;
+                dh_div.textContent = content;
                 notifier.show('单据保存成功', 'success');
                 edited = false;
                 input_table_outdata.edited = false;
@@ -362,7 +377,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                 供应商: document.querySelector('#supplier-input').value,
                 客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
-                dh: dh,
+                dh: dh_div.textContent,
                 maker: document.querySelector('#user-name').textContent.split('　')[1],
                 // barCode: dh,
             };
@@ -438,7 +453,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         return false;
     }
 
-    if (dh == "新单据" || edited || input_table_outdata.edited) {
+    if (dh_div.textContent == "新单据" || edited || input_table_outdata.edited) {
         notifier.show('请先保存单据', 'danger');
         return false;
     }
@@ -453,7 +468,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dh),
+                body: JSON.stringify(dh_div.textContent),
             })
                 .then(response => response.json())
                 .then(content => {

@@ -3,7 +3,6 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use time::now;
 
 ///获取单据显示字段
 #[post("/fetch_inout_fields")]
@@ -144,12 +143,14 @@ pub async fn buyin_auto(
 
         let sql = &format!(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || 0 AS label FROM products 
+                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| {} || '{}' || 0 AS label FROM products 
                 JOIN tree ON products.商品id = tree.num
                 WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER,
             SPLITER,
             sql_fields,
+            SPLITER,
+            f_map["售价"],
             SPLITER,
             f_map["库存长度"],
             SPLITER,
@@ -242,76 +243,7 @@ pub async fn save_document(
         let mut dh = doc_data[1].to_owned();
 
         if dh_data == "新单据" {
-            let dh_pre = if doc_data[0] == "商品采购" {
-                "CG"
-            } else if doc_data[0] == "采购退货" {
-                "CT"
-            } else if doc_data[0] == "商品销售" {
-                "XS"
-            } else if doc_data[0] == "销售退货" {
-                "XT"
-            } else if doc_data[0] == "商品入库" {
-                "Rk"
-            } else if doc_data[0] == "商品出库" {
-                "Ck"
-            } else {
-                "KT"
-            };
-
-            let rows = &conn
-                .query("SELECT value FROM system WHERE cate='单号格式'", &[])
-                .await
-                .unwrap();
-            let mut dh_format: Vec<String> = Vec::new();
-
-            for row in rows {
-                let v: String = row.get("value");
-                dh_format.push(v);
-            }
-
-            let spliter = if dh_format[2] == "true" { "-" } else { "" };
-            let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
-            let local: Vec<&str> = date_string.split("-").collect();
-
-            let date;
-            if dh_format[0] == "日" {
-                date = format!(
-                    "{}{}{}{}{}{}{}",
-                    dh_pre, local[0], spliter, local[1], spliter, local[2], spliter
-                );
-            } else if dh_format[0] == "月" {
-                date = format!("{}{}{}{}{}", dh_pre, local[0], spliter, local[1], spliter);
-            } else if dh_format[0] == "年" {
-                date = format!("{}{}{}", dh_pre, local[0], spliter);
-            } else {
-                date = format!("{}{}", dh_pre, spliter);
-            }
-
-            //获取尾号
-            let sql = format!(
-                "SELECT 单号 FROM documents WHERE 单号 like '{}%' ORDER BY 单号 DESC LIMIT 1",
-                dh_pre
-            );
-
-            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-            let mut dh_first = "".to_owned();
-            for row in rows {
-                dh_first = row.get("单号");
-            }
-
-            let keep = dh_format[1].parse::<usize>().unwrap();
-            let len = dh_first.len();
-            let mut num = 1i32;
-            if dh_first != "" {
-                if let Some(n) = dh_first.get(len - keep..len) {
-                    if dh_first == format!("{}{}", date, n) {
-                        num = n.parse::<i32>().unwrap() + 1;
-                    }
-                }
-            }
-
-            dh = format!("{}{:0pad$}", date, num, pad = keep);
+            dh = get_dh(db, doc_data[0]).await;
 
             let mut init = "INSERT INTO documents (单号,".to_owned();
             for f in &fields {
@@ -343,6 +275,8 @@ pub async fn save_document(
             );
         }
 
+        println!("{}", doc_sql);
+
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
@@ -356,11 +290,29 @@ pub async fn save_document(
         let mut n = 1;
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
-            let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 重量, 备注, 顺序) 
-                VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
-                dh, value[0], value[1], value[2], value[3], value[4], value[5], n
-            );
+            let items_sql = if fields_cate == "销售单据" {
+                format!(
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
+                    dh,
+                    value[0],
+                    value[1],
+                    value[2],
+                    value[3],
+                    value[4],
+                    value[5],
+                    value[6],
+                    value[7],
+                    value[8],
+                    n
+                )
+            } else {
+                format!(
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 重量, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], n
+                )
+            };
             // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
@@ -550,6 +502,78 @@ pub async fn fetch_document_items(
                 status,
                 SPLITER,
                 price,
+                SPLITER,
+                weight,
+                SPLITER,
+                money,
+                SPLITER,
+                note,
+            );
+
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取单据明细
+#[post("/fetch_document_items_sales")]
+pub async fn fetch_document_items_sales(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
+                规格, 状态, 单价, 长度, 数量, 理重, 重量, (单价*理重)::real as 金额, 备注 FROM document_items 
+                JOIN tree ON 商品id=tree.num
+                WHERE 单号id='{}' ORDER BY 顺序"#,
+            data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let order: i32 = row.get("顺序");
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
+            let price: f32 = row.get("单价");
+            let long: i32 = row.get("长度");
+            let num: i32 = row.get("数量");
+            let theary: f32 = row.get("理重");
+            let weight: f32 = row.get("重量");
+            let money: f32 = row.get("金额");
+            let note: String = row.get("备注");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                order,
+                SPLITER,
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                price,
+                SPLITER,
+                long,
+                SPLITER,
+                num,
+                SPLITER,
+                theary,
                 SPLITER,
                 weight,
                 SPLITER,

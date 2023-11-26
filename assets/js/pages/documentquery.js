@@ -66,7 +66,7 @@ fetch(`/fetch_used_fields`, {
             ];
 
             let table = document.querySelector('.table-documents');
-            let data = service.build_table_header(table, custom_fields, table_fields);
+            let data = service.build_table_header(table, custom_fields, table_fields, "", "documents");
             table.querySelector('thead tr').innerHTML = data.th_row;
 
             init_data.header_names = data.header_names;

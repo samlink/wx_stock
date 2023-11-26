@@ -84,7 +84,9 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::save_document)
             .service(buyin::fetch_history)
             .service(buyin::fetch_document)
+            .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
+
             .service(buyin::make_formal)
             
             .service(documentquery::fetch_used_fields)

@@ -9,6 +9,7 @@ use futures::{StreamExt, TryStreamExt};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
+use time::now;
 
 pub static SPLITER: &str = "<`*_*`>";
 
@@ -76,6 +77,57 @@ pub struct FieldsData {
 //         HttpResponse::NotFound().into()
 //     }
 // }
+
+// 自动生成单号
+pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
+    let conn = db.get().await.unwrap();
+    let dh_pre = if doc_data == "商品采购" {
+        "CG"
+    } else if doc_data == "采购退货" {
+        "CT"
+    } else if doc_data == "商品销售" {
+        "XS"
+    } else if doc_data == "销售退货" {
+        "XT"
+    } else if doc_data == "商品入库" {
+        "Rk"
+    } else if doc_data == "商品出库" {
+        "Ck"
+    } else {
+        "KT"
+    };
+
+    let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
+    let local: Vec<&str> = date_string.split("-").collect();
+
+    let date = format!("WX{}{}{}{}-", dh_pre, local[0], local[1], local[2]);
+
+    //获取尾号
+    let sql = format!(
+        "SELECT 单号 FROM documents WHERE 单号 like '{}%' ORDER BY 单号 DESC LIMIT 1",
+        dh_pre
+    );
+
+    let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+    let mut dh_first = "".to_owned();
+    for row in rows {
+        dh_first = row.get("单号");
+    }
+
+    let keep = 2usize;
+    let len = dh_first.len();
+    let mut num = 1i32;
+    if dh_first != "" {
+        if let Some(n) = dh_first.get(len - keep..len) {
+            if dh_first == format!("{}{}", date, n) {
+                num = n.parse::<i32>().unwrap() + 1;
+            }
+        }
+    }
+
+    return format!("{}{:0pad$}", date, num, pad = keep);
+}
 
 ///下载文件服务
 #[get("/download/{filename:.*}")]
