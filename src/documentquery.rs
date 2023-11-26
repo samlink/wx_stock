@@ -30,6 +30,7 @@ pub async fn fetch_all_documents(
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, post_data.cate.clone()).await;
+
     if user.name != "" {
         let doc_cate;
         let doc_pre;
@@ -44,6 +45,17 @@ pub async fn fetch_all_documents(
             doc_cate = "库存调整";
             doc_pre = "K";
         }
+
+        let f_map = map_fields(db.clone(), doc_cate).await;
+
+        let mut limits = "".to_owned();
+        if user.duty == "主管" {
+            let area = format!("documents.{}", f_map["区域"]);
+            limits = format!("{} = '{}' AND", area, user.area);
+        } else if user.duty != "总经理" {
+            limits = format!("经办人 = '{}' AND", user.name);
+        }
+
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         // let name = post_data.name.to_lowercase();
@@ -73,11 +85,18 @@ pub async fn fetch_all_documents(
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, doc_pre, sql_where, post_data.sort, skip, post_data.rec
+            WHERE {} 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields,
+            post_data.sort,
+            limits,
+            doc_pre,
+            sql_where,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut doc_rows: Vec<String> = Vec::new();
@@ -105,8 +124,8 @@ pub async fn fetch_all_documents(
         let count_sql = format!(
             r#"SELECT count(单号) as 记录数 FROM documents 
             JOIN customers ON documents.客商id=customers.id 
-            WHERE 单号 like '{}%' AND ({})"#,
-            doc_pre, sql_where
+            WHERE {} 单号 like '{}%' AND ({})"#,
+            limits, doc_pre, sql_where
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

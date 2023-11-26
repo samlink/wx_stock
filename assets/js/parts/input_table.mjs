@@ -452,10 +452,10 @@ function calc_weight() {
             weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * long * num * tech / 1000;
         }
 
-        input_row.querySelector('.mount').textContent = weight.toFixed(2);
+        input_row.querySelector('.mount').value = weight.toFixed(2);
     }
     else {
-        input_row.querySelector('.mount').textContent = 0;
+        input_row.querySelector('.mount').value = 0;
     }
 }
 
@@ -685,7 +685,7 @@ function chose_exit(selected_row) {
                 let input = document.querySelector('.inputting .auto-input');
                 input.value = content.split(SPLITER)[1];
                 input.setAttribute("data", content);
-                fill_gg(input, input_data.show_names, 3);  // 3 是填入规格数据的数量
+                fill_gg(input, input_data.show_names, input_data.gg_n);  // 3 是填入规格数据的数量
                 close_modal();
             });
     }

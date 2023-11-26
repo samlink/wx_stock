@@ -153,7 +153,7 @@ fetch(`/fetch_inout_fields`, {
             show_names.push({ name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" });
             show_names.push({ name: "长度", width: 60, class: "long", type: "普通输入", editable: true, is_save: true, default: "" });
             show_names.push({ name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" });
-            show_names.push({ name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: false, is_save: true, default: "" });
+            show_names.push({ name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: "" });
             show_names.push({ name: "实际重量", width: 60, class: "weight", type: "普通输入", editable: true, is_save: true, default: "" });
         }
         else if (document_name == "采购单据") {
@@ -174,9 +174,9 @@ fetch(`/fetch_inout_fields`, {
 
         //计算表格行数，33 为 lineHeight （行高）
         table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
-
         //构造商品规格自动完成
         let gg_n = document_name == "销售单据" ? 4 : 3;
+
         let show_th = [
             { name: "名称", width: 60 },
             { name: "材质", width: 80 },
@@ -218,6 +218,7 @@ fetch(`/fetch_inout_fields`, {
                         lines: table_lines,
                         auto_th: show_th,
                         dh: dh_div.textContent,
+                        gg_n: gg_n,     // 自动填充规格单元格的数量
                     }
 
                     input_table_init(data);
@@ -401,34 +402,21 @@ document.querySelector('#print-button').addEventListener('click', function () {
             for (let row of all_rows) {
                 if (row.querySelector('td:nth-child(2) input').value != "") {
                     let row_data = {};
-                    row_data["序号"] = row.querySelector('td:nth-child(1)').textContent;
-                    row_data["名称"] = row.querySelector('td:nth-child(2) input').value;
-                    row_data["材质"] = row.querySelector('td:nth-child(3)').textContent;
-                    row_data["规格"] = row.querySelector('td:nth-child(4) input').value;
-                    row_data["状态"] = row.querySelector('td:nth-child(5) input').value;
-
-                    let n = 6;
-                    // for (let f of product_table_fields) {
-                    //     row_data[f.show_name] = row.querySelector(`td:nth-child(${n})`).textContent;
-                    //     n++
-                    // }
-
-                    row_data["单价"] = row.querySelector(`td:nth-child(${n}) input`).value;
-                    row_data["重量"] = row.querySelector(`td:nth-child(${++n}) input`).value;
-                    row_data["金额"] = row.querySelector(`td:nth-child(${++n})`).textContent;
-
-                    row_data["备注"] = row.querySelector(`td:nth-child(${++n}) input`).value;
+                    for (let cell of show_names) {
+                        let da = row.querySelector(`.${cell.class}`);
+                        row_data[cell.name] = cell.editable ? da.value : da.textContent;
+                    }
 
                     table_data.push(row_data);
 
-                    count += Number(row_data["数量"]);
+                    count += Number(row_data["实际重量"]);
                     sum += Number(row_data["金额"]);
                 }
             }
 
             let row_data = {};
             row_data["序号"] = '合计';
-            row_data["数量"] = count;
+            row_data["实际重量"] = count.toFixed(2);
             row_data["金额"] = sum.toFixed(Number(num_position[1]));
 
             table_data.push(row_data);

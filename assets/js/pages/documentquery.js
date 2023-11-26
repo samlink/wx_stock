@@ -35,7 +35,7 @@ let init_data = {
     post_data: {
         id: "",
         name: '',
-        sort: "开单时间 DESC",
+        sort: "单号 DESC",
         rec: row_num,
         cate: cate,
     },

@@ -170,3 +170,114 @@ export function open_node() {
     document.querySelector('#t_4 span').click();
     document.querySelector('#t_3 span').click();
 }
+
+/**
+ * 单据上部信息编辑回车向右移动
+ * @param {any} dic 字典对象: { 姓名: "_电话", 电话: "_邮箱", 邮箱:"... }
+ */
+function topOnkeyDown(dic) {
+    document.onkeydown = function (event) {                     //回车键
+        if ((event.target.type === 'text' || event.target.type === 'select-one') && event.code === "Enter") {
+            var getId = $(event.target).attr('id');
+            var getIt = '#' + dic[getId];
+            $(getIt).focus();
+            $(getIt).select();
+        }
+    };
+}
+//KeyboardEvent: key='Enter' | code='Enter'
+//KeyboardEvent: key='Escape' | code='Escape'
+//KeyboardEvent: key='ArrowUp' | code='ArrowUp'
+//KeyboardEvent: key='ArrowDown' | code='ArrowDown'
+//KeyboardEvent: key='ArrowLeft' | code='ArrowLeft'
+//KeyboardEvent: key='ArrowRight' | code='ArrowRight'
+//KeyboardEvent: key='Meta' | code='MetaLeft'
+//KeyboardEvent: key='c' | code='KeyC'
+//
+
+/**
+ * jqgrid 编辑按回车键焦点向右移动
+ * @param {any} dic 字典对象: { 姓名: "_电话", 电话: "_邮箱", 邮箱:"... }
+ * @param {any} table jqgrid 表名: "jqgrid-table"
+ */
+function EnterMoveRight(dic, table) {
+    document.onkeydown = function (event) {
+        if ($(event.srcElement).parents('table').attr('id') === table && event.srcElement.type !== 'submit' && event.srcElement.type !== 'image' &&
+            event.srcElement.type !== 'textarea' && event.srcElement.parentNode.nodeName === "TD" && event.keyCode === 13) {
+            var getName = $(event.srcElement).attr('id');
+            var next = getName.split('_');
+            var getIt = '#' + next[0] + dic[next[1]];
+            $(getIt).focus();
+            $(getIt).select();
+        }
+    };
+}
+
+/**
+ * jqgrid 表格编辑时，回车键向右移动, 上下箭头键移动行，及自动跳入下行
+ * @param {any} dic 表列的字典
+ * @param {number} count 表格的总行数
+ * @param {any} table 表格的名称："jqgrid-table" 等
+ * @param {any} myfunc  行保存函数
+ * 另，表格中用到了全局变量：currentId，选择的行ID
+ */
+function jqgridOnkeyDown(dic, count, table, myfunc) {
+
+    document.onkeydown = function (event) {                     //回车键
+        if ($(event.srcElement).parents('table').attr('id') === "jqgrid-table" && event.srcElement.type !== 'submit' && event.srcElement.type !== 'image' &&
+            event.srcElement.type !== 'textarea' && event.srcElement.parentNode.nodeName === "TD" && event.keyCode === 13) {
+            var getName = $(event.srcElement).attr('id');
+            var next = getName.split('_');
+
+            var numId;
+
+            if (dic[next[1]] !== "END") {
+                var getIt = '#' + next[0] + dic[next[1]];
+                $(getIt).focus();
+                $(getIt).select();
+            }
+            else {
+                numId = Number(currentId);
+                if (numId < count) {
+                    jQuery(table).jqGrid("setSelection", ++numId, true);
+                }
+                else {
+                    myfunc(numId, "rs");
+                }
+            }
+        }
+        else if (event.keyCode === 38) {            //向上箭头
+            numId = Number(currentId);
+            if (numId > 1) {
+                myfunc(numId);
+                jQuery(table).jqGrid("setSelection", --numId, true);
+            }
+        }
+        else if (event.keyCode === 40) {            //向下箭头
+            numId = Number(currentId);
+            if (numId < count && numId !== -1) {
+                myfunc(numId);
+                jQuery(table).jqGrid("setSelection", ++numId, true);
+            }
+        }
+    };
+}
+
+/**
+ * jqgrid 表格编辑时，对鼠标按键事件的判断
+ * @param {any} dic 单据上部编辑框的字典对象
+ * @param {any} myfunc  行保存函数
+ * 另，表格中用到了全局变量：currentId，选择的行ID
+ */
+function jqgridOnclick(dic, myfunc) {
+    document.onclick = function (event) {                                   //鼠标点击非表格部分, 则保存当前编辑的行数据
+        event = event ? event : window.event;
+        var obj = event.srcElement ? event.srcElement : event.target;
+        if (!(obj.parentNode.nodeName === 'LI' || obj.parentNode.nodeName === 'TD' ||
+            obj.parentNode.nodeName === 'TR' || obj.parentNode.nodeName === 'SPAN' ||
+            obj.parentNode.nodeName === 'LABEL')) {
+            myfunc(currentId, "rs");
+            topOnkeyDown(dic);
+        }
+    };
+}
