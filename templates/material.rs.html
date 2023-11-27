@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
     <link rel="stylesheet" href="/assets/plugins/hiprint/css/print-lock.css">
 
-    <div class="buy-in">
+    <div class="buy-in material">
         <div class="top-title"><span><i class="fa fa-retweet"></i> 仓库管理 </span>
             <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
             <p id="help-info" title="帮助信息"><img></p>
@@ -28,6 +28,9 @@
             </div>
             <div class="info-and-choose has-bak">
                 <div class="info-model">
+                    <div id="history-info">
+
+                    </div>
                     <div id="supplier-info">
 
                     </div>
@@ -37,12 +40,20 @@
                         </select>
                     </div>
                 </div>
-                <div id="history-info">
-
-                </div>
             </div>
 
             <div class="buy-items has-bak">
+                <div class="table-container table-history">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width=10%>@setup[2]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
                 <div class="table-container table-items not-scroll-left">
                     <table>
                         <thead>
@@ -71,17 +82,6 @@
                         </div>
                     </div>
                 </div>
-                <div class="table-container table-history">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th width=10%>@setup[2]</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
             </div>
         </div>
     </div>
@@ -89,5 +89,5 @@
     <script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
     <script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
     <script src="/assets/plugins/laydate/laydate.js"></script>
-    <script type="module" src="/assets/js/pages/buyin.js"></script>
+    <script type="module" src="/assets/js/pages/material.js"></script>
     }, user.show.clone(), format!("{}.css", user.theme.clone()))

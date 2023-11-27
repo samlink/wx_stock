@@ -577,8 +577,6 @@ function fill_gg(auto_input, show_names, num) {
     }
 
     let price_input = document.querySelector(`.inputting .price`);
-    // let price = field_values[field_values.length - 1];
-
     price_input.focus();
 
     add_line(input_data.show_names, all_width);
