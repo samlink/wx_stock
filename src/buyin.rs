@@ -116,7 +116,7 @@ pub async fn fetch_inout_customer(
 #[get("/buyin_auto")]
 pub async fn buyin_auto(
     db: web::Data<Pool>,
-    search: web::Query<Search>,
+    search: web::Query<SearchCate>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -126,6 +126,10 @@ pub async fn buyin_auto(
         let mut s: Vec<&str> = search.s.split(" ").collect();
         if s.len() == 1 {
             s.push("");
+        }
+        let mut cate_s = "".to_owned();
+        if search.cate == "销售单据" {
+            cate_s = format!("{}='否' AND ", f_map["切完"]);
         }
 
         let mut sql_fields = "".to_owned();
@@ -145,7 +149,7 @@ pub async fn buyin_auto(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| {} || '{}' || 0 AS label FROM products 
                 JOIN tree ON products.商品id = tree.num
-                WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+                WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER,
             SPLITER,
             sql_fields,
@@ -156,6 +160,7 @@ pub async fn buyin_auto(
             SPLITER,
             f_map["理论重量"],
             SPLITER,
+            cate_s,
             s[0].to_lowercase(),
             s[0].to_lowercase(),
             sql_where,

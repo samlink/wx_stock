@@ -257,9 +257,14 @@ function build_input_row(show_names, all_width, num) {
         auto_input.focus();
     });
 
+    auto_input.addEventListener('focus', function () {
+        remove_inputting();
+        this.parentNode.parentNode.parentNode.classList.add("inputting");
+    });
+
     input_row.querySelector(`td:nth-child(1)`).textContent = num;
 
-    auto_table(auto_input, "", `/buyin_auto`, input_data.auto_th, () => {
+    auto_table(auto_input, input_data.document, `/buyin_auto`, input_data.auto_th, () => {
         fill_gg(auto_input, input_data.show_names, input_data.gg_n);
     });
 
@@ -380,9 +385,11 @@ function build_input_row(show_names, all_width, num) {
                     document.querySelector('#product-id').textContent = id;
 
                     let post_data = {
+                        cate: input_data.document,
                         id: id,
                         name: '',
                         page: 1,
+                        done: '否',
                     };
 
                     Object.assign(table_data.post_data, post_data);
@@ -518,15 +525,7 @@ function rebuild_index() {
 
 //避免表头错位（出现滚动条时）
 function keep_up() {
-    let trs = document.querySelectorAll(".table-items tbody tr");
-    let i = 0;
-    trs.forEach(tr => {
-        if (tr.querySelector('td:nth-child(1)').textContent != "") {
-            i++;
-        }
-    });
-
-    if (i > input_data.lines) {
+    if (document.querySelectorAll(".table-items tbody tr").length > input_data.lines) {
         document.querySelector(".table-items thead").style.width = "calc(100% - 1em)";
     }
     else {

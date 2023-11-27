@@ -129,7 +129,14 @@ export function auto_table(input, cate, url, thead, cb) {
         if (!val) { return false; }
 
         currentFocus = -1;
-        var get_url = cate == "" ? `${url}?s=${val}` : `${url}?s=${val}&cate=${cate.textContent}`;
+        let get_url;
+        if (cate != "") {
+            let c = typeof (cate) == "string" ? cate : cate.textContent;
+            get_url = `${url}?s=${val}&cate=${c}`;
+        }
+        else {
+            get_url = `${url}?s=${val}`;
+        }
 
         fetch(get_url)
             .then(response => response.json())

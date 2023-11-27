@@ -49,7 +49,7 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let values = data.split(SPLITER);
                         let len = values.length;
-                        fetch_print_models(values[len - 1]);
+                        // fetch_print_models(values[len - 1]);
 
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] == "true") {
@@ -193,6 +193,7 @@ fetch(`/fetch_inout_fields`, {
                 lines: table_lines,
                 auto_th: show_th,
                 dh: dh_div.textContent,
+                document: document_name,
                 gg_n: gg_n,     // 自动填充规格单元格的数量
             }
 
@@ -218,6 +219,7 @@ fetch(`/fetch_inout_fields`, {
                         lines: table_lines,
                         auto_th: show_th,
                         dh: dh_div.textContent,
+                        document: document_name,
                         gg_n: gg_n,     // 自动填充规格单元格的数量
                     }
 
@@ -549,27 +551,47 @@ function error_check() {
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
             lines = 1;
-            let mount = row.querySelector('.mount').value ? row.querySelector('.mount').value : row.querySelector('.mount').textContent;
-            if (!regReal.test(row.querySelector('.price').value) || !regReal.test(mount)) {
-                notifier.show(`单价或重量输入错误`, 'danger');
+            let mount = row.querySelector('.mount');
+            if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
+                notifier.show(`单价输入错误`, 'danger');
                 return false;
+            }
+            else if (!row.querySelector('.price').value) {
+                row.querySelector('.price').value = 0;
+            }
+
+            if (mount.value && !regReal.test(mount.value)) {
+                notifier.show(`重量输入错误`, 'danger');
+                return false;
+            }
+            else if (!mount.value) {
+                mount.value = 0;
             }
 
             if (row.querySelector('.long')) {
-                if (!regReal.test(row.querySelector('.long').value) || !regReal.test(row.querySelector('.num').value)) {
-                    notifier.show(`长度或数量输入错误`, 'danger');
+                if (row.querySelector('.long').value && !regReal.test(row.querySelector('.long').value)) {
+                    notifier.show(`长度输入错误`, 'danger');
                     return false;
                 }
-
-                if (!regReal.test(row.querySelector('.weight').value)) {
-                    if (row.querySelector('.weight').value.trim() == "")
-                        row.querySelector('.weight').value = 0;
-                    else {
-                        notifier.show(`实际重量输入错误`, 'danger');
-                        return false;
-                    }
+                else if (!row.querySelector('.long').value) {
+                    row.querySelector('.long').value = 0;
                 }
 
+                if (row.querySelector('.num').value && !regReal.test(row.querySelector('.num').value)) {
+                    notifier.show(`数量输入错误`, 'danger');
+                    return false;
+                }
+                else if (!row.querySelector('.num').value) {
+                    row.querySelector('.num').value = 0;
+                }
+
+                if (row.querySelector('.weight').value && !regReal.test(row.querySelector('.weight').value)) {
+                    notifier.show(`实际重量输入错误`, 'danger');
+                    return false;
+                }
+                else if (row.querySelector('.weight').value.trim() == "") {
+                    row.querySelector('.weight').value = 0;
+                }
             }
         }
     }

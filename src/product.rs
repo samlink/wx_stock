@@ -26,8 +26,12 @@ pub async fn fetch_product(
         let f_map = map_fields(db.clone(), "商品规格").await;
         // 区域限制
         let mut area = "".to_owned();
+        let mut done = "".to_owned();
         if !user.rights.contains("跨区查库存") {
             area = format!(r#"AND {}='{}'"#, f_map["区域"], user.area);
+        }
+        if post_data.cate == "销售单据" {
+            done = format!("AND {}='否'", f_map["切完"]);
         }
         // 构建搜索字符串
         let mut conditions = "".to_owned();
@@ -74,10 +78,11 @@ pub async fn fetch_product(
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products 
-            WHERE products.商品id='{}' {} {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            WHERE products.商品id='{}' {} {} {} ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
             post_data.id,
+            done,
             area,
             conditions,
             post_data.sort,
