@@ -10,4 +10,22 @@
     .table-items {
         margin-right: 0;
     }
+
+    .table-head {
+        display: flex;
+    }
+
+    .material-doc {
+        display: flex;
+        margin-left: 18px;
+        align-items: baseline; 
+    }
+
+    .material-value {
+        margin-right: 10px;
+        border-top: 0;
+        border-left: 0;
+        border-right: 0;
+        border-radius: 0;
+    }
 }

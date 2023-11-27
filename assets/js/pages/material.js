@@ -75,28 +75,22 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function document_top_handle(html, has_date) {
-    if (document.querySelector('.has-auto')) {
-        document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
+    let fields_show = document.querySelector('.fields-show .table-head');
+    fields_show.innerHTML = html;
+    let has_auto = document.querySelector('.has-auto');
+    let next_auto = document.querySelector('.has-auto+div');
 
-        let fields_show = document.querySelector('.fields-show');
-        let has_auto = document.querySelector('.has-auto');
-        let next_auto = document.querySelector('.has-auto+div');
-
-        //加入滚动事件处理
-        fields_show.addEventListener('scroll', function () {
-            if (fields_show.scrollTop != 0) {
-                has_auto.style.cssText = "position: relative; left: 5px;";
-                next_auto.style.cssText = "margin-left: -3px;"
-            }
-            else {
-                has_auto.style.cssText = "";
-                next_auto.style.cssText = "";
-            }
-        });
-    }
-    else {
-        document.querySelector('.fields-show').innerHTML = html;
-    }
+    //加入滚动事件处理
+    fields_show.addEventListener('scroll', function () {
+        if (fields_show.scrollTop != 0) {
+            has_auto.style.cssText = "position: relative; left: 5px;";
+            next_auto.style.cssText = "margin-left: -3px;"
+        }
+        else {
+            has_auto.style.cssText = "";
+            next_auto.style.cssText = "";
+        }
+    });
 
     let date = document.querySelector('#日期');
     if (!has_date) {
@@ -110,14 +104,6 @@ function document_top_handle(html, has_date) {
         // theme: 'molv',
         // theme: '#62468d',
     });
-
-    if (document.querySelector('#文本字段2')) {
-        let da = document.querySelector('#文本字段2');
-        laydate.render({
-            elem: da,
-            showBottom: false,
-        })
-    }
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
