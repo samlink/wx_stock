@@ -188,6 +188,26 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
     }
 }
 
+///销售退货
+#[get("/saleback/{dh}")]
+pub async fn saleback(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+        let num_position = get_fraction(db).await;
+        let setup = vec!["销售退货", "客户", "入库单号", dh, "customer"];
+        user.show = name_show(&user);
+        let html = r2s(|o| buyin(o, user, num_position, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 ///库存调整
 #[get("/stock_change/{dh}")]
 pub async fn stock_change(
@@ -204,6 +224,44 @@ pub async fn stock_change(
         };
         let num_position = get_fraction(db).await;
         let setup = vec!["库存调整", "供应商", "近期调整", dh];
+        user.show = name_show(&user);
+        let html = r2s(|o| buyin(o, user, num_position, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
+#[get("/material_in/{dh}")]
+pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+        let num_position = get_fraction(db).await;
+        let setup = vec!["材料入库", "客户", "入库单号", dh, "no_customer"];
+        user.show = name_show(&user);
+        let html = r2s(|o| buyin(o, user, num_position, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
+#[get("/material_out/{dh}")]
+pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+        let num_position = get_fraction(db).await;
+        let setup = vec!["材料出库", "客户", "出库单号", dh, "no_customer"];
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)

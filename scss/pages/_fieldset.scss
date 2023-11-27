@@ -45,7 +45,7 @@
     }
 
     table thead {
-        width: calc(100% - 12px);
+        width: calc(100% - 1.07em);
         th {
             cursor: default;
         }
@@ -72,7 +72,7 @@
 
         tr:hover {
             background-color: transparent;
-            border-left: 3px solid $primary-400;
+            border-bottom: 1.5px solid $primary-400;
         }
     }
 

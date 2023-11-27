@@ -59,7 +59,7 @@ function row_fn(tr) {
 
 function blank_row_fn() {
     return `<tr><td width=6%></td><td width=15%></td><td width=10%></td><td width=15%></td><td width=8%></td>
-            <td width=15%></td><td width=20%></td><td width=10%></td><td width=8%></td><td width=8%></td>·</tr>`;
+            <td width=15%></td><td width=20%></td><td width=10%></td><td width=8%></td><td width=8%></td></tr>`;
 }
 
 function fetch_data(data) {
@@ -315,6 +315,7 @@ sumit_button2.addEventListener('click', () => {
 });
 
 window.onbeforeunload = function (e) {
+    document.querySelector('#table-choose').value = "";
     if (global.edit == 1 || global.edit2 == 1) {
         var e = window.event || e;
         e.returnValue = ("编辑未保存提醒");

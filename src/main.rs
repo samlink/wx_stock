@@ -65,6 +65,9 @@ async fn main() -> std::io::Result<()> {
             .service(html::buy_in)
             .service(html::report_design)
             .service(html::sale)
+            .service(html::saleback)
+            .service(html::material_in)
+            .service(html::material_out)
             .service(html::stock_change)
             .service(html::buy_query)
             .service(html::sale_query)
@@ -118,6 +121,7 @@ async fn main() -> std::io::Result<()> {
             .service(product::update_product)
             .service(product::add_product)
             .service(product::product_auto)
+
             .service(product::product_out)
             .service(product::product_in)
             .service(product::product_datain)

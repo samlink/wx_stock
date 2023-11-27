@@ -1,0 +1,93 @@
+@use super::base;
+@use crate::service::UserData;
+@(user: UserData, num_position: String, setup: Vec<&str>)
+
+    @:base({
+    <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
+    <link rel="stylesheet" href="/assets/plugins/hiprint/css/print-lock.css">
+
+    <div class="buy-in">
+        <div class="top-title"><span><i class="fa fa-retweet"></i> 仓库管理 </span>
+            <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
+            <p id="help-info" title="帮助信息"><img></p>
+            <span id="num_position" hidden>@num_position</span>
+        </div>
+        <div class="buy-content">
+            <div class="inout-top has-bak" style="width: 99%;">
+                <div class="fields-show">
+                </div>
+                <div class="buy-buttons">
+                    <div class="has-dh">№: <span id="dh">@setup[3]</span></div>
+                    <div class="buttons">
+                        <button class="btn btn-info btn-sm" id="save-button">保存</button>
+                        <button class="btn btn-info btn-sm" id="print-button">打印</button>
+                        <button class="btn btn-info btn-sm" id="document-new-button">质检</button>
+                        <button class="btn btn-info btn-sm" id="remember-button">审核</button>
+                    </div>
+                </div>
+            </div>
+            <div class="info-and-choose has-bak">
+                <div class="info-model">
+                    <div id="supplier-info">
+
+                    </div>
+                    <div id="choose-div">
+                        <select class="select-sm" name="print-choose" id="print-choose">
+
+                        </select>
+                    </div>
+                </div>
+                <div id="history-info">
+
+                </div>
+            </div>
+
+            <div class="buy-items has-bak">
+                <div class="table-container table-items not-scroll-left">
+                    <table>
+                        <thead>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="table-ctrl">
+                        <div class="table-button">
+                            <button class="btn btn-info btn-sm" id="row-insert" title="插入"><i
+                                    class="fa fa-plus-square"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-del" title="删除"><i
+                                    class="fa fa-trash"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-up" title="上移"><i
+                                    class="fa fa-arrow-up"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-down" title="下移"><i
+                                    class="fa fa-arrow-down"></i></button>
+                        </div>
+
+                        <div class="table-tips" id="sum-money">
+                            金额合计： 元
+                        </div>
+
+                        <div class="table-info">
+                            共 <span id="total-records"></span> 条记录
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container table-history">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width=10%>@setup[2]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="/assets/plugins/jquery/jquery-3.5.1.slim.min.js"></script>
+    <script src="/assets/plugins/hiprint/js/hiprint.bundle.js"></script>
+    <script src="/assets/plugins/jquery/jquery.hiwprint.js"></script>
+    <script src="/assets/plugins/laydate/laydate.js"></script>
+    <script type="module" src="/assets/js/pages/buyin.js"></script>
+    }, user.show.clone(), format!("{}.css", user.theme.clone()))

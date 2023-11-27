@@ -526,7 +526,7 @@ function rebuild_index() {
 //避免表头错位（出现滚动条时）
 function keep_up() {
     if (document.querySelectorAll(".table-items tbody tr").length > input_data.lines) {
-        document.querySelector(".table-items thead").style.width = "calc(100% - 1em)";
+        document.querySelector(".table-items thead").style.width = "calc(100% - 1.07em)";
     }
     else {
         document.querySelector(".table-items thead").style.width = "100%";
