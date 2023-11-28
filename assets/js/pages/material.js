@@ -159,7 +159,7 @@ show_names = [
     { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="border-right:none"' },
-    { name: "", width: 0, class: "m_id", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="width:0%; border-left:none"', },
+    { name: "", width: 0, class: "m_id", type: "普通输入", editable: false, is_save: true, default: "", css: 'style="width:0%; border-left:none"', },
 ];
 
 //计算表格行数，33 为 lineHeight （行高）

@@ -104,13 +104,14 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
 
     //获取尾号
     let sql = format!(
-        "SELECT max(单号) FROM documents WHERE 单号 like '{}%'",
+        "SELECT COALESCE(max(单号),'0') as 单号 FROM documents WHERE 单号 like '{}%'",
         dh_pre
     );
 
     let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
     let mut dh_first = "".to_owned();
+    
     for row in rows {
         dh_first = row.get("单号");
     }
@@ -118,7 +119,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let keep = 2usize;
     let len = dh_first.len();
     let mut num = 1i32;
-    if dh_first != "" {
+    if dh_first != "0" {
         if let Some(n) = dh_first.get(len - keep..len) {
             if dh_first == format!("{}{}", date, n) {
                 num = n.parse::<i32>().unwrap() + 1;

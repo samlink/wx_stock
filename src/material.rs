@@ -131,17 +131,23 @@ pub async fn save_material(
         let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
-        if dh_data == "新单据" {
-            dh = get_dh(db, doc_data[0]).await;
+        // println!("已进入程序，单号：{}", dh_data);
 
-            let mut init = "INSERT INTO documents (单号,".to_owned();
+        if dh_data == "新单据" {
+            dh = get_dh(db.clone(), doc_data[0]).await;
+        println!("已进入程序，单号：{}", dh);
+
+            let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
             for f in &fields {
                 init += &format!("{},", &*f.field_name);
             }
 
             init += &format!(
-                "类别,{},{}) VALUES('{}',",
-                f_map["经办人"], f_map["区域"], dh
+                "类别,{},{}) VALUES('{}' {},",
+                f_map["经办人"],
+                f_map["区域"],
+                dh,
+                12 // 12 是本公司的 id
             );
 
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
@@ -167,13 +173,25 @@ pub async fn save_material(
                 .unwrap();
         }
 
-        let mut n = 1;
+        let f_map = map_fields(db, "商品规格").await;
+
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO products (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                dh,
+                r#"INSERT INTO products (商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
+                f_map["规格"],
+                f_map["状态"],
+                f_map["炉号"],
+                f_map["执行标准"],
+                f_map["生产厂家"],
+                f_map["库位"],
+                f_map["物料号"],
+                f_map["入库长度"],
+                f_map["理论重量"],
+                f_map["备注"],
+                f_map["来源"],
+                value[10],
                 value[0],
                 value[1],
                 value[2],
@@ -183,12 +201,13 @@ pub async fn save_material(
                 value[6],
                 value[7],
                 value[8],
-                n
+                value[9],
+                doc_data[2]
             );
-            // println!("{}", items_sql);
+
+            println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
-            n += 1;
         }
 
         let _result = transaction.commit().await;
