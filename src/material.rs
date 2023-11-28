@@ -105,7 +105,8 @@ pub async fn save_material(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
     if user.name != "" {
-        if data.remember == "已审核" {
+        let rem: Vec<&str> = data.remember.split(SPLITER).collect();
+        if rem[0] == "已审核" {
             let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
             if user.name == "" {
                 return HttpResponse::Ok().json(-1);
@@ -139,27 +140,18 @@ pub async fn save_material(
             }
 
             init += &format!(
-                "客商id,类别,{},{}) VALUES('{}',",
+                "类别,{},{}) VALUES('{}',",
                 f_map["经办人"], f_map["区域"], dh
             );
 
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
-            doc_sql += &format!(
-                "{},'{}','{}', '{}')",
-                doc_data[2], doc_data[0], doc_data[3], user.area
-            );
+            doc_sql += &format!("'{}','{}', '{}')", doc_data[0], user.name, user.area);
         } else {
             let init = "UPDATE documents SET ".to_owned();
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
-                "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-                doc_data[2],
-                doc_data[0],
-                f_map["经办人"],
-                doc_data[3],
-                f_map["区域"],
-                user.area,
-                dh
+                "类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
+                doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
             );
         }
 
@@ -170,7 +162,7 @@ pub async fn save_material(
 
         if dh_data != "新单据" {
             transaction
-                .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
+                .execute("DELETE FROM products WHERE 单号id=$1", &[&dh])
                 .await
                 .unwrap();
         }
@@ -178,29 +170,21 @@ pub async fn save_material(
         let mut n = 1;
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
-            let items_sql = if fields_cate == "销售单据" {
-                format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
+            let items_sql = format!(
+                r#"INSERT INTO products (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
                      VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                    dh,
-                    value[0],
-                    value[1],
-                    value[2],
-                    value[3],
-                    value[4],
-                    value[5],
-                    value[6],
-                    value[7],
-                    value[8],
-                    n
-                )
-            } else {
-                format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], n
-                )
-            };
+                dh,
+                value[0],
+                value[1],
+                value[2],
+                value[3],
+                value[4],
+                value[5],
+                value[6],
+                value[7],
+                value[8],
+                n
+            );
             // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();

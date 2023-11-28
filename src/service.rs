@@ -100,11 +100,11 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
     let local: Vec<&str> = date_string.split("-").collect();
 
-    let date = format!("{}{}{}{}-", dh_pre, local[0], local[1], local[2]);
+    let date = format!("{}{}{}-", dh_pre, local[0], local[1]);  //按月
 
     //获取尾号
     let sql = format!(
-        "SELECT 单号 FROM documents WHERE 单号 like '{}%' ORDER BY 单号 DESC LIMIT 1",
+        "SELECT max(单号) FROM documents WHERE 单号 like '{}%'",
         dh_pre
     );
 

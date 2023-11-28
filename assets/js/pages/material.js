@@ -267,7 +267,8 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let n = 0;
     for (let f of document_table_fields) {
         if (f.data_type == "文本") {
-            save_str += `${all_values[n].value}${SPLITER}`;
+            let value = f.show_name != "单据单号" ? all_values[n].value : all_values[n].value.split('　')[0];
+            save_str += `${value}${SPLITER}`;
         }
         else if (f.data_type == "整数" || f.data_type == "实数") {
             let value = all_values[n].value ? all_values[n].value : 0;
@@ -306,7 +307,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
-        remember: document.querySelector('#remember-button').textContent,
+        remember: `${document.querySelector('#remember-button').textContent}${SPLITER}${document.querySelector('#check-button').textContent}`,
         items: table_data,
     }
 
