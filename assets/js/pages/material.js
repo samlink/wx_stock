@@ -63,8 +63,6 @@ fetch(`/fetch_inout_fields`, {
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
-
-
                     });
             }
             else {
@@ -97,7 +95,33 @@ function document_top_handle(html, has_date) {
     auto_doc.parentNode.classList.add("autocomplete");
 
     let auto_comp = new AutoInput(auto_doc, "商品采购", "/material_auto", () => {
-        console.log(auto_doc.getAttribute("data"));
+        fetch('/get_items', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(auto_doc.getAttribute("data")),
+        })
+            .then(response => response.json())
+            .then(content => {
+                let tr = "";
+                content.forEach(obj => {
+                    tr += `<tr><td>${obj}</td></tr>`;
+                });
+                document.querySelector(".table-history tbody").innerHTML = tr;
+
+                let lines = document.querySelectorAll(".table-history tbody tr");
+                for (let l of lines) {
+                    l.addEventListener("dblclick", () => {
+                        let na = l.querySelector('td').textContent.split('　');
+                        document.querySelector('#名称').value = na[0];
+                        document.querySelector('#材质').value = na[1];
+                        document.querySelector('#规格').value = na[2];
+                        document.querySelector('#状态').value = na[3];
+                        document.querySelector('#生产厂家').value = document.querySelector("#文本字段6").value.split(' ')[1];
+                    })
+                }
+            });
     });
 
     auto_comp.init();
@@ -113,8 +137,6 @@ function document_top_handle(html, has_date) {
     laydate.render({
         elem: date,
         showBottom: false,
-        // theme: 'molv',
-        // theme: '#62468d',
     });
 }
 
@@ -132,7 +154,7 @@ show_names = [
     { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "" },
 ];
 
@@ -177,6 +199,10 @@ else {
 }
 
 //保存、打印和审核 -------------------------------------------------------------------
+
+document.querySelector("#material-add").addEventListener('click', function () {
+
+})
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {

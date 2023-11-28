@@ -18,7 +18,7 @@
     .material-doc {
         display: flex;
         margin-left: 18px;
-        align-items: baseline; 
+        align-items: baseline;
     }
 
     .material-value {
@@ -45,6 +45,22 @@
 
             div {
                 width: $auto-width * 0.94;
+            }
+        }
+    }
+
+    .table-history {
+        width: 300px;
+
+        tbody {
+            tr {
+                cursor: pointer;
+            }
+            td {
+                text-align: left !important;
+                border: none;
+                // border-: none;
+                // border-bottom: none;
             }
         }
     }

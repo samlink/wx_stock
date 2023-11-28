@@ -28,12 +28,37 @@ pub async fn material_auto(
             format!("customers.{}", f_map2["简称"]),
             cate_s,
             s,
-            format!("documents.{}", f_map["入库完成"]),            
+            format!("documents.{}", f_map["入库完成"]),
+        );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/get_items")]
+pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = &format!(
+            r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
+                规格 || '　' || 状态 as item from document_items 
+            JOIN tree ON 商品id = tree.num
+            WHERE 单号id = '{}'"#,
+            data
         );
 
         // println!("{}", sql);
 
-        autocomplete(db, sql).await
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let item = row.get("item");
+            document_items.push(item);
+        }
+        HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
     }

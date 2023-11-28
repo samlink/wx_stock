@@ -93,6 +93,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_formal)
 
             .service(material::material_auto)
+            .service(material::get_items)
             
             .service(documentquery::fetch_used_fields)
             .service(documentquery::fetch_all_documents)
