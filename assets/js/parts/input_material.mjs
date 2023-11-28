@@ -30,7 +30,6 @@ export function input_table_init(data) {
             let table_body = document.querySelector('.table-items tbody');
             let input_row = build_input_row(input_data.show_names, all_width);
 
-            remove_absolute();
             remove_inputting();
 
             table_body.insertBefore(input_row, edit);
@@ -54,7 +53,6 @@ export function input_table_init(data) {
                 confirmCallBack: () => {
                     edit.parentNode.removeChild(edit);
                     if (document.querySelector('.has-input')) {
-                        remove_absolute();
                         remove_inputting();
                         rebuild_index();
                         keep_up();
@@ -71,7 +69,7 @@ export function input_table_init(data) {
                     }
 
                     sum_records();
-                    sum_money();
+                    sum_weight();
                 }
             });
         }
@@ -86,7 +84,6 @@ export function input_table_init(data) {
         if (edit) {
             if (edit.previousElementSibling) {
                 edit.parentNode.insertBefore(edit, edit.previousElementSibling);
-                remove_absolute();
                 rebuild_index();
             }
         }
@@ -102,7 +99,6 @@ export function input_table_init(data) {
             if (edit.nextElementSibling &&
                 edit.nextElementSibling.querySelector('td:nth-child(1)').textContent != "") {
                 edit.parentNode.insertBefore(edit.nextElementSibling, edit);
-                remove_absolute();
                 rebuild_index();
             }
         }
@@ -127,8 +123,9 @@ export function build_blank_table(data) {
     let th = "<tr>";
     let blank = "<tr>";
     input_data.show_names.forEach(obj => {
-        th += `<th width=${obj.width * 100 / all_width}>${obj.name}</th>`;
-        blank += `<td width=${obj.width * 100 / all_width}></td>`;
+        let hidden = obj.css ? obj.css : "";
+        th += `<th width=${obj.width * 100 / all_width} ${hidden}>${obj.name}</th>`;
+        blank += `<td width=${obj.width * 100 / all_width} ${hidden}></td>`;
     });
 
     th += "</tr>";
@@ -146,11 +143,6 @@ export function build_blank_table(data) {
 
     tbody.innerHTML = rows;
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
-
-    //这部分是解决滚动时， 自动完成功能可正常使用-----
-    input_data.container.querySelector('tbody').addEventListener('scroll', function () {
-        remove_absolute();
-    });
 }
 
 function build_content_table() {
@@ -191,11 +183,6 @@ function build_content_table() {
     }, 200);
 
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
-
-    //这部分是解决滚动时， 自动完成功能可正常使用-----
-    input_data.container.querySelector('tbody').addEventListener('scroll', function () {
-        remove_absolute();
-    });
 }
 
 //创建新的输入行，参数 num 是序号
@@ -205,12 +192,13 @@ function build_input_row(show_names, all_width, num) {
     input_row.classList.add("has-input");
     let control = "";
     for (let obj of show_names) {
+        let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width} class="editable">
+            control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
             <input class="form-control input-sm has-value ${obj.class}" type="text" value = ${obj.value ? obj.value : ''}></td>`;
         }
         else if (obj.type == "普通输入" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width} class='${obj.class}'>${obj.value ? obj.value : ''}</td >`;
+            control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td >`;
         } else if (obj.type == "二值选一" && obj.editable) {
             let checked;
             if (obj.value) {
@@ -218,16 +206,16 @@ function build_input_row(show_names, all_width, num) {
             } else {
                 checked = obj.default.split('_')[0] == obj.default ? 'checked' : '';
             }
-            control += `<td width=${obj.width * 100 / all_width} class="editable"><label class="check-radio">
+            control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><label class="check-radio">
                                 <input class="has-value" type="checkbox" ${checked}>
                                 <span class="checkmark"></span>
                             </label>
                         </td>`;
         } else if (obj.type == "二值选一" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''}</td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td >`;
         }
         else if (obj.type == "下拉列表" && obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width} class="editable"><select class='select-sm has-value'>`;
+            control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value'>`;
             let options = obj.default.split('_');
             for (let value of options) {
                 let select = value == obj.value ? 'select' : '';
@@ -235,7 +223,7 @@ function build_input_row(show_names, all_width, num) {
             }
             control += "</select></td>";
         } else if (obj.type == "下拉列表" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''}</td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td >`;
         } else if (obj.type == "autocomplete" && obj.editable) {
             control += `
             <td width=${obj.width * 100 / all_width} class="editable" >
@@ -259,7 +247,7 @@ function build_input_row(show_names, all_width, num) {
     //添加价格和数量变化事件
     input_row.querySelector('.长度').addEventListener('blur', function () {
         weight();
-        // sum_money();
+        sum_weight();
     });
 
     return input_row;
@@ -269,60 +257,30 @@ function build_input_row(show_names, all_width, num) {
 function weight() {
     let input_row = document.querySelector('.inputting');
     let data = {
-        long: input_row.querySelector('.长度').value,
+        long: input_row.querySelector('.长度').value.trim(),
         num: 1,
-        name: input_row.querySelector('.名称').textContent,
-        cz: input_row.querySelector('.材质').textContent,
-        gg: input_row.querySelector('.规格').textContent,
+        name: input_row.querySelector('.名称').textContent.trim(),
+        cz: input_row.querySelector('.材质').textContent.trim(),
+        gg: input_row.querySelector('.规格').textContent.trim(),
     }
 
     if (regInt.test(data.long) && regInt.test(data.num)) {
-        input_row.querySelector('.重量').value = calc_weight(data);
+        input_row.querySelector('.重量').textContent = service.calc_weight(data);
     }
     else {
-        input_row.querySelector('.重量').value = 0;
+        input_row.querySelector('.重量').textContent = 0;
     }
-}
-
-function calc_weight(data) {
-    let tech;
-    if (data.cz == "718") {
-        tech = 1.05;
-    } else if (data.cz == "17-4" || data.cz == "Super13Cr") {
-        tech = 1.0064;
-    } else {
-        tech = 1;
-    }
-
-    let weight = 0;
-    if (data.name == "圆钢") {
-        weight = data.gg * data.gg * 0.00617 * data.long * data.num * tech / 1000;
-    } else {
-        let pipe = data.gg.split('*');
-        weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * data.long * data.num * tech / 1000;
-    }
-
-    return weight.toFixed(2);
 }
 
 //计算合计理论重量
-function sum_money() {
+function sum_weight() {
     let all_input = document.querySelectorAll('.has-input');
     let sum = 0;
     for (let i = 0; i < all_input.length; i++) {
-        let price = all_input[i].querySelector('.price').value;
-        let mount = all_input[i].querySelector('.mount').value;
-        if (!mount) {
-            mount = all_input[i].querySelector('.mount').textContent;
-        }
-        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
-            price && regReal.test(price) && mount && regReal.test(mount)) {
-            sum += price * mount;
-        }
+        sum += Number(all_input[i].querySelector('.重量').textContent);
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
-    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
+    document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
 }
 
 //计算记录数
@@ -335,7 +293,6 @@ function rebuild_index() {
     let all_input = document.querySelectorAll('.has-input');
     for (let i = 0; i < all_input.length; i++) {
         all_input[i].querySelector('td:nth-child(1)').textContent = i + 1;
-        all_input[i].querySelector('td:nth-child(2) .autocomplete').style.zIndex = 900 - i;
     }
 }
 
@@ -346,16 +303,6 @@ function keep_up() {
     }
     else {
         document.querySelector(".table-items thead").style.width = "100%";
-    }
-}
-
-//去除绝对定位
-function remove_absolute() {
-    let all_auto = document.querySelectorAll('.table-items .autocomplete');
-    for (let auto of all_auto) {
-        auto.classList.remove('auto-edit');     //去掉绝对定位
-        auto.style.left = "";
-        auto.style.top = "";
     }
 }
 

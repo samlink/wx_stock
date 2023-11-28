@@ -76,6 +76,39 @@ export function build_table_header(table_container, custom_fields, table_fields,
         header_names: header_names,
     };
 }
+
+/**
+ * 计算钢材理论重量
+ * @param {
+* data
+* long: 长度，单位毫米，如 7688，
+* num: 支数，
+* name: 名称，如圆钢或无缝钢管，
+* cz: 材质，如 17-4，
+* gg: 规格，如 120 或 123*80}  
+* @returns 两位小数的字符串
+*/
+export function calc_weight(data) {
+   let tech;
+   if (data.cz == "718") {
+       tech = 1.05;
+   } else if (data.cz == "17-4" || data.cz == "Super13Cr") {
+       tech = 1.0064;
+   } else {
+       tech = 1;
+   }
+
+   let weight = 0;
+   if (data.name == "圆钢") {
+       weight = data.gg * data.gg * 0.00617 * data.long * data.num * tech / 1000;
+   } else {
+       let pipe = data.gg.split('*');
+       weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * data.long * data.num * tech / 1000;
+   }
+
+   return weight.toFixed(2);
+}
+
 // //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
 // export function build_table_header(table_container, table_fields) {
 //     let all_width = 0;

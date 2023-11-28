@@ -434,32 +434,16 @@ function build_input_row(show_names, all_width, num) {
 // 销售时使用的理论重量计算
 function calc_weight() {
     let input_row = document.querySelector('.inputting');
-    let long = input_row.querySelector('.long').value;
-    let num = input_row.querySelector('.num').value;
+    let data = {
+        long: input_row.querySelector('.long').value,
+        num: input_row.querySelector('.num').value,
+        name: input_row.querySelector('.auto-input').value,
+        cz: input_row.querySelector('.材质').textContent,
+        gg: input_row.querySelector('.规格').value,
+    }
 
-    if (regInt.test(long) && regInt.test(num)) {
-        let weight = 0;
-        // let  = input_row.querySelector('.auto-input').getAttribute("data").split(SPLITER);
-        let name = input_row.querySelector('.auto-input').value;
-        let cz = input_row.querySelector('.材质').textContent;
-        let gg = input_row.querySelector('.规格').value;
-        let tech;
-        if (cz == "718") {
-            tech = 1.05;
-        } else if (cz == "17-4" || cz == "Super13Cr") {
-            tech = 1.0064;
-        } else {
-            tech = 1;
-        }
-
-        if (name == "圆钢") {
-            weight = gg * gg * 0.00617 * long * num * tech / 1000;
-        } else {
-            let pipe = gg.split('*');
-            weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * long * num * tech / 1000;
-        }
-
-        input_row.querySelector('.mount').value = weight.toFixed(2);
+    if (regInt.test(data.long) && regInt.test(data.num)) {
+        input_row.querySelector('.mount').value = service.calc_weight(data);
     }
     else {
         input_row.querySelector('.mount').value = 0;

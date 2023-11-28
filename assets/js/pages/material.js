@@ -106,14 +106,16 @@ function document_top_handle(html, has_date) {
             .then(content => {
                 let tr = "";
                 content.forEach(obj => {
-                    tr += `<tr><td>${obj}</td></tr>`;
+                    let material = obj.split(`${SPLITER}`);
+                    tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
                 });
                 document.querySelector(".table-history tbody").innerHTML = tr;
 
                 let lines = document.querySelectorAll(".table-history tbody tr");
                 for (let l of lines) {
                     l.addEventListener("dblclick", () => {
-                        let na = l.querySelector('td').textContent.split('　');
+                        document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
+                        let na = l.querySelector('td:nth-child(2)').textContent.split('　');
                         document.querySelector('#名称').value = na[0];
                         document.querySelector('#材质').value = na[1];
                         document.querySelector('#规格').value = na[2];
@@ -155,8 +157,9 @@ show_names = [
     { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="border-right:none"' },
+    { name: "", width: 0, class: "m_id", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="width:0%; border-left:none"', },
 ];
 
 //计算表格行数，33 为 lineHeight （行高）
@@ -201,12 +204,22 @@ else {
 
 // 将材料数据填入表格
 document.querySelector("#material-add").addEventListener('click', function () {
+    if (!document.querySelector('#名称').value) {
+        notifier.show('采购条目输入有错误', 'danger');
+        return false;
+    }
+
+    let n = document.querySelector("#数量").value;
+    if (!n || !regInt.test(n) || n <= 0) {
+        notifier.show('数量输入有错误', 'danger');
+        return false;
+    }
+
     fetch(`/fetch_max_num`, {
         method: 'get',
     })
         .then(response => response.json())
         .then(content => {
-            let n = document.querySelector("#数量").value;
             let rows = [];
             show_names[1].value = document.querySelector('#名称').value;
             show_names[2].value = document.querySelector('#材质').value;
@@ -216,6 +229,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
             show_names[6].value = document.querySelector('#执行标准').value;
             show_names[7].value = document.querySelector('#生产厂家').value;
             show_names[8].value = document.querySelector('#库位').value;
+            show_names[13].value = document.querySelector('#m_id').value;
 
             for (let i = 0; i < n; i++) {
                 // show_names[9].value = `M${padZero(content + i + 1, 6)}`;
@@ -245,13 +259,10 @@ document.querySelector('#save-button').addEventListener('click', function () {
         return false;
     };
 
-    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
     let all_values = document.querySelectorAll('.document-value');
 
     //构建数据字符串
-    let user_name = document.querySelector('#user-name').textContent.split('　')[1];
-
-    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
+    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
@@ -271,16 +282,12 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
+        if (row.querySelector('td:nth-child(1)').textContent != "") {
             let len = show_names.length;
-            let save_str = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
+            let save_str = ``;
 
-            for (let i = 2; i < len; i++) {
+            for (let i = 1; i < len; i++) {
                 if (show_names[i].is_save) {
-                    if (show_names[i].type == "autocomplete") {
-                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
-                        save_str = `${value}${SPLITER}`;
-                    }
                     if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
@@ -303,9 +310,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
-    fetch(`/save_document`, {
+    fetch(`/save_material`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -440,12 +447,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
-//开新单
-document.querySelector('#document-new-button').addEventListener('click', function () {
-    let url = document_name == "销售单据" ? "/sale/new" : "/buy_in/new";
-    window.location = url;
-});
-
 //审核
 document.querySelector('#remember-button').addEventListener('click', function () {
     if (this.textContent == "已审核") {
@@ -526,12 +527,6 @@ function fetch_print_models(value) {
 
 //保存、打印和审核前的错误检查
 function error_check() {
-    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
-    if (customer_id == null) {
-        notifier.show('客户或供应商不在库中', 'danger');
-        return false;
-    }
-
     if (!regDate.test(document.querySelector('#日期').value)) {
         notifier.show('日期输入错误', 'danger');
         return false;
@@ -554,60 +549,30 @@ function error_check() {
     }
 
     let all_rows = document.querySelectorAll('.table-items .has-input');
-
-    let lines = 0;
-    for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
-            lines = 1;
-            let mount = row.querySelector('.mount');
-            if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
-                notifier.show(`单价输入错误`, 'danger');
-                return false;
-            }
-            else if (!row.querySelector('.price').value) {
-                row.querySelector('.price').value = 0;
-            }
-
-            if (mount.value && !regReal.test(mount.value)) {
-                notifier.show(`重量输入错误`, 'danger');
-                return false;
-            }
-            else if (!mount.value) {
-                mount.value = 0;
-            }
-
-            if (row.querySelector('.long')) {
-                if (row.querySelector('.long').value && !regReal.test(row.querySelector('.long').value)) {
-                    notifier.show(`长度输入错误`, 'danger');
-                    return false;
-                }
-                else if (!row.querySelector('.long').value) {
-                    row.querySelector('.long').value = 0;
-                }
-
-                if (row.querySelector('.num').value && !regReal.test(row.querySelector('.num').value)) {
-                    notifier.show(`数量输入错误`, 'danger');
-                    return false;
-                }
-                else if (!row.querySelector('.num').value) {
-                    row.querySelector('.num').value = 0;
-                }
-
-                if (row.querySelector('.weight').value && !regReal.test(row.querySelector('.weight').value)) {
-                    notifier.show(`实际重量输入错误`, 'danger');
-                    return false;
-                }
-                else if (row.querySelector('.weight').value.trim() == "") {
-                    row.querySelector('.weight').value = 0;
-                }
-            }
-        }
-    }
-
+    let lines = all_rows.length;
     if (lines == 0) {
         notifier.show(`表格不能为空`, 'danger');
         return false;
     }
+
+    for (let row of all_rows) {
+        if (row.querySelector('td:nth-child(1)').textContent != "") {
+            if (row.querySelector('.长度').value && !regReal.test(row.querySelector('.长度').value)) {
+                notifier.show(`长度输入错误`, 'danger');
+                return false;
+            }
+            else if (!row.querySelector('.长度').value) {
+                row.querySelector('.长度').value = 0;
+            }
+
+            if (row.querySelector('.重量').textContent.trim() == "") {
+                row.querySelector('.重量').textContent = 0;
+            }
+
+        }
+    }
+
+
 
     return true;
 }
