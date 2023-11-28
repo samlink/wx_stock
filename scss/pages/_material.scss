@@ -28,4 +28,24 @@
         border-right: 0;
         border-radius: 0;
     }
+
+    .autocomplete {
+        position: absolute;
+        margin-left: 8px;
+
+        $auto-width: 210px; //按需修改
+        input {
+            width: $auto-width;
+        }
+
+        .autocomplete-items {
+            width: $auto-width * 0.998;
+            top: 28px;
+            left: 0;
+
+            div {
+                width: $auto-width * 0.94;
+            }
+        }
+    }
 }

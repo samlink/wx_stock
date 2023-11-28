@@ -23,7 +23,16 @@ export class AutoInput {
             if (!val) { return false; }
 
             currentFocus = -1;
-            var get_url = this.cate == "" ? `${this.url}?s=${val}` : `${this.url}?s=${val}&cate=${this.cate.textContent}`;
+            var get_url;
+            if (this.cate == "") {
+                get_url = `${this.url}?s=${val}`;
+            }
+            else if (this.cate.textContent) {
+                get_url = `${this.url}?s=${val}&cate=${this.cate.textContent}`;
+            }
+            else {
+                get_url = `${this.url}?s=${val}&cate=${this.cate}`;
+            }
 
             fetch(get_url)
                 .then(response => response.json())

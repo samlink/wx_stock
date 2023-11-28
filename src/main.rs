@@ -7,6 +7,7 @@ use serde::Deserialize;
 
 mod business;
 mod buyin;
+mod material;
 mod customer;
 mod documentquery;
 mod field_set;
@@ -90,6 +91,8 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
             .service(buyin::make_formal)
+
+            .service(material::material_auto)
             
             .service(documentquery::fetch_used_fields)
             .service(documentquery::fetch_all_documents)

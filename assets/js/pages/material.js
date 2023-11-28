@@ -1,6 +1,7 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
-import * as service from '../parts/service.mjs'
+import { AutoInput } from '../parts/autocomplete.mjs';
+import * as service from '../parts/service.mjs';
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 import { input_table_init, input_table_outdata } from '../parts/input_material.mjs';
 
@@ -92,7 +93,18 @@ function document_top_handle(html, has_date) {
         }
     });
 
+    let auto_doc = document.querySelector('#文本字段6');
+    auto_doc.parentNode.classList.add("autocomplete");
+
+    let auto_comp = new AutoInput(auto_doc, "商品采购", "/material_auto", () => {
+        console.log(auto_doc.getAttribute("data"));
+    });
+
+    auto_comp.init();
+
     let date = document.querySelector('#日期');
+    date.parentNode.parentNode.style.cssText = "margin-left: 210px;";
+
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
     }
