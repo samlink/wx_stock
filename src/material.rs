@@ -22,7 +22,7 @@ pub async fn material_auto(
             "".to_string()
         };
         let sql = &format!(
-            r#"SELECT 单号 as id, 单号 || ' ' || {} AS label FROM documents
+            r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
             JOIN customers on 客商id = customers.id
             WHERE {} 单号 like '%{}%' AND {}=false  LIMIT 10"#,
             format!("customers.{}", f_map2["简称"]),
@@ -61,5 +61,28 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
         HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
+    }
+}
+
+//自动完成
+#[get("/fetch_max_num")]
+pub async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = &format!(
+            r#"select max(cast(substr({}, 2) as integer))::text as num from products where {} like 'M%';"#,
+            f_map["物料号"], f_map["物料号"]
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut num = "".to_owned();
+        for row in rows {
+            num = row.get("num");
+        }
+        num
+    } else {
+        "".to_owned()
     }
 }

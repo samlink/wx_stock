@@ -3,7 +3,7 @@ import { alert_confirm } from '../parts/alert.mjs';
 import { AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
 import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
-import { input_table_init, input_table_outdata } from '../parts/input_material.mjs';
+import { build_blank_table, input_table_init, input_table_outdata } from '../parts/input_material.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -118,7 +118,8 @@ function document_top_handle(html, has_date) {
                         document.querySelector('#材质').value = na[1];
                         document.querySelector('#规格').value = na[2];
                         document.querySelector('#状态').value = na[3];
-                        document.querySelector('#生产厂家').value = document.querySelector("#文本字段6").value.split(' ')[1];
+                        document.querySelector('#生产厂家').value = document.querySelector("#文本字段6").value.split('　')[1];
+                        document.querySelector('#炉号').focus();
                     })
                 }
             });
@@ -151,10 +152,10 @@ show_names = [
     { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "" },
 ];
 
@@ -170,7 +171,7 @@ if (dh_div.textContent == "新单据") {
         document: document_name,
     }
 
-    input_table_init(data);
+    build_blank_table(data);
 }
 else {
     let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
@@ -198,11 +199,44 @@ else {
         });
 }
 
-//保存、打印和审核 -------------------------------------------------------------------
-
+// 将材料数据填入表格
 document.querySelector("#material-add").addEventListener('click', function () {
+    fetch(`/fetch_max_num`, {
+        method: 'get',
+    })
+        .then(response => response.json())
+        .then(content => {
+            let n = document.querySelector("#数量").value;
+            let rows = [];
+            show_names[1].value = document.querySelector('#名称').value;
+            show_names[2].value = document.querySelector('#材质').value;
+            show_names[3].value = document.querySelector('#规格').value;
+            show_names[4].value = document.querySelector('#状态').value;
+            show_names[5].value = document.querySelector('#炉号').value;
+            show_names[6].value = document.querySelector('#执行标准').value;
+            show_names[7].value = document.querySelector('#生产厂家').value;
+            show_names[8].value = document.querySelector('#库位').value;
+
+            for (let i = 0; i < n; i++) {
+                // show_names[9].value = `M${padZero(content + i + 1, 6)}`;
+                rows.push(show_names);  // 这里是引用方式，仅仅放入指向数组的地址，所以上面语句无法达到预想效果
+            }
+
+            let data = {
+                show_names: show_names,
+                rows: rows,
+                lines: table_lines,
+                dh: dh_div.textContent,
+                document: document_name,
+                material_num: content,
+            }
+
+            input_table_init(data);
+        });
 
 })
+
+//保存、打印和审核 -------------------------------------------------------------------
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
