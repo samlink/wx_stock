@@ -135,7 +135,7 @@ pub async fn save_material(
 
         if dh_data == "新单据" {
             dh = get_dh(db.clone(), doc_data[0]).await;
-        println!("已进入程序，单号：{}", dh);
+            println!("已进入程序，单号：{}", dh);
 
             let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
             for f in &fields {
@@ -143,18 +143,18 @@ pub async fn save_material(
             }
 
             init += &format!(
-                "类别,{},{}) VALUES('{}' {},",
+                "类别,{},{}) VALUES('{}', {},",
                 f_map["经办人"],
                 f_map["区域"],
                 dh,
                 12 // 12 是本公司的 id
             );
 
-            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 2);
             doc_sql += &format!("'{}','{}', '{}')", doc_data[0], user.name, user.area);
         } else {
             let init = "UPDATE documents SET ".to_owned();
-            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 2);
             doc_sql += &format!(
                 "类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
                 doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
@@ -178,8 +178,8 @@ pub async fn save_material(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO products (商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
+                r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
                 f_map["规格"],
                 f_map["状态"],
                 f_map["炉号"],
@@ -191,6 +191,7 @@ pub async fn save_material(
                 f_map["理论重量"],
                 f_map["备注"],
                 f_map["来源"],
+                dh,
                 value[10],
                 value[0],
                 value[1],

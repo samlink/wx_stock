@@ -132,7 +132,7 @@ pub async fn customer_auto(
     if user_name != "" {
         let s = search.s.to_lowercase();
         let cate_s = if search.cate != "" {
-            format!("类别='{}' AND ", search.cate)
+            format!("类别 like '%{}%' AND ", search.cate)
         } else {
             "".to_string()
         };
