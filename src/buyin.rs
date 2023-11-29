@@ -596,7 +596,7 @@ pub async fn fetch_document_items_sales(
     }
 }
 
-///记账
+///审核
 #[post("/make_formal")]
 pub async fn make_formal(
     db: web::Data<Pool>,

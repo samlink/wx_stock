@@ -1,9 +1,9 @@
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
-import { build_blank_table, input_table_init, input_table_outdata } from '../parts/input_material.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {build_blank_table, input_table_init, input_table_outdata} from '../parts/input_material.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -15,8 +15,7 @@ let dh_div = document.querySelector('#dh');
 let document_name;
 if (document_bz.indexOf("入库") != -1) {
     document_name = "入库单据";
-}
-else if (document_bz.indexOf("出库") != -1) {
+} else if (document_bz.indexOf("出库") != -1) {
     document_name = "出库单据";
 }
 
@@ -54,18 +53,16 @@ fetch(`/fetch_inout_fields`, {
                         if (values[len - 2] == "true") {
                             rem.textContent = "已审核";
                             rem.classList.add('remembered');
-                        }
-                        else {
+                        } else {
                             rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
 
-                        let customer = document.querySelector('#supplier-input');
-                        customer.value = values[len - 3];
-                        customer.setAttribute('data', values[len - 4]);
+                        // let customer = document.querySelector('#supplier-input');
+                        // customer.value = values[len - 3];
+                        // customer.setAttribute('data', values[len - 4]);
                     });
-            }
-            else {
+            } else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
                 document.querySelector('#remember-button').textContent = '审核'
@@ -84,8 +81,7 @@ function document_top_handle(html, has_date) {
         if (fields_show.scrollTop != 0) {
             has_auto.style.cssText = "position: relative; left: 5px;";
             next_auto.style.cssText = "margin-left: -3px;"
-        }
-        else {
+        } else {
             has_auto.style.cssText = "";
             next_auto.style.cssText = "";
         }
@@ -146,20 +142,38 @@ function document_top_handle(html, has_date) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="border-right:none"' },
-    { name: "", width: 0, class: "m_id", type: "普通输入", editable: false, is_save: true, default: "", css: 'style="width:0%; border-left:none"', },
+    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {
+        name: "备注",
+        width: 100,
+        class: "备注",
+        type: "普通输入",
+        editable: true,
+        is_save: true,
+        default: "",
+        css: 'style="border-right:none"'
+    },
+    {
+        name: "",
+        width: 0,
+        class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        default: "",
+        css: 'style="width:0%; border-left:none; color:white"',
+    },
 ];
 
 //计算表格行数，33 为 lineHeight （行高）
@@ -175,10 +189,9 @@ if (dh_div.textContent == "新单据") {
     }
 
     build_blank_table(data);
-}
-else {
-    let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
-    fetch(url, {
+} else {
+    // let url = document_name == "入库单据" ?  : "/fetch_document_items"
+    fetch("/fetch_document_items_rk", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -190,6 +203,7 @@ else {
     })
         .then(response => response.json())
         .then(content => {
+            console.log('返回:', content);
             let data = {
                 show_names: show_names,
                 rows: content,
@@ -197,7 +211,7 @@ else {
                 dh: dh_div.textContent,
                 document: document_name,
             }
-
+            // build_blank_table(data);
             input_table_init(data);
         });
 }
@@ -231,14 +245,9 @@ document.querySelector("#material-add").addEventListener('click', function () {
             show_names[8].value = document.querySelector('#库位').value;
             show_names[13].value = document.querySelector('#m_id').value;
 
-            for (let i = 0; i < n; i++) {
-                // show_names[9].value = `M${padZero(content + i + 1, 6)}`;
-                rows.push(show_names);  // 这里是引用方式，仅仅放入指向数组的地址，所以上面语句无法达到预想效果
-            }
-
             let data = {
                 show_names: show_names,
-                rows: rows,
+                num: n,
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
@@ -257,11 +266,12 @@ document.querySelector('#save-button').addEventListener('click', function () {
     //错误勘察
     if (!error_check()) {
         return false;
-    };
+    }
+    ;
 
     let all_values = document.querySelectorAll('.document-value');
 
-    //构建数据字符串
+    //构建表头存储字符串，将存入单据中
     let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
 
     let n = 0;
@@ -269,17 +279,16 @@ document.querySelector('#save-button').addEventListener('click', function () {
         if (f.data_type == "文本") {
             let value = f.show_name != "单据单号" ? all_values[n].value : all_values[n].value.split('　')[0];
             save_str += `${value}${SPLITER}`;
-        }
-        else if (f.data_type == "整数" || f.data_type == "实数") {
+        } else if (f.data_type == "整数" || f.data_type == "实数") {
             let value = all_values[n].value ? all_values[n].value : 0;
             save_str += `${value}${SPLITER}`;
-        }
-        else {
+        } else {
             save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
         }
         n++;
     }
 
+    // 构建字符串数组，将存入单据明细中
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
@@ -287,16 +296,15 @@ document.querySelector('#save-button').addEventListener('click', function () {
             let len = show_names.length;
             let save_str = ``;
 
-            for (let i = 1; i < len; i++) {
+            for (let i = 0; i < len; i++) {
                 if (show_names[i].is_save) {
                     if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
-                        save_str += `${value}${SPLITER}`;
-                    }
-                    else {
+                        save_str += `${value.trim()}${SPLITER}`;
+                    } else {
                         let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
-                        save_str += `${value}${SPLITER}`;
+                        save_str += `${value.trim()}${SPLITER}`;
                     }
                 }
             }
@@ -311,7 +319,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_material`, {
         method: 'post',
@@ -327,8 +335,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 notifier.show('单据保存成功', 'success');
                 edited = false;
                 input_table_outdata.edited = false;
-            }
-            else {
+            } else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
@@ -339,7 +346,8 @@ document.querySelector('#print-button').addEventListener('click', function () {
     //错误勘察
     if (!error_check()) {
         return false;
-    };
+    }
+    ;
 
     let id = document.querySelector('#print-choose').value;
     fetch(`/fetch_provider_model`, {
@@ -362,8 +370,19 @@ document.querySelector('#print-button').addEventListener('click', function () {
                             [
                                 new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
                                 new hiprint.PrintElementTypeGroup("自定义", [
-                                    { tid: 'configModule.customText', title: '自定义文本', customText: '自定义文本', custom: true, type: 'text' },
-                                    { tid: 'configModule.image', title: '图片', data: `/assets/img/logo.png`, type: 'image' },
+                                    {
+                                        tid: 'configModule.customText',
+                                        title: '自定义文本',
+                                        customText: '自定义文本',
+                                        custom: true,
+                                        type: 'text'
+                                    },
+                                    {
+                                        tid: 'configModule.image',
+                                        title: '图片',
+                                        data: `/assets/img/logo.png`,
+                                        type: 'image'
+                                    },
                                     {
                                         tid: 'configModule.tableCustom',
                                         title: '表格',
@@ -406,8 +425,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             for (let field of document_table_fields) {
                 if (field.data_type == "布尔") {
                     printData[field.show_name] = show_fields[n].checked ? "是" : "否";
-                }
-                else {
+                } else {
                     printData[field.show_name] = show_fields[n].value;
                 }
                 n++;
@@ -477,8 +495,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                         that.textContent = '已审核';
                         that.classList.add('remembered');
                         notifier.show('审核完成', 'success');
-                    }
-                    else {
+                    } else {
                         notifier.show('权限不够', 'danger');
 
                     }
@@ -494,17 +511,13 @@ function fetch_print_models(value) {
     let print_id;
     if (value == "商品采购") {
         print_id = 3;
-    }
-    else if (value == "采购退货") {
+    } else if (value == "采购退货") {
         print_id = 4;
-    }
-    else if (value == "商品销售") {
+    } else if (value == "商品销售") {
         print_id = 1;
-    }
-    else if (value == "销售退货") {
+    } else if (value == "销售退货") {
         print_id = 2;
-    }
-    else {
+    } else {
         print_id = 5;
     }
 
@@ -540,8 +553,7 @@ function error_check() {
                 notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
                 return false;
             }
-        }
-        else if (document_table_fields[i].data_type == "实数") {
+        } else if (document_table_fields[i].data_type == "实数") {
             if (all_values[i].value && !regReal.test(all_values[i].value)) {
                 notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
                 return false;
@@ -561,8 +573,7 @@ function error_check() {
             if (row.querySelector('.长度').value && !regReal.test(row.querySelector('.长度').value)) {
                 notifier.show(`长度输入错误`, 'danger');
                 return false;
-            }
-            else if (!row.querySelector('.长度').value) {
+            } else if (!row.querySelector('.长度').value) {
                 row.querySelector('.长度').value = 0;
             }
 
@@ -572,7 +583,6 @@ function error_check() {
 
         }
     }
-
 
 
     return true;

@@ -1,11 +1,11 @@
-import { table_data, fetch_table } from './table.mjs';
-import { fetch_tree, tree_init, tree_search } from './tree.mjs';
-import { notifier } from './notifier.mjs';
-import { alert_confirm } from './alert.mjs';
-import { auto_table, AutoInput } from './autocomplete.mjs';
+import {table_data, fetch_table} from './table.mjs';
+import {fetch_tree, tree_init, tree_search} from './tree.mjs';
+import {notifier} from './notifier.mjs';
+import {alert_confirm} from './alert.mjs';
+import {auto_table, AutoInput} from './autocomplete.mjs';
 import * as service from './service.mjs'
-import { SPLITER, regReal, open_node, regInt, padZero } from './tools.mjs';
-import { close_modal } from './modal.mjs';
+import {SPLITER, regReal, open_node, regInt, padZero} from './tools.mjs';
+import {close_modal} from './modal.mjs';
 
 let all_width;
 
@@ -23,6 +23,10 @@ export function input_table_init(data) {
     Object.assign(input_data, data);
     build_content_table();
 
+
+}
+
+function add_event_handle() {
     //插入行
     document.querySelector('#row-insert').addEventListener('click', function (e) {
         let edit = document.querySelector('.inputting');
@@ -39,8 +43,7 @@ export function input_table_init(data) {
             keep_up();
 
             input_row.querySelector('td:nth-child(2)').click();
-        }
-        else {
+        } else {
             notifier.show('请先选择行', 'danger');
         }
     });
@@ -56,14 +59,12 @@ export function input_table_init(data) {
                         remove_inputting();
                         rebuild_index();
                         keep_up();
-                    }
-                    else {
+                    } else {
                         let new_row = build_input_row(input_data.show_names, all_width);
                         let first_child = document.querySelector('.table-items tbody tr');
                         if (first_child) {
                             document.querySelector('.table-items tbody').insertBefore(new_row, first_child);
-                        }
-                        else {
+                        } else {
                             document.querySelector('.table-items tbody').appendChild(new_row);
                         }
                     }
@@ -72,8 +73,7 @@ export function input_table_init(data) {
                     sum_weight();
                 }
             });
-        }
-        else {
+        } else {
             notifier.show('请先选择行', 'danger');
         }
     });
@@ -86,8 +86,7 @@ export function input_table_init(data) {
                 edit.parentNode.insertBefore(edit, edit.previousElementSibling);
                 rebuild_index();
             }
-        }
-        else {
+        } else {
             notifier.show('请先选择行', 'danger');
         }
     });
@@ -101,8 +100,7 @@ export function input_table_init(data) {
                 edit.parentNode.insertBefore(edit.nextElementSibling, edit);
                 rebuild_index();
             }
-        }
-        else {
+        } else {
             notifier.show('请先选择行', 'danger');
         }
     });
@@ -145,7 +143,8 @@ export function build_blank_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
 
-function build_content_table() {
+export function build_content_table() {
+    Object.assign(input_data, data);
     let line_height = 33; //行高，与 css 设置一致
     let tbody = input_data.container.querySelector('tbody');
     let trs = tbody.querySelectorAll('tr');
@@ -157,9 +156,9 @@ function build_content_table() {
 
     let has_input = tbody.querySelectorAll('.has-input');
     let num = has_input.length + 1;
-    for (let row of input_data.rows) {
-        row[9].value = `M${padZero(input_data.material_num + num, 6)}`;
-        let input_row = build_input_row(row, all_width, num);
+    for (let i = 0; i < input_data.num; i++) {
+        input_data.show_names[9].value = `M${padZero(input_data.material_num + num, 6)}`;
+        let input_row = build_input_row(input_data.show_names, all_width, num);
         tbody.appendChild(input_row);
         num += 1;
     }
@@ -180,7 +179,7 @@ function build_content_table() {
 
     setTimeout(() => {
         sum_records();
-    }, 200);
+    }, 100);
 
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
@@ -196,8 +195,7 @@ function build_input_row(show_names, all_width, num) {
         if (obj.type == "普通输入" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
             <input class="form-control input-sm has-value ${obj.class}" type="text" value = ${obj.value ? obj.value : ''}></td>`;
-        }
-        else if (obj.type == "普通输入" && !obj.editable) {
+        } else if (obj.type == "普通输入" && !obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td >`;
         } else if (obj.type == "二值选一" && obj.editable) {
             let checked;
@@ -213,8 +211,7 @@ function build_input_row(show_names, all_width, num) {
                         </td>`;
         } else if (obj.type == "二值选一" && !obj.editable) {
             control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td >`;
-        }
-        else if (obj.type == "下拉列表" && obj.editable) {
+        } else if (obj.type == "下拉列表" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value'>`;
             let options = obj.default.split('_');
             for (let value of options) {
@@ -266,8 +263,7 @@ function weight() {
 
     if (regInt.test(data.long) && regInt.test(data.num)) {
         input_row.querySelector('.重量').textContent = service.calc_weight(data);
-    }
-    else {
+    } else {
         input_row.querySelector('.重量').textContent = 0;
     }
 }
@@ -300,8 +296,7 @@ function rebuild_index() {
 function keep_up() {
     if (document.querySelectorAll(".table-items tbody tr").length > input_data.lines) {
         document.querySelector(".table-items thead").style.width = "calc(100% - 1.07em)";
-    }
-    else {
+    } else {
         document.querySelector(".table-items thead").style.width = "100%";
     }
 }

@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use crate::buyin::DocumentDh;
 
 //自动完成
 #[get("/material_auto")]
@@ -64,7 +65,7 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
     }
 }
 
-//自动完成
+//获取最近的单号
 #[get("/fetch_max_num")]
 pub async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -178,8 +179,8 @@ pub async fn save_material(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
+                r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}', {})"#,
                 f_map["规格"],
                 f_map["状态"],
                 f_map["炉号"],
@@ -191,9 +192,9 @@ pub async fn save_material(
                 f_map["理论重量"],
                 f_map["备注"],
                 f_map["来源"],
+                f_map["顺序"],
                 dh,
-                value[10],
-                value[0],
+                value[11],
                 value[1],
                 value[2],
                 value[3],
@@ -203,10 +204,12 @@ pub async fn save_material(
                 value[7],
                 value[8],
                 value[9],
-                doc_data[2]
+                value[10],
+                doc_data[2],
+                value[0]
             );
 
-            println!("{}", items_sql);
+            // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
         }
@@ -214,6 +217,63 @@ pub async fn save_material(
         let _result = transaction.commit().await;
 
         HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取单据明细
+#[post("/fetch_document_items_rk")]
+pub async fn fetch_document_items_rk(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    println!("进入执行了");
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = format!(
+            r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
+                {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 库位, {} as 物料号, {} as 入库长度,
+                {} as 理论重量, {} as 备注, 商品id FROM products
+                JOIN tree ON 商品id=tree.num
+                WHERE 单号id='{}' ORDER BY {}"#,
+            f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
+            f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
+        );
+
+        println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
+            let lu: String = row.get("炉号");
+            let stand: String = row.get("执行标准");
+            let factory: String = row.get("生产厂家");
+            let kw: String = row.get("库位");
+            let num: String = row.get("物料号");
+            let long: i32 = row.get("入库长度");
+            let theary: f32 = row.get("理论重量");
+            let note: String = row.get("备注");
+            let m_id: String = row.get("商品id");
+            // let from: String = row.get("来源");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER,
+                lu, SPLITER, stand, SPLITER, factory, SPLITER, kw, SPLITER, num, SPLITER,
+                long, SPLITER, theary, SPLITER, note, SPLITER, m_id
+            );
+
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
     }

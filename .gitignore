@@ -6,4 +6,4 @@
 **/*.rs.bk
 /node_modules/
 download/.~lock.*
-
+*.xml

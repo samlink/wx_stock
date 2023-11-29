@@ -96,7 +96,8 @@ async fn main() -> std::io::Result<()> {
             .service(material::get_items)
             .service(material::fetch_max_num)
             .service(material::save_material)
-            
+            .service(material::fetch_document_items_rk)
+
             .service(documentquery::fetch_used_fields)
             .service(documentquery::fetch_all_documents)
             .service(documentquery::update_rem)

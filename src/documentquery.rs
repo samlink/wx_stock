@@ -42,8 +42,8 @@ pub async fn fetch_all_documents(
             doc_cate = "销售单据";
             doc_pre = "X";
         } else {
-            doc_cate = "库存调整";
-            doc_pre = "K";
+            doc_cate = "入库单据";
+            doc_pre = "R";
         }
 
         let f_map = map_fields(db.clone(), doc_cate).await;

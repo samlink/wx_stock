@@ -309,7 +309,7 @@ pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 #[get("/change_query")]
 pub async fn change_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "调整查询".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query(o, user, "出入库查询"));

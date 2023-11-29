@@ -22,9 +22,9 @@ else if (cate == "销售查询") {
     document_cate = "销售单据";
     address = `/sale/`;
 }
-else {
-    document_cate = "库存调整";
-    address = `/stock_change/`;
+else if (cate == "出入库查询") {
+    document_cate = "入库单据"
+    address = `/material_in/`;
 }
 
 let table_fields;
