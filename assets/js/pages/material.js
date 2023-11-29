@@ -219,7 +219,6 @@ if (dh_div.textContent == "新单据") {
     })
         .then(response => response.json())
         .then(content => {
-            console.log('返回:', content);
             let data = {
                 show_names: show_names,
                 rows: content,
@@ -275,7 +274,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
 
 })
 
-//保存、打印和审核 -------------------------------------------------------------------
+//保存、打印、质检、审核 -------------------------------------------------------------------
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
@@ -482,6 +481,44 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
+document.querySelector('#check-button').addEventListener('click', function () {
+    if (this.textContent == "已质检") {
+        return false;
+    }
+
+    let dh = dh_div.textContent;
+    let that = this;
+    if (dh == "新单据") {
+        notifier.show('请先保存单据', 'danger');
+        return false;
+    }
+
+    alert_confirm("确认质检吗？", {
+        confirmText: "确认",
+        cancelText: "取消",
+        confirmCallBack: () => {
+            fetch(`/check_in`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(dh),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        that.textContent = '已质检';
+                        that.classList.add('remembered');
+                        notifier.show('质检完成', 'success');
+                    } else {
+                        notifier.show('权限不够', 'danger');
+
+                    }
+                });
+        }
+    })
+});
+
 //审核
 document.querySelector('#remember-button').addEventListener('click', function () {
     if (this.textContent == "已审核") {
@@ -494,11 +531,11 @@ document.querySelector('#remember-button').addEventListener('click', function ()
     }
 
     let that = this;
-    alert_confirm("单据审核后，编辑需要权限，确认审核吗？", {
+    alert_confirm("确认审核吗？", {
         confirmText: "确认",
         cancelText: "取消",
         confirmCallBack: () => {
-            fetch(`/make_formal`, {
+            fetch(`/make_formal_in`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",

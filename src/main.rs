@@ -97,6 +97,8 @@ async fn main() -> std::io::Result<()> {
             .service(material::fetch_max_num)
             .service(material::save_material)
             .service(material::fetch_document_items_rk)
+            .service(material::check_in)
+            .service(material::make_formal_in)
 
             .service(documentquery::fetch_used_fields)
             .service(documentquery::fetch_all_documents)
@@ -104,7 +106,7 @@ async fn main() -> std::io::Result<()> {
             .service(documentquery::documents_del)
             .service(documentquery::fetch_limit)
             .service(documentquery::fetch_stay)
-            
+
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
@@ -112,7 +114,7 @@ async fn main() -> std::io::Result<()> {
             .service(user_set::change_pass)
             .service(user_set::phone_number)
             .service(user_set::change_theme)
-            
+
             .service(user_manage::pull_users)
             .service(user_manage::edit_user)
             .service(user_manage::del_user)
@@ -123,7 +125,7 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_del)
             .service(tree::tree_auto)
             .service(tree::tree_drag)
-            
+
             .service(product::fetch_product)
             .service(product::update_product)
             .service(product::add_product)
@@ -132,12 +134,12 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_in)
             .service(product::product_datain)
             .service(product::product_updatein)
-            
+
             .service(field_set::fetch_fields)
             .service(field_set::fetch_fields2)
             .service(field_set::update_tableset)
             .service(field_set::update_tableset2)
-            
+
             .service(customer::fetch_customer)
             .service(customer::update_customer)
             .service(customer::add_customer)
@@ -147,18 +149,18 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
-            
+
             .service(business::fetch_business)
             .service(business::fetch_debt)
-            
+
             .service(statistic::fetch_analys)
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
-            
+
             .service(systemset::fetch_system)
             .service(systemset::update_system)
-            
+
             .service(report_design::fetch_print_documents)
             .service(report_design::fetch_provider)
             .service(report_design::save_model)
@@ -166,7 +168,7 @@ async fn main() -> std::io::Result<()> {
             .service(report_design::fetch_one_model)
             .service(report_design::fetch_provider_model)
             .service(report_design::del_model)
-            
+
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
@@ -174,7 +176,7 @@ async fn main() -> std::io::Result<()> {
             // .service(web::resource("static/{name}").to(service::serve_static))
             .service(fs::Files::new("/assets", "assets"))
     })
-    .bind(format!("127.0.0.1:{}", port))?
-    .run()
-    .await
+        .bind(format!("127.0.0.1:{}", port))?
+        .run()
+        .await
 }

@@ -134,7 +134,7 @@ pub async fn save_material(
 
         if dh_data == "新单据" {
             dh = get_dh(db.clone(), doc_data[0]).await;
-            println!("已进入程序，单号：{}", dh);
+            // println!("已进入程序，单号：{}", dh);
 
             let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
             for f in &fields {
@@ -185,7 +185,6 @@ pub async fn save_material(
                 value[9], value[10], doc_data[2], value[0]
             );
 
-            println!("{}", item);
             // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
@@ -220,7 +219,7 @@ pub async fn fetch_document_items_rk(
             f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
@@ -250,6 +249,108 @@ pub async fn fetch_document_items_rk(
         }
 
         HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//质检
+#[post("/check_in")]
+pub async fn check_in(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "入库单据").await;
+        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["质检"], user_name, data);
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/make_formal_in")]
+pub async fn make_formal_in(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "入库单据").await;
+        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["审核"], user_name, data);
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取单据字段
+#[post("/fetch_document_rk")]
+pub async fn fetch_document_rk(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let fields = get_inout_fields(db.clone(), "入库单据").await;
+        let mut sql_fields = "SELECT ".to_owned();
+
+        for f in &fields {
+            sql_fields += &format!("documents.{},", f.field_name);
+        }
+
+        let sql = format!(
+            r#"{} 客商id, 名称, 已记账 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, data.dh
+        );
+
+        // println!("{}", sql);
+
+        let cate;
+        if data.dh.starts_with("XS") {
+            cate = "商品销售";
+        } else if data.dh.starts_with("XT") {
+            cate = "销售退货";
+        } else if data.dh.starts_with("CG") {
+            cate = "商品采购";
+        } else if data.dh.starts_with("CT") {
+            cate = "采购退货";
+        } else {
+            cate = "库存调整";
+        }
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document = "".to_owned();
+        for row in rows {
+            let id: i32 = row.get("客商id");
+            let name: String = row.get("名称");
+            let rem: bool = row.get("已记账");
+            document += &format!(
+                "{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields),
+                SPLITER,
+                id,
+                SPLITER,
+                name,
+                SPLITER,
+                rem,
+                SPLITER,
+                cate,
+            );
+        }
+
+        HttpResponse::Ok().json(document)
     } else {
         HttpResponse::Ok().json(-1)
     }

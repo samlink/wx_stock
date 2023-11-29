@@ -171,6 +171,7 @@ pub async fn update_rem(db: web::Data<Pool>, rem: web::Json<Rem>, id: Identity) 
 pub struct Del {
     id: String,
     rights: String,
+    base: String,
 }
 
 #[post("/documents_del")]
@@ -178,9 +179,7 @@ pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identit
     let user = get_user(db.clone(), id, del.rights.clone()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-
-        let sql = format!(r#"DELETE FROM document_items WHERE 单号id='{}'"#, del.id);
-
+        let sql = format!(r#"DELETE FROM {} WHERE 单号id='{}'"#, del.base, del.id);
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         let sql = format!(r#"DELETE FROM documents WHERE 单号='{}'"#, del.id);

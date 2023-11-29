@@ -1,13 +1,14 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, cate: &str)
+@(user: UserData, menu: &str, cate: &str, database:&str)
 
 @:base({
 <div class="docment-query">
-    <div class="top-title"><span><i class="fa fa-shopping-cart"></i> 采购销售 </span>
+    <div class="top-title"><span><i class="fa fa-retweet"></i> @menu </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> @cate </span>
         <p id="help-info" title="帮助信息"><img></p>
         <span id="category" hidden>@cate</span>
+        <span id="base" hidden>@database</span>
     </div>
     <div class="query-content">
         <div id="query-show" class="has-bak">

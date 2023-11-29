@@ -26,15 +26,11 @@ function add_event_handle() {
         if (edit) {
             let table_body = document.querySelector('.table-items tbody');
             let input_row = build_input_row(input_data.show_names, all_width);
-
             remove_inputting();
-
             table_body.insertBefore(input_row, edit);
-
             rebuild_index();
             sum_records();
             keep_up();
-
             input_row.querySelector('td:nth-child(2)').click();
         } else {
             notifier.show('请先选择行', 'danger');
@@ -48,9 +44,10 @@ function add_event_handle() {
             alert_confirm('确认删除行吗？', {
                 confirmCallBack: () => {
                     edit.parentNode.removeChild(edit);
-
                     sum_records();
                     sum_weight();
+                    rebuild_index();
+                    keep_up();
                 }
             });
         } else {

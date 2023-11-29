@@ -406,9 +406,7 @@ pub async fn fetch_document(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-
         let fields = get_inout_fields(db.clone(), &data.cate).await;
-
         let mut sql_fields = "SELECT ".to_owned();
 
         for f in &fields {

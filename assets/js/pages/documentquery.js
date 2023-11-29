@@ -183,6 +183,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
     let del = {
         id: id,
         rights: "记账编辑",
+        base: document.querySelector('#base').textContent,
     }
 
     if (id != "") {
