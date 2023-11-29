@@ -19,13 +19,6 @@ var input_data = {
 
 export var input_table_outdata = {};
 
-export function input_table_init(data) {
-    Object.assign(input_data, data);
-    build_content_table();
-
-
-}
-
 function add_event_handle() {
     //插入行
     document.querySelector('#row-insert').addEventListener('click', function (e) {
@@ -55,19 +48,6 @@ function add_event_handle() {
             alert_confirm('确认删除行吗？', {
                 confirmCallBack: () => {
                     edit.parentNode.removeChild(edit);
-                    if (document.querySelector('.has-input')) {
-                        remove_inputting();
-                        rebuild_index();
-                        keep_up();
-                    } else {
-                        let new_row = build_input_row(input_data.show_names, all_width);
-                        let first_child = document.querySelector('.table-items tbody tr');
-                        if (first_child) {
-                            document.querySelector('.table-items tbody').insertBefore(new_row, first_child);
-                        } else {
-                            document.querySelector('.table-items tbody').appendChild(new_row);
-                        }
-                    }
 
                     sum_records();
                     sum_weight();
@@ -110,40 +90,19 @@ function add_event_handle() {
 export function build_blank_table(data) {
     Object.assign(input_data, data);
     let line_height = 33; //行高，与 css 设置一致
-    input_data.container.style.width = input_data.width;
-
-    // 构建表头和一个空表行
-    all_width = 0;
-    input_data.show_names.forEach(obj => {
-        all_width += obj.width;
-    });
-
-    let th = "<tr>";
-    let blank = "<tr>";
-    input_data.show_names.forEach(obj => {
-        let hidden = obj.css ? obj.css : "";
-        th += `<th width=${obj.width * 100 / all_width} ${hidden}>${obj.name}</th>`;
-        blank += `<td width=${obj.width * 100 / all_width} ${hidden}></td>`;
-    });
-
-    th += "</tr>";
-    blank += "</tr>";
-
-    input_data.container.querySelector('thead').innerHTML = th;
-    input_data.blank_row = blank;
+    build_blank_th();
 
     let tbody = input_data.container.querySelector('tbody');
-
     let rows = "";
     for (let i = 0; i < input_data.lines; i++) {
-        rows += blank;
+        rows += input_data.blank_row;
     }
 
     tbody.innerHTML = rows;
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
 
-export function build_content_table() {
+export function build_content_table(data) {
     Object.assign(input_data, data);
     let line_height = 33; //行高，与 css 设置一致
     let tbody = input_data.container.querySelector('tbody');
@@ -163,6 +122,60 @@ export function build_content_table() {
         num += 1;
     }
 
+    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
+
+    append_blanks(tbody, num);
+    add_event_handle();
+}
+
+//建立表头及一个空行
+function build_blank_th() {
+    input_data.container.style.width = input_data.width;
+    all_width = 0;
+    input_data.show_names.forEach(obj => {
+        all_width += obj.width;
+    });
+
+    let th = "<tr>";
+    let blank = "<tr>";
+    input_data.show_names.forEach(obj => {
+        let hidden = obj.css ? obj.css : "";
+        th += `<th width=${obj.width * 100 / all_width} ${hidden}>${obj.name}</th>`;
+        blank += `<td width=${obj.width * 100 / all_width} ${hidden}></td>`;
+    });
+
+    th += "</tr>";
+    blank += "</tr>";
+
+    input_data.container.querySelector('thead').innerHTML = th;
+    input_data.blank_row = blank;
+}
+
+// 建立已有订单的明细表
+export function build_items_table(data) {
+    Object.assign(input_data, data);
+    let line_height = 33; //行高，与 css 设置一致
+    build_blank_th();
+
+    let tbody = input_data.container.querySelector('tbody');
+    let num = 1;
+    for (let row of input_data.rows) {
+        let row_data = row.split(SPLITER);
+        for (let i = 1; i < input_data.show_names.length; i++) {
+            input_data.show_names[i].value = row_data[i - 1];
+        }
+        let input_row = build_input_row(input_data.show_names, all_width, num);
+        tbody.appendChild(input_row);
+        num += 1;
+    }
+
+    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
+
+    append_blanks(tbody, num);
+    add_event_handle();
+}
+
+function append_blanks(tbody, num) {
     //清空数据
     for (let i in input_data.show_names) {
         input_data.show_names[i].value = "";
@@ -174,14 +187,11 @@ export function build_content_table() {
     for (let i = 0; i < input_data.lines - num + 1; i++) {
         rows += input_data.blank_row;
     }
-
     tbody.querySelector('tr:nth-last-child(1)').insertAdjacentHTML('afterend', rows);
 
     setTimeout(() => {
         sum_records();
     }, 100);
-
-    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
 
 //创建新的输入行，参数 num 是序号

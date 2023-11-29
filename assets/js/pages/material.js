@@ -3,7 +3,11 @@ import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
 import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
-import {build_blank_table, input_table_init, input_table_outdata} from '../parts/input_material.mjs';
+import {
+    build_blank_table,
+    build_content_table, build_items_table,
+    input_table_outdata
+} from '../parts/input_material.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -46,9 +50,11 @@ fetch(`/fetch_inout_fields`, {
                     .then(data => {
                         let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
+                        let dh = document.querySelector("#文本字段6").value;
+                        build_items(dh);
+
                         let values = data.split(SPLITER);
                         let len = values.length;
-
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] == "true") {
                             rem.textContent = "已审核";
@@ -91,36 +97,7 @@ function document_top_handle(html, has_date) {
     auto_doc.parentNode.classList.add("autocomplete");
 
     let auto_comp = new AutoInput(auto_doc, "商品采购", "/material_auto", () => {
-        fetch('/get_items', {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(auto_doc.getAttribute("data")),
-        })
-            .then(response => response.json())
-            .then(content => {
-                let tr = "";
-                content.forEach(obj => {
-                    let material = obj.split(`${SPLITER}`);
-                    tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
-                });
-                document.querySelector(".table-history tbody").innerHTML = tr;
-
-                let lines = document.querySelectorAll(".table-history tbody tr");
-                for (let l of lines) {
-                    l.addEventListener("dblclick", () => {
-                        document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
-                        let na = l.querySelector('td:nth-child(2)').textContent.split('　');
-                        document.querySelector('#名称').value = na[0];
-                        document.querySelector('#材质').value = na[1];
-                        document.querySelector('#规格').value = na[2];
-                        document.querySelector('#状态').value = na[3];
-                        document.querySelector('#生产厂家').value = document.querySelector("#文本字段6").value.split('　')[1];
-                        document.querySelector('#炉号').focus();
-                    })
-                }
-            });
+        build_items(auto_doc.getAttribute("data"));
     });
 
     auto_comp.init();
@@ -137,6 +114,46 @@ function document_top_handle(html, has_date) {
         elem: date,
         showBottom: false,
     });
+}
+
+function build_items(dh) {
+    fetch('/get_items', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    })
+        .then(response => response.json())
+        .then(content => {
+            let tr = "";
+            content.forEach(obj => {
+                let material = obj.split(`${SPLITER}`);
+                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
+            });
+            document.querySelector(".table-history tbody").innerHTML = tr;
+
+            let lines = document.querySelectorAll(".table-history tbody tr");
+            for (let l of lines) {
+                l.addEventListener("dblclick", () => {
+                    document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
+                    let na = l.querySelector('td:nth-child(2)').textContent.split('　');
+                    document.querySelector('#名称').value = na[0];
+                    document.querySelector('#材质').value = na[1];
+                    document.querySelector('#规格').value = na[2];
+                    document.querySelector('#状态').value = na[3];
+                    document.querySelector('#炉号').focus();
+                    let fa = document.querySelector("#文本字段6").value;
+                    let fac;
+                    if (fa.split('　')[1]) {
+                        fac = fa.split('　')[1];
+                    } else {
+                        fac = document.querySelector('.table-items tbody>tr .生产厂家').textContent;
+                    }
+                    document.querySelector('#生产厂家').value = fac;
+                })
+            }
+        });
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -178,7 +195,6 @@ show_names = [
 
 //计算表格行数，33 为 lineHeight （行高）
 table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
-//构造商品规格自动完成
 
 if (dh_div.textContent == "新单据") {
     let data = {
@@ -211,8 +227,8 @@ if (dh_div.textContent == "新单据") {
                 dh: dh_div.textContent,
                 document: document_name,
             }
-            // build_blank_table(data);
-            input_table_init(data);
+
+            build_items_table(data);
         });
 }
 
@@ -254,7 +270,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
                 material_num: content,
             }
 
-            input_table_init(data);
+            build_content_table(data);
         });
 
 })

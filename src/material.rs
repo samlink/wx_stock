@@ -132,8 +132,6 @@ pub async fn save_material(
         let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
-        // println!("已进入程序，单号：{}", dh_data);
-
         if dh_data == "新单据" {
             dh = get_dh(db.clone(), doc_data[0]).await;
             println!("已进入程序，单号：{}", dh);
@@ -181,34 +179,13 @@ pub async fn save_material(
             let items_sql = format!(
                 r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
                      VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}', {})"#,
-                f_map["规格"],
-                f_map["状态"],
-                f_map["炉号"],
-                f_map["执行标准"],
-                f_map["生产厂家"],
-                f_map["库位"],
-                f_map["物料号"],
-                f_map["入库长度"],
-                f_map["理论重量"],
-                f_map["备注"],
-                f_map["来源"],
-                f_map["顺序"],
-                dh,
-                value[11],
-                value[1],
-                value[2],
-                value[3],
-                value[4],
-                value[5],
-                value[6],
-                value[7],
-                value[8],
-                value[9],
-                value[10],
-                doc_data[2],
-                value[0]
+                f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
+                f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], f_map["来源"], f_map["顺序"],
+                dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
+                value[9], value[10], doc_data[2], value[0]
             );
 
+            println!("{}", item);
             // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
@@ -229,7 +206,6 @@ pub async fn fetch_document_items_rk(
     data: web::Json<DocumentDh>,
     id: Identity,
 ) -> HttpResponse {
-    println!("进入执行了");
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
