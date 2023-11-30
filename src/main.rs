@@ -99,6 +99,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::fetch_document_items_rk)
             .service(material::check_in)
             .service(material::make_formal_in)
+            .service(material::fetch_check)
 
             .service(documentquery::fetch_used_fields)
             .service(documentquery::fetch_all_documents)

@@ -52,21 +52,36 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
+                        fetch('/fetch_check', {
+                            method: 'post',
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(dh_div.textContent),
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                let check = data.split('-');
+                                let rem = document.querySelector('#remember-button');
+                                if (check[0] != "") {
+                                    rem.textContent = "已审核";
+                                    rem.classList.add('remembered');
+                                    set_readonly();
+                                } else {
+                                    rem.textContent = "审核";
+                                    rem.classList.remove('remembered');
+                                }
 
-                        let values = data.split(SPLITER);
-                        let len = values.length;
-                        let rem = document.querySelector('#remember-button');
-                        if (values[len - 2] == "true") {
-                            rem.textContent = "已审核";
-                            rem.classList.add('remembered');
-                        } else {
-                            rem.textContent = "审核";
-                            rem.classList.remove('remembered');
-                        }
-
-                        // let customer = document.querySelector('#supplier-input');
-                        // customer.value = values[len - 3];
-                        // customer.setAttribute('data', values[len - 4]);
+                                let chk = document.querySelector('#check-button');
+                                if (check[1] != "") {
+                                    chk.textContent = "已质检";
+                                    chk.classList.add('remembered');
+                                    set_readonly();
+                                } else {
+                                    chk.textContent = "质检";
+                                    chk.classList.remove('remembered');
+                                }
+                            });
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -75,6 +90,13 @@ fetch(`/fetch_inout_fields`, {
             }
         }
     });
+
+
+function set_readonly() {
+    document.querySelector('#文本字段6').readOnly = true;
+    document.querySelector('#material-add').setAttribute("disabled", true);
+    document.querySelector('#save-button').setAttribute("disabled", true);
+}
 
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show .table-head');
@@ -427,8 +449,8 @@ document.querySelector('#print-button').addEventListener('click', function () {
             });
 
             var printData = {
-                供应商: document.querySelector('#supplier-input').value,
-                客户: document.querySelector('#supplier-input').value,
+                // 供应商: document.querySelector('#supplier-input').value,
+                // 客户: document.querySelector('#supplier-input').value,
                 日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
                 dh: dh_div.textContent,
                 maker: document.querySelector('#user-name').textContent.split('　')[1],

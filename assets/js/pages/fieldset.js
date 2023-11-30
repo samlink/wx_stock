@@ -1,5 +1,5 @@
-import { notifier } from '../parts/notifier.mjs';
-import { regReal, getHeight } from '../parts/tools.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {regReal, getHeight} from '../parts/tools.mjs';
 
 let global = {
     drag_id: "",
@@ -109,14 +109,12 @@ function fetch_data(data) {
                         if (this.value != "普通输入") {
                             this.parentNode.nextElementSibling.querySelector('input').disabled = false;
                             this.parentNode.nextElementSibling.querySelector('input').focus();
-                        }
-                        else {
+                        } else {
                             this.parentNode.nextElementSibling.querySelector('input').disabled = true;
                         }
                     });
                 }
-            }
-            else {
+            } else {
                 alert("无此操作权限");
             }
         });
@@ -160,8 +158,7 @@ function fetch_data2(data) {
                         global.edit2 = 1;
                     });
                 }
-            }
-            else {
+            } else {
                 alert("无此操作权限");
             }
         });
@@ -174,12 +171,13 @@ function row_fn2(tr) {
 
     return `<tr draggable="true"><td class='hide'>${tr.id}</td>
             <td width=20%>${tr.num}</td><td>${tr.show_name}</td>
+            <td width=20%><input class='form-control input-sm' type="text" value=${tr.inout_width}></td>            
             <td width=20%><label class="check-radio"><input type="checkbox" ${checked} ${disabled}>
             <span class="checkmark" ${style}></span></td></tr>`;
 }
 
 function blank_row_fn2() {
-    return `<tr><td width=20%></td><td></td><td width=20%></td></tr>`;
+    return `<tr><td width=20%></td><td></td><td width=20%></td><td width=20%></td></tr>`;
 }
 
 function row_drag(table_body, sumit_button, bz) {
@@ -210,8 +208,7 @@ function row_drag(table_body, sumit_button, bz) {
             sumit_button.disabled = false;
             if (bz == 1) {
                 global.edit = 1;
-            }
-            else {
+            } else {
                 global.edit2 = 1;
             }
         });
@@ -270,8 +267,7 @@ sumit_button.addEventListener('click', () => {
                 fetch_data2(table_name);
                 document.querySelector('#sumit-button').disabled = true;
                 notifier.show('字段修改成功', 'success');
-            }
-            else {
+            } else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
@@ -286,8 +282,10 @@ sumit_button2.addEventListener('click', () => {
         if (tr.querySelector('td:nth-child(1)').textContent != "") {
             let tr_data = {
                 id: Number(tr.querySelector('td:nth-child(1)').textContent),
-                inout_show: tr.querySelector('td:nth-child(4) input').checked,
+                inout_width: Number(tr.querySelector('td:nth-child(4) input').value),
+                inout_show: tr.querySelector('td:nth-child(5) input').checked,
                 inout_order: order,
+
             }
             order++;
             data.push(tr_data);
@@ -307,8 +305,7 @@ sumit_button2.addEventListener('click', () => {
                 global.edit2 = 0;
                 document.querySelector('#sumit-button2').disabled = true;
                 notifier.show('字段修改成功', 'success');
-            }
-            else {
+            } else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });

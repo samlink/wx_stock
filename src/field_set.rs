@@ -38,7 +38,7 @@ pub async fn fetch_fields(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,default_value,
-                is_show,show_order,all_edit,is_use, ROW_NUMBER () OVER (ORDER BY is_show desc, show_order) as 序号 
+                is_show,show_order,all_edit,is_use, ROW_NUMBER () OVER (ORDER BY is_show desc, show_order) as 序号
                 FROM tableset WHERE table_name='{}' ORDER BY is_show desc, show_order"#,
             post_data.name
         );
@@ -91,6 +91,7 @@ pub struct FieldsReturn2 {
     pub show_name: String,
     pub inout_show: bool,
     pub all_edit: bool,
+    pub inout_width: f32,
 }
 
 ///获取出入库显示字段
@@ -104,7 +105,7 @@ pub async fn fetch_fields2(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"SELECT id,show_name,inout_show,all_edit, ROW_NUMBER () OVER (ORDER BY all_edit, inout_show desc, inout_order) as 序号 
+            r#"SELECT id,show_name,inout_show,all_edit, inout_width, ROW_NUMBER () OVER (ORDER BY all_edit, inout_show desc, inout_order) as 序号
                 FROM tableset WHERE table_name='{}' AND is_use=true ORDER BY all_edit, inout_show desc, inout_order"#,
             post_data.name
         );
@@ -119,6 +120,7 @@ pub async fn fetch_fields2(
                 show_name: row.get("show_name"),
                 inout_show: row.get("inout_show"),
                 all_edit: row.get("all_edit"),
+                inout_width: row.get("inout_width"),
             };
 
             fields.push(field);
@@ -183,8 +185,8 @@ pub async fn update_tableset(
             );
 
             let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
+            let _ = &conn.execute("UPDATE tableset SET inout_show=is_use where is_use=false;", &[]).await.unwrap();
         }
-
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
@@ -196,6 +198,7 @@ pub struct FieldsData2 {
     pub id: i32,
     pub inout_show: bool,
     pub inout_order: i32,
+    pub inout_width: f32,
 }
 
 ///更新表格字段数据, 出入库相关
@@ -212,8 +215,8 @@ pub async fn update_tableset2(
         let post_data = post_data.into_inner();
         for data in post_data {
             let sql = format!(
-                r#"UPDATE tableset SET inout_show={}, inout_order={} WHERE id={}"#,
-                data.inout_show, data.inout_order, data.id
+                r#"UPDATE tableset SET inout_show={}, inout_order={}, inout_width={} WHERE id={}"#,
+                data.inout_show, data.inout_order, data.inout_width, data.id
             );
 
             let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();

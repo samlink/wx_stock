@@ -156,6 +156,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                                 input.value = "";
                             }
                         }
+                        close_modal();
                     }
                     else {
                         notifier.show('权限不够，操作失败', 'danger');

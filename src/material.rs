@@ -355,3 +355,29 @@ pub async fn fetch_document_rk(
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/fetch_check")]
+pub async fn fetch_check(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "入库单据").await;
+        let sql = format!(r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#, f_map["审核"], f_map["质检"], data);
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut check = "".to_owned();
+        for row in rows {
+            let chk: &str = row.get("审核");
+            let chk2: &str = row.get("质检");
+            check = format!("{}-{}", chk, chk2);
+        }
+        HttpResponse::Ok().json(check)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
