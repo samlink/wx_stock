@@ -18,69 +18,69 @@ var input_data = {
 
 export var input_table_outdata = {};
 
-function add_event_handle() {
-    //插入行
-    document.querySelector('#row-insert').addEventListener('click', function (e) {
-        let edit = document.querySelector('.inputting');
-        if (edit) {
-            let table_body = document.querySelector('.table-items tbody');
-            let input_row = build_input_row(input_data.show_names, all_width);
-            remove_inputting();
-            table_body.insertBefore(input_row, edit);
+
+//插入行
+document.querySelector('#row-insert').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        let table_body = document.querySelector('.table-items tbody');
+        let input_row = build_input_row(input_data.show_names, all_width);
+        remove_inputting();
+        table_body.insertBefore(input_row, edit);
+        rebuild_index();
+        sum_records();
+        keep_up();
+        input_row.querySelector('td:nth-child(2)').click();
+    } else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
+//删除行
+document.querySelector('#row-del').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        alert_confirm('确认删除行吗？', {
+            confirmCallBack: () => {
+                edit.parentNode.removeChild(edit);
+                sum_records();
+                sum_weight();
+                rebuild_index();
+                keep_up();
+            }
+        });
+    } else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
+
+//上移行
+document.querySelector('#row-up').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        if (edit.previousElementSibling) {
+            edit.parentNode.insertBefore(edit, edit.previousElementSibling);
             rebuild_index();
-            sum_records();
-            keep_up();
-            input_row.querySelector('td:nth-child(2)').click();
-        } else {
-            notifier.show('请先选择行', 'danger');
         }
-    });
+    } else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
 
-    //删除行
-    document.querySelector('#row-del').addEventListener('click', function (e) {
-        let edit = document.querySelector('.inputting');
-        if (edit) {
-            alert_confirm('确认删除行吗？', {
-                confirmCallBack: () => {
-                    edit.parentNode.removeChild(edit);
-                    sum_records();
-                    sum_weight();
-                    rebuild_index();
-                    keep_up();
-                }
-            });
-        } else {
-            notifier.show('请先选择行', 'danger');
+//下移行
+document.querySelector('#row-down').addEventListener('click', function (e) {
+    let edit = document.querySelector('.inputting');
+    if (edit) {
+        if (edit.nextElementSibling &&
+            edit.nextElementSibling.querySelector('td:nth-child(1)').textContent != "") {
+            edit.parentNode.insertBefore(edit.nextElementSibling, edit);
+            rebuild_index();
         }
-    });
+    } else {
+        notifier.show('请先选择行', 'danger');
+    }
+});
 
-    //上移行
-    document.querySelector('#row-up').addEventListener('click', function (e) {
-        let edit = document.querySelector('.inputting');
-        if (edit) {
-            if (edit.previousElementSibling) {
-                edit.parentNode.insertBefore(edit, edit.previousElementSibling);
-                rebuild_index();
-            }
-        } else {
-            notifier.show('请先选择行', 'danger');
-        }
-    });
-
-    //下移行
-    document.querySelector('#row-down').addEventListener('click', function (e) {
-        let edit = document.querySelector('.inputting');
-        if (edit) {
-            if (edit.nextElementSibling &&
-                edit.nextElementSibling.querySelector('td:nth-child(1)').textContent != "") {
-                edit.parentNode.insertBefore(edit.nextElementSibling, edit);
-                rebuild_index();
-            }
-        } else {
-            notifier.show('请先选择行', 'danger');
-        }
-    });
-}
 
 //构造表主体结构-----------
 export function build_blank_table(data) {
@@ -109,6 +109,11 @@ export function build_out_table(data) {
         }
     }
 
+    //清空数据
+    for (let i in input_data.show_names) {
+        input_data.show_names[i].value = "";
+    }
+
     let has_input = tbody.querySelectorAll('.has-input');
     let num = has_input.length + 1;
     let input_row = build_input_row(input_data.show_names, all_width, num);
@@ -118,7 +123,7 @@ export function build_out_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
     append_blanks(tbody, num);
-    add_event_handle();
+    // add_event_handle();
 }
 
 //建立表头及一个空行
@@ -167,7 +172,7 @@ export function build_content_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
     append_blanks(tbody, num);
-    add_event_handle();
+    // add_event_handle();
 }
 
 // 建立已有订单的明细表
@@ -191,7 +196,7 @@ export function build_items_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
     append_blanks(tbody, num);
-    add_event_handle();
+    // add_event_handle();
 }
 
 function append_blanks(tbody, num) {
@@ -215,6 +220,7 @@ function append_blanks(tbody, num) {
 
 function build_edit_string(show_names, all_width) {
     let control = "";
+    let m_id = show_names[show_names.length -1].value;
     for (let obj of show_names) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
@@ -252,7 +258,7 @@ function build_edit_string(show_names, all_width) {
             <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900; position: inherit">
                     <input class="form-control input-sm has-value auto-input" type="text" 
-                        value="${obj.value ? obj.value.split(' ')[1] : ''}" data="${obj.value ? obj.value.split(' ')[0] : ''}"/>                        
+                        value="${obj.value}" data="${m_id}">                        
                     ${button}
                 </div>
             </td>`;
@@ -599,14 +605,14 @@ function chose_exit(selected_row) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(Number(id)),
+            body: JSON.stringify(id),
         })
             .then(response => response.json())
             .then(content => {
                 let input = document.querySelector('.inputting .auto-input');
                 input.value = content.split(SPLITER)[1];
                 input.setAttribute("data", content);
-                fill_gg(input, input_data.show_names, input_data.gg_n);  // 3 是填入规格数据的数量
+                input_data.auto_data.cb();  // 3 是填入规格数据的数量
                 close_modal();
             });
     } else {

@@ -364,7 +364,7 @@ pub fn build_string_from_base(
     let mut products = Vec::new();
     for row in rows {
         let mut product = "".to_owned();
-        let num: i32 = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
+        let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
         product += &format!("{}{}", num, SPLITER);
         let num: i64 = row.get("序号");
         product += &format!("{}{}", num, SPLITER);

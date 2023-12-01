@@ -178,7 +178,7 @@ pub async fn buyin_auto(
 #[post("/fetch_one_product")]
 pub async fn fetch_one_product(
     db: web::Data<Pool>,
-    product_id: web::Json<i32>,
+    product_id: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -188,8 +188,8 @@ pub async fn fetch_one_product(
         let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                             || '{}' || {} || '{}' || {} || '{}' || {} as p from products
                             JOIN tree ON products.商品id = tree.num
-                            WHERE id = {}",
-                        SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["售价"], product_id);
+                            WHERE {} = '{}'",
+                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -369,8 +369,8 @@ pub async fn fetch_history(
             count = "数量";
         };
         let sql = format!("SELECT 日期, 单价, {} FROM documents JOIN document_items ON documents.单号=document_items.单号id 
-                            WHERE {} AND 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10", 
-                            count, cate, data.customer_id, data.product_id);
+                            WHERE {} AND 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10",
+                          count, cate, data.customer_id, data.product_id);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut history: Vec<HistoryData> = Vec::new();
@@ -471,7 +471,7 @@ pub async fn fetch_document_items(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
+            r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 规格, 状态, 单价, 重量, round((单价*重量)::numeric,2)::real as 金额, 备注 FROM document_items 
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
@@ -483,7 +483,7 @@ pub async fn fetch_document_items(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
         for row in rows {
-            let order: i32 = row.get("顺序");
+            let m_id: String = row.get("商品id");
             let name: String = row.get("名称");
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
@@ -494,8 +494,6 @@ pub async fn fetch_document_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                order,
-                SPLITER,
                 name,
                 SPLITER,
                 cz,
@@ -511,6 +509,8 @@ pub async fn fetch_document_items(
                 money,
                 SPLITER,
                 note,
+                SPLITER,
+                m_id,
             );
 
             document_items.push(item)
@@ -534,8 +534,8 @@ pub async fn fetch_document_items_sales(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 顺序, 商品id || ' ' || split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
-                规格, 状态, 单价, 长度, 数量, 理重, 重量, round((单价*理重)::numeric,2)::real as 金额, 备注 FROM document_items 
+            r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
+                规格, 状态, 单价, 长度, 数量, 理重, 重量, round((单价*理重)::numeric,2)::real as 金额, 备注, 商品id FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -546,7 +546,6 @@ pub async fn fetch_document_items_sales(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
         for row in rows {
-            let order: i32 = row.get("顺序");
             let name: String = row.get("名称");
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
@@ -558,10 +557,9 @@ pub async fn fetch_document_items_sales(
             let weight: f32 = row.get("重量");
             let money: f32 = row.get("金额");
             let note: String = row.get("备注");
+            let m_id: String = row.get("商品id");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                order,
-                SPLITER,
                 name,
                 SPLITER,
                 cz,
@@ -583,6 +581,8 @@ pub async fn fetch_document_items_sales(
                 money,
                 SPLITER,
                 note,
+                SPLITER,
+                m_id,
             );
 
             document_items.push(item)

@@ -244,7 +244,7 @@ show_names = [
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true},
     {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true},
     {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true},
-    {name: "物料号", width: 60, class: "物料号", type: "autocomplete", editable: true, is_save: true, no_button: true},
+    {name: "物料号", width: 60, class: "auto-input", type: "autocomplete", editable: true, is_save: true, no_button: true},
     {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true,},
     {
         name: "备注",
@@ -344,7 +344,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
             for (let i = 0; i < len; i++) {
                 if (show_names[i].is_save) {
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                    if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
                         save_str += `${value.trim()}${SPLITER}`;
@@ -365,9 +365,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
-    fetch(`/save_material`, {
+    fetch(`/save_material_ck`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

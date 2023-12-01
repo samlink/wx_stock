@@ -70,7 +70,7 @@ pub async fn fetch_product(
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let mut sql_fields = r#"SELECT id,"#.to_owned();
+        let mut sql_fields = r#"SELECT 文本字段1 as id,"#.to_owned();
 
         for f in &fields {
             sql_fields += &format!("{},", &*f.field_name);
@@ -94,7 +94,7 @@ pub async fn fetch_product(
         let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(id) as 记录数 FROM products WHERE 商品id='{}' {} {}"#,
+            r#"SELECT count(文本字段1) as 记录数 FROM products WHERE 商品id='{}' {} {}"#,
             post_data.id, area, conditions
         );
 
@@ -128,7 +128,7 @@ pub async fn update_product(
 
         let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
 
-        sql += &format!(r#"商品id='{}' WHERE id={}"#, product[1], product[0]);
+        sql += &format!(r#"商品id='{}' WHERE 文本字段1='{}'"#, product[1], product[0]);
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
@@ -226,10 +226,9 @@ pub async fn product_out(
         sheet.set_column(0, 0, 8.0, None).unwrap();
         sheet.set_column(1, 1, 12.0, None).unwrap();
 
-        sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
-        sheet.write_string(0, 1, "商品id", Some(&format1)).unwrap();
+        sheet.write_string(0, 0, "商品id", Some(&format1)).unwrap();
 
-        let mut n = 2;
+        let mut n = 1;
         for f in &fields {
             sheet
                 .write_string(0, n, &f.show_name, Some(&format1))
@@ -241,7 +240,7 @@ pub async fn product_out(
             n += 1;
         }
 
-        let init = r#"SELECT id as 编号,"#.to_owned();
+        let init = r#"SELECT "#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields);
 
         sql += &format!(
@@ -254,13 +253,11 @@ pub async fn product_out(
 
         let mut n = 1u32;
         for row in rows {
-            let id: i32 = row.get("编号");
-            sheet.write_number(n, 0, id as f64, Some(&format2)).unwrap();
             sheet
-                .write_string(n, 1, row.get("商品id"), Some(&format2))
+                .write_string(n, 0, row.get("商品id"), Some(&format2))
                 .unwrap();
 
-            let mut m = 2u16;
+            let mut m = 1u16;
             for f in &fields {
                 if f.data_type == "布尔" {
                     sheet
@@ -302,8 +299,7 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
             let mut num = 1;
             let total_coloum = r.get_size().1;
             total_rows = r.get_size().0 - 1;
-
-            if total_coloum - 2 != fields.len() {
+            if total_coloum - 1 != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
@@ -312,7 +308,6 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
 
                 //制作表头数据
                 let mut rec = "".to_owned();
-                rec += &format!("{}{}", "编号", SPLITER);
                 rec += &format!("{}{}", "商品id", SPLITER);
                 for f in &fields {
                     rec += &format!("{}{}", &*f.show_name, SPLITER);
@@ -378,10 +373,10 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
-                            sql += &format!("'{}',", r[(j + 1, i + 2)]);
+                            sql += &format!("'{}',", r[(j + 1, i + 1)]);
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
-                            let num = format!("{}", r[(j + 1, i + 2)]);
+                            let num = format!("{}", r[(j + 1, i + 1)]);
                             if num != "" {
                                 sql += &format!("{},", num);
                             } else {
@@ -389,7 +384,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                             }
                         } else {
                             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                            let val = if format!("{}", r[(j + 1, i + 2)]) == op[0] {
+                            let val = if format!("{}", r[(j + 1, i + 1)]) == op[0] {
                                 true
                             } else {
                                 false
@@ -398,7 +393,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                         }
                     }
 
-                    sql += &format!("'{}')", r[(j + 1, 1)]);
+                    sql += &format!("'{}')", r[(j + 1, 0)]);
 
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
@@ -428,13 +423,13 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
 
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
-                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 2)]);
+                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 1)]);   // 把第一列 商品id 略过, 所以 i + 1
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
-                            sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 2)]);
+                            sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 1)]);
                         } else {
                             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                            let val = if format!("{}", r[(j + 1, i + 2)]) == op[0] {
+                            let val = if format!("{}", r[(j + 1, i + 1)]) == op[0] {
                                 true
                             } else {
                                 false
@@ -444,7 +439,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     }
 
                     sql = sql.trim_end_matches(',').to_owned();
-                    sql += &format!(r#" WHERE id={}"#, r[(j + 1, 0)]);
+                    sql += &format!(r#" WHERE 文本字段1='{}'"#, r[(j + 1, 1)]);
 
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
