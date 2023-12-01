@@ -304,7 +304,7 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
     let conn = db.get().await.unwrap();
     let rows = &conn
         .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit 
+            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, inout_width as show_width, all_edit
                 FROM tableset WHERE table_name=$1 AND inout_show=true ORDER BY inout_order"#,
             &[&table_name],
         )

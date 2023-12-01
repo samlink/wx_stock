@@ -39,7 +39,7 @@ pub async fn fetch_fields(
         let sql = format!(
             r#"SELECT id,field_name,data_type,show_name,show_width,ctr_type,option_value,default_value,
                 is_show,show_order,all_edit,is_use, ROW_NUMBER () OVER (ORDER BY is_show desc, show_order) as 序号
-                FROM tableset WHERE table_name='{}' ORDER BY is_show desc, show_order"#,
+                FROM tableset WHERE table_name='{}' ORDER BY is_use desc, show_order"#,
             post_data.name
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

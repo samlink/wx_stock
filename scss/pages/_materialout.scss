@@ -1,0 +1,23 @@
+.materialout {
+  .fields-show {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .material-doc {
+    margin-right: 40px;
+    padding: 5px;
+  }
+  .show-pic {
+    border: 1px solid $form-border-color;
+    height: 65px;
+    width: 50px;
+  }
+  .fields-show .autocomplete {
+    input {
+      width: 200px;
+    }
+  }
+  .table-history {
+    width: 360px;
+  }
+}

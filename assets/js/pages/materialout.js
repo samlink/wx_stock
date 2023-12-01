@@ -49,9 +49,13 @@ fetch(`/fetch_inout_fields`, {
                     .then(response => response.json())
                     .then(data => {
                         let html = service.build_inout_form(document_table_fields, data);
+                        alert('dd');
+                        console.log(html);
                         document_top_handle(html, true);
+
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
+
                         fetch('/fetch_check', {
                             method: 'post',
                             headers: {
@@ -94,7 +98,7 @@ fetch(`/fetch_inout_fields`, {
 
 function set_readonly() {
     document.querySelector('#文本字段6').readOnly = true;
-    document.querySelector('#material-add').setAttribute("disabled", true);
+    // document.querySelector('#material-add').setAttribute("disabled", true);
     document.querySelector('#save-button').setAttribute("disabled", true);
 }
 
@@ -118,14 +122,16 @@ function document_top_handle(html, has_date) {
     let auto_doc = document.querySelector('#文本字段6');
     auto_doc.parentNode.classList.add("autocomplete");
 
-    let auto_comp = new AutoInput(auto_doc, "商品采购", "/material_auto", () => {
+    let auto_comp = new AutoInput(auto_doc, "商品销售", "/material_auto", () => {
         build_items(auto_doc.getAttribute("data"));
     });
 
     auto_comp.init();
 
+    document.querySelector('#文本字段5').parentNode.parentNode.style.cssText= "margin-left: 250px;";
+
     let date = document.querySelector('#日期');
-    date.parentNode.parentNode.style.cssText = "margin-left: 210px;";
+    // date.parentNode.parentNode.style.cssText = "margin-left: 250px;";
 
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
@@ -150,12 +156,9 @@ function build_items(dh) {
         .then(content => {
             let tr = "";
             content.forEach(obj => {
-                let material = obj.split(SPLITER);
-                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td>`
-                // let m = material[1].split('　');
-                // tr += `<tr><td hidden>${material[0]}</td><td width="20%">${m[0]}</td><td width="30%">${m[1]}</td><td width="10%">${m[2]}</td><td width="40%">${m[3]}</td></tr>`;
+                let material = obj.split(`${SPLITER}`);
+                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
             });
-
             document.querySelector(".table-history tbody").innerHTML = tr;
 
             let lines = document.querySelectorAll(".table-history tbody tr");
@@ -257,47 +260,47 @@ if (dh_div.textContent == "新单据") {
 }
 
 // 将材料数据填入表格
-document.querySelector("#material-add").addEventListener('click', function () {
-    if (!document.querySelector('#名称').value) {
-        notifier.show('采购条目输入有错误', 'danger');
-        return false;
-    }
-
-    let n = document.querySelector("#数量").value;
-    if (!n || !regInt.test(n) || n <= 0) {
-        notifier.show('数量输入有错误', 'danger');
-        return false;
-    }
-
-    fetch(`/fetch_max_num`, {
-        method: 'get',
-    })
-        .then(response => response.json())
-        .then(content => {
-            let rows = [];
-            show_names[1].value = document.querySelector('#名称').value;
-            show_names[2].value = document.querySelector('#材质').value;
-            show_names[3].value = document.querySelector('#规格').value;
-            show_names[4].value = document.querySelector('#状态').value;
-            show_names[5].value = document.querySelector('#炉号').value;
-            show_names[6].value = document.querySelector('#执行标准').value;
-            show_names[7].value = document.querySelector('#生产厂家').value;
-            show_names[8].value = document.querySelector('#库位').value;
-            show_names[13].value = document.querySelector('#m_id').value;
-
-            let data = {
-                show_names: show_names,
-                num: n,
-                lines: table_lines,
-                dh: dh_div.textContent,
-                document: document_name,
-                material_num: content,
-            }
-
-            build_content_table(data);
-        });
-
-})
+// document.querySelector("#material-add").addEventListener('click', function () {
+//     if (!document.querySelector('#名称').value) {
+//         notifier.show('采购条目输入有错误', 'danger');
+//         return false;
+//     }
+//
+//     let n = document.querySelector("#数量").value;
+//     if (!n || !regInt.test(n) || n <= 0) {
+//         notifier.show('数量输入有错误', 'danger');
+//         return false;
+//     }
+//
+//     fetch(`/fetch_max_num`, {
+//         method: 'get',
+//     })
+//         .then(response => response.json())
+//         .then(content => {
+//             let rows = [];
+//             show_names[1].value = document.querySelector('#名称').value;
+//             show_names[2].value = document.querySelector('#材质').value;
+//             show_names[3].value = document.querySelector('#规格').value;
+//             show_names[4].value = document.querySelector('#状态').value;
+//             show_names[5].value = document.querySelector('#炉号').value;
+//             show_names[6].value = document.querySelector('#执行标准').value;
+//             show_names[7].value = document.querySelector('#生产厂家').value;
+//             show_names[8].value = document.querySelector('#库位').value;
+//             show_names[13].value = document.querySelector('#m_id').value;
+//
+//             let data = {
+//                 show_names: show_names,
+//                 num: n,
+//                 lines: table_lines,
+//                 dh: dh_div.textContent,
+//                 document: document_name,
+//                 material_num: content,
+//             }
+//
+//             build_content_table(data);
+//         });
+//
+// })
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 

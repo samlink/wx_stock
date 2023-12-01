@@ -232,6 +232,7 @@ pub async fn stock_change(
     }
 }
 
+/// 材料入库
 #[get("/material_in/{dh}")]
 pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "商品设置".to_owned()).await;
@@ -251,9 +252,10 @@ pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ide
     }
 }
 
+// 材料出库
 #[get("/material_out/{dh}")]
 pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "商品设置".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -261,9 +263,9 @@ pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Id
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["材料出库", "客户", "出库单号", dh, "no_customer"];
+        let setup = vec!["材料出库", "客户", "销售条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, num_position, setup));
+        let html = r2s(|o| materialout(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
