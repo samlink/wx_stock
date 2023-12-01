@@ -125,6 +125,29 @@ export function build_content_table(data) {
     add_event_handle();
 }
 
+export function build_out_table(data) {
+    Object.assign(input_data, data);
+    let line_height = 33; //行高，与 css 设置一致
+    let tbody = input_data.container.querySelector('tbody');
+    let trs = tbody.querySelectorAll('tr');
+    for (let tr of trs) {
+        if (!tr.classList.contains('has-input')) {
+            tr.parentNode.removeChild(tr);
+        }
+    }
+
+    let has_input = tbody.querySelectorAll('.has-input');
+    let num = has_input.length + 1;
+    let input_row = build_input_row(input_data.show_names, all_width, num);
+    tbody.appendChild(input_row);
+    num += 1;
+
+    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
+
+    append_blanks(tbody, num);
+    add_event_handle();
+}
+
 //建立表头及一个空行
 function build_blank_th() {
     input_data.container.style.width = input_data.width;

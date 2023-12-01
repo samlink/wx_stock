@@ -93,7 +93,10 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_formal)
 
             .service(material::material_auto)
+            .service(material::materialout_auto)
+            .service(material::get_docs_out)
             .service(material::get_items)
+            .service(material::get_items_out)
             .service(material::fetch_max_num)
             .service(material::save_material)
             .service(material::fetch_document_items_rk)

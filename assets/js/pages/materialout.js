@@ -4,9 +4,7 @@ import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
 import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
 import {
-    build_blank_table,
-    build_content_table, build_items_table,
-    input_table_outdata
+    build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/input_material.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
@@ -122,13 +120,13 @@ function document_top_handle(html, has_date) {
     let auto_doc = document.querySelector('#文本字段6');
     auto_doc.parentNode.classList.add("autocomplete");
 
-    let auto_comp = new AutoInput(auto_doc, "商品销售", "/material_auto", () => {
+    let auto_comp = new AutoInput(auto_doc, "商品销售", "/materialout_auto", () => {
         build_items(auto_doc.getAttribute("data"));
     });
 
     auto_comp.init();
 
-    document.querySelector('#文本字段5').parentNode.parentNode.style.cssText= "margin-left: 250px;";
+    document.querySelector('#文本字段5').parentNode.parentNode.style.cssText = "margin-left: 250px;";
 
     let date = document.querySelector('#日期');
     // date.parentNode.parentNode.style.cssText = "margin-left: 250px;";
@@ -145,7 +143,22 @@ function document_top_handle(html, has_date) {
 }
 
 function build_items(dh) {
-    fetch('/get_items', {
+    fetch('/get_docs_out', {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    })
+        .then(response => response.json())
+        .then(content => {
+            let info = content.split(SPLITER);
+            document.querySelector("#文本字段5").value = info[0];
+            document.querySelector("#文本字段4").value = info[1];
+        });
+
+
+    fetch('/get_items_out', {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -164,21 +177,23 @@ function build_items(dh) {
             let lines = document.querySelectorAll(".table-history tbody tr");
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
-                    document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
-                    let na = l.querySelector('td:nth-child(2)').textContent.split('　');
-                    document.querySelector('#名称').value = na[0];
-                    document.querySelector('#材质').value = na[1];
-                    document.querySelector('#规格').value = na[2];
-                    document.querySelector('#状态').value = na[3];
-                    document.querySelector('#炉号').focus();
-                    let fa = document.querySelector("#文本字段6").value;
-                    let fac;
-                    if (fa.split('　')[1]) {
-                        fac = fa.split('　')[1];
-                    } else {
-                        fac = document.querySelector('.table-items tbody>tr .生产厂家').textContent;
+                    let value = l.querySelector('td:nth-child(2)').textContent.split('　');
+                    show_names[1].value = value[0];
+                    show_names[2].value = value[1];
+                    show_names[3].value = value[2];
+                    show_names[4].value = value[3];
+                    show_names[6].value = value[4];
+                    show_names[7].value = value[5];
+                    show_names[8].value = value[4] * value[5];
+
+                    let data = {
+                        show_names: show_names,
+                        lines: table_lines,
+                        dh: dh_div.textContent,
+                        document: document_name,
                     }
-                    document.querySelector('#生产厂家').value = fac;
+
+                    build_out_table(data);
                 })
             }
         });
@@ -193,12 +208,11 @@ show_names = [
     {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "物料号", width: 60, class: "物料号", type: "autocomplete", editable: true, is_save: true, default: ""},
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, default: ""},
     {
         name: "备注",
         width: 100,
@@ -310,7 +324,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
-    ;
 
     let all_values = document.querySelectorAll('.document-value');
 

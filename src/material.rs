@@ -38,6 +38,38 @@ pub async fn material_auto(
     }
 }
 
+#[get("/materialout_auto")]
+pub async fn materialout_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        let f_map2 = map_fields(db.clone(), "客户").await;
+        let s = search.s.to_uppercase();
+        let cate_s = if search.cate != "" {
+            format!("documents.类别='{}' AND ", search.cate)
+        } else {
+            "".to_string()
+        };
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
+            JOIN customers on 客商id = customers.id
+            WHERE {} 单号 like '%{}%' AND {}=false  LIMIT 10"#,
+            format!("customers.{}", f_map2["简称"]),
+            cate_s,
+            s,
+            format!("documents.{}", f_map["发货完成"]),
+        );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/get_items")]
 pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -60,6 +92,61 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
             document_items.push(item);
         }
         HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/get_items_out")]
+pub async fn get_items_out(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = &format!(
+            r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 as item from document_items
+            JOIN tree ON 商品id = tree.num
+            WHERE 单号id = '{}'"#,
+            SPLITER, data
+        );
+
+        println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let item = row.get("item");
+            document_items.push(item);
+        }
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/get_docs_out")]
+pub async fn get_docs_out(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        let sql = &format!(
+            r#"SELECT documents.{} as 合同编号,名称 from documents
+            JOIN customers ON 客商id = customers.id
+            WHERE 单号 = '{}'"#,
+            f_map["合同编号"], data
+        );
+
+        println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut item = "".to_owned();
+        for row in rows {
+            let num: &str = row.get("合同编号");
+            let name: &str = row.get("名称");
+            item = format!("{}{}{}", num, SPLITER, name);
+        }
+        HttpResponse::Ok().json(item)
     } else {
         HttpResponse::Ok().json(-1)
     }
