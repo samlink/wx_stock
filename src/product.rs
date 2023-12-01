@@ -44,26 +44,8 @@ pub async fn fetch_product(
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%')
                     "#,
-                    f_map["物料号"],
-                    na,
-                    f_map["规格"],
-                    na,
-                    f_map["状态"],
-                    na,
-                    f_map["执行标准"],
-                    na,
-                    f_map["生产厂家"],
-                    na,
-                    f_map["炉号"],
-                    na,
-                    f_map["库位"],
-                    na,
-                    f_map["区域"],
-                    na,
-                    f_map["切完"],
-                    na,
-                    f_map["备注"],
-                    na,
+                    f_map["物料号"], na, f_map["规格"], na, f_map["状态"], na, f_map["执行标准"], na, f_map["生产厂家"], na,
+                    f_map["炉号"], na, f_map["库位"], na, f_map["区域"], na, f_map["切完"], na, f_map["备注"], na,
                 );
             }
         }
@@ -79,15 +61,8 @@ pub async fn fetch_product(
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products 
             WHERE products.商品id='{}' {} {} {} ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields,
-            post_data.sort,
-            post_data.id,
-            done,
-            area,
-            conditions,
-            post_data.sort,
-            skip,
-            post_data.rec
+            sql_fields, post_data.sort, post_data.id, done, area, conditions,
+            post_data.sort, skip, post_data.rec
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

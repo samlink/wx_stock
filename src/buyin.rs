@@ -150,20 +150,8 @@ pub async fn buyin_auto(
                 || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| {} || '{}' || 0 AS label FROM products 
                 JOIN tree ON products.商品id = tree.num
                 WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
-            SPLITER,
-            SPLITER,
-            sql_fields,
-            SPLITER,
-            f_map["售价"],
-            SPLITER,
-            f_map["库存长度"],
-            SPLITER,
-            f_map["理论重量"],
-            SPLITER,
-            cate_s,
-            s[0].to_lowercase(),
-            s[0].to_lowercase(),
-            sql_where,
+            SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
+            f_map["理论重量"], SPLITER, cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where,
         );
 
         // println!("{}", sql);
@@ -270,13 +258,7 @@ pub async fn save_document(
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
                 "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-                doc_data[2],
-                doc_data[0],
-                f_map["经办人"],
-                doc_data[3],
-                f_map["区域"],
-                user.area,
-                dh
+                doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
             );
         }
 
@@ -299,17 +281,7 @@ pub async fn save_document(
                 format!(
                     r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
                      VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                    dh,
-                    value[0],
-                    value[1],
-                    value[2],
-                    value[3],
-                    value[4],
-                    value[5],
-                    value[6],
-                    value[7],
-                    value[8],
-                    n
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], n
                 )
             } else {
                 format!(
@@ -441,15 +413,8 @@ pub async fn fetch_document(
             let rem: bool = row.get("已记账");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields),
-                SPLITER,
-                id,
-                SPLITER,
-                name,
-                SPLITER,
-                rem,
-                SPLITER,
-                cate,
+                simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
+                rem, SPLITER, cate,
             );
         }
 
@@ -494,23 +459,8 @@ pub async fn fetch_document_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                price,
-                SPLITER,
-                weight,
-                SPLITER,
-                money,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id,
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, price, SPLITER,
+                weight, SPLITER, money, SPLITER, note, SPLITER, m_id,
             );
 
             document_items.push(item)
@@ -560,29 +510,9 @@ pub async fn fetch_document_items_sales(
             let m_id: String = row.get("商品id");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                price,
-                SPLITER,
-                long,
-                SPLITER,
-                num,
-                SPLITER,
-                theary,
-                SPLITER,
-                weight,
-                SPLITER,
-                money,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id,
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, price, SPLITER,
+                long, SPLITER, num, SPLITER, theary, SPLITER, weight, SPLITER,
+                money, SPLITER, note, SPLITER, m_id,
             );
 
             document_items.push(item)
