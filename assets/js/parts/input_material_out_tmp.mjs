@@ -13,7 +13,6 @@ var input_data = {
     container: document.querySelector('.table-items'),
     width: document.querySelector('.content').clientWidth - document.querySelector('.table-history').clientWidth - 15,
     show_names: "",
-    dh: "新单据",
     document: "入库单据",
 }
 
@@ -254,7 +253,6 @@ function build_input_row(show_names, all_width, num) {
         remove_inputting();
         this.parentNode.parentNode.parentNode.classList.add("inputting");
     });
-
 
     auto_table(auto_input, "", `/material_auto_out`, input_data.auto_th, () => {
         fill_gg(auto_input, input_data.show_names, input_data.gg_n);

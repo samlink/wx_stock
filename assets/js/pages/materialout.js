@@ -5,7 +5,10 @@ import * as service from '../parts/service.mjs';
 import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
 import {
     build_blank_table, build_items_table, build_out_table, input_table_outdata
-} from '../parts/input_material_out.mjs';
+} from '../parts/edit_table.mjs';
+// import {
+//     build_blank_table, build_items_table, build_out_table, input_table_outdata
+// } from '../parts/input_material_out_tmp.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -143,13 +146,13 @@ function document_top_handle(html, has_date) {
 }
 
 let show_th = [
-    { name: "物料号", width: 60 },
-    { name: "名称", width: 60 },
-    { name: "材质", width: 80 },
-    { name: "规格", width: 80 },
-    { name: "状态", width: 100 },
-    { name: "炉号", width: 100 },
-    { name: "库存长度", width: 80 },
+    {name: "物料号", width: 60},
+    {name: "名称", width: 60},
+    {name: "材质", width: 80},
+    {name: "规格", width: 80},
+    {name: "状态", width: 100},
+    {name: "炉号", width: 100},
+    {name: "库存长度", width: 80},
 ];
 
 function build_items(dh) {
@@ -197,19 +200,36 @@ function build_items(dh) {
                     show_names[8].value = value[4] * value[5];
                     show_names[12].value = l.querySelector('td:nth-child(1)').textContent;
 
+                    let auto_data = {
+                        n: 10,
+                        cate: "",
+                        url: `/material_auto_out`,
+                        cb: fill_gg,
+                        cf: () => {
+                            return document.querySelector('.table-items .inputting td:nth-child(13)').textContent;
+                        }
+                    }
+
                     let data = {
                         show_names: show_names,
                         lines: table_lines,
                         dh: dh_div.textContent,
+                        auto_data: auto_data,
                         document: document_name,
                         auto_th: show_th,
-                        gg_n: 3,
                     }
 
                     build_out_table(data);
                 })
             }
         });
+}
+
+function fill_gg() {
+    let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
+    let lh_input = document.querySelector(`.inputting .炉号`).textContent = field_values[6];
+    document.querySelector(`.inputting .重量`).focus();
+    // input_table_outdata.edited = true;
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -225,7 +245,7 @@ show_names = [
     {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true},
     {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true},
     {name: "物料号", width: 60, class: "物料号", type: "autocomplete", editable: true, is_save: true, no_button: true},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true,},
     {
         name: "备注",
         width: 100,

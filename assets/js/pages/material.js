@@ -7,7 +7,12 @@ import {
     build_blank_table,
     build_content_table, build_items_table,
     input_table_outdata
-} from '../parts/input_material.mjs';
+} from '../parts/edit_table.mjs';
+// import {
+//     build_blank_table,
+//     build_content_table, build_items_table,
+//     input_table_outdata
+// } from '../parts/input_material_tmp.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
