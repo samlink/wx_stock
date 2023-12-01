@@ -129,7 +129,7 @@ pub async fn buyin_auto(
         }
         let mut cate_s = "".to_owned();
         if search.cate == "销售单据" {
-            cate_s = format!("{}='否' AND ", f_map["切完"]);
+            cate_s = format!("{}!='是' AND ", f_map["切完"]);
         }
 
         let mut sql_fields = "".to_owned();

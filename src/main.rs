@@ -94,6 +94,7 @@ async fn main() -> std::io::Result<()> {
 
             .service(material::material_auto)
             .service(material::materialout_auto)
+            .service(material::material_auto_out)
             .service(material::get_docs_out)
             .service(material::get_items)
             .service(material::get_items_out)

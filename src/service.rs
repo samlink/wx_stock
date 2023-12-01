@@ -25,6 +25,12 @@ pub struct SearchCate {
     pub cate: String,
 }
 
+#[derive(Deserialize)]
+pub struct SearchPlus {
+    pub s: String,
+    pub ss: String,
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub name: String,

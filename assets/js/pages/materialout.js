@@ -4,8 +4,8 @@ import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
 import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
 import {
-    build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
-} from '../parts/input_material.mjs';
+    build_blank_table, build_items_table, build_out_table, input_table_outdata
+} from '../parts/input_material_out.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -142,6 +142,16 @@ function document_top_handle(html, has_date) {
     });
 }
 
+let show_th = [
+    { name: "物料号", width: 60 },
+    { name: "名称", width: 60 },
+    { name: "材质", width: 80 },
+    { name: "规格", width: 80 },
+    { name: "状态", width: 100 },
+    { name: "炉号", width: 100 },
+    { name: "库存长度", width: 80 },
+];
+
 function build_items(dh) {
     fetch('/get_docs_out', {
         method: 'post',
@@ -185,12 +195,15 @@ function build_items(dh) {
                     show_names[6].value = value[4];
                     show_names[7].value = value[5];
                     show_names[8].value = value[4] * value[5];
+                    show_names[12].value = l.querySelector('td:nth-child(1)').textContent;
 
                     let data = {
                         show_names: show_names,
                         lines: table_lines,
                         dh: dh_div.textContent,
                         document: document_name,
+                        auto_th: show_th,
+                        gg_n: 3,
                     }
 
                     build_out_table(data);
@@ -202,17 +215,17 @@ function build_items(dh) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "物料号", width: 60, class: "物料号", type: "autocomplete", editable: true, is_save: true, default: ""},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true},
+    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false},
+    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true},
+    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true},
+    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true},
+    {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true},
+    {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true},
+    {name: "物料号", width: 60, class: "物料号", type: "autocomplete", editable: true, is_save: true, no_button: true},
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
     {
         name: "备注",
         width: 100,
@@ -220,7 +233,6 @@ show_names = [
         type: "普通输入",
         editable: true,
         is_save: true,
-        default: "",
         css: 'style="border-right:none"'
     },
     {
@@ -230,7 +242,6 @@ show_names = [
         type: "普通输入",
         editable: false,
         is_save: true,
-        default: "",
         css: 'style="width:0%; border-left:none; color:white"',
     },
 ];
@@ -265,56 +276,15 @@ if (dh_div.textContent == "新单据") {
                 show_names: show_names,
                 rows: content,
                 lines: table_lines,
+                auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
+                gg_n: 3,
             }
 
             build_items_table(data);
         });
 }
-
-// 将材料数据填入表格
-// document.querySelector("#material-add").addEventListener('click', function () {
-//     if (!document.querySelector('#名称').value) {
-//         notifier.show('采购条目输入有错误', 'danger');
-//         return false;
-//     }
-//
-//     let n = document.querySelector("#数量").value;
-//     if (!n || !regInt.test(n) || n <= 0) {
-//         notifier.show('数量输入有错误', 'danger');
-//         return false;
-//     }
-//
-//     fetch(`/fetch_max_num`, {
-//         method: 'get',
-//     })
-//         .then(response => response.json())
-//         .then(content => {
-//             let rows = [];
-//             show_names[1].value = document.querySelector('#名称').value;
-//             show_names[2].value = document.querySelector('#材质').value;
-//             show_names[3].value = document.querySelector('#规格').value;
-//             show_names[4].value = document.querySelector('#状态').value;
-//             show_names[5].value = document.querySelector('#炉号').value;
-//             show_names[6].value = document.querySelector('#执行标准').value;
-//             show_names[7].value = document.querySelector('#生产厂家').value;
-//             show_names[8].value = document.querySelector('#库位').value;
-//             show_names[13].value = document.querySelector('#m_id').value;
-//
-//             let data = {
-//                 show_names: show_names,
-//                 num: n,
-//                 lines: table_lines,
-//                 dh: dh_div.textContent,
-//                 document: document_name,
-//                 material_num: content,
-//             }
-//
-//             build_content_table(data);
-//         });
-//
-// })
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 
