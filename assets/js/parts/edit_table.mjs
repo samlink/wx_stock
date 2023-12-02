@@ -98,9 +98,51 @@ export function build_blank_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
 
+/// 供材料出库用,但也可通用
 export function build_out_table(data) {
     Object.assign(input_data, data);
-    let line_height = 33; //行高，与 css 设置一致
+    let tbody = input_data.container.querySelector('tbody');
+    let trs = tbody.querySelectorAll('tr');
+    for (let tr of trs) {
+        if (!tr.classList.contains('has-input')) {
+            tr.parentNode.removeChild(tr);
+        }
+    }
+
+    let has_input = tbody.querySelectorAll('.has-input');
+    let num = has_input.length + 1;
+    let input_row = build_input_row(input_data.show_names, all_width, num);
+    tbody.appendChild(input_row);
+    num += 1;
+
+    append_blanks(tbody, num);
+}
+
+/// 材料入库专用
+export function build_content_table(data) {
+    Object.assign(input_data, data);
+    let tbody = input_data.container.querySelector('tbody');
+    let trs = tbody.querySelectorAll('tr');
+    for (let tr of trs) {
+        if (!tr.classList.contains('has-input')) {
+            tr.parentNode.removeChild(tr);
+        }
+    }
+
+    let has_input = tbody.querySelectorAll('.has-input');
+    let num = has_input.length + 1;
+    for (let i = 0; i < input_data.num; i++) {
+        input_data.show_names[9].value = `M${padZero(input_data.material_num + num, 6)}`;
+        let input_row = build_input_row(input_data.show_names, all_width, num);
+        tbody.appendChild(input_row);
+        num += 1;
+    }
+
+    append_blanks(tbody, num);
+}
+
+
+export function appand_edit_row() {
     let tbody = input_data.container.querySelector('tbody');
     let trs = tbody.querySelectorAll('tr');
     for (let tr of trs) {
@@ -120,10 +162,7 @@ export function build_out_table(data) {
     tbody.appendChild(input_row);
     num += 1;
 
-    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
-
     append_blanks(tbody, num);
-    // add_event_handle();
 }
 
 //建立表头及一个空行
@@ -147,32 +186,6 @@ function build_blank_th() {
 
     input_data.container.querySelector('thead').innerHTML = th;
     input_data.blank_row = blank;
-}
-
-export function build_content_table(data) {
-    Object.assign(input_data, data);
-    let line_height = 33; //行高，与 css 设置一致
-    let tbody = input_data.container.querySelector('tbody');
-    let trs = tbody.querySelectorAll('tr');
-    for (let tr of trs) {
-        if (!tr.classList.contains('has-input')) {
-            tr.parentNode.removeChild(tr);
-        }
-    }
-
-    let has_input = tbody.querySelectorAll('.has-input');
-    let num = has_input.length + 1;
-    for (let i = 0; i < input_data.num; i++) {
-        input_data.show_names[9].value = `M${padZero(input_data.material_num + num, 6)}`;
-        let input_row = build_input_row(input_data.show_names, all_width, num);
-        tbody.appendChild(input_row);
-        num += 1;
-    }
-
-    tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
-
-    append_blanks(tbody, num);
-    // add_event_handle();
 }
 
 // 建立已有订单的明细表
@@ -220,7 +233,7 @@ function append_blanks(tbody, num) {
 
 function build_edit_string(show_names, all_width) {
     let control = "";
-    let m_id = show_names[show_names.length -1].value;
+    let m_id = show_names[show_names.length - 1].value;
     for (let obj of show_names) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
@@ -441,6 +454,32 @@ function build_input_row(show_names, all_width, num) {
     }
 
     //添加价格和数量变化事件
+    if (input_row.querySelector('.price')) {
+        input_row.querySelector('.price').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
+
+        input_row.querySelector('.mount').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
+    }
+
+    if (input_row.querySelector('.long')) {
+        input_row.querySelector('.long').addEventListener('blur', function () {
+            calc_weight();
+            calc_money(input_row);
+            sum_money();
+        });
+
+        input_row.querySelector('.num').addEventListener('blur', function () {
+            calc_weight();
+            calc_money(input_row);
+            sum_money();
+        });
+    }
+
     if (input_row.querySelector('.长度')) {
         input_row.querySelector('.长度').addEventListener('blur', function () {
             weight();
@@ -462,7 +501,42 @@ function build_input_row(show_names, all_width, num) {
     return input_row;
 }
 
-// 销售时使用的理论重量计算
+//计算行金额
+function calc_money(input_row) {
+    let price = input_row.querySelector('.price').value;
+    let mount = input_row.querySelector('.mount').value;
+    if (!mount) {
+        mount = input_row.querySelector('.mount').textContent;
+    }
+    let money = "";
+    if (price && regReal.test(price) && mount && regReal.test(mount)) {
+        money = (price * mount).toFixed(Number(num_position[1]));
+    }
+
+    input_row.querySelector('.money').textContent = money;
+}
+
+//计算合计金额
+function sum_money() {
+    let all_input = document.querySelectorAll('.has-input');
+    let sum = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        let price = all_input[i].querySelector('.price').value;
+        let mount = all_input[i].querySelector('.mount').value;
+        if (!mount) {
+            mount = all_input[i].querySelector('.mount').textContent;
+        }
+        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
+            price && regReal.test(price) && mount && regReal.test(mount)) {
+            sum += price * mount;
+        }
+    }
+
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
+    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
+}
+
+// 出入库时使用的理论重量计算
 function weight() {
     let input_row = document.querySelector('.inputting');
     let data = {
@@ -480,6 +554,24 @@ function weight() {
     }
 }
 
+// 销售时使用的理论重量计算
+function calc_weight() {
+    let input_row = document.querySelector('.inputting');
+    let data = {
+        long: input_row.querySelector('.long').value,
+        num: input_row.querySelector('.num').value,
+        name: input_row.querySelector('.auto-input').value,
+        cz: input_row.querySelector('.材质').textContent,
+        gg: input_row.querySelector('.规格').value,
+    }
+
+    if (regInt.test(data.long) && regInt.test(data.num)) {
+        input_row.querySelector('.mount').value = service.calc_weight(data);
+    } else {
+        input_row.querySelector('.mount').value = 0;
+    }
+}
+
 //计算合计理论重量
 function sum_weight() {
     let all_input = document.querySelectorAll('.has-input');
@@ -487,8 +579,9 @@ function sum_weight() {
     for (let i = 0; i < all_input.length; i++) {
         sum += Number(all_input[i].querySelector('.重量').textContent);
     }
-
-    document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
+    if (document.querySelector('#实数字段3')) {
+        document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
+    }
 }
 
 //计算记录数

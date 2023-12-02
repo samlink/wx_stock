@@ -2,9 +2,9 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType} from '../parts/tools.mjs';
 import {
-    build_blank_table, build_items_table, build_out_table, input_table_outdata
+    build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
 // import {
 //     build_blank_table, build_items_table, build_out_table, input_table_outdata
@@ -50,8 +50,6 @@ fetch(`/fetch_inout_fields`, {
                     .then(response => response.json())
                     .then(data => {
                         let html = service.build_inout_form(document_table_fields, data);
-                        alert('dd');
-                        console.log(html);
                         document_top_handle(html, true);
 
                         let dh = document.querySelector("#文本字段6").value;
@@ -75,16 +73,6 @@ fetch(`/fetch_inout_fields`, {
                                 } else {
                                     rem.textContent = "审核";
                                     rem.classList.remove('remembered');
-                                }
-
-                                let chk = document.querySelector('#check-button');
-                                if (check[1] != "") {
-                                    chk.textContent = "已质检";
-                                    chk.classList.add('remembered');
-                                    set_readonly();
-                                } else {
-                                    chk.textContent = "质检";
-                                    chk.classList.remove('remembered');
                                 }
                             });
                     });
@@ -155,6 +143,16 @@ let show_th = [
     {name: "库存长度", width: 80},
 ];
 
+let auto_data = {
+    n: 10,
+    cate: "",
+    url: `/material_auto_out`,
+    cb: fill_gg,
+    cf: () => {
+        return document.querySelector('.table-items .inputting td:nth-child(13)').textContent;
+    }
+}
+
 function build_items(dh) {
     fetch('/get_docs_out', {
         method: 'post',
@@ -198,17 +196,8 @@ function build_items(dh) {
                     show_names[6].value = value[4];
                     show_names[7].value = value[5];
                     show_names[8].value = value[4] * value[5];
+                    show_names[9].value = "";
                     show_names[12].value = l.querySelector('td:nth-child(1)').textContent;
-
-                    let auto_data = {
-                        n: 10,
-                        cate: "",
-                        url: `/material_auto_out`,
-                        cb: fill_gg,
-                        cf: () => {
-                            return document.querySelector('.table-items .inputting td:nth-child(13)').textContent;
-                        }
-                    }
 
                     let data = {
                         show_names: show_names,
@@ -220,6 +209,7 @@ function build_items(dh) {
                     }
 
                     build_out_table(data);
+                    edited = 1;
                 })
             }
         });
@@ -229,7 +219,6 @@ function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let lh_input = document.querySelector(`.inputting .炉号`).textContent = field_values[6];
     document.querySelector(`.inputting .重量`).focus();
-    // input_table_outdata.edited = true;
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -244,7 +233,15 @@ show_names = [
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true},
     {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true},
     {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: true},
-    {name: "物料号", width: 60, class: "auto-input", type: "autocomplete", editable: true, is_save: true, no_button: true},
+    {
+        name: "物料号",
+        width: 60,
+        class: "auto-input",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        no_button: true
+    },
     {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true,},
     {
         name: "备注",
@@ -280,7 +277,7 @@ if (dh_div.textContent == "新单据") {
     build_blank_table(data);
 } else {
     // let url = document_name == "入库单据" ?  : "/fetch_document_items"
-    fetch("/fetch_document_items_rk", {
+    fetch("/fetch_document_items_ck", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -296,10 +293,10 @@ if (dh_div.textContent == "新单据") {
                 show_names: show_names,
                 rows: content,
                 lines: table_lines,
+                auto_data: auto_data,
                 auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
-                gg_n: 3,
             }
 
             build_items_table(data);
@@ -323,7 +320,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let n = 0;
     for (let f of document_table_fields) {
         if (f.data_type == "文本") {
-            let value = f.show_name != "单据单号" ? all_values[n].value : all_values[n].value.split('　')[0];
+            let value = f.show_name.indexOf("单号") == -1 ? all_values[n].value : all_values[n].value.split('　')[0];
             save_str += `${value}${SPLITER}`;
         } else if (f.data_type == "整数" || f.data_type == "实数") {
             let value = all_values[n].value ? all_values[n].value : 0;
@@ -367,7 +364,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     console.log(data);
 
-    fetch(`/save_material_ck`, {
+    fetch(`/save_material`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -512,11 +509,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
-document.querySelector('#check-button').addEventListener('click', function () {
-    if (this.textContent == "已质检") {
-        return false;
-    }
-
+document.querySelector('#pic-button').addEventListener('click', function (e) {
     let dh = dh_div.textContent;
     let that = this;
     if (dh == "新单据") {
@@ -524,30 +517,28 @@ document.querySelector('#check-button').addEventListener('click', function () {
         return false;
     }
 
-    alert_confirm("确认质检吗？", {
-        confirmText: "确认",
-        cancelText: "取消",
-        confirmCallBack: () => {
-            fetch(`/check_in`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dh),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        that.textContent = '已质检';
-                        that.classList.add('remembered');
-                        notifier.show('质检完成', 'success');
-                    } else {
-                        notifier.show('权限不够', 'danger');
+    e.preventDefault();
+    fileBtn.click();
 
-                    }
-                });
-        }
-    })
+
+    // fetch(`/check_in`, {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(dh),
+    // })
+    //     .then(response => response.json())
+    //     .then(content => {
+    //         if (content != -1) {
+    //             that.textContent = '已质检';
+    //             that.classList.add('remembered');
+    //             notifier.show('质检完成', 'success');
+    //         } else {
+    //             notifier.show('权限不够', 'danger');
+    //
+    //         }
+    //     });
 });
 
 //审核
@@ -589,6 +580,29 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
+
+//图片上传
+let fileBtn = document.getElementById('pic_upload');
+fileBtn.addEventListener('change', () => {
+    // if (checkFileType(fileBtn)) {
+        document.querySelector('#pic-button').disabled = "true";
+        const fd = new FormData();
+        fd.append('file', fileBtn.files[0]);
+        fetch(`/pic_in`, {
+            method: 'POST',
+            body: fd,
+        })
+            .then(res => res.json())
+            .then(content => {
+                console.log(content);
+                // document.querySelector('#upload-pic').setAttribute('src', `${content.substr(1, content.length - 1)}?${Math.random()}`);
+                document.querySelector('#pic-button').disabled = "";
+            });
+    // }
+    // else {
+    //     notifier.show('图片上传失败', 'danger');
+    // }
+});
 
 //获取打印模板
 function fetch_print_models(value) {

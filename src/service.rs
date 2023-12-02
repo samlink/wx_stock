@@ -10,6 +10,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
 use time::now;
+use image::imageops::FilterType;
+use image::GenericImageView;
 
 pub static SPLITER: &str = "<`*_*`>";
 
@@ -250,6 +252,32 @@ pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
         }
     }
     Ok(path)
+}
+
+pub async fn save_pic(mut payload: Multipart, path: String) -> Result<String, Error> {
+    while let Ok(Some(mut field)) = payload.try_next().await {
+        let filepath = path.clone();
+        let mut f = web::block(|| std::fs::File::create(filepath))
+            .await
+            .unwrap();
+
+        while let Some(chunk) = field.next().await {
+            let data = chunk.unwrap();
+            f = web::block(move || f.write_all(&data).map(|_| f)).await?;
+        }
+    }
+    Ok(path)
+}
+
+//缩小图片
+pub fn smaller(path: String, path2: String) -> String {
+    let img = image::open(path).unwrap();
+    let (width, height) = img.dimensions();
+    let r = if height < width { 200 } else { 800 };
+    let scaled = img.resize(100, r, FilterType::Lanczos3);
+    let path3 = format!("{}min.jpg", path2);
+    scaled.save(path3.clone()).unwrap();
+    path3
 }
 
 //获取小数位数设置

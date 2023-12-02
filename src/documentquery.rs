@@ -29,7 +29,9 @@ pub async fn fetch_all_documents(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, post_data.cate.clone()).await;
+    // let user = get_user(db.clone(), id, post_data.cate.clone()).await;
+    let user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+
 
     if user.name != "" {
         let doc_cate;
@@ -37,13 +39,16 @@ pub async fn fetch_all_documents(
 
         if post_data.cate == "采购查询" {
             doc_cate = "采购单据";
-            doc_pre = "C";
+            doc_pre = "采购";
         } else if post_data.cate == "销售查询" {
             doc_cate = "销售单据";
-            doc_pre = "X";
-        } else {
+            doc_pre = "销售";
+        } else if post_data.cate == "入库查询" {
             doc_cate = "入库单据";
-            doc_pre = "R";
+            doc_pre = "入库";
+        } else {
+            doc_cate = "出库单据";
+            doc_pre = "出库";
         }
 
         let f_map = map_fields(db.clone(), doc_cate).await;
@@ -85,15 +90,8 @@ pub async fn fetch_all_documents(
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE {} 单号 like '{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields,
-            post_data.sort,
-            limits,
-            doc_pre,
-            sql_where,
-            post_data.sort,
-            skip,
-            post_data.rec
+            WHERE {} documents.类别 like '%{}%' AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields, post_data.sort, limits, doc_pre, sql_where, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -107,14 +105,7 @@ pub async fn fetch_all_documents(
             let customer_name: String = row.get("名称");
             let row_str = format!(
                 "{}{}{}{}{}{}{}{}{}",
-                num,
-                SPLITER,
-                dh,
-                SPLITER,
-                cate,
-                SPLITER,
-                customer_name,
-                SPLITER,
+                num, SPLITER, dh, SPLITER, cate, SPLITER, customer_name, SPLITER,
                 simple_string_from_base(row, &fields),
             );
 
@@ -124,7 +115,7 @@ pub async fn fetch_all_documents(
         let count_sql = format!(
             r#"SELECT count(单号) as 记录数 FROM documents 
             JOIN customers ON documents.客商id=customers.id 
-            WHERE {} 单号 like '{}%' AND ({})"#,
+            WHERE {} documents.类别 like '%{}%' AND ({})"#,
             limits, doc_pre, sql_where
         );
 

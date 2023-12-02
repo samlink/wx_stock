@@ -22,9 +22,14 @@ else if (cate == "销售查询") {
     document_cate = "销售单据";
     address = `/sale/`;
 }
-else if (cate == "出入库查询") {
+else if (cate == "入库查询") {
     document_cate = "入库单据"
     address = `/material_in/`;
+}
+
+else if (cate == "出库查询") {
+    document_cate = "出库单据"
+    address = `/material_out/`;
 }
 
 let table_fields;
@@ -111,57 +116,6 @@ function search_table() {
     Object.assign(table_data.post_data, { name: search, page: 1 });
     fetch_table();
 }
-
-// //记账按键
-// document.querySelector('#remember-button').addEventListener('click', function () {
-//     let chosed = document.querySelector('tbody .focus');
-//     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-//     let checked = chosed ? chosed.querySelector('td:nth-child(5)').textContent : "";
-//     if (id != "") {
-//         let rem = {
-//             id: id,
-//             has: checked == "是" ? false : true,
-//             rights: "单据记账",
-//         }
-//
-//         if (checked == "是") {
-//             alert_confirm(`单据 ${id} 已记账，是否撤销记账？`, {
-//                 confirmCallBack: () => {
-//                     remember(rem);
-//                 }
-//             });
-//         }
-//         else {
-//             alert_confirm(`确认记账单据 ${id} 吗？`, {
-//                 confirmCallBack: () => {
-//                     remember(rem);
-//                 }
-//             });
-//         }
-//     }
-//     else {
-//         notifier.show('请先选择单据', 'danger');
-//     }
-// });
-//
-// function remember(rem) {
-//     fetch(`/update_rem`, {
-//         method: 'post',
-//         headers: {
-//             "Content-Type": "application/json",
-//         },
-//         body: JSON.stringify(rem),
-//     })
-//         .then(response => response.json())
-//         .then(content => {
-//             if (content != -1) {
-//                 search_table();
-//             }
-//             else {
-//                 notifier.show('权限不够，操作失败', 'danger');
-//             }
-//         });
-// }
 
 //编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {

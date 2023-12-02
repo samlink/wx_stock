@@ -6,7 +6,7 @@ import { customer_init, out_data } from '../parts/customer.mjs';
 import {
     build_blank_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-// import { input_table_init, input_table_outdata } from '../parts/input_table.mjs';
+// import { input_table_init, input_table_outdata } from '../parts/input_table_tmp.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");

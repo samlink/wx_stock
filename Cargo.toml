@@ -30,6 +30,7 @@ tokio-postgres = "0.5.5"
 deadpool-postgres = "0.5.6"
 config = "0.10.1"
 dotenv = "0.15.0"
+image = "0.24.7"
 
 rust-crypto = "0.2.36"
 rand = "0.7.3"

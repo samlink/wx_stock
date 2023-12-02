@@ -4,9 +4,9 @@ import * as service from '../parts/service.mjs'
 import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
 import {customer_init, out_data} from '../parts/customer.mjs';
 import {
-    build_blank_table, build_items_table, build_out_table, input_table_outdata
+    appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-// import { input_table_init, input_table_outdata } from '../parts/input_table.mjs';
+// import { input_table_init, input_table_outdata } from '../parts/input_table_tmp.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -283,6 +283,7 @@ fetch(`/fetch_inout_fields`, {
 
 
         if (dh_div.textContent == "新单据") {
+
             edit_data = {
                 show_names: show_names,
                 lines: table_lines,
@@ -291,8 +292,8 @@ fetch(`/fetch_inout_fields`, {
                 dh: dh_div.textContent,
             }
 
-            build_blank_table(edit_data)
-            build_out_table(edit_data);
+            build_blank_table(edit_data);
+            appand_edit_row();
         } else {
             let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
             fetch(url, {
@@ -318,7 +319,7 @@ fetch(`/fetch_inout_fields`, {
                     }
 
                     build_items_table(edit_data);
-                    build_out_table(edit_data);
+                    appand_edit_row();
                 });
         }
     })
@@ -350,7 +351,7 @@ function fill_gg() {
     let price_input = document.querySelector(`.inputting .price`);
     price_input.focus();
 
-    build_out_table(edit_data);
+    appand_edit_row();
     edited = true;
 }
 

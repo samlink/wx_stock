@@ -292,6 +292,9 @@ document.querySelector("#material-add").addEventListener('click', function () {
 
             let data = {
                 show_names: show_names,
+                show_names_fn: function (n) {
+                    this.show_names[9].value = `M${padZero(this.material_num + n, 6)}`;
+                },
                 num: n,
                 lines: table_lines,
                 dh: dh_div.textContent,
@@ -300,6 +303,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
             }
 
             build_content_table(data);
+            edited = 1;
         });
 
 })
@@ -322,7 +326,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let n = 0;
     for (let f of document_table_fields) {
         if (f.data_type == "文本") {
-            let value = f.show_name != "单据单号" ? all_values[n].value : all_values[n].value.split('　')[0];
+            let value = f.show_name.indexOf("单号") == -1 ? all_values[n].value : all_values[n].value.split('　')[0];
             save_str += `${value}${SPLITER}`;
         } else if (f.data_type == "整数" || f.data_type == "实数") {
             let value = all_values[n].value ? all_values[n].value : 0;
