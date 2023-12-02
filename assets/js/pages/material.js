@@ -174,6 +174,9 @@ function build_items(dh) {
             let lines = document.querySelectorAll(".table-history tbody tr");
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
+                    if (document.querySelector('#remember-button').textContent == '已审核') {
+                        return false;
+                    }
                     document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
                     let na = l.querySelector('td:nth-child(2)').textContent.split('　');
                     document.querySelector('#名称').value = na[0];
