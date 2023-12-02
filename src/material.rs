@@ -1,11 +1,11 @@
+use crate::buyin::DocumentDh;
 use crate::service::*;
-use std::fs as fs;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use crate::buyin::DocumentDh;
+use std::fs;
 
 //自动完成
 #[get("/material_auto")]
@@ -86,8 +86,22 @@ pub async fn material_auto_out(
                 || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| {} || '{}' || 0 AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
-            f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["炉号"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], search.s, search.ss, f_map["切完"]
+            f_map["物料号"],
+            SPLITER,
+            SPLITER,
+            SPLITER,
+            f_map["规格"],
+            SPLITER,
+            f_map["状态"],
+            SPLITER,
+            f_map["炉号"],
+            SPLITER,
+            f_map["库存长度"],
+            SPLITER,
+            f_map["物料号"],
+            search.s,
+            search.ss,
+            f_map["切完"]
         );
 
         // println!("{}", sql);
@@ -134,8 +148,19 @@ pub async fn fetch_document_ck(
             let cate: String = row.get("类别");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
-                rem, SPLITER, worker, SPLITER, cate, SPLITER, pic,
+                simple_string_from_base(row, &fields),
+                SPLITER,
+                id,
+                SPLITER,
+                name,
+                SPLITER,
+                rem,
+                SPLITER,
+                worker,
+                SPLITER,
+                cate,
+                SPLITER,
+                pic,
             );
         }
 
@@ -144,7 +169,6 @@ pub async fn fetch_document_ck(
         HttpResponse::Ok().json(-1)
     }
 }
-
 
 #[post("/get_items")]
 pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
@@ -174,7 +198,11 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
 }
 
 #[post("/get_items_out")]
-pub async fn get_items_out(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+pub async fn get_items_out(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
@@ -201,7 +229,11 @@ pub async fn get_items_out(db: web::Data<Pool>, data: web::Json<String>, id: Ide
 }
 
 #[post("/get_docs_out")]
-pub async fn get_docs_out(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+pub async fn get_docs_out(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
@@ -260,7 +292,7 @@ pub struct Document {
     pub items: Vec<String>,
 }
 
-///保存单据
+///保存入库单据
 #[post("/save_material")]
 pub async fn save_material(
     db: web::Data<Pool>,
@@ -281,10 +313,8 @@ pub async fn save_material(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields_cate = if data.rights.contains("入库") {
+        let fields_cate = if data.rights == "材料入库" {
             "入库单据"
-        } else if data.rights.contains("出库") {
-            "出库单据"
         } else {
             "库存调整"
         };
@@ -297,7 +327,6 @@ pub async fn save_material(
 
         if dh_data == "新单据" {
             dh = get_dh(db.clone(), doc_data[0]).await;
-            // println!("已进入程序，单号：{}", dh);
 
             let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
             for f in &fields {
@@ -328,37 +357,48 @@ pub async fn save_material(
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
-        let sql = if fields_cate == "入库单据" {
-            format!("DELETE FROM products WHERE 单号id='{}'", dh)
-        } else {
-            format!("DELETE FROM pout_items WHERE 单号id='{}'", dh)
-        };
-
         if dh_data != "新单据" {
-            transaction.execute(sql.as_str(), &[]).await.unwrap();
+            transaction
+                .execute("DELETE FROM products WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
         }
 
         let f_map = map_fields(db, "商品规格").await;
 
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
-            let mut items_sql = "".to_owned();
-            if fields_cate == "入库单据" {
-                items_sql = format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+
+            let items_sql = format!(
+                r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
                      VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}', {})"#,
-                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
-                    f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], f_map["来源"], f_map["顺序"],
-                    dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
-                    value[9], value[10], doc_data[2], value[0]
-                );
-            } else if fields_cate == "出库单据" {
-                items_sql = format!(
-                    r#"INSERT INTO pout_items (单号id, 物料号, 长度, 数量, 重量, 备注, 顺序)
-                     VALUES('{}', '{}', {}, {}, {}, '{}', {})"#,
-                    dh, value[7], value[4], value[5], value[8], value[9], value[0]
-                );
-            }
+                f_map["规格"],
+                f_map["状态"],
+                f_map["炉号"],
+                f_map["执行标准"],
+                f_map["生产厂家"],
+                f_map["库位"],
+                f_map["物料号"],
+                f_map["入库长度"],
+                f_map["理论重量"],
+                f_map["备注"],
+                f_map["来源"],
+                f_map["顺序"],
+                dh,
+                value[11],
+                value[1],
+                value[2],
+                value[3],
+                value[4],
+                value[5],
+                value[6],
+                value[7],
+                value[8],
+                value[9],
+                value[10],
+                doc_data[2],
+                value[0]
+            );
 
             // println!("{}", items_sql);
 
@@ -366,6 +406,102 @@ pub async fn save_material(
         }
 
         let _result = transaction.commit().await;
+
+        HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///保存出库单据
+#[post("/save_material_ck")]
+pub async fn save_material_ck(
+    db: web::Data<Pool>,
+    data: web::Json<Document>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    if user.name != "" {
+        let rem: Vec<&str> = data.remember.split(SPLITER).collect();
+        if rem[0] == "已审核" {
+            let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
+            if user.name == "" {
+                return HttpResponse::Ok().json(-1);
+            }
+        }
+
+        let mut conn = db.get().await.unwrap();
+        let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
+        let mut doc_sql;
+
+        let fields_cate = if data.rights == "材料出库" {
+            "出库单据"
+        } else {
+            "库存调整"
+        };
+
+        let f_map = map_fields(db.clone(), fields_cate).await;
+
+        let fields = get_inout_fields(db.clone(), fields_cate).await;
+        let dh_data = doc_data[1].to_owned();
+        let mut dh = doc_data[1].to_owned();
+
+        if dh_data == "新单据" {
+            dh = get_dh(db.clone(), doc_data[0]).await;
+
+            let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
+            for f in &fields {
+                init += &format!("{},", &*f.field_name);
+            }
+
+            init += &format!(
+                "类别,{},{}) VALUES('{}', {},",
+                f_map["经办人"],
+                f_map["区域"],
+                dh,
+                12 // 12 是本公司的 id
+            );
+
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 2);
+            doc_sql += &format!("'{}','{}', '{}')", doc_data[0], user.name, user.area);
+        } else {
+            let init = "UPDATE documents SET ".to_owned();
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 2);
+            doc_sql += &format!(
+                "类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
+                doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
+            );
+        }
+
+        // println!("{}", doc_sql);
+
+        let transaction = conn.transaction().await.unwrap();
+        transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
+
+        // 单据明细
+        if dh_data != "新单据" {
+            transaction
+                .execute("DELETE FROM pout_items WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
+        }
+
+        for item in &data.items {
+            let value: Vec<&str> = item.split(SPLITER).collect();
+            let items_sql = format!(
+                r#"INSERT INTO pout_items (单号id, 物料号, 长度, 数量, 重量, 备注, 顺序)
+                     VALUES('{}', '{}', {}, {}, {}, '{}', {})"#,
+                dh, value[7], value[4], value[5], value[8], value[9], value[0]
+            );
+
+            // println!("{}", items_sql);
+
+            transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+        }
+
+        let _result = transaction.commit().await;
+
+        // 更新物料库
 
         HttpResponse::Ok().json(dh)
     } else {
@@ -390,8 +526,18 @@ pub async fn fetch_document_items_rk(
                 {} as 理论重量, {} as 备注, 商品id FROM products
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY {}"#,
-            f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
-            f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
+            f_map["规格"],
+            f_map["状态"],
+            f_map["炉号"],
+            f_map["执行标准"],
+            f_map["生产厂家"],
+            f_map["库位"],
+            f_map["物料号"],
+            f_map["入库长度"],
+            f_map["理论重量"],
+            f_map["备注"],
+            data.dh,
+            f_map["顺序"]
         );
 
         // println!("{}", sql);
@@ -415,9 +561,31 @@ pub async fn fetch_document_items_rk(
             // let from: String = row.get("来源");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER,
-                lu, SPLITER, stand, SPLITER, factory, SPLITER, kw, SPLITER, num, SPLITER,
-                long, SPLITER, theary, SPLITER, note, SPLITER, m_id
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                lu,
+                SPLITER,
+                stand,
+                SPLITER,
+                factory,
+                SPLITER,
+                kw,
+                SPLITER,
+                num,
+                SPLITER,
+                long,
+                SPLITER,
+                theary,
+                SPLITER,
+                note,
+                SPLITER,
+                m_id
             );
 
             document_items.push(item)
@@ -442,11 +610,13 @@ pub async fn fetch_document_items_ck(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                {} as 规格, {} as 状态, {} as 炉号, 长度, 数量, (长度*数量)::integer as 总长度, 物料号, 重量, pout_items.备注, 商品id FROM pout_items
+                {} as 规格, {} as 状态, {} as 炉号, 长度, 数量, (长度*数量)::integer as 总长度, 
+                物料号, 重量, 理重, pout_items.备注, 商品id 
+            FROM pout_items
             JOIN products ON 文本字段1=物料号
             JOIN tree ON 商品id=tree.num
-            WHERE pout_items.单号id='{}' ORDER BY {}"#,
-            f_map["规格"], f_map["状态"], f_map["炉号"], data.dh, f_map["顺序"]
+            WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
+            f_map["规格"], f_map["状态"], f_map["炉号"], data.dh
         );
 
         // println!("{}", sql);
@@ -464,13 +634,36 @@ pub async fn fetch_document_items_ck(
             let allong: i32 = row.get("总长度");
             let num: String = row.get("物料号");
             let weight: f32 = row.get("重量");
+            let theory: f32 = row.get("理重");
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
-                long, SPLITER, mount, SPLITER, allong, SPLITER, num, SPLITER,
-                weight, SPLITER, note, SPLITER, m_id
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                lu,
+                SPLITER,
+                long,
+                SPLITER,
+                mount,
+                SPLITER,
+                allong,
+                SPLITER,
+                num,
+                SPLITER,
+                weight,
+                SPLITER,
+                theory,
+                SPLITER,
+                note,
+                SPLITER,
+                m_id
             );
 
             document_items.push(item)
@@ -484,16 +677,15 @@ pub async fn fetch_document_items_ck(
 
 //质检
 #[post("/check_in")]
-pub async fn check_in(
-    db: web::Data<Pool>,
-    data: web::Json<String>,
-    id: Identity,
-) -> HttpResponse {
+pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "入库单据").await;
-        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["质检"], user_name, data);
+        let sql = format!(
+            r#"update documents set {}='{}' WHERE 单号='{}'"#,
+            f_map["质检"], user_name, data
+        );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         HttpResponse::Ok().json(1)
     } else {
@@ -512,7 +704,10 @@ pub async fn make_formal_in(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "入库单据").await;
-        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["审核"], user_name, data);
+        let sql = format!(
+            r#"update documents set {}='{}' WHERE 单号='{}'"#,
+            f_map["审核"], user_name, data
+        );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
@@ -532,7 +727,10 @@ pub async fn make_formal_out(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "出库单据").await;
-        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["审核"], user_name, data);
+        let sql = format!(
+            r#"update documents set {}='{}' WHERE 单号='{}'"#,
+            f_map["审核"], user_name, data
+        );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
@@ -615,7 +813,10 @@ pub async fn fetch_check(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "入库单据").await;
-        let sql = format!(r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#, f_map["审核"], f_map["质检"], data);
+        let sql = format!(
+            r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#,
+            f_map["审核"], f_map["质检"], data
+        );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut check = "".to_owned();
@@ -646,7 +847,11 @@ pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
 }
 
 #[post("/pic_in_save")]
-pub async fn pic_in_save(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+pub async fn pic_in_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "材料出库".to_owned()).await;
     if user.name != "" {
         let da: Vec<&str> = data.split(SPLITER).collect();
@@ -657,11 +862,15 @@ pub async fn pic_in_save(db: web::Data<Pool>, data: web::Json<String>, id: Ident
             fs::rename(
                 "./upload/pics/min.jpg",
                 format!("./upload/pics/min_{}.jpg", da[0]),
-            ).unwrap();
+            )
+            .unwrap();
 
             let conn = db.get().await.unwrap();
             let f_map = map_fields(db.clone(), "出库单据").await;
-            let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["图片"], pic, da[0]);
+            let sql = format!(
+                r#"update documents set {}='{}' WHERE 单号='{}'"#,
+                f_map["图片"], pic, da[0]
+            );
             let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
             HttpResponse::Ok().json(min_pic)
         } else {

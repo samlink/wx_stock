@@ -1,11 +1,11 @@
-import {table_data, fetch_table} from './table.mjs';
-import {fetch_tree, tree_init, tree_search} from './tree.mjs';
-import {notifier} from './notifier.mjs';
-import {alert_confirm} from './alert.mjs';
-import {auto_table, AutoInput} from './autocomplete.mjs';
+import { table_data, fetch_table } from './table.mjs';
+import { fetch_tree, tree_init, tree_search } from './tree.mjs';
+import { notifier } from './notifier.mjs';
+import { alert_confirm } from './alert.mjs';
+import { auto_table, AutoInput } from './autocomplete.mjs';
 import * as service from './service.mjs'
-import {SPLITER, regReal, open_node, regInt, padZero} from './tools.mjs';
-import {close_modal} from './modal.mjs';
+import { SPLITER, regReal, open_node, regInt, padZero } from './tools.mjs';
+import { close_modal } from './modal.mjs';
 
 let all_width;
 
@@ -17,7 +17,6 @@ var input_data = {
 }
 
 export var input_table_outdata = {};
-
 
 //插入行
 document.querySelector('#row-insert').addEventListener('click', function (e) {
@@ -140,7 +139,6 @@ export function build_content_table(data) {
 
     append_blanks(tbody, num);
 }
-
 
 export function appand_edit_row() {
     let tbody = input_data.container.querySelector('tbody');
@@ -322,7 +320,7 @@ function build_input_row(show_names, all_width, num) {
 
     input_row.querySelector(`td:nth-child(1)`).textContent = num;
 
-//商品规格查找按钮
+    //商品规格查找按钮
     if (input_row.querySelector('.product-search-button')) {
         input_row.querySelector('.product-search-button').addEventListener('click', function () {
             if (!this.parentNode.parentNode.parentNode.classList.contains('inputting')) {
@@ -453,135 +451,11 @@ function build_input_row(show_names, all_width, num) {
         });
     }
 
-    //添加价格和数量变化事件
-    if (input_row.querySelector('.price')) {
-        input_row.querySelector('.price').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
-        });
-
-        input_row.querySelector('.mount').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
-        });
+    if (typeof(input_data.calc_func) == "function") {
+        input_data.calc_func(input_row);
     }
-
-    if (input_row.querySelector('.long')) {
-        input_row.querySelector('.long').addEventListener('blur', function () {
-            calc_weight();
-            calc_money(input_row);
-            sum_money();
-        });
-
-        input_row.querySelector('.num').addEventListener('blur', function () {
-            calc_weight();
-            calc_money(input_row);
-            sum_money();
-        });
-    }
-
-    if (input_row.querySelector('.长度')) {
-        input_row.querySelector('.长度').addEventListener('blur', function () {
-            weight();
-            sum_weight();
-        });
-    }
-
-    if (input_row.querySelector('.数量')) {
-        input_row.querySelector('.数量').addEventListener('blur', function () {
-                let mount = input_row.querySelector('.数量').value;
-                if (regInt.test(mount)) {
-                    input_row.querySelector('.总长度').textContent = mount * input_row.querySelector('.长度').textContent;
-                } else {
-                    input_row.querySelector('.总长度').textContent = 0;
-                }
-            }
-        )
-    }
+    
     return input_row;
-}
-
-//计算行金额
-function calc_money(input_row) {
-    let price = input_row.querySelector('.price').value;
-    let mount = input_row.querySelector('.mount').value;
-    if (!mount) {
-        mount = input_row.querySelector('.mount').textContent;
-    }
-    let money = "";
-    if (price && regReal.test(price) && mount && regReal.test(mount)) {
-        money = (price * mount).toFixed(Number(num_position[1]));
-    }
-
-    input_row.querySelector('.money').textContent = money;
-}
-
-//计算合计金额
-function sum_money() {
-    let all_input = document.querySelectorAll('.has-input');
-    let sum = 0;
-    for (let i = 0; i < all_input.length; i++) {
-        let price = all_input[i].querySelector('.price').value;
-        let mount = all_input[i].querySelector('.mount').value;
-        if (!mount) {
-            mount = all_input[i].querySelector('.mount').textContent;
-        }
-        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
-            price && regReal.test(price) && mount && regReal.test(mount)) {
-            sum += price * mount;
-        }
-    }
-
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
-    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
-}
-
-// 出入库时使用的理论重量计算
-function weight() {
-    let input_row = document.querySelector('.inputting');
-    let data = {
-        long: input_row.querySelector('.长度').value.trim(),
-        num: 1,
-        name: input_row.querySelector('.名称').textContent.trim(),
-        cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').textContent.trim(),
-    }
-
-    if (regInt.test(data.long) && regInt.test(data.num)) {
-        input_row.querySelector('.重量').textContent = service.calc_weight(data);
-    } else {
-        input_row.querySelector('.重量').textContent = 0;
-    }
-}
-
-// 销售时使用的理论重量计算
-function calc_weight() {
-    let input_row = document.querySelector('.inputting');
-    let data = {
-        long: input_row.querySelector('.long').value,
-        num: input_row.querySelector('.num').value,
-        name: input_row.querySelector('.auto-input').value,
-        cz: input_row.querySelector('.材质').textContent,
-        gg: input_row.querySelector('.规格').value,
-    }
-
-    if (regInt.test(data.long) && regInt.test(data.num)) {
-        input_row.querySelector('.mount').value = service.calc_weight(data);
-    } else {
-        input_row.querySelector('.mount').value = 0;
-    }
-}
-
-//计算合计理论重量
-function sum_weight() {
-    let all_input = document.querySelectorAll('.has-input');
-    let sum = 0;
-    for (let i = 0; i < all_input.length; i++) {
-        sum += Number(all_input[i].querySelector('.重量').textContent);
-    }
-    if (document.querySelector('#实数字段3')) {
-        document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
-    }
 }
 
 //计算记录数

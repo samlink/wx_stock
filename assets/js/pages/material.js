@@ -1,18 +1,13 @@
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
 import {
     build_blank_table,
     build_content_table, build_items_table,
     input_table_outdata
 } from '../parts/edit_table.mjs';
-// import {
-//     build_blank_table,
-//     build_content_table, build_items_table,
-//     input_table_outdata
-// } from '../parts/input_material_tmp.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -200,18 +195,18 @@ function build_items(dh) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "备注",
         width: 100,
@@ -243,6 +238,7 @@ if (dh_div.textContent == "新单据") {
         lines: table_lines,
         dh: dh_div.textContent,
         document: document_name,
+        calc_func: get_weight,                
     }
 
     build_blank_table(data);
@@ -266,10 +262,47 @@ if (dh_div.textContent == "新单据") {
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
+                calc_func: get_weight,                
             }
 
             build_items_table(data);
         });
+}
+
+function get_weight(input_row) {
+    input_row.querySelector('.长度').addEventListener('blur', function () {
+        weight(input_row);
+        sum_weight();
+    });
+}
+
+// 理论重量计算
+function weight(input_row) {
+    let data = {
+        long: input_row.querySelector('.长度').value.trim(),
+        num: 1,
+        name: input_row.querySelector('.名称').textContent.trim(),
+        cz: input_row.querySelector('.材质').textContent.trim(),
+        gg: input_row.querySelector('.规格').textContent.trim(),
+    }
+
+    if (regInt.test(data.long) && regInt.test(data.num)) {
+        input_row.querySelector('.重量').textContent = service.calc_weight(data);
+    } else {
+        input_row.querySelector('.重量').textContent = 0;
+    }
+}
+
+//计算合计理论重量
+function sum_weight() {
+    let all_input = document.querySelectorAll('.has-input');
+    let sum = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        sum += Number(all_input[i].querySelector('.重量').textContent);
+    }
+    if (document.querySelector('#实数字段3')) {
+        document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
+    }
 }
 
 // 将材料数据填入表格
@@ -317,7 +350,9 @@ document.querySelector("#material-add").addEventListener('click', function () {
             edited = 1;
         });
 
-})
+});
+
+
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 
