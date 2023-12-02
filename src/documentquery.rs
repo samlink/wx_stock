@@ -6,8 +6,8 @@ use serde::{Deserialize, Serialize};
 // use time::now;
 
 ///获取单据显示字段
-#[post("/fetch_used_fields")]
-pub async fn fetch_used_fields(
+#[post("/fetch_show_fields")]
+pub async fn fetch_show_fields(
     db: web::Data<Pool>,
     name: web::Json<String>,
     id: Identity,
@@ -15,7 +15,7 @@ pub async fn fetch_used_fields(
     let user_name = id.identity().unwrap_or("".to_owned());
 
     if user_name != "" {
-        let fields = get_used_fields(db.clone(), &name).await;
+        let fields = get_fields(db.clone(), &name).await;
         HttpResponse::Ok().json(fields)
     } else {
         HttpResponse::Ok().json(-1)
@@ -65,7 +65,7 @@ pub async fn fetch_all_documents(
         let skip = (post_data.page - 1) * post_data.rec;
         // let name = post_data.name.to_lowercase();
 
-        let fields = get_used_fields(db.clone(), doc_cate).await;
+        let fields = get_fields(db.clone(), doc_cate).await;
 
         let mut sql_fields = "SELECT 单号,documents.类别,".to_owned();
         let mut sql_where = "".to_owned();

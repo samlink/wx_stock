@@ -6,9 +6,7 @@ import {SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType} from '
 import {
     build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-// import {
-//     build_blank_table, build_items_table, build_out_table, input_table_outdata
-// } from '../parts/input_material_out_tmp.mjs';
+import {close_modal} from "../parts/modal.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -37,7 +35,7 @@ fetch(`/fetch_inout_fields`, {
         if (content != -1) {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
-                fetch(`/fetch_document`, {
+                fetch(`/fetch_document_ck`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -54,6 +52,12 @@ fetch(`/fetch_inout_fields`, {
 
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
+
+                        let da = data.split(SPLITER);
+                        let pic = da[da.length - 1].replace("pic_", "min_");
+                        if (pic.startsWith("/upload")) {
+                            document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
+                        }
 
                         fetch('/fetch_check', {
                             method: 'post',
@@ -87,7 +91,7 @@ fetch(`/fetch_inout_fields`, {
 
 function set_readonly() {
     document.querySelector('#文本字段6').readOnly = true;
-    // document.querySelector('#material-add').setAttribute("disabled", true);
+    document.querySelector('#pic-button').setAttribute("disabled", true);
     document.querySelector('#save-button').setAttribute("disabled", true);
 }
 
@@ -303,6 +307,79 @@ if (dh_div.textContent == "新单据") {
         });
 }
 
+// 图片处理 -----------------------------------------------------------------
+
+let fileBtn = document.getElementById('pic_upload');
+// 点击传图
+document.querySelector('#pic-button').addEventListener('click', function (e) {
+    let dh = dh_div.textContent;
+    let that = this;
+    if (dh == "新单据") {
+        notifier.show('请先保存单据', 'danger');
+        return false;
+    }
+    e.preventDefault();
+    fileBtn.click();
+});
+
+//图片上传
+fileBtn.addEventListener('change', () => {
+    document.querySelector('#pic-button').disabled = "true";
+    const fd = new FormData();
+    fd.append('file', fileBtn.files[0]);
+    fetch(`/pic_in`, {
+        method: 'POST',
+        body: fd,
+    })
+        .then(res => res.json())
+        .then(content => {
+            fetch(`/pic_in_save`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(`${dh_div.textContent}${SPLITER}${content.substr(1, content.length - 1)}`),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content == -1) {
+                        notifier.show('权限不够', 'danger');
+                    } else if (content == -2) {
+                        notifier.show('图片保存出错', 'danger');
+                    } else {
+                        document.querySelector('#upload-pic').setAttribute('src', `${content}?${Math.random()}`);
+                        document.querySelector('#pic-button').disabled = "";
+                        notifier.show('图片成功保存', 'success');
+                    }
+                });
+        });
+});
+
+// 放大图片
+document.querySelector('#upload-pic').addEventListener('click', () => {
+    let pic =  document.querySelector('#upload-pic').getAttribute('src');
+    let show = pic.split("?")[0].replace("min_", "pic_");
+    let pic_html = `<div class="form-input show-pic">
+                            <img width="1200px" src="${show}" alt="出库签字图">
+                        </div>`;
+
+    document.querySelector('.modal-body').innerHTML = pic_html;
+    document.querySelector('.modal-title').textContent = "出库签字图";
+    document.querySelector('.modal-dialog').style.cssText = "max-width: 1230px;"
+    document.querySelector('.modal').style.display = "block";
+    document.querySelector('#modal-sumit-button').style.display = "none";
+})
+
+//关闭按键
+document.querySelector('#modal-close-button').addEventListener('click', function () {
+    document.querySelector('#modal-sumit-button').style.display = "inline-block";
+    close_modal();
+});
+document.querySelector('.top-close').addEventListener('click', function () {
+    document.querySelector('#modal-sumit-button').style.display = "inline-block";
+    close_modal();
+});
+
 //保存、打印、质检、审核 -------------------------------------------------------------------
 
 //保存
@@ -358,11 +435,11 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
-        remember: `${document.querySelector('#remember-button').textContent}${SPLITER}${document.querySelector('#check-button').textContent}`,
+        remember: document.querySelector('#remember-button').textContent,
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_material`, {
         method: 'post',
@@ -509,38 +586,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
-document.querySelector('#pic-button').addEventListener('click', function (e) {
-    let dh = dh_div.textContent;
-    let that = this;
-    if (dh == "新单据") {
-        notifier.show('请先保存单据', 'danger');
-        return false;
-    }
-
-    e.preventDefault();
-    fileBtn.click();
-
-
-    // fetch(`/check_in`, {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(dh),
-    // })
-    //     .then(response => response.json())
-    //     .then(content => {
-    //         if (content != -1) {
-    //             that.textContent = '已质检';
-    //             that.classList.add('remembered');
-    //             notifier.show('质检完成', 'success');
-    //         } else {
-    //             notifier.show('权限不够', 'danger');
-    //
-    //         }
-    //     });
-});
-
 //审核
 document.querySelector('#remember-button').addEventListener('click', function () {
     if (this.textContent == "已审核") {
@@ -557,7 +602,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         confirmText: "确认",
         cancelText: "取消",
         confirmCallBack: () => {
-            fetch(`/make_formal_in`, {
+            fetch(`/make_formal_out`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -569,6 +614,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                     if (content != -1) {
                         that.textContent = '已审核';
                         that.classList.add('remembered');
+                        set_readonly();
                         notifier.show('审核完成', 'success');
                     } else {
                         notifier.show('权限不够', 'danger');
@@ -580,29 +626,6 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 });
 
 //共用事件和函数 ---------------------------------------------------------------------
-
-//图片上传
-let fileBtn = document.getElementById('pic_upload');
-fileBtn.addEventListener('change', () => {
-    // if (checkFileType(fileBtn)) {
-        document.querySelector('#pic-button').disabled = "true";
-        const fd = new FormData();
-        fd.append('file', fileBtn.files[0]);
-        fetch(`/pic_in`, {
-            method: 'POST',
-            body: fd,
-        })
-            .then(res => res.json())
-            .then(content => {
-                console.log(content);
-                // document.querySelector('#upload-pic').setAttribute('src', `${content.substr(1, content.length - 1)}?${Math.random()}`);
-                document.querySelector('#pic-button').disabled = "";
-            });
-    // }
-    // else {
-    //     notifier.show('图片上传失败', 'danger');
-    // }
-});
 
 //获取打印模板
 function fetch_print_models(value) {

@@ -50,7 +50,7 @@ let init_data = {
     blank_row_fn: blank_row,
 };
 
-fetch(`/fetch_used_fields`, {
+fetch(`/fetch_show_fields`, {
     method: 'post',
     headers: {
         "Content-Type": "application/json",

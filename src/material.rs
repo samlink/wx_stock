@@ -1,4 +1,5 @@
 use crate::service::*;
+use std::fs as fs;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
@@ -96,6 +97,52 @@ pub async fn material_auto_out(
         HttpResponse::Ok().json(-1)
     }
 }
+
+///获取单据字段
+#[post("/fetch_document_ck")]
+pub async fn fetch_document_ck(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let fields = get_inout_fields(db.clone(), &data.cate).await;
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let mut sql_fields = "SELECT ".to_owned();
+
+        for f in &fields {
+            sql_fields += &format!("documents.{},", f.field_name);
+        }
+
+        let sql = format!(
+            r#"{} 客商id, 名称, 已记账, documents.{} as 图片 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, f_map["图片"], data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document = "".to_owned();
+        for row in rows {
+            let id: i32 = row.get("客商id");
+            let name: String = row.get("名称");
+            let rem: bool = row.get("已记账");
+            let pic: String = row.get("图片");
+            document += &format!(
+                "{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
+                rem, SPLITER, pic,
+            );
+        }
+
+        HttpResponse::Ok().json(document)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 
 #[post("/get_items")]
 pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
@@ -472,6 +519,26 @@ pub async fn make_formal_in(
     }
 }
 
+#[post("/make_formal_out")]
+pub async fn make_formal_out(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["审核"], user_name, data);
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取单据字段
 #[post("/fetch_document_rk")]
 pub async fn fetch_document_rk(
@@ -571,6 +638,33 @@ pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
         save_pic(payload, path.clone()).await.unwrap();
         let path3 = smaller(path.clone(), path2);
         HttpResponse::Ok().json(path3)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/pic_in_save")]
+pub async fn pic_in_save(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "材料出库".to_owned()).await;
+    if user.name != "" {
+        let da: Vec<&str> = data.split(SPLITER).collect();
+        if da[1] == "/upload/pics/min.jpg" {
+            let pic = format!("/upload/pics/pic_{}.jpg", da[0]);
+            let min_pic = format!("/upload/pics/min_{}.jpg", da[0]);
+            fs::rename("./upload/pics/coin.jpg", format!(".{}", pic)).unwrap();
+            fs::rename(
+                "./upload/pics/min.jpg",
+                format!("./upload/pics/min_{}.jpg", da[0]),
+            ).unwrap();
+
+            let conn = db.get().await.unwrap();
+            let f_map = map_fields(db.clone(), "出库单据").await;
+            let sql = format!(r#"update documents set {}='{}' WHERE 单号='{}'"#, f_map["图片"], pic, da[0]);
+            let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            HttpResponse::Ok().json(min_pic)
+        } else {
+            HttpResponse::Ok().json(-2)
+        }
     } else {
         HttpResponse::Ok().json(-1)
     }
