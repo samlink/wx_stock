@@ -63,10 +63,9 @@ fetch(`/fetch_inout_fields`, {
                         }
 
                         let customer = document.querySelector('#supplier-input');
-                        customer.value = values[len - 3];
-                        customer.setAttribute('data', values[len - 4]);
-
-
+                        customer.value = values[len - 4];
+                        customer.setAttribute('data', values[len - 5]);
+                        document.querySelector('#owner').textContent = `[ ${values[len-2]} ]`;
                     });
             } else {
                 let html = service.build_inout_form(content);

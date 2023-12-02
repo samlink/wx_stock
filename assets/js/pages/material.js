@@ -57,6 +57,10 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
+
+                        let values = data.split(SPLITER);
+                        document.querySelector('#owner').textContent = `[ ${values[values.length - 2]} ]`;
+
                         fetch('/fetch_check', {
                             method: 'post',
                             headers: {
@@ -98,6 +102,10 @@ fetch(`/fetch_inout_fields`, {
 
 
 function set_readonly() {
+    let all_edit = document.querySelectorAll('.document-value');
+    for (let edit of all_edit) {
+        edit.readOnly = true;
+    }
     document.querySelector('#文本字段6').readOnly = true;
     document.querySelector('#material-add').setAttribute("disabled", true);
     document.querySelector('#save-button').setAttribute("disabled", true);

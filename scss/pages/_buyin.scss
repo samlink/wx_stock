@@ -37,6 +37,12 @@
         }
     }
 
+    #owner {
+        font-size: smaller;
+        font-weight: normal;
+        margin-left: 10px;
+    }
+
     #customer-div {
         .autocomplete {
             position: absolute;

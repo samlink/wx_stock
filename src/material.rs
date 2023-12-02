@@ -117,7 +117,7 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, 已记账, documents.{} as 图片 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            r#"{} 客商id, 名称, 已记账, 经办人, documents.类别, documents.{} as 图片 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["图片"], data.dh
         );
 
@@ -130,10 +130,12 @@ pub async fn fetch_document_ck(
             let name: String = row.get("名称");
             let rem: bool = row.get("已记账");
             let pic: String = row.get("图片");
+            let worker: String = row.get("经办人");
+            let cate: String = row.get("类别");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
-                rem, SPLITER, pic,
+                rem, SPLITER, worker, SPLITER, cate, SPLITER, pic,
             );
         }
 

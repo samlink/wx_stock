@@ -59,6 +59,8 @@ fetch(`/fetch_inout_fields`, {
                             document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
                         }
 
+                        document.querySelector('#owner').textContent = `[ ${da[da.length - 3]} ]`;
+
                         fetch('/fetch_check', {
                             method: 'post',
                             headers: {
@@ -90,6 +92,10 @@ fetch(`/fetch_inout_fields`, {
 
 
 function set_readonly() {
+    let all_edit = document.querySelectorAll('.document-value');
+    for (let edit of all_edit) {
+        edit.readOnly = true;
+    }
     document.querySelector('#文本字段6').readOnly = true;
     document.querySelector('#pic-button').setAttribute("disabled", true);
     document.querySelector('#save-button').setAttribute("disabled", true);
@@ -150,7 +156,9 @@ let show_th = [
 let auto_data = {
     n: 10,
     cate: "",
-    url: `/material_auto_out`,
+    url:
+        ` / material_auto_out`
+    ,
     cb: fill_gg,
     cf: () => {
         return document.querySelector('.table-items .inputting td:nth-child(13)').textContent;
@@ -184,8 +192,11 @@ function build_items(dh) {
         .then(content => {
             let tr = "";
             content.forEach(obj => {
-                let material = obj.split(`${SPLITER}`);
-                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
+                let material = obj.split(
+                    `${SPLITER}`
+                );
+                tr +=
+                    ` <tr> <td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
             });
             document.querySelector(".table-history tbody").innerHTML = tr;
 
@@ -220,9 +231,9 @@ function build_items(dh) {
 }
 
 function fill_gg() {
-    let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
-    let lh_input = document.querySelector(`.inputting .炉号`).textContent = field_values[6];
-    document.querySelector(`.inputting .重量`).focus();
+    let field_values = document.querySelector(`.inputting.auto-input`).getAttribute("data").split(SPLITER);
+    let lh_input = document.querySelector(`.inputting.炉号`).textContent = field_values[6];
+    document.querySelector(`.inputting.重量`).focus();
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -327,13 +338,13 @@ fileBtn.addEventListener('change', () => {
     document.querySelector('#pic-button').disabled = "true";
     const fd = new FormData();
     fd.append('file', fileBtn.files[0]);
-    fetch(`/pic_in`, {
+    fetch(` / pic_in`, {
         method: 'POST',
         body: fd,
     })
         .then(res => res.json())
         .then(content => {
-            fetch(`/pic_in_save`, {
+            fetch(` / pic_in_save`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -347,7 +358,7 @@ fileBtn.addEventListener('change', () => {
                     } else if (content == -2) {
                         notifier.show('图片保存出错', 'danger');
                     } else {
-                        document.querySelector('#upload-pic').setAttribute('src', `${content}?${Math.random()}`);
+                        document.querySelector('#upload-pic').setAttribute('src', `${content} ?${Math.random()}`);
                         document.querySelector('#pic-button').disabled = "";
                         notifier.show('图片成功保存', 'success');
                     }
@@ -357,11 +368,11 @@ fileBtn.addEventListener('change', () => {
 
 // 放大图片
 document.querySelector('#upload-pic').addEventListener('click', () => {
-    let pic =  document.querySelector('#upload-pic').getAttribute('src');
+    let pic = document.querySelector('#upload-pic').getAttribute('src');
     let show = pic.split("?")[0].replace("min_", "pic_");
-    let pic_html = `<div class="form-input show-pic">
-                            <img width="1200px" src="${show}" alt="出库签字图">
-                        </div>`;
+    let pic_html = `<div class = "form-input show-pic">
+                                <img width = "1200px" src = "${show}" alt = "出库签字图">
+                            </div>`;
 
     document.querySelector('.modal-body').innerHTML = pic_html;
     document.querySelector('.modal-title').textContent = "出库签字图";
@@ -618,7 +629,6 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                         notifier.show('审核完成', 'success');
                     } else {
                         notifier.show('权限不够', 'danger');
-
                     }
                 });
         }

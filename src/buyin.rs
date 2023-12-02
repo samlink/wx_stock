@@ -386,7 +386,7 @@ pub async fn fetch_document(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, 已记账 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            r#"{} 客商id, 名称, 已记账, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, data.dh
         );
 
@@ -411,10 +411,11 @@ pub async fn fetch_document(
             let id: i32 = row.get("客商id");
             let name: String = row.get("名称");
             let rem: bool = row.get("已记账");
+            let worker: &str = row.get("经办人");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
-                rem, SPLITER, cate,
+                rem, SPLITER, worker, SPLITER, cate,
             );
         }
 
