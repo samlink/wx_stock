@@ -97,7 +97,7 @@ pub async fn fetch_all_documents(
             sql_fields, post_data.sort, limits, doc_pre, sql_where, post_data.sort, skip, post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut doc_rows: Vec<String> = Vec::new();

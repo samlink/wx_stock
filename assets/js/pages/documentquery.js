@@ -4,10 +4,6 @@ import {alert_confirm} from '../parts/alert.mjs';
 import {getHeight, SPLITER} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
-// //设置菜单 
-// document.querySelector('#goods-in .nav-icon').classList.add('show-chosed');
-// document.querySelector('#goods-in .menu-text').classList.add('show-chosed');
-
 let cate = document.querySelector('#category').textContent;
 
 let get_height = getHeight() - 138;
@@ -69,6 +65,15 @@ fetch(`/fetch_show_fields`, {
                 // { name: '经办人', field: '制单人', width: 4 },
             ];
 
+            // 对于出入库的表格, 不需要供应商列, 要去除
+            if (cate.indexOf("销售") == -1 && cate.indexOf("采购") == -1) {
+                custom_fields = [
+                    {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
+                    {name: '单号', field: '单号', width: 7},
+                    {name: '类别', field: 'documents.类别', width: 4},
+                ];
+            }
+
             let table = document.querySelector('.table-documents');
             let data = service.build_table_header(table, custom_fields, table_fields, "", "documents");
             table.querySelector('thead tr').innerHTML = data.th_row;
@@ -97,6 +102,13 @@ function table_row(tr) {
         <td title='${rec[1]}'>${rec[1]}</td>
         <td style="text-align: center;">${rec[2]}</td>
         <td style="text-align: center;">${rec[3]}</td>`;
+
+    //第三列的供应商对于出入库表不需要
+    if (cate.indexOf("销售") == -1 && cate.indexOf("采购") == -1) {
+        row = `<tr class='${border_left} ${bk_color}'><td style="text-align: center;">${rec[0]}</td>
+        <td title='${rec[1]}'>${rec[1]}</td>
+        <td style="text-align: center;">${rec[2]}</td>`;
+    }
 
     return service.build_row_from_string(rec, row, table_fields, 4);
 }
