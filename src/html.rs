@@ -243,7 +243,7 @@ pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ide
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["材料入库", "客户", "采购条目", dh, "no_customer"];
+        let setup = vec!["采购入库", "客户", "采购条目", dh, "no_customer"];
         user.show = name_show(&user);
         let html = r2s(|o| material(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
@@ -263,7 +263,7 @@ pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Id
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["材料出库", "客户", "销售条目", dh, "no_customer"];
+        let setup = vec!["销售出库", "客户", "销售条目", dh, "no_customer"];
         user.show = name_show(&user);
         let html = r2s(|o| materialout(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)

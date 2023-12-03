@@ -432,7 +432,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
                             sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 1)]);
-                        // 把第一列 商品id 略过, 所以 i + 1
+                            // 把第一列 商品id 略过, 所以 i + 1
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
                             sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 1)]);
@@ -455,6 +455,52 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
             }
         }
         HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[derive(Deserialize, Serialize)]
+struct PoutItem {
+    dh: String,
+    cate: String,
+    date: String,
+    long: i32,
+    all_long: i32,
+    num: i32,
+    weight: f32,
+    note: String,
+}
+
+///获取物料出库明细
+#[post("/fetch_pout_items")]
+pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+
+        let sql = format!("select 单号id, 类别, 日期, 长度, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
+                                join documents on 单号 = 单号id
+                                where 物料号 = '{}' order by 单号id desc", data);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut date = Vec::new();
+        for row in rows {
+            let da = PoutItem {
+                dh: row.get("单号id"),
+                cate: row.get("类别"),
+                date: row.get("日期"),
+                long: row.get("长度"),
+                all_long: row.get("总长"),
+                num: row.get("数量"),
+                weight: row.get("重量"),
+                note: row.get("备注"),
+            };
+            date.push(da);
+        }
+
+        HttpResponse::Ok().json(date)
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -1,0 +1,3 @@
+select  单号id, 类别, 日期, 长度, 数量, 重量, pout_items.备注 from pout_items
+join documents on 单号 = 单号id
+where 物料号 = 'M001655';

@@ -1,9 +1,9 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '../parts/tools.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {fetch_tree, tree_init, tree_search} from '../parts/tree.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import {regInt, regReal, SPLITER, download_file, checkFileType, open_node} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
 let global = {
@@ -59,19 +59,60 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 service.build_product_table(row_num);
 
-//增加按键
+//查阅出库按键
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
+    let chosed = document.querySelector('tbody .focus');
+    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent.trim() : "";
+    if (global.product_name != "" && id != "") {
+        fetch('/fetch_pout_items', {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: id,
+        })
+            .then(response => response.json())
+            .then(content => {
+                let html = `
+                    <div class="table-container table-pout">
+                        <table>
+                            <thead>
+                                <tr><th width="6%">序号</th><th width="10%">出库类别</th><th width="15%">日期</th><th width="15%">单号</th>
+                                <th width="8%">长度</th><th width="8%">数量</th><th width="8%">总长度</th><th width="10%">实际重量</th><th width="13%">备注</th></tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>                        
+                    </div>`;
 
-    if (global.product_name != "") {
-        document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields);
-        document.querySelector('.modal-title').textContent = global.product_name;
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
-        document.querySelector('.modal').style.display = "block";
-        document.querySelector('.modal-body input').focus();
-        leave_alert();
-    }
-    else {
+                let tds = "";
+                let n = 1;
+                for (let row of content) {
+                    tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="/material_out/${row.dh}" target="_blank">${row.dh}</a></td>
+                            <td>${row.long}</td><td>${row.num}</td><td>${row.all_long}</td><td>${row.weight}</td><td>${row.note}</td></tr>`;
+                }
+
+                for (let i = 0; i < 15 - n + 1; i++) {
+                    tds += `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                }
+
+                let gg = chosed.querySelector('td:nth-child(4)').textContent;
+                let status = chosed.querySelector('td:nth-child(5)').textContent;
+                let long = chosed.querySelector('td:nth-child(10)').textContent;
+                let now_long = chosed.querySelector('td:nth-child(12)').textContent;
+
+                document.querySelector('.modal-body').innerHTML = html;
+                document.querySelector('.modal-body .table-pout tbody').innerHTML = tds;
+                document.querySelector('.modal-title').textContent = `${id}：${global.product_name}　${gg}　${status}，入库长度：${long}　现有长度：${now_long}`;
+                document.querySelector('.modal-dialog').style.cssText = "max-width: 800px;"
+                document.querySelector('.modal').style.display = "block";
+                document.querySelector('#modal-sumit-button').style.display = "none";
+            });
+
+        // document.querySelector('.modal-body input').focus();
+        // leave_alert();
+    } else {
         notifier.show('请先选择商品', 'danger');
     }
 
@@ -91,8 +132,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
-    }
-    else {
+    } else {
         notifier.show('请先选择商品规格', 'danger');
     }
 });
@@ -119,8 +159,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 let value;
                 if (input.parentNode.className.indexOf('check-radio') == -1) {
                     value = input.value;
-                }
-                else {
+                } else {
                     value = input.checked;
                 }
 
@@ -157,18 +196,15 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                             }
                         }
                         close_modal();
-                    }
-                    else {
+                    } else {
                         notifier.show('权限不够，操作失败', 'danger');
                     }
                 });
-        }
-        else {
+        } else {
             notifier.show('空值不能提交', 'danger');
 
         }
-    }
-    else {
+    } else {
         let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
         fetch(url, {
             method: 'post',
@@ -179,8 +215,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                     notifier.show('批量操作成功', 'success');
                     fetch_table();
                     close_modal();
-                }
-                else {
+                } else {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
             });
@@ -189,11 +224,13 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
 //关闭按键
 document.querySelector('#modal-close-button').addEventListener('click', function () {
+    document.querySelector('#modal-sumit-button').style.display = "inline-block";
     close_modal();
 });
 
 //关闭按键
 document.querySelector('.top-close').addEventListener('click', function () {
+    document.querySelector('#modal-sumit-button').style.display = "inline-block";
     close_modal();
 });
 
@@ -251,13 +288,11 @@ document.querySelector('#data-out').addEventListener('click', function () {
                 if (content != -1) {
                     download_file(`/download/${content}.xlsx`);
                     notifier.show('成功导出至 Excel 文件', 'success');
-                }
-                else {
+                } else {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
             });
-    }
-    else {
+    } else {
         notifier.show('请先选择商品', 'danger');
     }
 });
@@ -336,8 +371,7 @@ function data_in(fileBtn, info1, info2, cate) {
                     notifier.show('excel 表列数不符合', 'danger');
                 }
             });
-    }
-    else {
+    } else {
         notifier.show('需要 excel 文件', 'danger');
     }
 }

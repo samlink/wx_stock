@@ -316,7 +316,7 @@ pub async fn save_material(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields_cate = if data.rights == "材料入库" {
+        let fields_cate = if data.rights == "采购入库" {
             "入库单据"
         } else {
             "库存调整"
@@ -437,7 +437,7 @@ pub async fn save_material_ck(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields_cate = if data.rights == "材料出库" {
+        let fields_cate = if data.rights == "销售出库" {
             "出库单据"
         } else {
             "库存调整"
@@ -835,7 +835,7 @@ pub async fn fetch_check(
 //上传图片
 #[post("/pic_in")]
 pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "材料出库".to_owned()).await;
+    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
     if user.name != "" {
         let path = "./upload/pics/coin.jpg".to_owned();
         let path2 = "./upload/pics/".to_owned();
@@ -853,7 +853,7 @@ pub async fn pic_in_save(
     data: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "材料出库".to_owned()).await;
+    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
     if user.name != "" {
         let da: Vec<&str> = data.split(SPLITER).collect();
         if da[1] == "/upload/pics/min.jpg" {
@@ -864,7 +864,7 @@ pub async fn pic_in_save(
                 "./upload/pics/min.jpg",
                 format!("./upload/pics/min_{}.jpg", da[0]),
             )
-            .unwrap();
+                .unwrap();
 
             let conn = db.get().await.unwrap();
             let f_map = map_fields(db.clone(), "出库单据").await;

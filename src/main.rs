@@ -148,6 +148,7 @@ async fn main() -> std::io::Result<()> {
             .service(product::update_product)
             .service(product::add_product)
             .service(product::product_auto)
+            .service(product::fetch_pout_items)
             .service(product::product_out)
             .service(product::product_in)
             .service(product::product_datain)

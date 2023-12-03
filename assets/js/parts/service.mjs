@@ -1,6 +1,6 @@
-import { SPLITER } from '../parts/tools.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import {SPLITER} from '../parts/tools.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
 
 export var table_fields;
 
@@ -45,8 +45,7 @@ export function build_table_header(table_container, custom_fields, table_fields,
             margin-top: 11px;
             border: 1px solid #edf5fb;
             margin-left: -2px;`;
-    }
-    else {
+    } else {
         for (let item of custom_fields) {
             row += `<th width='${item.width * 100 / all_width}%'>${item.name}</th>`;
         }
@@ -80,33 +79,33 @@ export function build_table_header(table_container, custom_fields, table_fields,
 /**
  * 计算钢材理论重量
  * @param {
-* data
-* long: 长度，单位毫米，如 7688，
-* num: 支数，
-* name: 名称，如圆钢或无缝钢管，
-* cz: 材质，如 17-4，
-* gg: 规格，如 120 或 123*80}  
-* @returns 两位小数的字符串
-*/
+ * data
+ * long: 长度，单位毫米，如 7688，
+ * num: 支数，
+ * name: 名称，如圆钢或无缝钢管，
+ * cz: 材质，如 17-4，
+ * gg: 规格，如 120 或 123*80}
+ * @returns 两位小数的字符串
+ */
 export function calc_weight(data) {
-   let tech;
-   if (data.cz == "718") {
-       tech = 1.05;
-   } else if (data.cz == "17-4" || data.cz == "Super13Cr") {
-       tech = 1.0064;
-   } else {
-       tech = 1;
-   }
+    let tech;
+    if (data.cz == "718") {
+        tech = 1.05;
+    } else if (data.cz == "17-4" || data.cz == "Super13Cr") {
+        tech = 1.0064;
+    } else {
+        tech = 1;
+    }
 
-   let weight = 0;
-   if (data.name == "圆钢") {
-       weight = data.gg * data.gg * 0.00617 * data.long * data.num * tech / 1000;
-   } else {
-       let pipe = data.gg.split('*');
-       weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * data.long * data.num * tech / 1000;
-   }
+    let weight = 0;
+    if (data.name == "圆钢") {
+        weight = data.gg * data.gg * 0.00617 * data.long * data.num * tech / 1000;
+    } else {
+        let pipe = data.gg.split('*');
+        weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * data.long * data.num * tech / 1000;
+    }
 
-   return weight.toFixed(2);
+    return weight.toFixed(2);
 }
 
 // //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
@@ -157,8 +156,7 @@ export function build_row_from_string(rec, row, table_fields, n) {
             row += `<td title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
             row += `<td>${rec[n]}</td>`;
-        }
-        else {
+        } else {
             row += `<td>${rec[n]}</td>`;
         }
         n++;
@@ -213,8 +211,7 @@ export function build_edit_form(num, table_fields, chosed) {
             for (let value of options) {
                 if (value == show_value) {
                     control += `<option value="${value}" selected>${value}</option>`;
-                }
-                else {
+                } else {
                     control += `<option value="${value}">${value}</option>`;
                 }
             }
@@ -367,12 +364,16 @@ export function build_product_table(row_num, cb, more) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields);
+                let header = build_table_header(table, [{name: '序号', width: 3}], table_fields, "", "products");
                 table.querySelector('thead tr').innerHTML = header.th_row;
                 // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
                 init_data.header_names = header.header_names;
                 init_data.header_names["编号"] = "id";
+
+                // 自动计算得出的字段, 需用相关的计算公式进行排序, 不可直接使用原字段
+                init_data.header_names["库存长度"] = "整数字段3-COALESCE(长度合计,0)";
+                init_data.header_names["理论重量"] = "库存下限-COALESCE(理重合计,0)";
 
                 table_init(init_data);
                 fetch_table();
@@ -419,7 +420,7 @@ export function build_product_table(row_num, cb, more) {
 
     function search_table() {
         let search = document.querySelector('#search-input').value;
-        Object.assign(table_data.post_data, { name: search, page: 1 });
+        Object.assign(table_data.post_data, {name: search, page: 1});
 
         //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
         if (typeof cb == "function") {
@@ -427,8 +428,7 @@ export function build_product_table(row_num, cb, more) {
             fetch_table(() => {
                 cb(table);
             });
-        }
-        else {
+        } else {
             fetch_table();
         }
     }

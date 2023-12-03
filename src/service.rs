@@ -97,9 +97,9 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         "XS"
     } else if doc_data == "销售退货" {
         "XT"
-    } else if doc_data == "材料入库" {
+    } else if doc_data == "采购入库" {
         "RK"
-    } else if doc_data == "材料出库" {
+    } else if doc_data == "销售出库" {
         "CK"
     } else if doc_data == "运输发货" {
         "FH"
