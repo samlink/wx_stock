@@ -46,9 +46,12 @@ pub async fn fetch_all_documents(
         } else if post_data.cate == "入库查询" {
             doc_cate = "入库单据";
             doc_pre = "入库";
-        } else {
+        } else if post_data.cate == "出库查询" {
             doc_cate = "出库单据";
             doc_pre = "出库";
+        } else {
+            doc_cate = "发货单据";
+            doc_pre = "发货";
         }
 
         let f_map = map_fields(db.clone(), doc_cate).await;

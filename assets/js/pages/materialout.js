@@ -304,20 +304,19 @@ function get_weight(input_row) {
         let mount = input_row.querySelector('.数量').value;
         if (regInt.test(mount)) {
             input_row.querySelector('.总长度').textContent = mount * input_row.querySelector('.长度').textContent;
-            weight();
+            weight(input_row);
         } else {
             input_row.querySelector('.总长度').textContent = 0;
         }
     })
 
     input_row.querySelector('.auto-input').addEventListener('blur', function () {
-        weight();
+        weight(input_row);
     })
 }
 
-// 出入库时使用的理论重量计算
-function weight() {
-    let input_row = document.querySelector('.inputting');
+// 出库时使用的理论重量计算
+function weight(input_row) {
     let data = {
         long: input_row.querySelector('.总长度').textContent.trim(),
         num: 1,
@@ -465,7 +464,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_material_ck`, {
         method: 'post',

@@ -328,6 +328,17 @@ pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         goto_login()
     }
 }
+#[get("/trans_query")]
+pub async fn trans_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| query(o, user, "采购销售", "发货查询", "document_items"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
 
 #[get("/change_query_in")]
 pub async fn change_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {

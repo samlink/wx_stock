@@ -1,7 +1,7 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight, SPLITER } from '../parts/tools.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {getHeight, SPLITER} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
 // //设置菜单 
@@ -17,19 +17,18 @@ let document_cate, address;
 if (cate == "采购查询") {
     document_cate = "采购单据";
     address = `/buy_in/`;
-}
-else if (cate == "销售查询") {
+} else if (cate == "销售查询") {
     document_cate = "销售单据";
     address = `/sale/`;
-}
-else if (cate == "入库查询") {
+} else if (cate == "入库查询") {
     document_cate = "入库单据"
     address = `/material_in/`;
-}
-
-else if (cate == "出库查询") {
+} else if (cate == "出库查询") {
     document_cate = "出库单据"
     address = `/material_out/`;
+} else if (cate == "发货查询") {
+    document_cate = "发货单据"
+    address = `/transport/`;
 }
 
 let table_fields;
@@ -62,10 +61,10 @@ fetch(`/fetch_show_fields`, {
         if (content != -1) {
             table_fields = content;
             let custom_fields = [
-                { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
-                { name: '单号', field: '单号', width: 7 },
-                { name: '类别', field: 'documents.类别', width: 4 },
-                { name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10 },
+                {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
+                {name: '单号', field: '单号', width: 7},
+                {name: '类别', field: 'documents.类别', width: 4},
+                {name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10},
                 // { name: '已审核', field: '已记账', width: 3 },
                 // { name: '经办人', field: '制单人', width: 4 },
             ];
@@ -113,7 +112,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 function search_table() {
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, { name: search, page: 1 });
+    Object.assign(table_data.post_data, {name: search, page: 1});
     fetch_table();
 }
 
@@ -123,8 +122,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
     if (id != "") {
         window.location = address + id;
-    }
-    else {
+    } else {
         notifier.show('请先选择单据', 'danger');
     }
 });
@@ -154,15 +152,13 @@ document.querySelector('#del-button').addEventListener('click', function () {
                     .then(content => {
                         if (content != -1) {
                             search_table();
-                        }
-                        else {
+                        } else {
                             notifier.show('权限不够，操作失败', 'danger');
                         }
                     });
             }
         });
-    }
-    else {
+    } else {
         notifier.show('请先选择单据', 'danger');
     }
 });

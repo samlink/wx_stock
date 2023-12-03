@@ -101,6 +101,8 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         "RK"
     } else if doc_data == "材料出库" {
         "CK"
+    } else if doc_data == "运输发货" {
+        "FH"
     } else {
         "KT"
     };
@@ -119,7 +121,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
     let mut dh_first = "".to_owned();
-    
+
     for row in rows {
         dh_first = row.get("单号");
     }
@@ -158,8 +160,8 @@ pub async fn serve_download(
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
-where
-    Call: FnOnce(&mut dyn Write) -> io::Result<()>,
+    where
+        Call: FnOnce(&mut dyn Write) -> io::Result<()>,
 {
     let mut buf = Vec::new();
     call(&mut buf).unwrap();
