@@ -1,12 +1,12 @@
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import { SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType } from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType} from '../parts/tools.mjs';
 import {
     build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-import { close_modal } from "../parts/modal.mjs";
+import {close_modal} from "../parts/modal.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -143,13 +143,13 @@ function document_top_handle(html, has_date) {
 }
 
 let show_th = [
-    { name: "物料号", width: 60 },
-    { name: "名称", width: 60 },
-    { name: "材质", width: 80 },
-    { name: "规格", width: 80 },
-    { name: "状态", width: 100 },
-    { name: "炉号", width: 100 },
-    { name: "库存长度", width: 80 },
+    {name: "物料号", width: 60},
+    {name: "名称", width: 60},
+    {name: "材质", width: 80},
+    {name: "规格", width: 80},
+    {name: "状态", width: 100},
+    {name: "炉号", width: 100},
+    {name: "库存长度", width: 80},
 ];
 
 let auto_data = {
@@ -190,11 +190,8 @@ function build_items(dh) {
         .then(content => {
             let tr = "";
             content.forEach(obj => {
-                let material = obj.split(
-                    `${SPLITER}`
-                );
-                tr +=
-                    ` <tr> <td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
+                let material = obj.split(`${SPLITER}`);
+                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
             });
 
             document.querySelector(".table-history tbody").innerHTML = tr;
@@ -241,20 +238,44 @@ function fill_gg() {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true },
-    { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false },
-    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false },
-    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false },
-    { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
-    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
-    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
-    { name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true },
-    { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
-    { name: "物料号", width: 60, class: "auto-input", type: "autocomplete", editable: true, is_save: true, no_button: true },
-    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
-    { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
-    { name: "备注", width: 100, class: "备注", type: "普通输入", editable: true, is_save: true, css: 'style="border-right:none"' },
-    { name: "", width: 0, class: "m_id", type: "普通输入", editable: false, is_save: false, css: 'style="width:0%; border-left:none; color:white"', },
+    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true},
+    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false},
+    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false},
+    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false},
+    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true},
+    {name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true},
+    {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false},
+    {
+        name: "物料号",
+        width: 60,
+        class: "auto-input",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        no_button: true
+    },
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true,},
+    {name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true,},
+    {
+        name: "备注",
+        width: 100,
+        class: "备注",
+        type: "普通输入",
+        editable: true,
+        is_save: true,
+        css: 'style="border-right:none"'
+    },
+    {
+        name: "",
+        width: 0,
+        class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: false,
+        css: 'style="width:0%; border-left:none; color:white"',
+    },
 ];
 
 //计算表格行数，33 为 lineHeight （行高）

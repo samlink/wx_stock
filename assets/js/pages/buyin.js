@@ -1,8 +1,8 @@
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
 import * as service from '../parts/service.mjs'
-import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
-import { customer_init, out_data } from '../parts/customer.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {customer_init, out_data} from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
@@ -34,6 +34,7 @@ fetch(`/fetch_inout_fields`, {
         if (content != -1) {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
+                // 获取本单据内容
                 fetch(`/fetch_document`, {
                     method: 'post',
                     headers: {
@@ -50,7 +51,6 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let values = data.split(SPLITER);
                         let len = values.length;
-                        // fetch_print_models(values[len - 1]);
 
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] == "true") {
@@ -66,6 +66,41 @@ fetch(`/fetch_inout_fields`, {
                         customer.setAttribute('data', values[len - 5]);
                         document.querySelector('#owner').textContent = `[ ${values[len - 2]} ]`;
                     });
+
+                //获取相关单据信息
+                fetch(`/fetch_other_documents`, {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(dh_div.textContent),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                            let tr = "";
+                            data.forEach(obj => {
+                                let material = obj.split(`${SPLITER}`);
+                                tr += `<tr><td>${material[0]}</td><td>${material[1]}</td><td>${material[2]}</td></tr>`;
+                            });
+
+                            document.querySelector(".table-history tbody").innerHTML = tr;
+                            let trs = document.querySelectorAll(".table-history tbody tr");
+                            for (let tr of trs) {
+                                tr.addEventListener('click', function () {
+                                    let url;
+                                    let cate = tr.querySelector('td:nth-child(1)').textContent;
+                                    if (cate.indexOf("出库") != -1) {
+                                        url = "/material_out/";
+                                    } else if (cate.indexOf("发货") != -1) {
+                                        url = "/transport/";
+                                    } else {
+                                        url = "/material_in/";
+                                    }
+                                    window.location = url + tr.querySelector('td:nth-child(2)').textContent;
+                                })
+                            }
+                        }
+                    );
             } else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
@@ -133,9 +168,17 @@ fetch(`/fetch_inout_fields`, {
     .then(response => response.json())
     .then(content => {
         show_names = [
-            { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
-            { name: "名称", width: 80, class: "auto-input", type: "autocomplete", editable: true, is_save: true, default: "" },
-            { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+            {name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1},
+            {
+                name: "名称",
+                width: 80,
+                class: "auto-input",
+                type: "autocomplete",
+                editable: true,
+                is_save: true,
+                default: ""
+            },
+            {name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
         ];
 
         for (let item of content) {
@@ -156,10 +199,22 @@ fetch(`/fetch_inout_fields`, {
                 name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: ""
             });
             show_names.push({
-                name: "理论重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: ""
+                name: "理论重量",
+                width: 60,
+                class: "mount",
+                type: "普通输入",
+                editable: true,
+                is_save: true,
+                default: ""
             });
             show_names.push({
-                name: "实际重量", width: 60, class: "weight", type: "普通输入", editable: true, is_save: true, default: ""
+                name: "实际重量",
+                width: 60,
+                class: "weight",
+                type: "普通输入",
+                editable: true,
+                is_save: true,
+                default: ""
             });
         } else if (document_name == "采购单据") {
             show_names.push({
@@ -174,10 +229,23 @@ fetch(`/fetch_inout_fields`, {
             name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: ""
         });
         show_names.push({
-            name: "备注", width: 100, class: "note", type: "普通输入", editable: true, is_save: true, default: "", css: 'style="border-right:none"'
+            name: "备注",
+            width: 100,
+            class: "note",
+            type: "普通输入",
+            editable: true,
+            is_save: true,
+            default: "",
+            css: 'style="border-right:none"'
         });
         show_names.push({
-            name: "", width: 0, class: "m_id", type: "普通输入", editable: false, is_save: true, css: 'style="width:0%; border-left:none; color:white"',
+            name: "",
+            width: 0,
+            class: "m_id",
+            type: "普通输入",
+            editable: false,
+            is_save: true,
+            css: 'style="width:0%; border-left:none; color:white"',
         });
 
         // show_names.forEach(item => {
@@ -194,13 +262,13 @@ fetch(`/fetch_inout_fields`, {
         let gg_n = document_name == "销售单据" ? 4 : 3;
 
         let show_th = [
-            { name: "名称", width: 60 },
-            { name: "材质", width: 80 },
-            { name: "规格", width: 80 },
-            { name: "状态", width: 100 },
-            { name: "售价", width: 60 },
-            { name: "库存长度", width: 80 },
-            { name: "库存重量", width: 80 },
+            {name: "名称", width: 60},
+            {name: "材质", width: 80},
+            {name: "规格", width: 80},
+            {name: "状态", width: 100},
+            {name: "售价", width: 60},
+            {name: "库存长度", width: 80},
+            {name: "库存重量", width: 80},
         ];
 
         let auto_data = {
@@ -281,7 +349,6 @@ function calculate(input_row) {
         });
     }
 }
-
 
 //计算行金额
 function calc_money(input_row) {
@@ -373,7 +440,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
-    ;
 
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
     let all_values = document.querySelectorAll('.document-value');

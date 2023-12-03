@@ -580,6 +580,39 @@ pub async fn fetch_document_items_sales(
     }
 }
 
+//获取相关单据
+#[post("/fetch_other_documents")]
+pub async fn fetch_other_documents(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select 单号,日期,类别 from documents where 文本字段6 = '{}' order by 日期 desc"#,
+            data
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let dh: String = row.get("单号");
+            let date: String = row.get("日期");
+            let cate: String = row.get("类别");
+            let item = format!("{}{}{}{}{}{}", cate, SPLITER, dh, SPLITER, date, SPLITER);
+
+            document_items.push(item);
+        }
+
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/get_items_trans")]
 pub async fn get_items_trans(
     db: web::Data<Pool>,

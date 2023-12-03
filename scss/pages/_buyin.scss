@@ -14,7 +14,7 @@
     }
 
     #history-info {
-        width: 340px;
+        width: 360px;
         height: 25px;
         padding-top: 3px;
         padding-left: 10px;
@@ -241,7 +241,7 @@
     }
 
     .table-history {
-        width: 280px;
+        width: 300px;
         margin-left: 5px;
         flex-grow: 0;
         flex-shrink: 0;
@@ -251,6 +251,11 @@
 
         tr {
             height: 32px;
+            cursor: pointer;
+        }
+
+        td {
+            border: none;
         }
 
         td:nth-child(1) {
