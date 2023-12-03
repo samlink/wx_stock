@@ -458,11 +458,6 @@ function build_input_row(show_names, all_width, num) {
     return input_row;
 }
 
-// //计算记录数
-// function sum_records() {
-//     document.querySelector('#total-records').innerHTML = document.querySelectorAll('.has-input').length;
-// }
-
 //计算记录数
 function sum_records() {
     let all_input = document.querySelectorAll('.has-input');
