@@ -67,6 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::report_design)
             .service(html::sale)
             .service(html::saleback)
+            .service(html::transport)
             .service(html::material_in)
             .service(html::material_out)
             .service(html::stock_change)

@@ -272,6 +272,26 @@ pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Id
     }
 }
 
+// 运输发货
+#[get("/transport/{dh}")]
+pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+        let num_position = get_fraction(db).await;
+        let setup = vec!["运输发货", "客户", "销售条目", dh, "no_customer"];
+        user.show = name_show(&user);
+        let html = r2s(|o| saletrans(o, user, num_position, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 ///报表设计
 #[get("/report_design")]
 pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
