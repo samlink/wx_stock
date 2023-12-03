@@ -223,9 +223,9 @@ pub async fn stock_change(
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["库存调整", "供应商", "近期调整", dh];
+        let setup = vec!["调整入库", "供应商", "近期调整", dh];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, num_position, setup));
+        let html = r2s(|o| stock(o, user, num_position, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
