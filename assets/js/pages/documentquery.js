@@ -61,8 +61,6 @@ fetch(`/fetch_show_fields`, {
                 {name: '单号', field: '单号', width: 7},
                 {name: '类别', field: 'documents.类别', width: 4},
                 {name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10},
-                // { name: '已审核', field: '已记账', width: 3 },
-                // { name: '经办人', field: '制单人', width: 4 },
             ];
 
             // 对于出入库的表格, 不需要供应商列, 要去除

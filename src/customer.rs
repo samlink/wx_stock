@@ -28,7 +28,7 @@ pub async fn fetch_customer(
 
         let fields = get_fields(db.clone(), &post_data.cate).await;
 
-        let mut sql_fields = "SELECT id,".to_owned();
+        let mut sql_fields = "SELECT id::text,".to_owned();
 
         for f in &fields {
             sql_fields += &format!("{},", f.field_name);
