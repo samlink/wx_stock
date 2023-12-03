@@ -458,9 +458,22 @@ function build_input_row(show_names, all_width, num) {
     return input_row;
 }
 
+// //计算记录数
+// function sum_records() {
+//     document.querySelector('#total-records').innerHTML = document.querySelectorAll('.has-input').length;
+// }
+
 //计算记录数
 function sum_records() {
-    document.querySelector('#total-records').innerHTML = document.querySelectorAll('.has-input').length;
+    let all_input = document.querySelectorAll('.has-input');
+    let num = 0;
+    for (let i = 0; i < all_input.length; i++) {
+        if (all_input[i].querySelector('td:nth-child(3)').textContent.trim() != "") {
+            num++;
+        }
+    }
+
+    document.querySelector('#total-records').innerHTML = num;
 }
 
 //重建索引

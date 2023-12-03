@@ -107,7 +107,7 @@ pub async fn material_auto_out(
             f_map["切完"]
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
