@@ -286,13 +286,13 @@ if (dh_div.textContent == "新单据") {
         .then(content => {
             let data = {
                 show_names: show_names,
-                rows: content,
+                rows: content,              //已有单据需要 rows
                 lines: table_lines,
                 auto_data: auto_data,
                 auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
-                calc_func: get_weight,
+                calc_func: get_weight,      // 自动计算的函数, 可带参数
             }
 
             build_items_table(data);
@@ -467,24 +467,24 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     console.log(data);
 
-    // fetch(`/save_material_ck`, {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    // })
-    //     .then(response => response.json())
-    //     .then(content => {
-    //         if (content != -1) {
-    //             dh_div.textContent = content;
-    //             notifier.show('单据保存成功', 'success');
-    //             edited = false;
-    //             input_table_outdata.edited = false;
-    //         } else {
-    //             notifier.show('权限不够，操作失败', 'danger');
-    //         }
-    //     });
+    fetch(`/save_material_ck`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                dh_div.textContent = content;
+                notifier.show('单据保存成功', 'success');
+                edited = false;
+                input_table_outdata.edited = false;
+            } else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
 });
 
 //打印

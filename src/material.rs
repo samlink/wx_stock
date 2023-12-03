@@ -489,9 +489,9 @@ pub async fn save_material_ck(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO pout_items (单号id, 物料号, 长度, 数量, 重量, 备注, 顺序)
-                     VALUES('{}', '{}', {}, {}, {}, '{}', {})"#,
-                dh, value[7], value[4], value[5], value[8], value[9], value[0]
+                r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 顺序)
+                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {})"#,
+                dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0]
             );
 
             // println!("{}", items_sql);
@@ -500,8 +500,6 @@ pub async fn save_material_ck(
         }
 
         let _result = transaction.commit().await;
-
-        // 更新物料库
 
         HttpResponse::Ok().json(dh)
     } else {
