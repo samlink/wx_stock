@@ -44,26 +44,56 @@ pub async fn fetch_product(
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%')
                     "#,
-                    f_map["物料号"], na, f_map["规格"], na, f_map["状态"], na, f_map["执行标准"], na, f_map["生产厂家"], na,
-                    f_map["炉号"], na, f_map["库位"], na, f_map["区域"], na, f_map["切完"], na, f_map["备注"], na,
+                    f_map["物料号"],
+                    na,
+                    f_map["规格"],
+                    na,
+                    f_map["状态"],
+                    na,
+                    f_map["执行标准"],
+                    na,
+                    f_map["生产厂家"],
+                    na,
+                    f_map["炉号"],
+                    na,
+                    f_map["库位"],
+                    na,
+                    f_map["区域"],
+                    na,
+                    f_map["切完"],
+                    na,
+                    f_map["备注"],
+                    na,
                 );
             }
         }
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let mut sql_fields = r#"SELECT 文本字段1 as id,"#.to_owned();
-
-        for f in &fields {
-            sql_fields += &format!("{},", &*f.field_name);
-        }
+        let sql_fields = "SELECT 文本字段1 as id, 文本字段1, 规格型号,文本字段2,文本字段3,文本字段5,文本字段4,出售价格,整数字段1, 
+                            (COALESCE(切分次数,0) + 整数字段2)::integer as 整数字段2, (整数字段3-COALESCE(长度合计,0))::integer as 整数字段3, 
+                            round((库存下限-COALESCE(理重合计,0))::numeric,2)::real as 库存下限,
+                            文本字段8,库位,文本字段6,文本字段7,备注,".to_owned();
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products 
-            WHERE products.商品id='{}' {} {} {} ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, post_data.id, done, area, conditions,
-            post_data.sort, skip, post_data.rec
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products             
+            LEFT JOIN 
+            (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+            ON products.文本字段1 = foo.物料号
+            WHERE products.商品id='{}' {} {} {} 
+            ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields,
+            post_data.sort,
+            post_data.id,
+            done,
+            area,
+            conditions,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
+
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let products = build_string_from_base(rows, fields);
@@ -103,7 +133,10 @@ pub async fn update_product(
 
         let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
 
-        sql += &format!(r#"商品id='{}' WHERE 文本字段1='{}'"#, product[1], product[0]);
+        sql += &format!(
+            r#"商品id='{}' WHERE 文本字段1='{}'"#,
+            product[1], product[0]
+        );
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
@@ -398,7 +431,8 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
 
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
-                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 1)]);   // 把第一列 商品id 略过, 所以 i + 1
+                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 1)]);
+                        // 把第一列 商品id 略过, 所以 i + 1
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
                             sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 1)]);
