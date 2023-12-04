@@ -153,7 +153,7 @@ show_names = [
     {name: "库位", width: 60, class: "库位", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
     {
         name: "备注",
         width: 100,
@@ -163,16 +163,6 @@ show_names = [
         is_save: true,
         default: "",
         css: 'style="border-right:none"'
-    },
-    {
-        name: "",
-        width: 0,
-        class: "m_id",
-        type: "普通输入",
-        editable: false,
-        is_save: true,
-        default: "",
-        css: 'style="width:0%; border-left:none; color:white"',
     },
 ];
 
@@ -244,7 +234,6 @@ if (dh_div.textContent == "新单据") {
 function get_weight(input_row) {
     input_row.querySelector('.长度').addEventListener('blur', function () {
         weight(input_row);
-        sum_weight();
     });
 }
 
@@ -253,9 +242,9 @@ function weight(input_row) {
     let data = {
         long: input_row.querySelector('.长度').value.trim(),
         num: 1,
-        name: input_row.querySelector('.名称').textContent.trim(),
+        name: input_row.querySelector('.auto-input').value.trim(),
         cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').textContent.trim(),
+        gg: input_row.querySelector('.规格').value.trim(),
     }
 
     if (regInt.test(data.long) && regInt.test(data.num)) {
@@ -265,40 +254,22 @@ function weight(input_row) {
     }
 }
 
-//计算合计理论重量
-function sum_weight() {
-    let all_input = document.querySelectorAll('.has-input');
-    let sum = 0;
-    for (let i = 0; i < all_input.length; i++) {
-        sum += Number(all_input[i].querySelector('.重量').textContent);
-    }
-    if (document.querySelector('#实数字段3')) {
-        document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
-    }
-}
-
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let n = 3;
-    let num = document_name == "销售单据" ? 4 : 3;  //从第 3 列开始填入数据
+    let num = 3;  //从第 3 列开始填入数据
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
-        // console.log(shown);
         if (show_names[i].type == "普通输入" && show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
         } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
-        } else if (show_names[i].type == "下拉列表" && show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n}) select`).value = val;
-        } else if (show_names[i].type == "下拉列表" && !show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
         }
-
         n++;
     }
 
-    // let price_input = document.querySelector(`.inputting .price`);
-    // price_input.focus();
+    let focus_input = document.querySelector(`.inputting .炉号`);
+    focus_input.focus();
 
     appand_edit_row();
     edited = true;
@@ -312,7 +283,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
-    ;
 
     let all_values = document.querySelectorAll('.document-value');
 
@@ -337,7 +307,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(1)').textContent != "") {
+        if (row.querySelector('.材质').textContent.trim() != "") {
             let len = show_names.length;
             let save_str = ``;
 
@@ -346,6 +316,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
                     if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
+                        save_str += `${value.trim()}${SPLITER}`;
+                    } else if (show_names[i].type == "autocomplete") {
+                        let value = row.querySelector('.auto-input').getAttribute("data").split(SPLITER)[0];
                         save_str += `${value.trim()}${SPLITER}`;
                     } else {
                         let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
@@ -360,30 +333,30 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
-        remember: `${document.querySelector('#remember-button').textContent}${SPLITER}${document.querySelector('#check-button').textContent}`,
+        remember: document.querySelector('#remember-button').textContent,
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
-    fetch(`/save_material`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content != -1) {
-                dh_div.textContent = content;
-                notifier.show('单据保存成功', 'success');
-                edited = false;
-                input_table_outdata.edited = false;
-            } else {
-                notifier.show('权限不够，操作失败', 'danger');
-            }
-        });
+    // fetch(`/save_material`, {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify(data),
+    // })
+    //     .then(response => response.json())
+    //     .then(content => {
+    //         if (content != -1) {
+    //             dh_div.textContent = content;
+    //             notifier.show('单据保存成功', 'success');
+    //             edited = false;
+    //             input_table_outdata.edited = false;
+    //         } else {
+    //             notifier.show('权限不够，操作失败', 'danger');
+    //         }
+    //     });
 });
 
 //打印
@@ -614,7 +587,12 @@ function error_check() {
     }
 
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(1)').textContent != "") {
+        if (row.querySelector('.材质').textContent.trim() != "") {
+            if (row.querySelector('.物料号').value.trim() == "") {
+                notifier.show(`物料号不能为空`, 'danger');
+                return false;
+            }
+
             if (row.querySelector('.长度').value && !regReal.test(row.querySelector('.长度').value)) {
                 notifier.show(`长度输入错误`, 'danger');
                 return false;
@@ -628,8 +606,6 @@ function error_check() {
 
         }
     }
-
-
     return true;
 }
 
