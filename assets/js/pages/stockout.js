@@ -125,23 +125,21 @@ function document_top_handle(html, has_date) {
 show_names = [
     {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
     {
-        name: "名称",
+        name: "物料号",
         width: 60,
         class: "auto-input",
         type: "autocomplete",
         editable: true,
-        is_save: true, default: ""
+        is_save: true,
+        default: ""
     },
+    {name: "名称", width: 60, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
     {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "出库长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, default: ""},
     {
         name: "备注",
         width: 100,
@@ -168,19 +166,18 @@ show_names = [
 table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
 
 let show_th = [
+    {name: "物料号", width: 60},
     {name: "名称", width: 60},
     {name: "材质", width: 80},
     {name: "规格", width: 80},
     {name: "状态", width: 100},
-    {name: "售价", width: 60},
     {name: "库存长度", width: 80},
-    {name: "库存重量", width: 80},
 ];
 
 let auto_data = {
     n: 2,
-    cate: document_name,
-    url: `/buyin_auto`,
+    cate: "123",
+    url: `/material_auto_kt`,
     cb: fill_gg,
 }
 
@@ -200,7 +197,7 @@ if (dh_div.textContent == "新单据") {
     appand_edit_row();
 } else {
     // let url = document_name == "入库单据" ?  : "/fetch_document_items"
-    fetch("/fetch_document_items_rk", {
+    fetch("/fetch_document_items_ck", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -240,22 +237,22 @@ function weight(input_row) {
     let data = {
         long: input_row.querySelector('.长度').value.trim(),
         num: 1,
-        name: input_row.querySelector('.auto-input').value.trim(),
+        name: input_row.querySelector('.名称').textContent.trim(),
         cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').value.trim(),
+        gg: input_row.querySelector('.规格').textContent.trim(),
     }
 
     if (regInt.test(data.long) && regInt.test(data.num)) {
-        input_row.querySelector('.重量').textContent = service.calc_weight(data);
+        input_row.querySelector('.理论重量').textContent = service.calc_weight(data);
     } else {
-        input_row.querySelector('.重量').textContent = 0;
+        input_row.querySelector('.理论重量').textContent = 0;
     }
 }
 
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
-    let n = 3;
-    let num = 3;  //从第 3 列开始填入数据
+    let n = 3;    //从第 3 列开始填入数据
+    let num = 4;  // 填充个数
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
         if (show_names[i].type == "普通输入" && show_names[i].editable) {
@@ -266,7 +263,7 @@ function fill_gg() {
         n++;
     }
 
-    let focus_input = document.querySelector(`.inputting .炉号`);
+    let focus_input = document.querySelector(`.inputting .长度`);
     focus_input.focus();
 
     appand_edit_row();
@@ -311,10 +308,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
             for (let i = 0; i < len; i++) {
                 if (show_names[i].is_save) {
-                    if (show_names[i].type == "autocomplete") {
-                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
-                        save_str += `${value}${SPLITER}`;
-                    } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                    if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
                         save_str += `${value.trim()}${SPLITER}`;
@@ -335,7 +329,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     // console.log(data);
 
-    fetch(`/save_material`, {
+    fetch(`/save_material_ck`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -392,7 +386,6 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                         notifier.show('审核完成', 'success');
                     } else {
                         notifier.show('权限不够', 'danger');
-
                     }
                 });
         }
@@ -432,7 +425,7 @@ function error_check() {
 
     for (let row of all_rows) {
         if (row.querySelector('.材质').textContent.trim() != "") {
-            if (row.querySelector('.物料号').value.trim() == "") {
+            if (row.querySelector('.auto-input').value.trim() == "") {
                 notifier.show(`物料号不能为空`, 'danger');
                 return false;
             }
@@ -444,8 +437,8 @@ function error_check() {
                 row.querySelector('.长度').value = 0;
             }
 
-            if (row.querySelector('.重量').textContent.trim() == "") {
-                row.querySelector('.重量').textContent = 0;
+            if (row.querySelector('.实际重量').textContent.trim() == "") {
+                row.querySelector('.实际重量').textContent = 0;
             }
 
         }

@@ -359,7 +359,11 @@ function calc_money(input_row) {
     }
     let money = "";
     if (price && regReal.test(price) && mount && regReal.test(mount)) {
-        money = (price * mount).toFixed(Number(num_position[1]));
+        if (input_row.querySelector('.材质').textContent.trim() != "--") {
+            money = (price * mount).toFixed(Number(num_position[1]));
+        } else {
+            money = (price * input_row.querySelector('.num').value).toFixed(0);
+        }
     }
 
     input_row.querySelector('.money').textContent = money;
@@ -377,7 +381,11 @@ function sum_money() {
         }
         if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
             price && regReal.test(price) && mount && regReal.test(mount)) {
-            sum += price * mount;
+            if (all_input[i].querySelector('.材质').textContent.trim() != "--") {
+                sum += price * mount;
+            } else {
+                sum += price * all_input[i].querySelector('.num').value;
+            }
         }
     }
 
@@ -395,7 +403,7 @@ function calc_weight(input_row) {
         gg: input_row.querySelector('.规格').value,
     }
 
-    if (regInt.test(data.long) && regInt.test(data.num)) {
+    if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--" ) {
         input_row.querySelector('.mount').value = service.calc_weight(data);
     } else {
         input_row.querySelector('.mount').value = 0;

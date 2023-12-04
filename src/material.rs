@@ -89,22 +89,37 @@ pub async fn material_auto_out(
                 (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
-            f_map["物料号"],
-            SPLITER,
-            SPLITER,
-            SPLITER,
-            f_map["规格"],
-            SPLITER,
-            f_map["状态"],
-            SPLITER,
-            f_map["炉号"],
-            SPLITER,
-            f_map["库存长度"],
-            SPLITER,
-            f_map["物料号"],
-            search.s,
-            search.ss,
-            f_map["切完"]
+            f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
+            f_map["炉号"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], search.s, search.ss, f_map["切完"]
+        );
+
+        // println!("{}", sql);
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[get("/material_auto_kt")]
+pub async fn material_auto_kt(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = &format!(
+            r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
+                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0))::integer || '{}' || 0 AS label FROM products
+                JOIN tree ON products.商品id = tree.num
+                LEFT JOIN
+                (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                    ON products.文本字段1 = foo.物料号
+                WHERE LOWER({}) LIKE '%{}%' AND {} != '是' LIMIT 10"#,
+            f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
+            f_map["库存长度"], SPLITER, f_map["物料号"], search.s, f_map["切完"]
         );
 
         // println!("{}", sql);
@@ -414,7 +429,7 @@ pub async fn save_material_ck(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    let user = get_user(db.clone(), id.clone(), "库存调整".to_owned()).await;
     if user.name != "" {
         let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         if rem[0] == "已审核" {
@@ -431,7 +446,7 @@ pub async fn save_material_ck(
         let fields_cate = if data.rights == "销售出库" {
             "出库单据"
         } else {
-            "库存调整"
+            "库存调出"
         };
 
         let f_map = map_fields(db.clone(), fields_cate).await;
@@ -482,11 +497,19 @@ pub async fn save_material_ck(
 
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
-            let items_sql = format!(
-                r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 顺序)
+            let items_sql = if fields_cate == "出库单据" {
+                format!(
+                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 顺序)
                      VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {})"#,
-                dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0]
-            );
+                    dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0]
+                )
+            } else {
+                format!(
+                    r#"INSERT INTO pout_items (单号id, 物料号, 长度, 数量, 重量, 理重, 备注, 顺序)
+                     VALUES('{}', '{}', {}, {}, {}, {}, '{}', {})"#,
+                    dh, value[1], value[2], 1, value[3], value[4], value[5], value[0]
+                )
+            };
 
             // println!("{}", items_sql);
 
@@ -615,50 +638,49 @@ pub async fn fetch_document_items_ck(
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
-        for row in rows {
-            let name: String = row.get("名称");
-            let cz: String = row.get("材质");
-            let gg: String = row.get("规格");
-            let status: String = row.get("状态");
-            let lu: String = row.get("炉号");
-            let long: i32 = row.get("长度");
-            let mount: i32 = row.get("数量");
-            let allong: i32 = row.get("总长度");
-            let num: String = row.get("物料号");
-            let weight: f32 = row.get("重量");
-            let theory: f32 = row.get("理重");
-            let note: String = row.get("备注");
-            let m_id: String = row.get("商品id");
-            let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                lu,
-                SPLITER,
-                long,
-                SPLITER,
-                mount,
-                SPLITER,
-                allong,
-                SPLITER,
-                num,
-                SPLITER,
-                weight,
-                SPLITER,
-                theory,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id
-            );
+        if data.cate != "库存调出" {
+            for row in rows {
+                let name: String = row.get("名称");
+                let cz: String = row.get("材质");
+                let gg: String = row.get("规格");
+                let status: String = row.get("状态");
+                let lu: String = row.get("炉号");
+                let long: i32 = row.get("长度");
+                let mount: i32 = row.get("数量");
+                let allong: i32 = row.get("总长度");
+                let num: String = row.get("物料号");
+                let weight: f32 = row.get("重量");
+                let theory: f32 = row.get("理重");
+                let note: String = row.get("备注");
+                let m_id: String = row.get("商品id");
+                let item = format!(
+                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                    name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
+                    long, SPLITER, mount, SPLITER, allong, SPLITER, num, SPLITER,
+                    weight, SPLITER, theory, SPLITER, note, SPLITER, m_id
+                );
 
-            document_items.push(item)
+                document_items.push(item);
+            }
+        } else {
+            for row in rows {
+                let name: String = row.get("名称");
+                let cz: String = row.get("材质");
+                let gg: String = row.get("规格");
+                let status: String = row.get("状态");
+                let long: i32 = row.get("长度");
+                let num: String = row.get("物料号");
+                let weight: f32 = row.get("重量");
+                let theory: f32 = row.get("理重");
+                let note: String = row.get("备注");
+                let item = format!(
+                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                    num, SPLITER, name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER,
+                    long, SPLITER, weight, SPLITER, theory, SPLITER, note, SPLITER
+                );
+
+                document_items.push(item);
+            }
         }
 
         HttpResponse::Ok().json(document_items)

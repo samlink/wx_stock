@@ -59,8 +59,25 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 service.build_product_table(row_num);
 
-//查阅出库按键
+//增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
+    global.eidt_cate = "add";
+
+    if (global.product_name != "") {
+        document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields);
+        document.querySelector('.modal-title').textContent = global.product_name;
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+        document.querySelector('.modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+        leave_alert();
+    }
+    else {
+        notifier.show('请先选择商品', 'danger');
+    }
+
+});
+//查阅出库按键
+document.querySelector('#find-button').addEventListener('click', function () {
     global.eidt_cate = "add";
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent.trim() : "";
@@ -89,7 +106,8 @@ document.querySelector('#add-button').addEventListener('click', function () {
                 let tds = "";
                 let n = 1;
                 for (let row of content) {
-                    tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="/material_out/${row.dh}" target="_blank">${row.dh}</a></td>
+                    let hr = row.cate == "销售出库" ? "/material_out/" : "/stock_change_out/";
+                    tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="${hr}${row.dh}" target="_blank">${row.dh}</a></td>
                             <td>${row.long}</td><td>${row.num}</td><td>${row.all_long}</td><td>${row.weight}</td><td>${row.note}</td></tr>`;
                 }
 

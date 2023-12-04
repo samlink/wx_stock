@@ -399,6 +399,18 @@ pub async fn stock_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
+#[get("/stock_query_out")]
+pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| query(o, user, "仓储管理", "调出查询", "pout_items"));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 // #[get("/stock_query")]
 // pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 //     let mut user = get_user(db.clone(), id, "库存检查".to_owned()).await;

@@ -6,7 +6,7 @@ import {SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType} from '
 import {
     build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-import {close_modal} from "../parts/modal.mjs";
+import {close_modal, modal_init} from "../parts/modal.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let num_position = document.querySelector('#num_position').textContent.split(",");
@@ -416,15 +416,7 @@ document.querySelector('#upload-pic').addEventListener('click', () => {
     document.querySelector('#modal-sumit-button').style.display = "none";
 })
 
-//关闭按键
-document.querySelector('#modal-close-button').addEventListener('click', function () {
-    document.querySelector('#modal-sumit-button').style.display = "inline-block";
-    close_modal();
-});
-document.querySelector('.top-close').addEventListener('click', function () {
-    document.querySelector('#modal-sumit-button').style.display = "inline-block";
-    close_modal();
-});
+modal_init();
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 
