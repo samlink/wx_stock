@@ -1,4 +1,4 @@
-import { SPLITER } from '../parts/tools.mjs';
+import {SPLITER} from '../parts/tools.mjs';
 
 export class AutoInput {
     constructor(input, cate, url, cb) {
@@ -20,18 +20,18 @@ export class AutoInput {
             var space = this.space;
 
             closeAllLists();
-            if (!val) { return false; }
+            if (!val) {
+                return false;
+            }
 
             currentFocus = -1;
             var get_url;
             if (this.cate == "") {
                 get_url = `${this.url}?s=${val}`;
-            }
-            else if (this.cate.textContent) {
-                get_url = `${this.url}?s=${val}&cate=${this.cate.textContent}`;
-            }
-            else {
+            } else if (typeof (this.cate) == "string") {
                 get_url = `${this.url}?s=${val}&cate=${this.cate}`;
+            } else {
+                get_url = `${this.url}?s=${val}&cate=${this.cate.textContent}`;
             }
 
             fetch(get_url)
@@ -81,8 +81,7 @@ export class AutoInput {
                     e.preventDefault();
                     if (currentFocus > -1) {
                         x[currentFocus].click();
-                    }
-                    else {
+                    } else {
                         x[0].click();
                     }
                 } else if (e.key == 'Escape') {
@@ -91,8 +90,7 @@ export class AutoInput {
                     e.preventDefault();
                     if (currentFocus > -1) {
                         x[currentFocus].click();     //模拟 click 操作
-                    }
-                    else {
+                    } else {
                         x[0].click();
                     }
                 }
@@ -137,19 +135,20 @@ export function auto_table(input, cate, url, thead, cb, cf) {
         var val = this.value;
 
         closeAllLists();
-        if (!val) { return false; }
+        if (!val) {
+            return false;
+        }
 
         currentFocus = -1;
         let get_url;
         if (cate != "") {
             let c = typeof (cate) == "string" ? cate : cate.textContent;
             get_url = `${url}?s=${val}&cate=${c}`;
-        }
-        else {
+        } else {
             get_url = `${url}?s=${val}`;
         }
 
-        if (typeof(cf) == "function") {
+        if (typeof (cf) == "function") {
             get_url += `&ss=${cf()}`;
         }
 
@@ -210,8 +209,7 @@ export function auto_table(input, cate, url, thead, cb, cf) {
                 e.preventDefault();
                 if (currentFocus > -1) {
                     x[currentFocus].click();
-                }
-                else {
+                } else {
                     x[0].click();
                 }
             } else if (e.key == 'Escape') {
@@ -220,8 +218,7 @@ export function auto_table(input, cate, url, thead, cb, cf) {
                 e.preventDefault();
                 if (currentFocus > -1) {
                     x[currentFocus].click();     //模拟 click 操作
-                }
-                else {
+                } else {
                     x[0].click();
                 }
             }

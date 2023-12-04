@@ -61,13 +61,7 @@ pub async fn fetch_all_documents(
 
         let f_map = map_fields(db.clone(), doc_cate).await;
 
-        let mut limits = "".to_owned();
-        if user.duty == "主管" || user.duty == "库管" {
-            let area = format!("documents.{}", f_map["区域"]);
-            limits = format!("{} = '{}' AND", area, user.area);
-        } else if user.duty == "销售" {
-            limits = format!("经办人 = '{}' AND", user.name);
-        }
+        let limits = get_limits(user, f_map).await;
 
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;

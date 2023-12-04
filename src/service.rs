@@ -311,6 +311,19 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
     f_map
 }
 
+// 获取查询单据的权限
+pub async fn get_limits(user: UserData, f_map: HashMap<String, String>) -> String {
+    let mut limits = "".to_owned();
+    if user.duty == "主管" || user.duty == "库管" {
+        let area = format!("documents.{}", f_map["区域"]);
+        limits = format!("{} = '{}' AND", area, user.area);
+    } else if user.duty == "销售" {
+        limits = format!("经办人 = '{}' AND", user.name);
+    }
+
+    limits
+}
+
 //获取出入库用的显示字段 is_show
 pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();

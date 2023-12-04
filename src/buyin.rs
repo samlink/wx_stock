@@ -708,7 +708,6 @@ pub async fn save_stransport(
                 .unwrap();
         }
 
-
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(

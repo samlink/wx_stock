@@ -1,14 +1,10 @@
-import { table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { SPLITER, getHeight } from '../parts/tools.mjs';
-
-//设置菜单 
-document.querySelector('#customers .nav-icon').classList.add('show-chosed');
-document.querySelector('#customers .menu-text').classList.add('show-chosed');
+import {table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import {SPLITER, getHeight} from '../parts/tools.mjs';
 
 let get_height = getHeight() - 138;
-let row_num = Math.floor(get_height / 30);
+let row_num = Math.floor(get_height / 33);
 
 //执行日期实例------------------------------------------------
 laydate.render({
@@ -56,13 +52,15 @@ let init_data = {
     header_names: {
         "日期": "日期",
         "单号": "单号",
+        "合同编号": "documents.文本字段6",
         "类别": "documents.类别",
         "单据金额": "应结金额",
         "商品名称": "node_name",
-        "规格型号": "规格型号",
-        "单位": "单位",
+        "材质": "node_name",
+        "规格": "规格",
+        "状态": "documents.文本字段2",
         "价格": "单价",
-        "数量": "abs(数量)",
+        "重量": "重量",
         "备注": "documents.备注"
     },
 
@@ -73,21 +71,19 @@ let init_data = {
 document.querySelector('#checkbox-fields').addEventListener('click', function () {
     if (this.checked) {
         document.querySelector('#search-fields').disabled = false;
-    } 
-    else {
+    } else {
         document.querySelector('#search-fields').disabled = true;
-    }   
+    }
 });
 
 document.querySelector('#checkbox-date').addEventListener('click', function () {
     if (this.checked) {
         document.querySelector('#search-date1').disabled = false;
         document.querySelector('#search-date2').disabled = false;
-    } 
-    else {
+    } else {
         document.querySelector('#search-date1').disabled = true;
         document.querySelector('#search-date2').disabled = true;
-    }    
+    }
 });
 
 //点击搜索按钮
@@ -126,8 +122,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         }
 
         window.open(address + id);
-    }
-    else {
+    } else {
         notifier.show('请先选择单据', 'danger');
     }
 });
@@ -135,14 +130,11 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 function row_fn(tr) {
     let row = tr.split(SPLITER);
-    let center = "style='text-align:center'";
-    let right = "style='text-align:right'";
-
-    return `<tr><td ${center}>${row[0]}</td><td ${center}>${row[1]}</td><td>${row[2]}</td><td ${center}>${row[3]}</td>
-            <td ${right}>${Number(row[4]).toFixed(num[1])}</td><td>${row[5]}</td><td>${row[6]}</td><td ${center}>${row[7]}</td>
-            <td ${right}>${Number(row[8]).toFixed(num[0])}</td><td ${right}>${row[9]}</td><td>${row[10]}</td></tr>`;
+    return `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
+            <td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td><td>${row[9]}</td><td>${row[10]}</td>
+            <td>${row[11]}</td><td>${row[12]}</td></tr>`;
 }
 
 function blank_row_fn() {
-    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+    return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
 }
