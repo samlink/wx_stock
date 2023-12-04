@@ -20,11 +20,17 @@ if (cate == "采购查询") {
     document_cate = "入库单据"
     address = `/material_in/`;
 } else if (cate == "出库查询") {
-    document_cate = "出库单据"
+    document_cate = "出库单据";
     address = `/material_out/`;
 } else if (cate == "发货查询") {
-    document_cate = "发货单据"
+    document_cate = "发货单据";
     address = `/transport/`;
+} else if (cate == "调入查询") {
+    document_cate = "库存调入";
+    address = `/stock_change_in/`;
+} else if (cate == "调出查询") {
+    document_cate = "库存调出";
+    address = `/stock_change_out/`;
 }
 
 let table_fields;

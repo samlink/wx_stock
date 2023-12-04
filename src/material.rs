@@ -302,7 +302,8 @@ pub async fn save_material(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    // let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    let user = get_user(db.clone(), id.clone(), "库存调整".to_owned()).await;
     if user.name != "" {
         let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         if rem[0] == "已审核" {
@@ -319,7 +320,7 @@ pub async fn save_material(
         let fields_cate = if data.rights == "采购入库" {
             "入库单据"
         } else {
-            "库存调整"
+            "库存调入"
         };
 
         let f_map = map_fields(db.clone(), fields_cate).await;
@@ -405,7 +406,10 @@ pub async fn save_material(
 
             // println!("{}", items_sql);
 
-            transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+            let re = transaction.execute(items_sql.as_str(), &[]).await.unwrap_or(0);
+            if re == 0 {
+                return HttpResponse::Ok().json(-2);   //物料号重复时无法保存
+            }
         }
 
         let _result = transaction.commit().await;
@@ -541,7 +545,7 @@ pub async fn fetch_document_items_rk(
             f_map["顺序"]
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();

@@ -77,15 +77,6 @@ pub struct FieldsData {
     pub all_edit: bool,
 }
 
-///静态文件服务
-// pub fn serve_static(file: web::Path<File>) -> HttpResponse {
-//     if let Some(data) = statics::StaticFile::get(&file.name) {
-//         HttpResponse::Ok().body(data.content)
-//     } else {
-//         HttpResponse::NotFound().into()
-//     }
-// }
-
 // 自动生成单号
 pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let conn = db.get().await.unwrap();
@@ -103,8 +94,10 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         "CK"
     } else if doc_data == "运输发货" {
         "FH"
+    } else if doc_data == "调整入库" {
+        "TR"
     } else {
-        "KT"
+        "TC"
     };
 
     let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();

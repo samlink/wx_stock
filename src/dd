@@ -1,0 +1,8 @@
+select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
+                规格型号 as 规格, 文本字段2 as 状态, 文本字段4 as 炉号, 文本字段3 as 执行标准, 文本字段5 as 生产厂家, 库位 as 库位, 文本字段1 as 物料号, 整数字段1 as 入库长度,
+                库存下限 as 理论重量, 备注 as 备注, 商品id FROM products
+                JOIN tree ON 商品id=tree.num
+                WHERE 单号id='TR202312-02' ORDER BY 整数字段4
+
+select 规格型号 as 规格, 文本字段2 as 状态, 文本字段4 as 炉号, 文本字段3 as 执行标准, 文本字段5 as 生产厂家, 库位 as 库位, 文本字段1 as 物料号, 整数字段1 as 入库长度,
+                       库存下限 as 理论重量, 备注 as 备注, 商品id from products WHERE 单号id='TR202312-02' ORDER BY 整数字段4
