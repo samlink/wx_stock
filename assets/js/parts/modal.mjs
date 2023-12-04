@@ -1,4 +1,7 @@
-//关闭函数
+import {alert_confirm} from "./alert.mjs";
+
+export var modal_edit = 0;
+
 export function modal_init() {
     //关闭按键
     document.querySelector('#modal-close-button').addEventListener('click', function () {
@@ -12,7 +15,33 @@ export function modal_init() {
 }
 
 export function close_modal() {
-    document.querySelector('.modal').style.display = "none";
-    document.querySelector('.modal-content').style.cssText = "";
+    if (modal_edit == 1) {
+        alert_confirm('编辑还未保存，确认退出吗？', {
+            confirmCallBack: () => {
+                modal_edit = 0;
+                document.querySelector('.modal').style.display = "none";
+            }
+        });
+    } else {
+        document.querySelector('.modal').style.display = "none";
+    }
+
     document.querySelector('#modal-info').innerHTML = "";
+}
+
+//编辑离开提醒事件
+export function leave_alert() {
+    let all_input = document.querySelectorAll('.modal input');
+    for (let input of all_input) {
+        input.addEventListener('input', () => {
+            modal_edit = 1;
+        });
+    }
+
+    let all_select = document.querySelectorAll('.modal select');
+    for (let select of all_select) {
+        select.addEventListener('change', function () {
+            modal_edit = 1;
+        });
+    }
 }

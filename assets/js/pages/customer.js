@@ -1,13 +1,10 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import {regInt, regReal, getHeight, SPLITER, download_file, checkFileType} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-
-//设置菜单 
-document.querySelector('#customers .nav-icon').classList.add('show-chosed');
-document.querySelector('#customers .menu-text').classList.add('show-chosed');
+import {modal_init, close_modal, leave_alert, modal_edit} from "../parts/modal.mjs";
 
 let cus_cate = document.querySelector('#category').textContent;
 
@@ -57,7 +54,7 @@ fetch(`/fetch_fields`, {
             });
 
             let table = document.querySelector('.table-customer');
-            let custom_fields =[{name:'序号', width: 3}]
+            let custom_fields = [{name: '序号', width: 3}]
             let data = service.build_table_header(table, custom_fields, table_fields);
             table.querySelector('thead tr').innerHTML = data.th_row;
             // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
@@ -83,20 +80,20 @@ function blank_row() {
 //搜索客户供应商
 let search_input = document.querySelector('#search-input');
 
-
 let auto_comp = new AutoInput(search_input, document.querySelector('#category'), "customer_auto", () => {
     search_table();
 });
 
 auto_comp.init();
 
+modal_init();
 document.querySelector('#serach-button').addEventListener('click', function () {
     search_table();
 });
 
 function search_table() {
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, { name: search, page: 1 });
+    Object.assign(table_data.post_data, {name: search, page: 1});
     fetch_table();
 }
 
@@ -130,8 +127,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
-    }
-    else {
+    } else {
         notifier.show('请先选择' + cus_cate, 'danger');
     }
 });
@@ -157,8 +153,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 let value;
                 if (table_fields[n].data_type != "布尔") {
                     value = input.value;
-                }
-                else {
+                } else {
                     let v = table_fields[n].option_value.split("_");
                     value = input.checked ? v[0] : v[1];
                 }
@@ -185,6 +180,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
+                        modal_edit = 0;
                         notifier.show(cus_cate + '修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {
@@ -193,24 +189,21 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                             }
                         }
                         close_modal();
-                    }
-                    else {
+                    } else {
                         notifier.show('权限不够，操作失败', 'danger');
                     }
                 });
-        }
-        else {
+        } else {
             notifier.show('空值不能提交', 'danger');
         }
-    }
-    else {
+    } else {
         let url = global.eidt_cate == "批量导入" ? `/customer_addin` : `/customer_updatein`;
         fetch(url, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ cate: cus_cate }),
+            body: JSON.stringify({cate: cus_cate}),
         })
             .then(response => response.json())
             .then(content => {
@@ -218,56 +211,12 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                     notifier.show('批量操作成功', 'success');
                     fetch_table();
                     close_modal();
-                }
-                else {
+                } else {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
             });
     }
 });
-
-//关闭按键
-document.querySelector('#modal-close-button').addEventListener('click', function () {
-    close_modal();
-});
-
-//关闭按键
-document.querySelector('.top-close').addEventListener('click', function () {
-    close_modal();
-});
-
-//关闭函数
-function close_modal() {
-    if (global.edit == 1) {
-        alert_confirm('编辑还未保存，确认退出吗？', {
-            confirmCallBack: () => {
-                global.edit = 0;
-                document.querySelector('.modal').style.display = "none";
-            }
-        });
-    } else {
-        document.querySelector('.modal').style.display = "none";
-    }
-
-    document.querySelector('#modal-info').innerHTML = "";
-}
-
-//编辑离开提醒事件
-function leave_alert() {
-    let all_input = document.querySelectorAll('.modal input');
-    for (let input of all_input) {
-        input.addEventListener('input', () => {
-            global.edit = 1;
-        });
-    }
-
-    let all_select = document.querySelectorAll('.modal select');
-    for (let select of all_select) {
-        select.addEventListener('change', function () {
-            global.edit = 1;
-        });
-    }
-}
 
 //数据导入和导出 ------------------------------------------------------------------------------
 
@@ -277,15 +226,14 @@ document.querySelector('#data-out').addEventListener('click', function () {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({ cate: cus_cate }),
+        body: JSON.stringify({cate: cus_cate}),
     })
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
                 download_file(`/download/${content}.xlsx`);
                 notifier.show('成功导出至 Excel 文件', 'success');
-            }
-            else {
+            } else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
@@ -293,22 +241,17 @@ document.querySelector('#data-out').addEventListener('click', function () {
 
 //批量导入
 let fileBtn = document.getElementById('choose_file');
-
 document.getElementById('data-in').addEventListener('click', function () {
     fileBtn.click();
 });
-
 fileBtn.addEventListener('change', () => {
     data_in(fileBtn, "将追加", "追加新数据，同时保留原数据", "批量导入");
 });
-
 //批量更新
 let fileBtn_update = document.getElementById('choose_file2');
-
 document.getElementById('data-update').addEventListener('click', function () {
     fileBtn_update.click();
 });
-
 fileBtn_update.addEventListener('change', () => {
     data_in(fileBtn_update, "将更新", "更新数据，原数据将被替换，请谨慎操作！", "批量更新");
 });
@@ -318,7 +261,7 @@ function data_in(fileBtn, info1, info2, cate) {
         const fd = new FormData();
         fd.append('file', fileBtn.files[0]);
         let url = cus_cate == "客户" ? `/customer_in` : `/supplier_in`;
-        
+
         fetch(url, {
             method: 'POST',
             body: fd,
@@ -365,8 +308,7 @@ function data_in(fileBtn, info1, info2, cate) {
                     notifier.show('excel 表列数不符合', 'danger');
                 }
             });
-    }
-    else {
+    } else {
         notifier.show('需要 excel 文件', 'danger');
     }
 }

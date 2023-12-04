@@ -5,6 +5,7 @@ import {fetch_tree, tree_init, tree_search} from '../parts/tree.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {regInt, regReal, SPLITER, download_file, checkFileType, open_node} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
+import {modal_init, leave_alert, close_modal, modal_edit} from "../parts/modal.mjs";
 
 let global = {
     row_id: 0,
@@ -70,8 +71,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
-    }
-    else {
+    } else {
         notifier.show('请先选择商品', 'danger');
     }
 
@@ -206,6 +206,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
+                        modal_edit = 0;
                         notifier.show('商品修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {
@@ -240,50 +241,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     }
 });
 
-//关闭按键
-document.querySelector('#modal-close-button').addEventListener('click', function () {
-    document.querySelector('#modal-sumit-button').style.display = "inline-block";
-    close_modal();
-});
-
-//关闭按键
-document.querySelector('.top-close').addEventListener('click', function () {
-    document.querySelector('#modal-sumit-button').style.display = "inline-block";
-    close_modal();
-});
-
-//关闭函数
-function close_modal() {
-    if (global.edit == 1) {
-        alert_confirm('编辑还未保存，确认退出吗？', {
-            confirmCallBack: () => {
-                global.edit = 0;
-                document.querySelector('.modal').style.display = "none";
-            }
-        });
-    } else {
-        document.querySelector('.modal').style.display = "none";
-    }
-
-    document.querySelector('#modal-info').innerHTML = "";
-}
-
-//编辑离开提醒事件
-function leave_alert() {
-    let all_input = document.querySelectorAll('.modal input');
-    for (let input of all_input) {
-        input.addEventListener('input', () => {
-            global.edit = 1;
-        });
-    }
-
-    let all_select = document.querySelectorAll('.modal select');
-    for (let select of all_select) {
-        select.addEventListener('change', function () {
-            global.edit = 1;
-        });
-    }
-}
+modal_init();
 
 //数据导入和导出 ------------------------------------------------------------------------------
 
