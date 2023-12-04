@@ -373,36 +373,23 @@ pub async fn save_material(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
 
-            let items_sql = format!(
-                r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+            let items_sql = if fields_cate != "库存调入" {
+                format!(
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
                      VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}', {})"#,
-                f_map["规格"],
-                f_map["状态"],
-                f_map["炉号"],
-                f_map["执行标准"],
-                f_map["生产厂家"],
-                f_map["库位"],
-                f_map["物料号"],
-                f_map["入库长度"],
-                f_map["理论重量"],
-                f_map["备注"],
-                f_map["来源"],
-                f_map["顺序"],
-                dh,
-                value[11],
-                value[1],
-                value[2],
-                value[3],
-                value[4],
-                value[5],
-                value[6],
-                value[7],
-                value[8],
-                value[9],
-                value[10],
-                doc_data[2],
-                value[0]
-            );
+                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
+                    f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], f_map["来源"], f_map["顺序"],
+                    dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
+                    value[9], value[10], doc_data[2], value[0])
+            } else {
+                format!(
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, '{}', '{}', {})"#,
+                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
+                    f_map["物料号"], f_map["入库长度"], f_map["理论重量"], f_map["备注"], f_map["来源"], f_map["顺序"],
+                    dh, value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
+                    value[9], value[10], value[11], doc_data[2], value[0])
+            };
 
             // println!("{}", items_sql);
 
@@ -545,7 +532,7 @@ pub async fn fetch_document_items_rk(
             f_map["顺序"]
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
@@ -701,17 +688,23 @@ pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity
 #[post("/make_formal_in")]
 pub async fn make_formal_in(
     db: web::Data<Pool>,
-    data: web::Json<String>,
+    data: web::Json<DocumentDh>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    let table_name = if data.cate == "采购入库" {
+        "入库单据"
+    } else {
+        "库存调入"
+    };
+
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), "入库单据").await;
+        let f_map = map_fields(db.clone(), table_name).await;
         let sql = format!(
             r#"update documents set {}='{}' WHERE 单号='{}'"#,
-            f_map["审核"], user_name, data
+            f_map["审核"], user_name, data.dh
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -829,6 +822,35 @@ pub async fn fetch_check(
             let chk: &str = row.get("审核");
             let chk2: &str = row.get("质检");
             check = format!("{}-{}", chk, chk2);
+        }
+        HttpResponse::Ok().json(check)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/fetch_check_stock")]
+pub async fn fetch_check_stock(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let f_map = map_fields(db.clone(), &data.cate).await;
+        let sql = format!(
+            r#"select {} as 审核 from documents WHERE 单号='{}'"#,
+            f_map["审核"], data.dh
+        );
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut check = "".to_owned();
+        for row in rows {
+            let chk: &str = row.get("审核");
+            check = format!("{}", chk);
         }
         HttpResponse::Ok().json(check)
     } else {

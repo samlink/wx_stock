@@ -5,7 +5,7 @@ import { alert_confirm } from './alert.mjs';
 import { auto_table, AutoInput } from './autocomplete.mjs';
 import * as service from './service.mjs'
 import { SPLITER, regReal, open_node, regInt, padZero } from './tools.mjs';
-import { close_modal } from './modal.mjs';
+import {close_modal, modal_init} from './modal.mjs';
 
 let all_width;
 
@@ -594,3 +594,5 @@ function chose_exit(selected_row) {
         notifier.show('请先选择记录', 'danger');
     }
 }
+
+modal_init();

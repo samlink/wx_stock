@@ -474,8 +474,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                     if (show_names[i].type == "autocomplete") {
                         let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
                         save_str = `${value}${SPLITER}`;
-                    }
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                    } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
                         save_str += `${value}${SPLITER}`;

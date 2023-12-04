@@ -50,35 +50,27 @@ fetch(`/fetch_inout_fields`, {
                         let values = data.split(SPLITER);
                         document.querySelector('#owner').textContent = `[ ${values[values.length - 2]} ]`;
 
-                        fetch('/fetch_check', {
+                        fetch('/fetch_check_stock', {
                             method: 'post',
                             headers: {
                                 "Content-Type": "application/json",
                             },
-                            body: JSON.stringify(dh_div.textContent),
+                            body: JSON.stringify({
+                                cate: document_name,
+                                dh: dh_div.textContent
+                            }),
                         })
                             .then(response => response.json())
                             .then(data => {
-                                let check = data.split('-');
                                 let rem = document.querySelector('#remember-button');
-                                // if (check[0] != "") {
-                                //     rem.textContent = "已审核";
-                                //     rem.classList.add('remembered');
-                                //     set_readonly();
-                                // } else {
-                                //     rem.textContent = "审核";
-                                //     rem.classList.remove('remembered');
-                                // }
-
-                                // let chk = document.querySelector('#check-button');
-                                // if (check[1] != "") {
-                                //     chk.textContent = "已质检";
-                                //     chk.classList.add('remembered');
-                                //     set_readonly();
-                                // } else {
-                                //     chk.textContent = "质检";
-                                //     chk.classList.remove('remembered');
-                                // }
+                                if (data != "") {
+                                    rem.textContent = "已审核";
+                                    rem.classList.add('remembered');
+                                    set_readonly();
+                                } else {
+                                    rem.textContent = "审核";
+                                    rem.classList.remove('remembered');
+                                }
                             });
                     });
             } else {
@@ -95,8 +87,6 @@ function set_readonly() {
     for (let edit of all_edit) {
         edit.readOnly = true;
     }
-    document.querySelector('#文本字段6').readOnly = true;
-    document.querySelector('#material-add').setAttribute("disabled", true);
     document.querySelector('#save-button').setAttribute("disabled", true);
 }
 
@@ -321,15 +311,17 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
             for (let i = 0; i < len; i++) {
                 if (show_names[i].is_save) {
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                    if (show_names[i].type == "autocomplete") {
+                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
+                        save_str += `${value}${SPLITER}`;
+                    } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
                         let value = row.querySelector(`.${show_names[i].class}`).value;
                         if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
                         save_str += `${value.trim()}${SPLITER}`;
                     }
                 }
             }
-            let value = row.querySelector('.auto-input').getAttribute("data").split(SPLITER)[0];
-            save_str += `${value.trim()}${SPLITER}`;
+
             table_data.push(save_str);
         }
     }
@@ -387,7 +379,10 @@ document.querySelector('#remember-button').addEventListener('click', function ()
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(dh_div.textContent),
+                body: JSON.stringify({
+                    cate: document_name,
+                    dh: dh_div.textContent
+                }),
             })
                 .then(response => response.json())
                 .then(content => {
