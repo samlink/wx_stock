@@ -8,7 +8,6 @@ import {
 } from '../parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
-let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
 
@@ -360,7 +359,7 @@ function calc_money(input_row) {
     let money = "";
     if (price && regReal.test(price) && mount && regReal.test(mount)) {
         if (input_row.querySelector('.材质').textContent.trim() != "--") {
-            money = (price * mount).toFixed(Number(num_position[1]));
+            money = (price * mount).toFixed(0);
         } else {
             money = (price * input_row.querySelector('.num').value).toFixed(0);
         }
@@ -389,8 +388,8 @@ function sum_money() {
         }
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(Number(num_position[1]))} 元`;
-    document.querySelector('#应结金额').value = sum.toFixed(Number(num_position[1]));
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(0)} 元`;
+    document.querySelector('#应结金额').value = sum.toFixed(0);
 }
 
 // 销售时使用的理论重量计算
@@ -608,7 +607,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             let row_data = {};
             row_data["序号"] = '合计';
             row_data["实际重量"] = count.toFixed(2);
-            row_data["金额"] = sum.toFixed(Number(num_position[1]));
+            row_data["金额"] = sum.toFixed(0);
 
             table_data.push(row_data);
 

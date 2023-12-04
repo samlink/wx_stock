@@ -32,7 +32,6 @@ pub async fn fetch_all_documents(
     // let user = get_user(db.clone(), id, post_data.cate.clone()).await;
     let user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
 
-
     if user.name != "" {
         let doc_cate;
         let doc_sql;

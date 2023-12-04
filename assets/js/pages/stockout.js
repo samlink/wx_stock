@@ -11,7 +11,6 @@ import {
 } from '../parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
-let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
 

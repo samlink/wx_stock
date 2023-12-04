@@ -23,10 +23,7 @@ pub async fn fetch_analys(
         let conn = db.get().await.unwrap();
         let mut documents_record: Vec<String> = Vec::new();
 
-        //处理小数位数
-        let num_position = get_fraction(db).await;
-        let num: Vec<&str> = num_position.split(",").collect();
-        let num2 = num[1].parse::<usize>().unwrap();
+        let num2 = 2;
 
         let document_names = vec![
             "材料采购-CG",

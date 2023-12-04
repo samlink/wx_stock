@@ -135,7 +135,6 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
 function row_fn(tr) {
     let row = tr.split(SPLITER);
-    let num = document.querySelector('#num_position').textContent.split(',');
     let center = "style='text-align:center'";
     let right = "style='text-align:right'";
 

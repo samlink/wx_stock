@@ -459,7 +459,7 @@ function calc_money(input_row) {
     }
     let money = "";
     if (price && regReal.test(price) && mount && regReal.test(mount)) {
-        money = (price * mount).toFixed(Number(num_position[1]));
+        money = (price * mount).toFixed(0);
     }
 
     input_row.querySelector('.money').textContent = money;

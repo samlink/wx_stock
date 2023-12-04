@@ -123,11 +123,7 @@ pub async fn fetch_business(
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
-        //处理小数位数
-        let num_position = get_fraction(db).await;
-        let num: Vec<&str> = num_position.split(",").collect();
-        let num2 = num[1].parse::<usize>().unwrap();
-        let money2 = format!("{:.*}", num2, -money);
+        let money2 = format!("{:.*}", 2, -money);
 
         HttpResponse::Ok().json((products, count, pages, money2))
     } else {
@@ -180,9 +176,7 @@ pub async fn fetch_debt(
         let mut debt_record: Vec<String> = Vec::new();
 
         //处理小数位数
-        let num_position = get_fraction(db).await;
-        let num: Vec<&str> = num_position.split(",").collect();
-        let num2 = num[1].parse::<usize>().unwrap();
+        let num2 = 2;
 
         if post_data.customer != "" {
             let debt_names = vec!["材料采购-CG", "采购退货-CT", "商品销售-XS", "销售退货-XT"];

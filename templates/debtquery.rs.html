@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, num_position: String)
+@(user: UserData)
 
 @:base({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
@@ -10,7 +10,6 @@
         <span class="t1"><i class="fa fa-angle-double-right"></i> 债务结算 </span>
         <p id="help-info" title="帮助信息"><img></p>
         <p id="auto_cate" hidden></p>
-        <span id="num_position" hidden>@num_position</span>
     </div>
     <div class="query-content has-bak">
         <div id="query-show">

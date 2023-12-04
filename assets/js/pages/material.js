@@ -10,7 +10,6 @@ import {
 } from '../parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
-let num_position = document.querySelector('#num_position').textContent.split(",");
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
 
@@ -534,7 +533,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             let row_data = {};
             row_data["序号"] = '合计';
             row_data["实际重量"] = count.toFixed(2);
-            row_data["金额"] = sum.toFixed(Number(num_position[1]));
+            row_data["金额"] = sum.toFixed(Number(0));
 
             table_data.push(row_data);
 

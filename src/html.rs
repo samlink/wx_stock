@@ -1,4 +1,4 @@
-use crate::service::{get_fraction, get_user, r2s, UserData};
+use crate::service::{get_user, r2s, UserData};
 use actix_identity::Identity;
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
@@ -157,11 +157,10 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["材料采购", "供应商", "入库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, num_position, setup));
+        let html = r2s(|o| buyin(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -178,10 +177,9 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["商品销售", "客户", "出库及发货单号", dh, "customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, num_position, setup));
+        let html = r2s(|o| buyin(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -198,10 +196,9 @@ pub async fn saleback(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identi
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["销售退货", "客户", "入库单号", dh, "customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, num_position, setup));
+        let html = r2s(|o| buyin(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -222,10 +219,9 @@ pub async fn stock_change_in(
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["调整入库", "供应商", "近期调整", dh];
         user.show = name_show(&user);
-        let html = r2s(|o| stockin(o, user, num_position, setup));
+        let html = r2s(|o| stockin(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -245,10 +241,9 @@ pub async fn stock_change_out(
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["调整出库", "供应商", "近期调整", dh];
         user.show = name_show(&user);
-        let html = r2s(|o| stockout(o, user, num_position, setup));
+        let html = r2s(|o| stockout(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -265,10 +260,9 @@ pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ide
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["采购入库", "客户", "采购条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| material(o, user, num_position, setup));
+        let html = r2s(|o| material(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -285,10 +279,9 @@ pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Id
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["销售出库", "客户", "销售条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| materialout(o, user, num_position, setup));
+        let html = r2s(|o| materialout(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -305,10 +298,9 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
         } else {
             &*dh_num
         };
-        let num_position = get_fraction(db).await;
         let setup = vec!["运输发货", "客户", "销售条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| saletrans(o, user, num_position, setup));
+        let html = r2s(|o| saletrans(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -426,10 +418,9 @@ pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse 
 #[get("/business_query")]
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "业务往来".to_owned()).await;
-    let num_position = get_fraction(db).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| businessquery(o, user, num_position));
+        let html = r2s(|o| businessquery(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -439,10 +430,9 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 #[get("/debt")]
 pub async fn debt(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "债务结算".to_owned()).await;
-    let num_position = get_fraction(db).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| debtquery(o, user, num_position));
+        let html = r2s(|o| debtquery(o, user,));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

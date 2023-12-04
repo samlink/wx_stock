@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, num_position: String, setup: Vec<&str>)
+@(user: UserData, setup: Vec<&str>)
 
     @:base({
     <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
@@ -10,7 +10,6 @@
         <div class="top-title"><span><i class="fa fa-shopping-cart"></i> 采购销售 </span>
             <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
             <p id="help-info" title="帮助信息"><img></p>
-            <span id="num_position" hidden>@num_position</span>
         </div>
         <div class="buy-content">
             <div class="inout-top has-bak" style="width: 99%;">

@@ -275,23 +275,6 @@ pub fn smaller(path: String, path2: String) -> String {
     path3
 }
 
-//获取小数位数设置
-pub async fn get_fraction(db: web::Data<Pool>) -> String {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(r#"SELECT value FROM system WHERE id=1 OR id=2"#, &[])
-        .await
-        .unwrap();
-
-    let mut num_position = "".to_owned();
-    for row in rows {
-        let s: String = row.get("value");
-        num_position += &format!("{},", s);
-    }
-
-    num_position
-}
-
 //获取编辑用的显示字段 is_show
 pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
     let conn = db.get().await.unwrap();

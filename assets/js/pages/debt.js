@@ -6,8 +6,6 @@ import { SPLITER } from '../parts/tools.mjs';
 document.querySelector('#customers .nav-icon').classList.add('show-chosed');
 document.querySelector('#customers .menu-text').classList.add('show-chosed');
 
-let p = document.querySelector('#num_position').textContent.split(",")[1];
-
 //执行日期实例------------------------------------------------
 laydate.render({
     elem: '#search-date1',
