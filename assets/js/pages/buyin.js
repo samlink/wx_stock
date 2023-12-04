@@ -403,7 +403,7 @@ function calc_weight(input_row) {
         gg: input_row.querySelector('.规格').value,
     }
 
-    if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--" ) {
+    if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--") {
         input_row.querySelector('.mount').value = service.calc_weight(data);
     } else {
         input_row.querySelector('.mount').value = 0;
@@ -454,44 +454,15 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     //构建数据字符串
     let user_name = document.querySelector('#user-name').textContent.split('　')[1];
-
     let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
-
-    let n = 0;
-    for (let f of document_table_fields) {
-        if (f.data_type == "文本") {
-            save_str += `${all_values[n].value}${SPLITER}`;
-        } else if (f.data_type == "整数" || f.data_type == "实数") {
-            let value = all_values[n].value ? all_values[n].value : 0;
-            save_str += `${value}${SPLITER}`;
-        } else {
-            save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
-        }
-        n++;
-    }
+    save_str += service.build_save_header(all_values, document_table_fields);
 
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
-            let len = show_names.length;
             let save_str = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
-
-            for (let i = 2; i < len; i++) {
-                if (show_names[i].is_save) {
-                    if (show_names[i].type == "autocomplete") {
-                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
-                        save_str = `${value}${SPLITER}`;
-                    } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
-                        let value = row.querySelector(`.${show_names[i].class}`).value;
-                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
-                        save_str += `${value}${SPLITER}`;
-                    } else {
-                        let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
-                        save_str += `${value}${SPLITER}`;
-                    }
-                }
-            }
+            save_str += service.build_save_items(2, row, show_names);
             table_data.push(save_str);
         }
     }
@@ -503,7 +474,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch(`/save_document`, {
         method: 'post',
@@ -699,7 +670,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 //获取打印模板
 function fetch_print_models(value) {
     let print_id;
-    if (value == "商品采购") {
+    if (value == "材料采购") {
         print_id = 3;
     } else if (value == "采购退货") {
         print_id = 4;

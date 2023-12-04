@@ -283,20 +283,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     //构建表头存储字符串，将存入单据中
     let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
-
-    let n = 0;
-    for (let f of document_table_fields) {
-        if (f.data_type == "文本") {
-            let value = f.show_name.indexOf("单号") == -1 ? all_values[n].value : all_values[n].value.split('　')[0];
-            save_str += `${value}${SPLITER}`;
-        } else if (f.data_type == "整数" || f.data_type == "实数") {
-            let value = all_values[n].value ? all_values[n].value : 0;
-            save_str += `${value}${SPLITER}`;
-        } else {
-            save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
-        }
-        n++;
-    }
+    save_str += service.build_save_header(all_values, document_table_fields);
 
     // 构建字符串数组，将存入单据明细中
     let table_data = [];

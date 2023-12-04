@@ -80,7 +80,7 @@ pub struct FieldsData {
 // 自动生成单号
 pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let conn = db.get().await.unwrap();
-    let dh_pre = if doc_data == "商品采购" {
+    let dh_pre = if doc_data == "材料采购" {
         "CG"
     } else if doc_data == "采购退货" {
         "CT"

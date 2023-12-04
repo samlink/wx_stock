@@ -1,8 +1,8 @@
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import { SPLITER, regInt, regReal, regDate, moneyUppercase } from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
 import {
     build_blank_table,
     build_content_table, build_items_table,
@@ -126,7 +126,7 @@ function document_top_handle(html, has_date) {
     let auto_doc = document.querySelector('#文本字段6');
     auto_doc.parentNode.classList.add("autocomplete");
 
-    let auto_comp = new AutoInput(auto_doc, "商品采购", "/material_auto", () => {
+    let auto_comp = new AutoInput(auto_doc, "材料采购", "/material_auto", () => {
         build_items(auto_doc.getAttribute("data"));
     });
 
@@ -195,18 +195,18 @@ function build_items(dh) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
+    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
     {
         name: "备注",
         width: 100,
@@ -238,7 +238,7 @@ if (dh_div.textContent == "新单据") {
         lines: table_lines,
         dh: dh_div.textContent,
         document: document_name,
-        calc_func: get_weight,                
+        calc_func: get_weight,
     }
 
     build_blank_table(data);
@@ -262,7 +262,7 @@ if (dh_div.textContent == "新单据") {
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
-                calc_func: get_weight,                
+                calc_func: get_weight,
             }
 
             build_items_table(data);
@@ -353,7 +353,6 @@ document.querySelector("#material-add").addEventListener('click', function () {
 });
 
 
-
 //保存、打印、质检、审核 -------------------------------------------------------------------
 
 //保存
@@ -388,21 +387,8 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(1)').textContent != "") {
-            let len = show_names.length;
-            let save_str = ``;
-
-            for (let i = 0; i < len; i++) {
-                if (show_names[i].is_save) {
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
-                        let value = row.querySelector(`.${show_names[i].class}`).value;
-                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
-                        save_str += `${value.trim()}${SPLITER}`;
-                    } else {
-                        let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
-                        save_str += `${value.trim()}${SPLITER}`;
-                    }
-                }
-            }
+            let save_str = '';
+            save_str += service.build_save_items(0, row, show_names);
             table_data.push(save_str);
         }
     }
@@ -642,7 +628,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 //获取打印模板
 function fetch_print_models(value) {
     let print_id;
-    if (value == "商品采购") {
+    if (value == "材料采购") {
         print_id = 3;
     } else if (value == "采购退货") {
         print_id = 4;

@@ -150,7 +150,7 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///商品采购
 #[get("/buy_in/{dh}")]
 pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "商品采购".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "材料采购".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -158,7 +158,7 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
             &*dh_num
         };
         let num_position = get_fraction(db).await;
-        let setup = vec!["商品采购", "供应商", "入库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
+        let setup = vec!["材料采购", "供应商", "入库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, num_position, setup));

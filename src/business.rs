@@ -185,7 +185,7 @@ pub async fn fetch_debt(
         let num2 = num[1].parse::<usize>().unwrap();
 
         if post_data.customer != "" {
-            let debt_names = vec!["商品采购-CG", "采购退货-CT", "商品销售-XS", "销售退货-XT"];
+            let debt_names = vec!["材料采购-CG", "采购退货-CT", "商品销售-XS", "销售退货-XT"];
 
             for na in debt_names {
                 let name: Vec<&str> = na.split("-").collect();

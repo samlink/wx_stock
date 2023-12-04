@@ -29,7 +29,7 @@ pub async fn fetch_analys(
         let num2 = num[1].parse::<usize>().unwrap();
 
         let document_names = vec![
-            "商品采购-CG",
+            "材料采购-CG",
             "采购退货-CT",
             "商品销售-XS",
             "销售退货-XT",

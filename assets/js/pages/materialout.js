@@ -667,7 +667,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 //获取打印模板
 function fetch_print_models(value) {
     let print_id;
-    if (value == "商品采购") {
+    if (value == "材料采购") {
         print_id = 3;
     } else if (value == "采购退货") {
         print_id = 4;

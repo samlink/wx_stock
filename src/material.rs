@@ -789,7 +789,7 @@ pub async fn fetch_document_rk(
         } else if data.dh.starts_with("XT") {
             cate = "销售退货";
         } else if data.dh.starts_with("CG") {
-            cate = "商品采购";
+            cate = "材料采购";
         } else if data.dh.starts_with("CT") {
             cate = "采购退货";
         } else {

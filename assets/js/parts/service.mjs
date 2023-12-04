@@ -108,45 +108,45 @@ export function calc_weight(data) {
     return weight.toFixed(2);
 }
 
-// //根据显示字段创建表头，参数 n 依据屏幕宽度调整，是整数。返回表头和表头排序参数
-// export function build_table_header(table_container, table_fields) {
-//     let all_width = 0;
-//     for (let item of table_fields) {
-//         all_width += item.show_width;
-//     }
+//保存时，读取头部字段内容
+export function build_save_header(all_values, table_fields) {
+    let n = 0;
+    let save_str = "";
+    for (let f of table_fields) {
+        if (f.data_type == "文本") {
+            save_str += `${all_values[n].value}${SPLITER}`;
+        } else if (f.data_type == "整数" || f.data_type == "实数") {
+            let value = all_values[n].value ? all_values[n].value : 0;
+            save_str += `${value}${SPLITER}`;
+        } else {
+            save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
+        }
+        n++;
+    }
+    return save_str;
+}
 
-//     all_width += 3;  //序号列的宽度
-//     let table_width = table_container.clientWidth;
-//     let width_raio = table_width / all_width;
-//     let row = `<th width='${300 / all_width}%'>序号</th><th width='${400 / all_width}%'>编号</th>`;
-
-//     //当可用屏幕宽度小于字段总宽度的18倍时，则按实际px显示，这样会横向滚动
-//     if (width_raio < 18) {
-//         row = `<th width='${3 * 18}px'>序号</th><th width='${4 * 18}px'>编号</th>`;
-//         table_container.style.width = table_width;
-//         table_container.querySelector('.table-ctrl').style.cssText = `
-//             position: absolute;
-//             width: ${table_width + 2}px;
-//             margin-top: 11px;
-//             border: 1px solid #edf5fb;
-//             margin-left: -2px;`;
-//     }
-
-//     let header_names = {};
-//     for (let th of table_fields) {
-//         row += width_raio > 18 ? `<th width="${(th.show_width * 100 / all_width).toFixed(1)}%">${th.show_name}</th>` :
-//             `<th width="${th.show_width * 18}px">${th.show_name}</th>`;
-
-//         let key = th.show_name;
-//         let value = th.field_name;
-//         header_names[key] = value;
-//     }
-
-//     return {
-//         th_row: row,
-//         header_names: header_names,
-//     };
-// }
+// 保存时，读取表格明细，n 为去除隐藏列及序号列的个数
+export function build_save_items(n, row, show_names) {
+    let save_str = "";
+    let len = show_names.length;
+    for (let i = n; i < len; i++) {
+        if (show_names[i].is_save) {
+            if (show_names[i].type == "autocomplete") {
+                let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
+                save_str += `${value}${SPLITER}`;
+            } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                let value = row.querySelector(`.${show_names[i].class}`).value;
+                if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
+                save_str += `${value.trim()}${SPLITER}`;
+            } else {
+                let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
+                save_str += `${value}${SPLITER}`;
+            }
+        }
+    }
+    return save_str;
+}
 
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields, n) {

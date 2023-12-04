@@ -286,42 +286,15 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
     //构建表头存储字符串，将存入单据中
     let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
-
-    let n = 0;
-    for (let f of document_table_fields) {
-        if (f.data_type == "文本") {
-            let value = f.show_name.indexOf("单号") == -1 ? all_values[n].value : all_values[n].value.split('　')[0];
-            save_str += `${value}${SPLITER}`;
-        } else if (f.data_type == "整数" || f.data_type == "实数") {
-            let value = all_values[n].value ? all_values[n].value : 0;
-            save_str += `${value}${SPLITER}`;
-        } else {
-            save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
-        }
-        n++;
-    }
+    save_str += service.build_save_header(all_values, document_table_fields);
 
     // 构建字符串数组，将存入单据明细中
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
         if (row.querySelector('.材质').textContent.trim() != "") {
-            let len = show_names.length;
-            let save_str = ``;
-
-            for (let i = 0; i < len; i++) {
-                if (show_names[i].is_save) {
-                    if (show_names[i].type == "autocomplete") {
-                        let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
-                        save_str += `${value}${SPLITER}`;
-                    } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
-                        let value = row.querySelector(`.${show_names[i].class}`).value;
-                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
-                        save_str += `${value.trim()}${SPLITER}`;
-                    }
-                }
-            }
-
+            let save_str = "";
+            save_str += service.build_save_items(0, row, show_names);
             table_data.push(save_str);
         }
     }

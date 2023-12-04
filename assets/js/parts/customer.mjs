@@ -149,7 +149,7 @@ export function customer_init(data) {
 //自动完成点击后，展示供应商（客户）数据
 function supplier_auto_show() {
     let da = {
-        rights: customer_data.cate.textContent == "客户" ? "商品销售" : "商品采购",
+        rights: customer_data.cate.textContent == "客户" ? "商品销售" : "材料采购",
         cate: customer_data.cate.textContent,
         id: Number(customer_data.input.getAttribute('data')),
     };
