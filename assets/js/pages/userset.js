@@ -39,8 +39,6 @@ document.querySelector('#pass-button').addEventListener('click', function (event
         });
 });
 
-theme_set();
-
 //设置手机
 document.querySelector('#phone-button').addEventListener('click', function (event) {
     event.preventDefault();

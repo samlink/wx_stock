@@ -94,7 +94,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 var rights = {
     goods_buy: ['材料采购', '采购查询'],
     goods_sale: ['商品销售', '销售查询', '跨区查库存'],
-    goods_manage: ['库存管理', '采购入库', '销售出库', '调整库存', '出入库查询', '调库查询'],
+    goods_manage: ['库存状态', '采购入库', '销售出库', '调整库存', '出入库查询', '调库查询'],
     customers: ['客户管理', '供应商管理'],
     statics: ['入库明细', '出库明细', '业务往来'],
     setup: ['用户管理', '单据审核', '批量导入', '导出数据', '入库质检'],
@@ -104,14 +104,19 @@ let rows = "";
 for (let i = 0; i < row_num; i++) {
     let goods_buy = rights.goods_buy.hasOwnProperty(i) ? rights.goods_buy[i] : "";
     let goods_sale = rights.goods_sale.hasOwnProperty(i) ? rights.goods_sale[i] : "";
+    let goods_manage = rights.goods_manage.hasOwnProperty(i) ? rights.goods_manage[i] : "";
     let customers = rights.customers.hasOwnProperty(i) ? rights.customers[i] : "";
     let statics = rights.statics.hasOwnProperty(i) ? rights.statics[i] : "";
     let setup = rights.setup.hasOwnProperty(i) ? rights.setup[i] : "";
 
     let goods_buy_chk = goods_buy != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_buy" value="${goods_buy}">
                             <span class="checkmark"></span>${goods_buy}</label>` : "";
+
     let goods_sale_chk = goods_sale != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_sale" value="${goods_sale}">
                             <span class="checkmark"></span>${goods_sale}</label>` : "";
+
+    let goods_manage_chk = goods_manage != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_manage" value="${goods_manage}">
+                            <span class="checkmark"></span>${goods_manage}</label>` : "";
 
     let customers_chk = customers != "" ? `<label class="check-radio"><input type="checkbox" class="um_customers" value="${customers}">
                             <span class="checkmark"></span>${customers}</label>` : "";
@@ -122,8 +127,8 @@ for (let i = 0; i < row_num; i++) {
     let setup_chk = setup != "" ? `<label class="check-radio"><input type="checkbox" class="um_setup" value="${setup}">
                             <span class="checkmark"></span>${setup}</label>` : "";
 
-    rows += `<tr><td>${goods_in_out_chk}</td></td><td>${customers_chk}</td><td>${statics_chk}</td>
-        <td>${setup_chk}</td><td>${other_chk}</td></tr>`;
+    rows += `<tr><td>${goods_buy_chk}</td><td>${goods_sale_chk}</td><td>${goods_manage_chk}</td><td>${customers_chk}</td>
+            <td>${statics_chk}</td><td>${setup_chk}</td></tr>`;
 }
 
 document.querySelector('.rights-show table tbody').innerHTML = rows;
@@ -138,7 +143,7 @@ Object.keys(rights).forEach(function (key) {
     });
 });
 
-let all_checks = document.querySelectorAll('.rights-show table input[type=checkbox');
+let all_checks = document.querySelectorAll('.rights-show table input[type=checkbox]');
 for (let check of all_checks) {
     check.disabled = true;
 }
