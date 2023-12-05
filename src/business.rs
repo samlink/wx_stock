@@ -50,7 +50,7 @@ pub async fn fetch_business(
 
         let sql = format!(
             r#"select 日期, 单号, documents.文本字段6 as 合同编号, documents.类别, 应结金额, split_part(node_name,' ',2) as 名称,
-                 split_part(node_name,' ',1) as 材质, 规格, 状态, 单价, 重量, documents.备注,
+                 split_part(node_name,' ',1) as 材质, 规格, 状态, 长度, 数量, 单价, 重量, documents.备注,
                  ROW_NUMBER () OVER (ORDER BY {}) as 序号 from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
@@ -76,12 +76,14 @@ pub async fn fetch_business(
             let f8: String = row.get("材质");
             let f9: String = row.get("规格");
             let f10: String = row.get("状态");
-            let f11: f32 = row.get("单价");
-            let f12: f32 = row.get("重量");
-            let f13: String = row.get("备注");
+            let f11: i32 = row.get("长度");
+            let f12: i32 = row.get("数量");
+            let f13: f32 = row.get("单价");
+            let f14: f32 = row.get("重量");
+            let f15: String = row.get("备注");
 
             let product = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 f1,
                 SPLITER,
                 f2,
@@ -106,25 +108,30 @@ pub async fn fetch_business(
                 SPLITER,
                 f12,
                 SPLITER,
-                f13
+                f13,
+                SPLITER,
+                f14,
+                SPLITER,
+                f15
             );
 
             products.push(product);
         }
 
         let count_sql = format!(
-            r#"select count(单号) as 记录数, sum(重量*单价) as 金额 from document_items
+            r#"select count(单号) as 记录数, sum(case when 重量=0 and 理重=0 then 单价*数量
+               else 单价*重量 end) as 金额 from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where customers.名称 = '{}' {}{}"#,
-            data[0], query_field, query_date
+            where {} customers.名称 = '{}' {}{}"#,
+            limits, data[0], query_field, query_date
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
-        let mut money: f32 = 0f32;
+        let mut money: f64 = 0f64;
 
         for row in rows {
             count = row.get("记录数");

@@ -150,6 +150,14 @@ function document_top_handle(html, has_date) {
             showBottom: false,
         })
     }
+
+    if (document.querySelector('#文本字段3')) {
+        let da = document.querySelector('#文本字段3');
+        laydate.render({
+            elem: da,
+            showBottom: false,
+        })
+    }
 }
 
 if (document.querySelector('#supplier-input')) {
