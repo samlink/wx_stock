@@ -71,6 +71,11 @@ let init_data = {
     blank_row_fn: blank_row_fn,
 };
 
+init_data.post_data.cate = `${date1.value}${SPLITER}${date2.value}`;
+
+table_init(init_data);
+fetch_table();
+
 //点击搜索按钮
 document.querySelector('#serach-button').addEventListener('click', function () {
     let fields = document.querySelector('#search-fields').value;
@@ -80,7 +85,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     init_data.post_data.name = fields;
     init_data.post_data.cate = `${date1}${SPLITER}${date2}`;
 
-    table_init(init_data);
+    // table_init(init_data);
     fetch_table();
 });
 
@@ -93,5 +98,5 @@ function row_fn(tr) {
 
 function blank_row_fn() {
     return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            <td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+            <td></td><td></td><td></td><td></td><td></td></tr>`;
 }

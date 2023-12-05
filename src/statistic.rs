@@ -363,16 +363,19 @@ pub async fn get_stockin_items(
         let cate = post_data.cate.to_lowercase();
         let data: Vec<&str> = cate.split(SPLITER).collect();
 
-        let f_map = map_fields(db.clone(), "采购单据").await;
+        let f_map = map_fields(db.clone(), "入库单据").await;
         let f_map2 = map_fields(db.clone(), "商品规格").await;
         // let limits = get_limits(user, f_map).await;
 
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, name, name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'OR LOWER(documents.{}) LIKE '%{}%'
+                 OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, f_map2["物料号"], name, name, name, f_map2["状态"], name, f_map2["执行标准"], name, f_map2["生产厂家"],
+                name, f_map2["炉号"], name, f_map["到货日期"], name, f_map["入库日期"], name, name
             )
         } else {
             "".to_owned()
