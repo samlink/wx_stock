@@ -715,32 +715,13 @@ function error_check() {
         return false;
     }
 
-    if (!regDate.test(document.querySelector('#日期').value)) {
-        notifier.show('日期输入错误', 'danger');
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    if (!service.header_error_check(document_table_fields, all_rows)) {
         return false;
     }
 
-    let all_values = document.querySelectorAll('.document-value');
-    for (let i = 0; i < document_table_fields.length; i++) {
-        if (document_table_fields[i].data_type == "整数") {
-            if (all_values[i].value && !regInt.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        } else if (document_table_fields[i].data_type == "实数") {
-            if (all_values[i].value && !regReal.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        }
-    }
-
-    let all_rows = document.querySelectorAll('.table-items .has-input');
-
-    let lines = 0;
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
-            lines = 1;
             let mount = row.querySelector('.mount');
             if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
                 notifier.show(`单价输入错误`, 'danger');
@@ -780,12 +761,6 @@ function error_check() {
             }
         }
     }
-
-    if (lines == 0) {
-        notifier.show(`表格不能为空`, 'danger');
-        return false;
-    }
-
     return true;
 }
 

@@ -1,6 +1,7 @@
-import {SPLITER} from '../parts/tools.mjs';
+import {regDate, regInt, regReal, SPLITER} from '../parts/tools.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {table_data, table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from "./notifier.mjs";
 
 export var table_fields;
 
@@ -147,6 +148,36 @@ export function build_save_items(n, row, show_names) {
     }
     return save_str;
 }
+
+//保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
+export function header_error_check(document_table_fields, all_rows) {
+    if (!regDate.test(document.querySelector('#日期').value)) {
+        notifier.show('日期输入错误', 'danger');
+        return false;
+    }
+
+    let all_values = document.querySelectorAll('.document-value');
+    for (let i = 0; i < document_table_fields.length; i++) {
+        if (document_table_fields[i].data_type == "整数") {
+            if (all_values[i].value && !regInt.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        } else if (document_table_fields[i].data_type == "实数") {
+            if (all_values[i].value && !regReal.test(all_values[i].value)) {
+                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
+                return false;
+            }
+        }
+    }
+
+    if (all_rows.length == 0) {
+        notifier.show(`表格不能为空`, 'danger');
+        return false;
+    }
+    return true;
+}
+
 
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields, n) {

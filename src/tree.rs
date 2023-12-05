@@ -32,7 +32,7 @@ pub struct Num {
 
 #[post("/tree_add")]
 pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let mut num = "".to_owned();
@@ -94,7 +94,7 @@ pub async fn tree_add(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -
 
 #[post("/tree_edit")]
 pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let pinyin = get_pinyin(&data.node_name);
@@ -115,7 +115,7 @@ pub async fn tree_edit(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) 
 
 #[post("/tree_del")]
 pub async fn tree_del(db: web::Data<Pool>, data: web::Json<Num>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
@@ -244,7 +244,7 @@ pub async fn tree_drag(
     tree_id: web::Json<TreeId>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let _ = &conn

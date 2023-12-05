@@ -667,36 +667,20 @@ function fetch_print_models(value) {
 
 //保存、打印和审核前的错误检查
 function error_check() {
-    if (!regDate.test(document.querySelector('#日期').value)) {
-        notifier.show('日期输入错误', 'danger');
-        return false;
-    }
-
-    let all_values = document.querySelectorAll('.document-value');
-    for (let i = 0; i < document_table_fields.length; i++) {
-        if (document_table_fields[i].data_type == "整数") {
-            if (all_values[i].value && !regInt.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        } else if (document_table_fields[i].data_type == "实数") {
-            if (all_values[i].value && !regReal.test(all_values[i].value)) {
-                notifier.show(`${document_table_fields[i].show_name}输入错误`, 'danger');
-                return false;
-            }
-        }
-    }
-
     let all_rows = document.querySelectorAll('.table-items .has-input');
-    let lines = all_rows.length;
-    if (lines == 0) {
-        notifier.show(`表格不能为空`, 'danger');
+    //检查表头的错误
+    if (!service.header_error_check(document_table_fields, all_rows)) {
         return false;
     }
-
+    //检查明细
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(1)').textContent != "") {
-            if (row.querySelector('.长度').value && !regReal.test(row.querySelector('.长度').value)) {
+            if (row.querySelector('.物料号').value.trim() == "") {
+                notifier.show(`物料号不能为空`, 'danger');
+                return false;
+            }
+
+            if (row.querySelector('.长度').value && !regInt.test(row.querySelector('.长度').value)) {
                 notifier.show(`长度输入错误`, 'danger');
                 return false;
             } else if (!row.querySelector('.长度').value) {
@@ -706,11 +690,8 @@ function error_check() {
             if (row.querySelector('.重量').textContent.trim() == "") {
                 row.querySelector('.重量').textContent = 0;
             }
-
         }
     }
-
-
     return true;
 }
 

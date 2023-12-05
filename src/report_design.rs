@@ -30,7 +30,7 @@ pub struct ModelData {
 ///获取打印单据
 #[get("/fetch_print_documents")]
 pub async fn fetch_print_documents(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let rows = &conn
@@ -64,7 +64,7 @@ pub async fn fetch_provider(
     data: web::Json<i32>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
@@ -95,7 +95,7 @@ pub async fn save_model(
     data: web::Json<PrintModel>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let mut sql;
@@ -235,7 +235,7 @@ pub async fn del_model(
     model_id: web::Json<i32>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(r#"DELETE FROM print_model WHERE id={}"#, model_id);

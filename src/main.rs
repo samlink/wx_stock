@@ -5,7 +5,6 @@ use config::ConfigError;
 use dotenv::dotenv;
 use serde::Deserialize;
 
-mod business;
 mod buyin;
 mod material;
 mod customer;
@@ -16,7 +15,6 @@ mod product;
 mod report_design;
 mod service;
 mod statistic;
-mod systemset;
 mod tree;
 mod user_manage;
 mod user_set;
@@ -128,7 +126,6 @@ async fn main() -> std::io::Result<()> {
             .service(user_set::forget_pass)
             .service(user_set::change_pass)
             .service(user_set::phone_number)
-            .service(user_set::change_theme)
 
             .service(user_manage::pull_users)
             .service(user_manage::edit_user)
@@ -166,17 +163,10 @@ async fn main() -> std::io::Result<()> {
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
 
-            .service(business::fetch_business)
-
             .service(statistic::get_stockin_items)
             .service(statistic::get_stockout_items)
-            .service(statistic::fetch_analys)
-            .service(statistic::fetch_statis)
-            .service(statistic::fetch_cost)
+            .service(statistic::fetch_business)
             .service(statistic::home_statis)
-
-            .service(systemset::fetch_system)
-            .service(systemset::update_system)
 
             .service(report_design::fetch_print_documents)
             .service(report_design::fetch_provider)

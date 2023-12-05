@@ -82,7 +82,7 @@ pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///系统设置
+///字段设置
 #[get("/field_set")]
 pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db, id, "".to_owned()).await;
@@ -120,19 +120,6 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
         goto_login()
     }
 }
-
-// ///系统参数
-// #[get("/system_set")]
-// pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-//     let mut user = get_user(db, id, "系统参数".to_owned()).await;
-//     if user.name != "" {
-//         user.show = name_show(&user);
-//         let html = r2s(|o| systemset(o, user));
-//         HttpResponse::Ok().content_type("text/html").body(html)
-//     } else {
-//         goto_login()
-//     }
-// }
 
 ///帮助信息
 #[get("/help")]
@@ -177,7 +164,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
         } else {
             &*dh_num
         };
-        
+
         let setup = vec!["商品销售", "客户", "出库及发货单号", dh, "customer"];
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, setup));
@@ -206,7 +193,7 @@ pub async fn saleback(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identi
     }
 }
 
-///库存调整
+///库存调整-入库
 #[get("/stock_change_in/{dh}")]
 pub async fn stock_change_in(
     db: web::Data<Pool>,
@@ -229,6 +216,7 @@ pub async fn stock_change_in(
     }
 }
 
+///库存调整-出库
 #[get("/stock_change_out/{dh}")]
 pub async fn stock_change_out(
     db: web::Data<Pool>,
@@ -321,6 +309,7 @@ pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
+///以下连续的是查询
 #[get("/buy_query")]
 pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "采购查询".to_owned()).await;
@@ -404,6 +393,7 @@ pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     }
 }
 
+///业务往来
 #[get("/business_query")]
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "业务往来".to_owned()).await;
@@ -416,6 +406,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
+///入库明细
 #[get("/stockin_items")]
 pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "入库明细".to_owned()).await;
@@ -427,6 +418,8 @@ pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         goto_login()
     }
 }
+
+///出库明细
 #[get("/stockout_items")]
 pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出库明细".to_owned()).await;

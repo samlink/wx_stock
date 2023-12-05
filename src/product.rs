@@ -19,7 +19,7 @@ pub async fn fetch_product(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
@@ -123,7 +123,7 @@ pub async fn update_product(
     p: web::Json<Product>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), "商品规格").await;
@@ -149,7 +149,7 @@ pub async fn update_product(
 ///编辑更新产品
 #[post("/add_product")]
 pub async fn add_product(db: web::Data<Pool>, p: web::Json<Product>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let fields = get_fields(db.clone(), "商品规格").await;
@@ -475,7 +475,7 @@ struct PoutItem {
 ///获取物料出库明细
 #[post("/fetch_pout_items")]
 pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
 

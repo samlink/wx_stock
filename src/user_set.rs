@@ -222,26 +222,6 @@ pub async fn phone_number(
     }
 }
 
-///设置主题
-#[post("/change_theme")]
-pub async fn change_theme(
-    db: web::Data<Pool>,
-    theme: web::Json<Theme>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap();
-    let conn = db.get().await.unwrap();
-    let _ = &conn
-        .execute(
-            r#"UPDATE users SET theme=$1 WHERE name=$2"#,
-            &[&theme.name, &user_name],
-        )
-        .await
-        .unwrap();
-
-    HttpResponse::Ok().json(1)
-}
-
 ///找回密码
 #[post("/forget_pass")]
 pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResponse {
