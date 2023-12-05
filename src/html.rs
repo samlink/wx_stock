@@ -444,7 +444,18 @@ pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "债务结算".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| stockinout(o, user,));
+        let html = r2s(|o| stockinitems(o, user,));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+#[get("/stockout_items")]
+pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "债务结算".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| stockoutitems(o, user,));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

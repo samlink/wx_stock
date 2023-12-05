@@ -458,3 +458,115 @@ pub async fn get_stockin_items(
         HttpResponse::Ok().json(-1)
     }
 }
+
+//出库明细
+#[post("/get_stockout_items")]
+pub async fn get_stockout_items(
+    db: web::Data<Pool>,
+    post_data: web::Json<TablePager>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.trim().to_lowercase();
+        let cate = post_data.cate.to_lowercase();
+        let data: Vec<&str> = cate.split(SPLITER).collect();
+
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map2 = map_fields(db.clone(), "商品规格").await;
+        // let limits = get_limits(user, f_map).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
+                OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, f_map2["状态"], name, f_map2["炉号"], name,
+                name, f_map["合同编号"], name, f_map["客户"], name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, split_part(node_name,' ',2) as 名称, 物料号,
+                 split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态, products.{} 炉号, 长度, 数量, 重量,
+                 pout_items.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
+            from pout_items
+            join documents on pout_items.单号id = documents.单号
+            join products on pout_items.物料号 = products.文本字段1
+            join customers on documents.客商id = customers.id
+            join tree on tree.num = products.商品id
+            where {}{} ORDER BY {} OFFSET {} LIMIT {}"#,
+            f_map["客户"], f_map["合同编号"], f_map2["状态"], f_map2["炉号"], post_data.sort, query_date, query_field, post_data.sort, skip, post_data.rec
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut products = Vec::new();
+        for row in rows {
+            let f1: i64 = row.get("序号");
+            let f2: &str = row.get("日期");
+            let f3: &str = row.get("公司名称");
+            let f4: &str = row.get("合同号");
+            let f5: &str = row.get("单号");
+            let f6: &str = row.get("物料号");
+            let f7: &str = row.get("名称");
+            let f8: &str = row.get("材质");
+            let f9: &str = row.get("规格型号");
+            let f10: &str = row.get("状态");
+            let f11: &str = row.get("炉号");
+            let f12: i32 = row.get("长度");
+            let f13: i32 = row.get("数量");
+            let f14: f32 = row.get("重量");
+            let f15: &str = row.get("备注");
+
+            let product = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
+                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
+                f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+            );
+
+            products.push(product);
+        }
+
+        let count_sql = format!(
+            r#"select count(物料号) as 记录数 from pout_items
+            join documents on pout_items.单号id = documents.单号
+            join products on pout_items.物料号 = products.文本字段1
+            join customers on documents.客商id = customers.id
+            join tree on tree.num = products.商品id
+            where {}{}"#, query_date, query_field
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+
+        for row in rows {
+            count = row.get("记录数");
+        }
+
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+
+        HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

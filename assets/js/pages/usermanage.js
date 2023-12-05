@@ -1,7 +1,7 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight } from '../parts/tools.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {getHeight} from '../parts/tools.mjs';
 
 //设置菜单 
 document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
@@ -84,7 +84,7 @@ fetch_table(() => {
 document.querySelector('#serach-button').addEventListener('click', function () {
     if (!table_data.edit) {
         let search = document.querySelector('#search-input').value;
-        Object.assign(table_data.post_data, { name: search });
+        Object.assign(table_data.post_data, {name: search});
         fetch_table();
     }
 });
@@ -92,23 +92,26 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 //用户权限显示 ---------------------------------------
 
 var rights = {
-    goods_in_out: ['材料采购', '商品销售', '采购入库', '销售出库', '库存调整', '采购查询', '销售查询', '出入库查询', '库存检查'],
-    customers: ['客户管理', '供应商管理', '业务往来', '债务结算'],
-    statics: ['综合分析', '销售统计', '库存成本'],
-    setup: ['商品设置', '用户设置', '销售人员', '仓库设置', '字段设置', '报表设计', '系统参数'],
-    other: ['单据审核', '记账编辑', '批量导入', '导出数据', '跨区查库存'],
+    goods_buy: ['材料采购', '采购查询'],
+    goods_sale: ['商品销售', '销售查询', '跨区查库存'],
+    goods_manage: ['库存管理', '采购入库', '销售出库', '调整库存', '出入库查询', '调库查询'],
+    customers: ['客户管理', '供应商管理'],
+    statics: ['入库明细', '出库明细', '业务往来'],
+    setup: ['用户管理', '单据审核', '批量导入', '导出数据', '入库质检'],
 };
 
 let rows = "";
 for (let i = 0; i < row_num; i++) {
-    let goods_in_out = rights.goods_in_out.hasOwnProperty(i) ? rights.goods_in_out[i] : "";
+    let goods_buy = rights.goods_buy.hasOwnProperty(i) ? rights.goods_buy[i] : "";
+    let goods_sale = rights.goods_sale.hasOwnProperty(i) ? rights.goods_sale[i] : "";
     let customers = rights.customers.hasOwnProperty(i) ? rights.customers[i] : "";
     let statics = rights.statics.hasOwnProperty(i) ? rights.statics[i] : "";
     let setup = rights.setup.hasOwnProperty(i) ? rights.setup[i] : "";
-    let other = rights.other.hasOwnProperty(i) ? rights.other[i] : "";
 
-    let goods_in_out_chk = goods_in_out != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_in_out" value="${goods_in_out}">
-                            <span class="checkmark"></span>${goods_in_out}</label>` : "";
+    let goods_buy_chk = goods_buy != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_buy" value="${goods_buy}">
+                            <span class="checkmark"></span>${goods_buy}</label>` : "";
+    let goods_sale_chk = goods_sale != "" ? `<label class="check-radio"><input type="checkbox" class="um_goods_sale" value="${goods_sale}">
+                            <span class="checkmark"></span>${goods_sale}</label>` : "";
 
     let customers_chk = customers != "" ? `<label class="check-radio"><input type="checkbox" class="um_customers" value="${customers}">
                             <span class="checkmark"></span>${customers}</label>` : "";
@@ -118,10 +121,6 @@ for (let i = 0; i < row_num; i++) {
 
     let setup_chk = setup != "" ? `<label class="check-radio"><input type="checkbox" class="um_setup" value="${setup}">
                             <span class="checkmark"></span>${setup}</label>` : "";
-
-    let other_chk = other != "" ? `<label class="check-radio"><input type="checkbox" class="um_other" value="${other}">
-                            <span class="checkmark"></span>${other}</label>` : "";
-
 
     rows += `<tr><td>${goods_in_out_chk}</td></td><td>${customers_chk}</td><td>${statics_chk}</td>
         <td>${setup_chk}</td><td>${other_chk}</td></tr>`;
@@ -158,8 +157,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let focus = document.querySelector('.table-users .focus');
     if (!focus) {
         notifier.show('请先选择用户', 'danger');
-    }
-    else {
+    } else {
         document.querySelector('#edit-button').classList.add("hide");
         document.querySelector('#del-button').classList.add("hide");
         document.querySelector('#sumit-button').classList.remove("hide");
@@ -179,7 +177,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         select_save = focus.children[2].textContent;
 
         let select = "<select class='select-sm'>"
-        let options = ["销售", "库管", "主管"];
+        let user_id = document.querySelector('#user-name').textContent.split('　')[1];
+        let options = user_id == "admin" ? ["总经理", "主管", "销售", "库管"] : ["主管", "销售", "库管"];
         for (let value of options) {
             let selected = value == select_save ? 'selected' : '';
             select += `<option value="${value}" ${selected}>${value}</option>`;
@@ -260,8 +259,7 @@ document.querySelector('#sumit-button').addEventListener('click', function () {
                 focus.children[5].setAttribute("title", rights);
                 document.querySelector('#cancel-button').click();
                 notifier.show('用户修改成功', 'success');
-            }
-            else {
+            } else {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
@@ -272,16 +270,13 @@ document.querySelector('#del-button').addEventListener('click', function () {
     let focus = document.querySelector('.table-users .focus');
     if (!focus) {
         notifier.show('请选择用户', 'danger');
-    }
-    else {
+    } else {
         let name = focus.children[1].textContent;
         if (focus.children[2].textContent == "总经理") {
             notifier.show('无法删除超级用户', 'danger');
-        }
-        else if (name == document.querySelector('#user-name').textContent) {
+        } else if (name == document.querySelector('#user-name').textContent) {
             notifier.show('无法删除用户自己', 'danger');
-        }
-        else {
+        } else {
             alert_confirm('确认删除用户 ' + name + ' 吗？', {
                 confirmCallBack: () => {
                     let data = {
@@ -300,8 +295,7 @@ document.querySelector('#del-button').addEventListener('click', function () {
                             if (content == 1) {
                                 fetch_table(table_data.post_data);
                                 notifier.show('用户删除完成', 'success');
-                            }
-                            else {
+                            } else {
                                 notifier.show('权限不够，操作失败', 'danger');
                             }
                         });

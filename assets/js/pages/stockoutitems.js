@@ -41,7 +41,7 @@ document.querySelector('.table-container tbody').innerHTML = blank_rows;
 //表格搜索----------------------------------------------------
 let init_data = {
     container: '.table-container',
-    url: `/get_stockin_items`,
+    url: `/get_stockout_items`,
     post_data: {
         id: "",
         name: '',
@@ -50,20 +50,19 @@ let init_data = {
     },
     edit: false,
     header_names: {
-        "到货日期": "日期",
-        "入库日期": "日期",
-        "入库单号": "单号",
+        "到货日期": "documents.文本字段5",
+        "出库日期": "documents.日期",
+        "入库单号": "documents.单号",
         "名称": "node_name",
-        "物料号": "node_name",
+        "物料号": "products.文本字段1",
         "材质": "node_name",
-        "规格": "规格",
-        "状态": "documents.文本字段2",
-        "炉号": "documents.文本字段2",
-        "长度": "长度",
-        "数量": "数量",
-        "执行标准": "重量",
-        "生产厂家": "重量",
-        "重量": "重量",
+        "规格": "规格型号",
+        "状态": "products.文本字段2",
+        "炉号": "products.文本字段4",
+        "长度": "products.整数字段1",
+        "执行标准": "products.文本字段3",
+        "生产厂家": "products.文本字段5",
+        "重量": "库存下限",
         "备注": "documents.备注"
     },
 
