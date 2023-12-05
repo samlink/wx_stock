@@ -53,7 +53,7 @@ fetch(`/fetch_inout_fields`, {
                         build_items(dh);
 
                         let values = data.split(SPLITER);
-                        document.querySelector('#owner').textContent = `[ ${values[values.length - 2]} ]`;
+                        document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
 
                         fetch('/fetch_check', {
                             method: 'post',

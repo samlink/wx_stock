@@ -49,7 +49,6 @@ export class AutoInput {
                             b.innerHTML = arr[i].label;
                             b.innerHTML += "<input type='hidden' id='" + arr[i].id + "' value='" + arr[i].label + "'>";
                             b.addEventListener("click", function (e) {
-                                // e.preventDefault();
                                 e.stopPropagation();
                                 input.value = this.querySelector('input').value;
                                 input.setAttribute('data', this.querySelector('input').getAttribute('id'));
@@ -57,7 +56,6 @@ export class AutoInput {
                                 if (cb && typeof(cb) == "function") {
                                     cb();  //这里加入其他控件的处理函数
                                 }
-
                             });
 
                             a.appendChild(b);

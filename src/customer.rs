@@ -20,7 +20,7 @@ pub async fn fetch_customer(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;

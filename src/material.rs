@@ -149,7 +149,8 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, 已记账, 经办人, documents.类别, documents.{} as 图片 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            r#"{} 客商id, 名称, 已记账, 经办人, documents.类别, documents.{} as 图片 FROM documents
+                JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["图片"], data.dh
         );
 
@@ -167,18 +168,8 @@ pub async fn fetch_document_ck(
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields),
-                SPLITER,
-                id,
-                SPLITER,
-                name,
-                SPLITER,
-                rem,
-                SPLITER,
-                worker,
-                SPLITER,
-                cate,
-                SPLITER,
-                pic,
+                SPLITER, id, SPLITER, name, SPLITER, rem, SPLITER, worker, SPLITER,
+                cate, SPLITER, pic,
             );
         }
 
@@ -318,7 +309,7 @@ pub async fn save_material(
     id: Identity,
 ) -> HttpResponse {
     // let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
-    let user = get_user(db.clone(), id.clone(), "库存调整".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "调整库存".to_owned()).await;
     if user.name != "" {
         let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         if rem[0] == "已审核" {
@@ -429,7 +420,7 @@ pub async fn save_material_ck(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), "库存调整".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "调整库存".to_owned()).await;
     if user.name != "" {
         let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         if rem[0] == "已审核" {
@@ -541,18 +532,8 @@ pub async fn fetch_document_items_rk(
                 {} as 理论重量, {} as 备注, 商品id FROM products
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY {}"#,
-            f_map["规格"],
-            f_map["状态"],
-            f_map["炉号"],
-            f_map["执行标准"],
-            f_map["生产厂家"],
-            f_map["库位"],
-            f_map["物料号"],
-            f_map["入库长度"],
-            f_map["理论重量"],
-            f_map["备注"],
-            data.dh,
-            f_map["顺序"]
+            f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
+            f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
         );
 
         // println!("{}", sql);
@@ -576,31 +557,9 @@ pub async fn fetch_document_items_rk(
             // let from: String = row.get("来源");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                lu,
-                SPLITER,
-                stand,
-                SPLITER,
-                factory,
-                SPLITER,
-                kw,
-                SPLITER,
-                num,
-                SPLITER,
-                long,
-                SPLITER,
-                theary,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
+                stand, SPLITER, factory, SPLITER, kw, SPLITER, num, SPLITER, long, SPLITER,
+                theary, SPLITER, note, SPLITER, m_id
             );
 
             document_items.push(item)
@@ -626,8 +585,7 @@ pub async fn fetch_document_items_ck(
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 {} as 规格, {} as 状态, {} as 炉号, 长度, 数量, (长度*数量)::integer as 总长度, 
-                物料号, 重量, 理重, pout_items.备注, 商品id 
-            FROM pout_items
+                物料号, 重量, 理重, pout_items.备注, 商品id FROM pout_items
             JOIN products ON 文本字段1=物料号
             JOIN tree ON 商品id=tree.num
             WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
@@ -692,13 +650,15 @@ pub async fn fetch_document_items_ck(
 //质检
 #[post("/check_in")]
 pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    // let user_name = id.identity().unwrap_or("".to_owned());
+    let user = get_user(db.clone(), id.clone(), "入库质检".to_owned()).await;
+
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "入库单据").await;
         let sql = format!(
             r#"update documents set {}='{}' WHERE 单号='{}'"#,
-            f_map["质检"], user_name, data
+            f_map["质检"], user.name, data
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         HttpResponse::Ok().json(1)
@@ -713,20 +673,20 @@ pub async fn make_formal_in(
     data: web::Json<DocumentDh>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
-    let table_name = if data.cate == "采购入库" {
-        "入库单据"
-    } else {
-        "库存调入"
-    };
+    // let user_name = id.identity().unwrap_or("".to_owned());
+    let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
+    if user.name != "" {
+        let table_name = if data.cate == "采购入库" {
+            "入库单据"
+        } else {
+            "库存调入"
+        };
 
-    if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), table_name).await;
         let sql = format!(
             r#"update documents set {}='{}' WHERE 单号='{}'"#,
-            f_map["审核"], user_name, data.dh
+            f_map["审核"], user.name, data.dh
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -742,14 +702,14 @@ pub async fn make_formal_out(
     data: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
-    if user_name != "" {
+    // let user_name = id.identity().unwrap_or("".to_owned());
+    let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
+    if user.name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "出库单据").await;
         let sql = format!(
             r#"update documents set {}='{}' WHERE 单号='{}'"#,
-            f_map["审核"], user_name, data
+            f_map["审核"], user.name, data
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -829,7 +789,6 @@ pub async fn fetch_check(
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
-    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "入库单据").await;
@@ -858,7 +817,6 @@ pub async fn fetch_check_stock(
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
-    // let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
     if user_name != "" {
         let conn = db.get().await.unwrap();
 

@@ -345,19 +345,6 @@ pub async fn fetch_document(
 
         // println!("{}", sql);
 
-        // let cate;
-        // if data.dh.starts_with("XS") {
-        //     cate = "商品销售";
-        // } else if data.dh.starts_with("XT") {
-        //     cate = "销售退货";
-        // } else if data.dh.starts_with("CG") {
-        //     cate = "材料采购";
-        // } else if data.dh.starts_with("CT") {
-        //     cate = "采购退货";
-        // } else {
-        //     cate = "库存调整";
-        // }
-
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document = "".to_owned();
         for row in rows {

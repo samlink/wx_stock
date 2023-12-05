@@ -47,7 +47,7 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
 
                         let values = data.split(SPLITER);
-                        document.querySelector('#owner').textContent = `[ ${values[values.length - 2]} ]`;
+                        document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
 
                         fetch('/fetch_check_stock', {
                             method: 'post',

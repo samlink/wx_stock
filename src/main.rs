@@ -120,10 +120,7 @@ async fn main() -> std::io::Result<()> {
 
             .service(documentquery::fetch_show_fields)
             .service(documentquery::fetch_all_documents)
-            .service(documentquery::update_rem)
             .service(documentquery::documents_del)
-            .service(documentquery::fetch_limit)
-            .service(documentquery::fetch_stay)
 
             .service(user_set::login)
             .service(user_set::logon)

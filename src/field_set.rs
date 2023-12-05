@@ -164,7 +164,7 @@ pub async fn update_tableset(
     post_data: web::Json<Vec<FieldsData>>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "字段设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         //加 into_inner() 方法，否则会出现错误：Cannot move out of dereference of ...
@@ -208,7 +208,7 @@ pub async fn update_tableset2(
     post_data: web::Json<Vec<FieldsData2>>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "字段设置".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         //加 into_inner() 方法，否则会出现错误：Cannot move out of dereference of ...
