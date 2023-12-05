@@ -179,10 +179,11 @@ fetch(`/fetch_inout_fields`, {
             {
                 name: "名称",
                 width: 80,
-                class: "auto-input",
+                class: "名称",
                 type: "autocomplete",
                 editable: true,
                 is_save: true,
+                save: "id",      //对于 autocomplete 可选择保存 id 或是 value
                 default: ""
             },
             {name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
@@ -255,13 +256,15 @@ fetch(`/fetch_inout_fields`, {
             css: 'style="width:0%; border-left:none; color:white"',
         });
 
-        // show_names.forEach(item => {
-        //     if (item.name == "规格") {
-        //         item.editable = true;
-        //         item.class ="规格";
-        //         return;
-        //     }
-        // });
+        // 设置"状态"为自动输入
+        show_names.forEach(item => {
+            if (item.name == "状态") {
+                item.type = "autocomplete";
+                item.no_button = true;           //无需 modal 选择按钮
+                item.save = "value";             //保存值, 而非 id
+                return;
+            }
+        });
 
         //计算表格行数，33 为 lineHeight （行高）
         table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
@@ -278,20 +281,25 @@ fetch(`/fetch_inout_fields`, {
             {name: "库存重量", width: 80},
         ];
 
-        let auto_data = {
-            n: 2,
+        let auto_data = [{
+            n: 2,                       //第2个单元格是自动输入
             cate: document_name,
-            url: `/buyin_auto`,
+            auto_url: `/buyin_auto`,
+            show_th: show_th,
             cb: fill_gg,
-        }
-
+        }, {
+            n: 5,
+            cate: document_name,
+            auto_url: '/get_status_auto',
+            show_th: [
+                {name: "状态", width: 60},]
+        }];
 
         if (dh_div.textContent == "新单据") {
             edit_data = {
                 show_names: show_names,
                 lines: table_lines,
                 auto_data: auto_data,
-                auto_th: show_th,
                 dh: dh_div.textContent,
                 calc_func: calculate,
             }
@@ -317,7 +325,6 @@ fetch(`/fetch_inout_fields`, {
                         rows: content,
                         auto_data: auto_data,
                         lines: table_lines,
-                        auto_th: show_th,
                         dh: dh_div.textContent,
                         document: document_name,
                         calc_func: calculate,
@@ -419,12 +426,12 @@ function calc_weight(input_row) {
 
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
-    let n = 3;
-    let num = document_name == "销售单据" ? 4 : 3;  //从第 3 列开始填入数据
+    let n = 3;  //从第 3 列开始填入数据
+    let num = document_name == "销售单据" ? 4 : 3;  //填充数量
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
         // console.log(shown);
-        if (show_names[i].type == "普通输入" && show_names[i].editable) {
+        if ((show_names[i].type == "普通输入" || show_names[i].type == "autocomplete") && show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
         } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;

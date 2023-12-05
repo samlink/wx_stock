@@ -1,10 +1,10 @@
-import { table_data, fetch_table } from './table.mjs';
-import { fetch_tree, tree_init, tree_search } from './tree.mjs';
-import { notifier } from './notifier.mjs';
-import { alert_confirm } from './alert.mjs';
-import { auto_table, AutoInput } from './autocomplete.mjs';
+import {table_data, fetch_table} from './table.mjs';
+import {fetch_tree, tree_init, tree_search} from './tree.mjs';
+import {notifier} from './notifier.mjs';
+import {alert_confirm} from './alert.mjs';
+import {auto_table, AutoInput} from './autocomplete.mjs';
 import * as service from './service.mjs'
-import { SPLITER, regReal, open_node, regInt, padZero } from './tools.mjs';
+import {SPLITER, regReal, open_node, regInt, padZero} from './tools.mjs';
 import {close_modal, modal_init} from './modal.mjs';
 
 let all_width;
@@ -268,7 +268,7 @@ function build_edit_string(show_names, all_width) {
             control += `
             <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900; position: inherit">
-                    <input class="form-control input-sm has-value auto-input" type="text" 
+                    <input class="form-control input-sm has-value auto-input ${obj.class}" type="text" 
                         value="${obj.value}" data="${m_id}">                        
                     ${button}
                 </div>
@@ -278,19 +278,32 @@ function build_edit_string(show_names, all_width) {
     return control;
 }
 
-function auto_input_handle(auto_data) {
-    auto_data.auto_input.style.width = (auto_data.auto_th.clientWidth - 36) + "px";
-    auto_data.auto_td.addEventListener('click', function () {
-        element_position(this, 7.4, 1);
-        auto_data.auto_input.focus();
-    });
+//设置自动输入单元格
+function auto_input_handle(input_row, auto_data) {
+    for (let auto of auto_data) {
+        let th = document.querySelector(`.table-items th:nth-child(${auto.n})`);
+        let td = input_row.querySelector(`td:nth-child(${auto.n})`);
+        let data = {
+            auto_th: th,
+            auto_td: td,
+            auto_input: td.querySelector('.auto-input'),
+        }
 
-    auto_data.auto_input.addEventListener('focus', function () {
-        remove_inputting();
-        this.parentNode.parentNode.parentNode.classList.add("inputting");
-    });
+        Object.assign(auto, data);
+        auto.auto_input.style.width = (auto.auto_th.clientWidth - 36) + "px";
 
-    auto_table(auto_data.auto_input, auto_data.cate, auto_data.auto_url, input_data.auto_th, auto_data.cb, auto_data.cf);
+        auto.auto_td.addEventListener('click', function () {
+            element_position(this, 7.4, 1);
+            // auto.auto_input.focus();
+        });
+
+        auto.auto_input.addEventListener('focus', function () {
+            remove_inputting();
+            this.parentNode.parentNode.parentNode.classList.add("inputting");
+        });
+        //表格中只能使用此种形式, 那种简单模式涉及 position 及宽度的调整, 很麻烦
+        auto_table(auto.auto_input, auto.cate, auto.auto_url, auto.show_th, auto.cb, auto.cf);
+    }
 }
 
 //创建新的输入行，参数 num 是序号
@@ -300,17 +313,9 @@ function build_input_row(show_names, all_width, num) {
     input_row.classList.add("has-input");
     input_row.innerHTML = build_edit_string(show_names, all_width);
 
+    //初始化自动输入
     if (input_data.auto_data) {
-        let auto_data = {
-            auto_input: input_row.querySelector('.auto-input'),
-            auto_td: input_row.querySelector(`td:nth-child(${input_data.auto_data.n})`),
-            auto_th: document.querySelector(`.table-items th:nth-child(${input_data.auto_data.n})`),
-            cate: input_data.auto_data.cate,
-            auto_url: input_data.auto_data.url,
-            cb: input_data.auto_data.cb,
-            cf: input_data.auto_data.cf,
-        }
-        auto_input_handle(auto_data);
+        auto_input_handle(input_row, input_data.auto_data);
     }
 
     input_row.addEventListener('click', function () {
@@ -451,10 +456,10 @@ function build_input_row(show_names, all_width, num) {
         });
     }
 
-    if (typeof(input_data.calc_func) == "function") {
+    if (typeof (input_data.calc_func) == "function") {
         input_data.calc_func(input_row);
     }
-    
+
     return input_row;
 }
 

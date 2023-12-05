@@ -133,7 +133,10 @@ export function build_save_items(n, row, show_names) {
     let len = show_names.length;
     for (let i = n; i < len; i++) {
         if (show_names[i].is_save) {
-            if (show_names[i].type == "autocomplete") {
+            if (show_names[i].type == "autocomplete" && show_names[i].save && show_names[i].save != "id") {
+                let value = row.querySelector(`.${show_names[i].class}`).value;
+                save_str += `${value}${SPLITER}`;
+            } else if (show_names[i].type == "autocomplete") {
                 let value = row.querySelector(`.${show_names[i].class}`).getAttribute('data').split(SPLITER)[0];
                 save_str += `${value}${SPLITER}`;
             } else if (show_names[i].type == "普通输入" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试

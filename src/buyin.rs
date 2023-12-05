@@ -148,14 +148,14 @@ pub async fn buyin_auto(
         let sql = &format!(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0))::integer || '{}'|| 
-                round(({}-COALESCE(理重合计,0))::numeric,2)::real || '{}' || 0 AS label FROM products 
+                round(({}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN 
                 (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
-            f_map["理论重量"], SPLITER, cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where,
+            f_map["理论重量"], cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where,
         );
 
         // println!("{}", sql);
@@ -165,6 +165,7 @@ pub async fn buyin_auto(
         HttpResponse::Ok().json(-1)
     }
 }
+
 
 //获取指定 id 的产品
 #[post("/fetch_one_product")]
@@ -192,6 +193,23 @@ pub async fn fetch_one_product(
         }
 
         HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//状态字段的自动输入
+#[get("/get_status_auto")]
+pub async fn get_status_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = format!("select distinct {} label, '1' as id from products where {} like '%{}%'", f_map["状态"], f_map["状态"], search.s);
+        autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }

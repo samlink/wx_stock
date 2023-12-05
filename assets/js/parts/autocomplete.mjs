@@ -53,7 +53,7 @@ export class AutoInput {
                                 input.value = this.querySelector('input').value;
                                 input.setAttribute('data', this.querySelector('input').getAttribute('id'));
                                 closeAllLists();
-                                if (cb && typeof(cb) == "function") {
+                                if (cb && typeof (cb) == "function") {
                                     cb();  //这里加入其他控件的处理函数
                                 }
                             });
@@ -150,6 +150,7 @@ export function auto_table(input, cate, url, thead, cb, cf) {
             get_url = `${url}?s=${val}`;
         }
 
+        //调用前置函数
         if (typeof (cf) == "function") {
             get_url += `&ss=${cf()}`;
         }
@@ -177,9 +178,8 @@ export function auto_table(input, cate, url, thead, cb, cf) {
                         let items = arr[i].label.split(SPLITER);
                         let tr = document.createElement("tr");
                         tr.setAttribute("data", `${arr[i].id}${SPLITER}${arr[i].label}`);
-
                         let row = "";
-                        for (let i = 0; i < items.length - 1; i++) {
+                        for (let i = 0; i < items.length; i++) {
                             row += `<td width=${thead[i].width}>${items[i]}</td>`;
                         }
                         tr.innerHTML = row;
@@ -190,7 +190,10 @@ export function auto_table(input, cate, url, thead, cb, cf) {
                             input.value = this.querySelector('td:nth-child(1)').textContent;
                             input.setAttribute('data', this.getAttribute("data"));
                             closeAllLists();
-                            cb();       //这里加入其他控件的处理函数
+                            if (cb && typeof (cb) == "function") {
+                                cb();  //这里加入其他控件的处理函数
+                            }
+                            //这里加入其他控件的处理函数
                         });
 
                         tbody.appendChild(tr);
