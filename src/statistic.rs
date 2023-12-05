@@ -347,3 +347,111 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         HttpResponse::Ok().json(-1)
     }
 }
+
+//入库明细
+#[post("/get_stockin_items")]
+pub async fn get_stockin_items(
+    db: web::Data<Pool>,
+    post_data: web::Json<TablePager>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.trim().to_lowercase();
+        let cate = post_data.cate.to_lowercase();
+        let data: Vec<&str> = cate.split(SPLITER).collect();
+
+        let f_map = map_fields(db.clone(), "采购单据").await;
+        let f_map2 = map_fields(db.clone(), "商品规格").await;
+        // let limits = get_limits(user, f_map).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select documents.{} 到货日期, documents.{} 入库日期, 单号, split_part(node_name,' ',2) as 名称, products.{} 物料号,
+                 split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态, products.{} 炉号, products.{} 入库长度,
+                 products.{} 执行标准, products.{} 生产厂家, products.{} 理论重量, documents.备注,
+                 ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products
+            join documents on products.单号id = documents.单号
+            join tree on tree.num = products.商品id
+            where {}{}
+            ORDER BY {} OFFSET {} LIMIT {}"#,
+            f_map["到货日期"], f_map["入库日期"], f_map2["物料号"], f_map2["状态"], f_map2["炉号"], f_map2["入库长度"],
+            f_map2["执行标准"], f_map2["生产厂家"], f_map2["理论重量"],
+            post_data.sort, query_date, query_field, post_data.sort, skip, post_data.rec
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut products = Vec::new();
+        for row in rows {
+            let f1: i64 = row.get("序号");
+            let f2: &str = row.get("到货日期");
+            let f3: &str = row.get("入库日期");
+            let f4: &str = row.get("单号");
+            let f5: &str = row.get("名称");
+            let f6: &str = row.get("物料号");
+            let f7: &str = row.get("材质");
+            let f8: &str = row.get("规格型号");
+            let f9: &str = row.get("状态");
+            let f10: &str = row.get("炉号");
+            let f11: i32 = row.get("入库长度");
+            let f12: &str = row.get("执行标准");
+            let f13: &str = row.get("生产厂家");
+            let f14: f32 = row.get("理论重量");
+            let f15: &str = row.get("备注");
+
+            let product = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
+                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
+                f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+            );
+
+            products.push(product);
+        }
+
+        let count_sql = format!(
+            r#"select count(products.{}) as 记录数 from products
+            join documents on products.单号id = documents.单号
+            join tree on tree.num = products.商品id
+            where {}{}"#, f_map2["物料号"], query_date, query_field
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+
+        for row in rows {
+            count = row.get("记录数");
+        }
+
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+
+        HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

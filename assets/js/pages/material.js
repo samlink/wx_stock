@@ -132,7 +132,7 @@ function document_top_handle(html, has_date) {
     auto_comp.init();
 
     let date = document.querySelector('#日期');
-    date.parentNode.parentNode.style.cssText = "margin-left: 210px;";
+    date.parentNode.parentNode.style.cssText = "margin-left: 230px;";
 
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
@@ -143,6 +143,14 @@ function document_top_handle(html, has_date) {
         elem: date,
         showBottom: false,
     });
+
+    if (document.querySelector('#文本字段5')) {
+        let da = document.querySelector('#文本字段5');
+        laydate.render({
+            elem: da,
+            showBottom: false,
+        })
+    }
 }
 
 function build_items(dh) {

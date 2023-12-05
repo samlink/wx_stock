@@ -80,7 +80,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::stock_query_in)
             .service(html::stock_query_out)
             .service(html::business_query)
-            .service(html::debt)
+            .service(html::stockin_items)
             .service(html::analys)
             .service(html::statistic)
             .service(html::cost)
@@ -176,6 +176,7 @@ async fn main() -> std::io::Result<()> {
             .service(business::fetch_business)
             .service(business::fetch_debt)
 
+            .service(statistic::get_stockin_items)
             .service(statistic::fetch_analys)
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
