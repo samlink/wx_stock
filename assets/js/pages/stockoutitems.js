@@ -11,7 +11,7 @@ let row_num = Math.floor(get_height / 33);
 let date1 = document.querySelector('#search-date1');
 let date2 = document.querySelector('#search-date2');
 
-var dateTime=new Date();
+var dateTime = new Date();
 let d1 = dateTime.setDate(dateTime.getDate() - 30);
 date1.value = new Date(d1).Format("yyyy-MM-dd");
 date2.value = new Date().Format("yyyy-MM-dd");
@@ -50,9 +50,10 @@ let init_data = {
     },
     edit: false,
     header_names: {
-        "到货日期": "documents.文本字段5",
         "出库日期": "documents.日期",
-        "入库单号": "documents.单号",
+        "出库单号": "documents.单号",
+        "合同号": "documents.文本字段5",
+        "公司名称": "documents.文本字段4",
         "名称": "node_name",
         "物料号": "products.文本字段1",
         "材质": "node_name",
@@ -60,10 +61,9 @@ let init_data = {
         "状态": "products.文本字段2",
         "炉号": "products.文本字段4",
         "长度": "products.整数字段1",
-        "执行标准": "products.文本字段3",
-        "生产厂家": "products.文本字段5",
+        "数量": "数量",
         "重量": "库存下限",
-        "备注": "documents.备注"
+        "备注": "pout_items.备注"
     },
 
     row_fn: row_fn,
@@ -78,7 +78,7 @@ fetch_table();
 //点击搜索按钮
 document.querySelector('#serach-button').addEventListener('click', function () {
     let fields = document.querySelector('#search-fields').value;
-    let date1 =  document.querySelector('#search-date1').value;
+    let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
 
     init_data.post_data.name = fields;

@@ -178,7 +178,6 @@ export function header_error_check(document_table_fields, all_rows) {
     return true;
 }
 
-
 //依据显示字段，创建表格内容行
 export function build_row_from_string(rec, row, table_fields, n) {
     if (!n) n = 2;
