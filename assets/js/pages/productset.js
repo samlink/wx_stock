@@ -5,7 +5,7 @@ import {fetch_tree, tree_init, tree_search} from '../parts/tree.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {regInt, regReal, SPLITER, download_file, checkFileType, open_node} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-import {modal_init, leave_alert, close_modal, modal_edit} from "../parts/modal.mjs";
+import {modal_init, leave_alert, close_modal, modal_out_data} from "../parts/modal.mjs";
 
 let global = {
     row_id: 0,
@@ -133,7 +133,6 @@ document.querySelector('#find-button').addEventListener('click', function () {
     } else {
         notifier.show('请先选择商品', 'danger');
     }
-
 });
 
 //编辑按键
@@ -206,7 +205,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
-                        modal_edit = 0;
+                        modal_out_data.edit = 0;
                         notifier.show('商品修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {

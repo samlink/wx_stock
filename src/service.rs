@@ -162,6 +162,7 @@ pub fn r2s<Call>(call: Call) -> String
 }
 
 ///获取用户信息
+/// right 如果是空串 "", 则不检查权限
 pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserData {
     let mut user = UserData {
         name: "".to_owned(),

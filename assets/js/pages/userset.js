@@ -72,27 +72,3 @@ document.querySelector('#phone-button').addEventListener('click', function (even
             }
         });
 });
-
-//设置主题
-function theme_set() {
-    let themes = document.querySelectorAll('.themes');
-    for (let theme of themes) {
-        theme.addEventListener('click', function () {
-            var theme_name = {
-                name: this.dataset.theme,
-            }
-
-            fetch(`/change_theme`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(theme_name),
-            })
-                .then(res => res.json())
-                .then(data => {
-                    location.reload();
-                });
-        });
-    }
-}

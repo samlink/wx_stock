@@ -35,7 +35,7 @@ pub async fn fetch_supplier(
     supplier: web::Json<Customer>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, supplier.rights.to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let fields = get_inout_fields(db.clone(), &supplier.cate).await;
 
@@ -70,7 +70,7 @@ pub async fn fetch_inout_customer(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, format!("{}管理", post_data.cate)).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
@@ -212,7 +212,7 @@ pub async fn save_document(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         if data.remember == "已审核" {
             let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
@@ -316,57 +316,6 @@ pub struct History {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct HistoryData {
-    pub date: String,
-    pub price: f32,
-    pub count: f32,
-}
-
-///获取历史交易记录
-#[post("/fetch_history")]
-pub async fn fetch_history(
-    db: web::Data<Pool>,
-    data: web::Json<History>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let conn = db.get().await.unwrap();
-        let cate;
-        let count;
-        if data.cate == "商品销售" {
-            cate = "单号 LIKE 'XS%'";
-            count = "ABS(数量) AS 数量";
-        } else if data.cate == "材料采购" {
-            cate = "单号 LIKE 'CG%'";
-            count = "数量";
-        } else {
-            cate = "单号 LIKE 'KT%'";
-            count = "数量";
-        };
-        let sql = format!("SELECT 日期, 单价, {} FROM documents JOIN document_items ON documents.单号=document_items.单号id 
-                            WHERE {} AND 客商id={} AND 商品id={} ORDER BY 开单时间 DESC LIMIT 10",
-                          count, cate, data.customer_id, data.product_id);
-
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut history: Vec<HistoryData> = Vec::new();
-
-        for row in rows {
-            let h = HistoryData {
-                date: row.get("日期"),
-                price: row.get("单价"),
-                count: row.get("数量"),
-            };
-            history.push(h);
-        }
-
-        HttpResponse::Ok().json(history)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct DocumentDh {
     pub cate: String,
     pub dh: String,
@@ -396,18 +345,18 @@ pub async fn fetch_document(
 
         // println!("{}", sql);
 
-        let cate;
-        if data.dh.starts_with("XS") {
-            cate = "商品销售";
-        } else if data.dh.starts_with("XT") {
-            cate = "销售退货";
-        } else if data.dh.starts_with("CG") {
-            cate = "材料采购";
-        } else if data.dh.starts_with("CT") {
-            cate = "采购退货";
-        } else {
-            cate = "库存调整";
-        }
+        // let cate;
+        // if data.dh.starts_with("XS") {
+        //     cate = "商品销售";
+        // } else if data.dh.starts_with("XT") {
+        //     cate = "销售退货";
+        // } else if data.dh.starts_with("CG") {
+        //     cate = "材料采购";
+        // } else if data.dh.starts_with("CT") {
+        //     cate = "采购退货";
+        // } else {
+        //     cate = "库存调整";
+        // }
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document = "".to_owned();
@@ -417,9 +366,9 @@ pub async fn fetch_document(
             let rem: bool = row.get("已记账");
             let worker: &str = row.get("经办人");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
-                rem, SPLITER, worker, SPLITER, cate,
+                rem, SPLITER, worker,
             );
         }
 
@@ -655,7 +604,7 @@ pub async fn save_stransport(
     data: web::Json<crate::material::Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
@@ -736,7 +685,7 @@ pub async fn make_formal(
     dh_id: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "单据记账".to_owned()).await;
+    let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let dh_id = format!("{}", dh_id); //这里转换一下，直接写入查询报错，说不支持Json<String>

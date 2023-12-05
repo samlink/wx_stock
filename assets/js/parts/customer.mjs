@@ -24,6 +24,7 @@ export function customer_init(data) {
     });
 
     auto_comp.init();
+    modal_init();
 
     //客户供应商查找按钮
     customer_data.button.addEventListener('click', function () {
@@ -113,12 +114,6 @@ export function customer_init(data) {
                     });
                 });
 
-            let auto_complete = new AutoInput(customer_data.input, customer_data.cate, `/customer_auto`, () => {
-                search_table();
-            });
-
-            auto_complete.init();
-
             document.querySelector('#serach-button').onclick = function () {
                 search_table();
             };
@@ -144,8 +139,6 @@ export function customer_init(data) {
             }
         }
     }, false);
-
-    modal_init();
 }
 
 //自动完成点击后，展示供应商（客户）数据

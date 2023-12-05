@@ -61,9 +61,9 @@ fetch(`/fetch_inout_fields`, {
                         }
 
                         let customer = document.querySelector('#supplier-input');
-                        customer.value = values[len - 4];
-                        customer.setAttribute('data', values[len - 5]);
-                        document.querySelector('#owner').textContent = `[ ${values[len - 2]} ]`;
+                        customer.value = values[len - 3];
+                        customer.setAttribute('data', values[len - 4]);
+                        document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
                     });
 
                 //获取相关单据信息

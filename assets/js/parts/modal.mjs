@@ -1,6 +1,6 @@
 import {alert_confirm} from "./alert.mjs";
 
-export var modal_edit = 0;
+export var modal_out_data = {edit: 0};
 
 export function modal_init() {
     //关闭按键
@@ -15,7 +15,7 @@ export function modal_init() {
 }
 
 export function close_modal() {
-    if (modal_edit == 1) {
+    if (modal_out_data.edit == 1) {
         alert_confirm('编辑还未保存，确认退出吗？', {
             confirmCallBack: () => {
                 modal_edit = 0;

@@ -61,7 +61,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::field_set)
             .service(html::customer_manage)
             .service(html::supplier_manage)
-            .service(html::system_set)
             .service(html::help)
             .service(html::buy_in)
             .service(html::report_design)
@@ -82,9 +81,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::business_query)
             .service(html::stockin_items)
             .service(html::stockout_items)
-            .service(html::analys)
-            .service(html::statistic)
-            .service(html::cost)
 
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
@@ -93,7 +89,6 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_one_product)
             .service(buyin::save_document)
             .service(buyin::save_stransport)
-            .service(buyin::fetch_history)
             .service(buyin::fetch_document)
             .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
@@ -175,7 +170,6 @@ async fn main() -> std::io::Result<()> {
             .service(customer::customer_updatein)
 
             .service(business::fetch_business)
-            .service(business::fetch_debt)
 
             .service(statistic::get_stockin_items)
             .service(statistic::get_stockout_items)

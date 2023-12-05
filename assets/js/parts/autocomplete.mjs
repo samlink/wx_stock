@@ -38,6 +38,7 @@ export class AutoInput {
                 .then(response => response.json())
                 .then(function (arr) {
                     if (arr != -1 && arr.length > 0) {
+
                         a = document.createElement("DIV");
                         a.setAttribute("id", "autocomplete-list");
                         a.setAttribute("class", "autocomplete-items");
@@ -53,7 +54,10 @@ export class AutoInput {
                                 input.value = this.querySelector('input').value;
                                 input.setAttribute('data', this.querySelector('input').getAttribute('id'));
                                 closeAllLists();
-                                cb();       //这里加入其他控件的处理函数
+                                if (cb && typeof(cb) == "function") {
+                                    cb();  //这里加入其他控件的处理函数
+                                }
+
                             });
 
                             a.appendChild(b);
@@ -183,6 +187,7 @@ export function auto_table(input, cate, url, thead, cb, cf) {
                         tr.innerHTML = row;
 
                         tr.addEventListener("click", function (e) {
+                            // e.preventDefault();
                             e.stopPropagation();
                             input.value = this.querySelector('td:nth-child(1)').textContent;
                             input.setAttribute('data', this.getAttribute("data"));

@@ -4,7 +4,7 @@ import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {regInt, regReal, getHeight, SPLITER, download_file, checkFileType} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-import {modal_init, close_modal, leave_alert, modal_edit} from "../parts/modal.mjs";
+import {modal_init, close_modal, leave_alert, modal_out_data} from "../parts/modal.mjs";
 
 let cus_cate = document.querySelector('#category').textContent;
 
@@ -180,7 +180,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                 .then(content => {
                     if (content == 1) {
                         global.edit = 0;
-                        modal_edit = 0;
+                        modal_out_data.edit = 0;
                         notifier.show(cus_cate + '修改成功', 'success');
                         fetch_table();
                         if (global.eidt_cate == "add") {

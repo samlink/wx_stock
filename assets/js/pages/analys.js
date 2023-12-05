@@ -1,10 +1,6 @@
 import { notifier } from '../parts/notifier.mjs';
 import { SPLITER } from '../parts/tools.mjs';
 
-//设置菜单 
-document.querySelector('#statics .nav-icon').classList.add('show-chosed');
-document.querySelector('#statics .menu-text').classList.add('show-chosed');
-
 //执行日期实例------------------------------------------------
 laydate.render({
     elem: '#search-date1',

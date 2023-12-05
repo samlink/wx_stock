@@ -72,7 +72,7 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///商品设置
 #[get("/product_set")]
 pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db, id, "商品设置".to_owned()).await;
+    let mut user = get_user(db, id, "库存状态".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| productset(o, user));
@@ -85,7 +85,7 @@ pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 ///系统设置
 #[get("/field_set")]
 pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db, id, "字段设置".to_owned()).await;
+    let mut user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| fieldset(o, user));
@@ -121,18 +121,18 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     }
 }
 
-///系统参数
-#[get("/system_set")]
-pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db, id, "系统参数".to_owned()).await;
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| systemset(o, user));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
+// ///系统参数
+// #[get("/system_set")]
+// pub async fn system_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+//     let mut user = get_user(db, id, "系统参数".to_owned()).await;
+//     if user.name != "" {
+//         user.show = name_show(&user);
+//         let html = r2s(|o| systemset(o, user));
+//         HttpResponse::Ok().content_type("text/html").body(html)
+//     } else {
+//         goto_login()
+//     }
+// }
 
 ///帮助信息
 #[get("/help")]
@@ -147,7 +147,7 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     }
 }
 
-///商品采购
+///材料采购
 #[get("/buy_in/{dh}")]
 pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "材料采购".to_owned()).await;
@@ -177,6 +177,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
         } else {
             &*dh_num
         };
+        
         let setup = vec!["商品销售", "客户", "出库及发货单号", dh, "customer"];
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, setup));
@@ -212,7 +213,7 @@ pub async fn stock_change_in(
     dh_num: web::Path<String>,
     id: Identity,
 ) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "库存调整".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "调整库存".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -234,7 +235,7 @@ pub async fn stock_change_out(
     dh_num: web::Path<String>,
     id: Identity,
 ) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "库存调整".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "调整库存".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -250,10 +251,10 @@ pub async fn stock_change_out(
     }
 }
 
-/// 材料入库
+/// 采购入库
 #[get("/material_in/{dh}")]
 pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "采购入库".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -269,10 +270,10 @@ pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ide
     }
 }
 
-// 材料出库
+// 销售出库
 #[get("/material_out/{dh}")]
 pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "商品设置".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "销售出库".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -310,7 +311,7 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
 ///报表设计
 #[get("/report_design")]
 pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "报表设计".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| reportdesign(o, user));
@@ -381,7 +382,7 @@ pub async fn change_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse
 
 #[get("/stock_query_in")]
 pub async fn stock_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query(o, user, "仓储管理", "调入查询", "products"));
@@ -393,7 +394,7 @@ pub async fn stock_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 #[get("/stock_query_out")]
 pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query(o, user, "仓储管理", "调出查询", "pout_items"));
@@ -402,18 +403,6 @@ pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse 
         goto_login()
     }
 }
-
-// #[get("/stock_query")]
-// pub async fn stock_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-//     let mut user = get_user(db.clone(), id, "库存检查".to_owned()).await;
-//     if user.name != "" {
-//         user.show = name_show(&user);
-//         let html = r2s(|o| stockquery(o, user, "库存检查"));
-//         HttpResponse::Ok().content_type("text/html").body(html)
-//     } else {
-//         goto_login()
-//     }
-// }
 
 #[get("/business_query")]
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
@@ -429,7 +418,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 #[get("/stockin_items")]
 pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "债务结算".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "入库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| stockinitems(o, user,));
@@ -440,50 +429,10 @@ pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 #[get("/stockout_items")]
 pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "债务结算".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "出库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| stockoutitems(o, user,));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
-
-
-
-#[get("/analys")]
-pub async fn analys(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "综合分析".to_owned()).await;
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| saleanalys(o, user));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
-
-#[get("/statistic")]
-pub async fn statistic(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "销售统计".to_owned()).await;
-
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| statis(o, user));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
-
-#[get("/cost")]
-pub async fn cost(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "库存成本".to_owned()).await;
-
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| coststatis(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
