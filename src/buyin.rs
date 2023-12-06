@@ -351,6 +351,8 @@ pub async fn fetch_document(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let fields = get_inout_fields(db.clone(), &data.cate).await;
+        let f_map = map_fields(db.clone(), &data.cate).await;
+
         let mut sql_fields = "SELECT ".to_owned();
 
         for f in &fields {
@@ -358,8 +360,8 @@ pub async fn fetch_document(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, 已记账, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
-            sql_fields, data.dh
+            r#"{} 客商id, 名称, documents.{} as 审核, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, f_map["审核"], data.dh
         );
 
         // println!("{}", sql);
@@ -369,7 +371,7 @@ pub async fn fetch_document(
         for row in rows {
             let id: i32 = row.get("客商id");
             let name: String = row.get("名称");
-            let rem: bool = row.get("已记账");
+            let rem: &str = row.get("审核");
             let worker: &str = row.get("经办人");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}",
@@ -688,17 +690,19 @@ pub async fn save_stransport(
 #[post("/make_formal")]
 pub async fn make_formal(
     db: web::Data<Pool>,
-    dh_id: web::Json<String>,
+    data: web::Json<DocumentDh>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let dh_id = format!("{}", dh_id); //这里转换一下，直接写入查询报错，说不支持Json<String>
-        let _ = &conn
-            .execute("UPDATE documents SET 已记账=true WHERE 单号=$1", &[&dh_id])
-            .await
-            .unwrap();
+        let f_map = map_fields(db.clone(), &data.cate).await;
+        let sql = format!(
+            r#"update documents set {}='{}' WHERE 单号='{}'"#,
+            f_map["审核"], user.name, data.dh
+        );
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

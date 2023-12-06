@@ -785,16 +785,16 @@ pub async fn fetch_document_rk(
 #[post("/fetch_check")]
 pub async fn fetch_check(
     db: web::Data<Pool>,
-    data: web::Json<String>,
+    data: web::Json<DocumentDh>,
     id: Identity,
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), "入库单据").await;
+        let f_map = map_fields(db.clone(), &data.cate).await;
         let sql = format!(
             r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#,
-            f_map["审核"], f_map["质检"], data
+            f_map["审核"], f_map["质检"], data.dh
         );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 

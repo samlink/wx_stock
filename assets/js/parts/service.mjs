@@ -2,6 +2,7 @@ import {regDate, regInt, regReal, SPLITER} from '../parts/tools.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {table_data, table_init, fetch_table} from '../parts/table.mjs';
 import {notifier} from "./notifier.mjs";
+import {alert_confirm} from "./alert.mjs";
 
 export var table_fields;
 
@@ -151,6 +152,52 @@ export function build_save_items(n, row, show_names) {
     }
     return save_str;
 }
+
+// 审核单据
+export function make_formal(data) {
+    data.button.addEventListener('click', function () {
+        if (this.textContent == "已审核") {
+            return false;
+        }
+
+        if (data.dh == "新单据" || data.edited) {
+            notifier.show('请先保存单据', 'danger');
+            return false;
+        }
+
+        let that = this;
+        alert_confirm("确认审核吗？", {
+            confirmText: "确认",
+            cancelText: "取消",
+            confirmCallBack: () => {
+                fetch(`/make_formal`, {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        cate: data.document_name,
+                        dh: data.dh,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content != -1) {
+                            that.textContent = '已审核';
+                            that.classList.add('remembered');
+                            if (typeof (data.readonly_fun) == "function") {
+                                data.readonly_fun();
+                            }
+                            notifier.show('审核完成', 'success');
+                        } else {
+                            notifier.show('权限不够', 'danger');
+                        }
+                    });
+            }
+        });
+    });
+}
+
 
 //保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
 export function header_error_check(document_table_fields, all_rows) {

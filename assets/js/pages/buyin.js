@@ -50,20 +50,20 @@ fetch(`/fetch_inout_fields`, {
                         document_top_handle(html, true);
                         let values = data.split(SPLITER);
                         let len = values.length;
-
-                        let rem = document.querySelector('#remember-button');
-                        if (values[len - 2] == "true") {
-                            rem.textContent = "已审核";
-                            rem.classList.add('remembered');
-                        } else {
-                            rem.textContent = "审核";
-                            rem.classList.remove('remembered');
-                        }
-
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
                         document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
+
+                        let rem = document.querySelector('#remember-button');
+                        if (values[len - 2] != "") {
+                            rem.textContent = "已审核";
+                            rem.classList.add('remembered');
+                            set_readonly();
+                        } else {
+                            rem.textContent = "审核";
+                            rem.classList.remove('remembered');
+                        }
                     });
 
                 //获取相关单据信息
@@ -302,6 +302,7 @@ fetch(`/fetch_inout_fields`, {
                 auto_data: auto_data,
                 dh: dh_div.textContent,
                 calc_func: calculate,
+                del_func: sum_money,
             }
 
             build_blank_table(edit_data);
@@ -328,6 +329,7 @@ fetch(`/fetch_inout_fields`, {
                         dh: dh_div.textContent,
                         document: document_name,
                         calc_func: calculate,
+                        del_func: sum_money,
                     }
 
                     build_items_table(edit_data);
@@ -488,7 +490,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_document`, {
         method: 'post',
@@ -641,43 +643,25 @@ document.querySelector('#document-new-button').addEventListener('click', functio
     window.location = url;
 });
 
-//审核
-document.querySelector('#remember-button').addEventListener('click', function () {
-    if (this.textContent == "已审核") {
-        return false;
+function set_readonly() {
+    let all_edit = document.querySelectorAll('.document-value');
+    for (let edit of all_edit) {
+        edit.readOnly = true;
     }
+    document.querySelector('#supplier-input').readOnly = true;
+    document.querySelector('#supplier-serach').disabled = true;
+    document.querySelector('#save-button').disabled = true;
+}
 
-    if (dh_div.textContent == "新单据" || edited || input_table_outdata.edited) {
-        notifier.show('请先保存单据', 'danger');
-        return false;
-    }
-
-    let that = this;
-    alert_confirm("单据审核后，编辑需要权限，确认审核吗？", {
-        confirmText: "确认",
-        cancelText: "取消",
-        confirmCallBack: () => {
-            fetch(`/make_formal`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dh_div.textContent),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        that.textContent = '已审核';
-                        that.classList.add('remembered');
-                        notifier.show('审核完成', 'success');
-                    } else {
-                        notifier.show('权限不够', 'danger');
-
-                    }
-                });
-        }
-    });
-});
+//审核单据
+let formal_data = {
+    button: document.querySelector('#remember-button'),
+    dh: dh_div.textContent,
+    document_name: document_name,
+    edited: edited || input_table_outdata.edited,
+    readonly_fun: set_readonly,
+}
+service.make_formal(formal_data);
 
 //共用事件和函数 ---------------------------------------------------------------------
 
