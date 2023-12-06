@@ -40,23 +40,6 @@ pub async fn material_auto(
     }
 }
 
-//状态字段的自动输入
-#[get("/get_standart_auto")]
-pub async fn get_standart_auto(
-    db: web::Data<Pool>,
-    search: web::Query<SearchCate>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let f_map = map_fields(db.clone(), "商品规格").await;
-        let sql = format!("select distinct {} label, '1' as id from products where {} like '%{}%'", f_map["执行标准"], f_map["执行标准"], search.s);
-        autocomplete(db, &sql).await
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
 #[get("/materialout_auto")]
 pub async fn materialout_auto(
     db: web::Data<Pool>,
@@ -100,14 +83,14 @@ pub async fn material_auto_out(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0))::integer || '{}' || 0 AS label FROM products
+                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0))::integer AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN 
                 (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["炉号"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], search.s, search.ss, f_map["切完"]
+            f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
         );
 
         // println!("{}", sql);
@@ -129,14 +112,14 @@ pub async fn material_auto_kt(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0))::integer || '{}' || 0 AS label FROM products
+                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0))::integer AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN
                 (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND {} != '是' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["库存长度"], SPLITER, f_map["物料号"], search.s, f_map["切完"]
+            f_map["库存长度"], f_map["物料号"], search.s, f_map["切完"]
         );
 
         // println!("{}", sql);

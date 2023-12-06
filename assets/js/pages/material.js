@@ -95,9 +95,12 @@ fetch(`/fetch_inout_fields`, {
     });
 
 let standart = document.querySelector('#执行标准');
-
 let auto_comp = new AutoInput(standart, "123", "/get_standart_auto");
 auto_comp.init();
+
+let position = document.querySelector('#库位');
+let auto_comp2 = new AutoInput(position, "123", "/get_position_auto");
+auto_comp2.init();
 
 function set_readonly() {
     let all_edit = document.querySelectorAll('.document-value');

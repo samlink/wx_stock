@@ -302,11 +302,11 @@ function auto_input_handle(input_row, auto_data) {
             this.parentNode.parentNode.parentNode.classList.add("inputting");
         });
         //表格中只能使用此种形式, 那种简单模式涉及 position 及宽度的调整, 很麻烦
-        if (auto.type == "table") {
-            auto_table(auto.auto_input, auto.cate, auto.auto_url, auto.show_th, auto.cb, auto.cf);
-        } else {
+        if (auto.type && auto.type != "table") {
             let auto_comp = new AutoInput(auto.auto_input, auto.cate, auto.auto_url);
             auto_comp.init();
+        } else {
+            auto_table(auto.auto_input, auto.cate, auto.auto_url, auto.show_th, auto.cb, auto.cf);
         }
     }
 }

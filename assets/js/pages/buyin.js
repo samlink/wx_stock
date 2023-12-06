@@ -290,10 +290,8 @@ fetch(`/fetch_inout_fields`, {
             cb: fill_gg,
         }, {
             n: 5,
-            cate: document_name,
+            cate: "状态",
             auto_url: '/get_status_auto',
-            show_th: [
-                {name: "状态", width: 60},],
             type: "simple",
         }];
 

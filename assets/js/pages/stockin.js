@@ -126,18 +126,50 @@ show_names = [
     {
         name: "名称",
         width: 60,
-        class: "auto-input",
+        class: "名称",
         type: "autocomplete",
         editable: true,
-        is_save: true, default: ""
+        is_save: true,
+        save: "id",
+        default: ""
     },
     {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
     {name: "规格", width: 60, class: "规格", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "状态", width: 80, class: "状态", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "库位", width: 60, class: "库位", type: "普通输入", editable: true, is_save: true, default: ""},
+    {
+        name: "执行标准",
+        width: 120,
+        class: "执行标准",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        save: "value",
+        no_button: true,
+        default: ""
+    },
+    {
+        name: "生产厂家",
+        width: 80,
+        class: "生产厂家",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        save: "value",
+        no_button: true,
+        default: ""
+    },
+    {
+        name: "库位",
+        width: 60,
+        class: "库位",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        save: "value",
+        no_button: true,
+        default: ""
+    },
     {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
@@ -176,12 +208,30 @@ let show_th = [
     {name: "库存重量", width: 80},
 ];
 
-let auto_data = {
+let auto_data = [{
     n: 2,
     cate: document_name,
-    url: `/buyin_auto`,
+    auto_url: `/buyin_auto`,
+    show_th: show_th,
+    type: "table",
     cb: fill_gg,
-}
+}, {
+    n: 7,
+    cate: "执行标准",
+    auto_url: `/get_status_auto`,
+    type: "simple",
+}, {
+    n: 8,
+    cate: "生产厂家",
+    auto_url: `/get_status_auto`,
+    type: "simple",
+}, {
+    n: 9,
+    cate: "库位",
+    auto_url: `/get_status_auto`,
+    type: "simple",
+},
+];
 
 if (dh_div.textContent == "新单据") {
     let data = {
@@ -189,7 +239,6 @@ if (dh_div.textContent == "新单据") {
         show_names: show_names,
         lines: table_lines,
         auto_data: auto_data,
-        auto_th: show_th,
         dh: dh_div.textContent,
         document: document_name,
         calc_func: get_weight,
@@ -217,7 +266,6 @@ if (dh_div.textContent == "新单据") {
                 rows: content,
                 lines: table_lines,
                 auto_data: auto_data,
-                auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: get_weight,

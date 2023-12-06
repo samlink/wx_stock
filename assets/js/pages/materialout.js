@@ -151,16 +151,16 @@ let show_th = [
     {name: "库存长度", width: 80},
 ];
 
-let auto_data = {
+let auto_data = [{
     n: 10,
     cate: "",
-    url:
-        `/material_auto_out`,
+    auto_url: `/material_auto_out`,
+    show_th: show_th,
     cb: fill_gg,
     cf: () => {
         return document.querySelector('.table-items .inputting td:nth-child(14)').textContent;
     }
-}
+}];
 
 function build_items(dh) {
     fetch('/get_docs_out', {
@@ -218,7 +218,6 @@ function build_items(dh) {
                         dh: dh_div.textContent,
                         auto_data: auto_data,
                         document: document_name,
-                        auto_th: show_th,
                     }
 
                     build_out_table(data);
@@ -249,7 +248,7 @@ show_names = [
     {
         name: "物料号",
         width: 60,
-        class: "auto-input",
+        class: "物料号",
         type: "autocomplete",
         editable: true,
         is_save: true,
@@ -309,7 +308,6 @@ if (dh_div.textContent == "新单据") {
                 rows: content,              //已有单据需要 rows
                 lines: table_lines,
                 auto_data: auto_data,
-                auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: get_weight,      // 自动计算的函数, 可带参数

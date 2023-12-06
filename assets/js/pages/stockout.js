@@ -126,7 +126,7 @@ show_names = [
     {
         name: "物料号",
         width: 60,
-        class: "auto-input",
+        class: "物料号",
         type: "autocomplete",
         editable: true,
         is_save: true,
@@ -173,12 +173,13 @@ let show_th = [
     {name: "库存长度", width: 80},
 ];
 
-let auto_data = {
+let auto_data = [{
     n: 2,
     cate: "123",
-    url: `/material_auto_kt`,
+    auto_url: `/material_auto_kt`,
+    show_th: show_th,
     cb: fill_gg,
-}
+}];
 
 if (dh_div.textContent == "新单据") {
     let data = {
@@ -186,7 +187,6 @@ if (dh_div.textContent == "新单据") {
         show_names: show_names,
         lines: table_lines,
         auto_data: auto_data,
-        auto_th: show_th,
         dh: dh_div.textContent,
         document: document_name,
         calc_func: get_weight,
@@ -214,7 +214,6 @@ if (dh_div.textContent == "新单据") {
                 rows: content,
                 lines: table_lines,
                 auto_data: auto_data,
-                auto_th: show_th,
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: get_weight,

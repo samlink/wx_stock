@@ -198,7 +198,7 @@ pub async fn fetch_one_product(
     }
 }
 
-//状态字段的自动输入
+//状态、执行标准、生产厂家、库位的自动输入, 类别通过 cate 传入
 #[get("/get_status_auto")]
 pub async fn get_status_auto(
     db: web::Data<Pool>,
@@ -208,7 +208,8 @@ pub async fn get_status_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
-        let sql = format!("select distinct {} label, '1' as id from products where {} like '%{}%'", f_map["状态"], f_map["状态"], search.s);
+        let sql = format!("select distinct {} label, '1' as id from products where lower({}) like '%{}%'",
+                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase());
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
