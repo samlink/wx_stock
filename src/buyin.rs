@@ -208,8 +208,8 @@ pub async fn get_status_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
-        let sql = format!("select distinct {} label, '1' as id from products where lower({}) like '%{}%'",
-                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase());
+        let sql = format!("select distinct {} label, '1' as id from products where lower({}) like '%{}%' order by {}",
+                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
