@@ -97,6 +97,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_formal)
 
             .service(material::material_auto)
+            .service(material::get_standart_auto)
             .service(material::materialout_auto)
             .service(material::material_auto_out)
             .service(material::material_auto_kt)

@@ -40,6 +40,23 @@ pub async fn material_auto(
     }
 }
 
+//状态字段的自动输入
+#[get("/get_standart_auto")]
+pub async fn get_standart_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = format!("select distinct {} label, '1' as id from products where {} like '%{}%'", f_map["执行标准"], f_map["执行标准"], search.s);
+        autocomplete(db, &sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[get("/materialout_auto")]
 pub async fn materialout_auto(
     db: web::Data<Pool>,

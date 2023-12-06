@@ -1,4 +1,4 @@
-import {SPLITER} from '../parts/tools.mjs';
+import {SPLITER, getLeft, getTop} from '../parts/tools.mjs';
 
 export class AutoInput {
     constructor(input, cate, url, cb) {
@@ -38,11 +38,13 @@ export class AutoInput {
                 .then(response => response.json())
                 .then(function (arr) {
                     if (arr != -1 && arr.length > 0) {
-
                         a = document.createElement("DIV");
                         a.setAttribute("id", "autocomplete-list");
                         a.setAttribute("class", "autocomplete-items");
                         input.parentNode.appendChild(a);
+                        let top = getTop(input, document.querySelector('body')) + 30;  // 加行高
+                        let left = getLeft(input, document.querySelector('body'));
+                        a.style.cssText = `position:fixed; top: ${top}px; left: ${left}px; width: ${input.clientWidth}px;`;
 
                         for (i = 0; i < arr.length; i++) {
                             b = document.createElement("DIV");
@@ -59,6 +61,8 @@ export class AutoInput {
                             });
 
                             a.appendChild(b);
+                            // 宽度自适应
+                            b.style.width = input.clientWidth * 0.93 + "px";
                         }
 
                         if (a.clientHeight > space) {

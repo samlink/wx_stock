@@ -286,13 +286,15 @@ fetch(`/fetch_inout_fields`, {
             cate: document_name,
             auto_url: `/buyin_auto`,
             show_th: show_th,
+            type: "table",
             cb: fill_gg,
         }, {
             n: 5,
             cate: document_name,
             auto_url: '/get_status_auto',
             show_th: [
-                {name: "状态", width: 60},]
+                {name: "状态", width: 60},],
+            type: "simple",
         }];
 
         if (dh_div.textContent == "新单据") {

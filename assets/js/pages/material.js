@@ -94,6 +94,10 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
+let standart = document.querySelector('#执行标准');
+
+let auto_comp = new AutoInput(standart, "123", "/get_standart_auto");
+auto_comp.init();
 
 function set_readonly() {
     let all_edit = document.querySelectorAll('.document-value');
@@ -168,7 +172,8 @@ function build_items(dh) {
                 let material = obj.split(SPLITER);
                 tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td>`
                 // let m = material[1].split('　');
-                // tr += `<tr><td hidden>${material[0]}</td><td width="20%">${m[0]}</td><td width="30%">${m[1]}</td><td width="10%">${m[2]}</td><td width="40%">${m[3]}</td></tr>`;
+                // tr += `<tr><td hidden>${material[0]}</td><td width="20%">${m[0]}</td><td width="30%">${m[1]}</td>
+                //        <td width="10%">${m[2]}</td><td width="40%">${m[3]}</td></tr>`;
             });
 
             document.querySelector(".table-history tbody").innerHTML = tr;

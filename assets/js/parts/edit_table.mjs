@@ -4,7 +4,7 @@ import {notifier} from './notifier.mjs';
 import {alert_confirm} from './alert.mjs';
 import {auto_table, AutoInput} from './autocomplete.mjs';
 import * as service from './service.mjs'
-import {SPLITER, regReal, open_node, regInt, padZero} from './tools.mjs';
+import {SPLITER, regReal, open_node, regInt, padZero, getLeft, getTop} from './tools.mjs';
 import {close_modal, modal_init} from './modal.mjs';
 
 let all_width;
@@ -302,7 +302,12 @@ function auto_input_handle(input_row, auto_data) {
             this.parentNode.parentNode.parentNode.classList.add("inputting");
         });
         //表格中只能使用此种形式, 那种简单模式涉及 position 及宽度的调整, 很麻烦
-        auto_table(auto.auto_input, auto.cate, auto.auto_url, auto.show_th, auto.cb, auto.cf);
+        if (auto.type == "table") {
+            auto_table(auto.auto_input, auto.cate, auto.auto_url, auto.show_th, auto.cb, auto.cf);
+        } else {
+            let auto_comp = new AutoInput(auto.auto_input, auto.cate, auto.auto_url);
+            auto_comp.init();
+        }
     }
 }
 
@@ -527,31 +532,6 @@ function element_position(element, add_x, add_y) {
     element.querySelector('.autocomplete').classList.add('auto-edit');
 }
 
-//获取距屏幕左边值
-function getLeft(element, parent) {
-    var left = element.offsetLeft;
-    var current = element.offsetParent;
-
-    while (current !== null) {
-        left += current.offsetLeft;
-        current = current.offsetParent;
-    }
-
-    return left - parent.scrollLeft;
-}
-
-//获取距屏幕上边值
-function getTop(element, parent) {
-    var actualTop = element.offsetTop;
-    var current = element.offsetParent;
-
-    while (current !== null) {
-        actualTop += current.offsetTop;
-        current = current.offsetParent;
-    }
-
-    return actualTop - parent.scrollTop;
-}
 
 //给行加上双击事件
 function row_dbclick(table) {

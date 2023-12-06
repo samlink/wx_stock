@@ -46,6 +46,32 @@ export function checkFileType(input) {
     }
 }
 
+//获取距屏幕左边值
+export function getLeft(element, parent) {
+    var left = element.offsetLeft;
+    var current = element.offsetParent;
+
+    while (current !== null) {
+        left += current.offsetLeft;
+        current = current.offsetParent;
+    }
+
+    return left - parent.scrollLeft;
+}
+
+//获取距屏幕上边值
+export function getTop(element, parent) {
+    var actualTop = element.offsetTop;
+    var current = element.offsetParent;
+
+    while (current !== null) {
+        actualTop += current.offsetTop;
+        current = current.offsetParent;
+    }
+
+    return actualTop - parent.scrollTop;
+}
+
 //金额转中文大写
 export function moneyUppercase(n) {
     var fraction = ['角', '分', '厘', '毫'];
@@ -102,7 +128,9 @@ export function moneyUppercase2(money) {
     var chineseStr = '';
     //分离金额后用的数组，预定义
     var parts;
-    if (money == '') { return ''; }
+    if (money == '') {
+        return '';
+    }
     money = parseFloat(money);
     if (money >= maxNum) {
         //超出最大处理数字
@@ -185,6 +213,7 @@ function topOnkeyDown(dic) {
         }
     };
 }
+
 //KeyboardEvent: key='Enter' | code='Enter'
 //KeyboardEvent: key='Escape' | code='Escape'
 //KeyboardEvent: key='ArrowUp' | code='ArrowUp'
@@ -235,25 +264,21 @@ function jqgridOnkeyDown(dic, count, table, myfunc) {
                 var getIt = '#' + next[0] + dic[next[1]];
                 $(getIt).focus();
                 $(getIt).select();
-            }
-            else {
+            } else {
                 numId = Number(currentId);
                 if (numId < count) {
                     jQuery(table).jqGrid("setSelection", ++numId, true);
-                }
-                else {
+                } else {
                     myfunc(numId, "rs");
                 }
             }
-        }
-        else if (event.keyCode === 38) {            //向上箭头
+        } else if (event.keyCode === 38) {            //向上箭头
             numId = Number(currentId);
             if (numId > 1) {
                 myfunc(numId);
                 jQuery(table).jqGrid("setSelection", --numId, true);
             }
-        }
-        else if (event.keyCode === 40) {            //向下箭头
+        } else if (event.keyCode === 40) {            //向下箭头
             numId = Number(currentId);
             if (numId < count && numId !== -1) {
                 myfunc(numId);
