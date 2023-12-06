@@ -3,7 +3,7 @@ import {notifier} from '../parts/notifier.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {SPLITER, getHeight} from '../parts/tools.mjs';
 
-let get_height = getHeight() - 138;
+let get_height = getHeight() - 103;
 let row_num = Math.floor(get_height / 33);
 
 //执行日期实例------------------------------------------------

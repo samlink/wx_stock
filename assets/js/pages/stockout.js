@@ -58,29 +58,6 @@ fetch(`/fetch_inout_fields`, {
                             rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
-                        //
-                        // fetch('/fetch_check_stock', {
-                        //     method: 'post',
-                        //     headers: {
-                        //         "Content-Type": "application/json",
-                        //     },
-                        //     body: JSON.stringify({
-                        //         cate: document_name,
-                        //         dh: dh_div.textContent
-                        //     }),
-                        // })
-                        //     .then(response => response.json())
-                        //     .then(data => {
-                        //         let rem = document.querySelector('#remember-button');
-                        //         if (data != "") {
-                        //             rem.textContent = "已审核";
-                        //             rem.classList.add('remembered');
-                        //             set_readonly();
-                        //         } else {
-                        //             rem.textContent = "审核";
-                        //             rem.classList.remove('remembered');
-                        //         }
-                        //     });
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -172,7 +149,7 @@ show_names = [
 ];
 
 //计算表格行数，33 为 lineHeight （行高）
-table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
+table_lines = Math.floor((document.querySelector('body').clientHeight - 360) / 33);
 
 let show_th = [
     {name: "物料号", width: 60},

@@ -268,7 +268,7 @@ fetch(`/fetch_inout_fields`, {
         });
 
         //计算表格行数，33 为 lineHeight （行高）
-        table_lines = Math.floor((document.querySelector('body').clientHeight - 390) / 33);
+        table_lines = Math.floor((document.querySelector('body').clientHeight - 365) / 33);
         //构造商品规格自动完成
         let gg_n = document_name == "销售单据" ? 4 : 3;
 

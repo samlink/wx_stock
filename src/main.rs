@@ -110,10 +110,10 @@ async fn main() -> std::io::Result<()> {
             .service(material::fetch_document_items_rk)
             .service(material::fetch_document_items_ck)
             .service(material::check_in)
-            .service(material::make_formal_in)
-            .service(material::make_formal_out)
+            // .service(material::make_formal_in)
+            // .service(material::make_formal_out)
             .service(material::fetch_check)
-            .service(material::fetch_check_stock)
+            // .service(material::fetch_check_stock)
             .service(material::pic_in)
             .service(material::pic_in_save)
 

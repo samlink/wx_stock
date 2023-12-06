@@ -20,7 +20,7 @@ export function customer_init(data) {
 
     //供应商自动完成
     let auto_comp = new AutoInput(customer_data.input, customer_data.cate, customer_data.auto_url, () => {
-        supplier_auto_show();
+        // supplier_auto_show();
     });
 
     auto_comp.init();
@@ -142,39 +142,39 @@ export function customer_init(data) {
 }
 
 //自动完成点击后，展示供应商（客户）数据
-function supplier_auto_show() {
-    let da = {
-        rights: customer_data.cate.textContent == "客户" ? "商品销售" : "材料采购",
-        cate: customer_data.cate.textContent,
-        id: Number(customer_data.input.getAttribute('data')),
-    };
-
-    fetch(`/fetch_supplier`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(da),
-    })
-        .then(response => response.json())
-        .then(content => {
-            let supplier = content[1].split(SPLITER);
-            let join_sup = "";
-            for (let i = 0; i < content[0].length; i++) {
-                join_sup += `${supplier[i]}　 `;
-            }
-
-            if (content[2].indexOf('差') != -1) {
-                customer_data.info.style.cssText = "color: red; background-color: wheat;";
-            }
-            else {
-                customer_data.info.style.cssText = "";
-            }
-
-            customer_data.info.textContent = join_sup;
-            out_data.sale_cut = content[3];      //全局变量：折扣优惠
-        });
-}
+// function supplier_auto_show() {
+//     let da = {
+//         rights: customer_data.cate.textContent == "客户" ? "商品销售" : "材料采购",
+//         cate: customer_data.cate.textContent,
+//         id: Number(customer_data.input.getAttribute('data')),
+//     };
+//
+//     fetch(`/fetch_supplier`, {
+//         method: 'post',
+//         headers: {
+//             "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify(da),
+//     })
+//         .then(response => response.json())
+//         .then(content => {
+//             let supplier = content[1].split(SPLITER);
+//             let join_sup = "";
+//             for (let i = 0; i < content[0].length; i++) {
+//                 join_sup += `${supplier[i]}　 `;
+//             }
+//
+//             if (content[2].indexOf('差') != -1) {
+//                 customer_data.info.style.cssText = "color: red; background-color: wheat;";
+//             }
+//             else {
+//                 customer_data.info.style.cssText = "";
+//             }
+//
+//             customer_data.info.textContent = join_sup;
+//             out_data.sale_cut = content[3];      //全局变量：折扣优惠
+//         });
+// }
 
 //显示行数据
 function customer_table_row(tr) {
@@ -217,7 +217,7 @@ function chose_exit(selected_row) {
         let supplier = document.querySelector('#supplier-input');
         supplier.value = name;
         supplier.setAttribute('data', id);
-        supplier_auto_show();
+        // supplier_auto_show();
         close_modal();
     }
     else {

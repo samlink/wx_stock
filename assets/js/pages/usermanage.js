@@ -3,12 +3,8 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {getHeight} from '../parts/tools.mjs';
 
-//设置菜单 
-document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
-document.querySelector('#function-set .menu-text').classList.add('show-chosed');
-
 //设置表格行数、高度
-let get_height = getHeight() - 166;
+let get_height = getHeight() - 133;
 let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
 
 //显示表格数据 ---------------------------------------
