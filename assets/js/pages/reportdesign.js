@@ -1,10 +1,6 @@
 import { notifier } from '../parts/notifier.mjs';
 import { alert_confirm } from '../parts/alert.mjs';
 
-//设置菜单 
-document.querySelector('#function-set .nav-icon').classList.add('show-chosed');
-document.querySelector('#function-set .menu-text').classList.add('show-chosed');
-
 var hiprintTemplate;
 var edit_mode = "新增";
 var options;
@@ -21,7 +17,7 @@ fetch(`/fetch_print_documents`)
             document.querySelector('#editmodel-select').innerHTML = options;
             first_page();
 
-            document.querySelector('.gener-code').style.display = "none";   //隐藏的这部分在正式发布时需删除，包括html和js两部分代码
+            document.querySelector('.gener-code').style.display = "block";   //隐藏的这部分在正式发布时需删除，包括html和js两部分代码
         }
         else {
             notifier.show('权限不够，操作失败', 'danger');
