@@ -254,6 +254,7 @@ if (dh_div.textContent == "新单据") {
         dh: dh_div.textContent,
         document: document_name,
         calc_func: get_weight,
+        del_func: sum_weight,  //删除表格行时, 需重算合计重量, 在这里运行回调函数
     }
 
     build_blank_table(data);
@@ -278,8 +279,8 @@ if (dh_div.textContent == "新单据") {
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: get_weight,
+                del_func: sum_weight,  //删除表格行时, 需重算合计重量, 在这里运行回调函数
             }
-
             build_items_table(data);
         });
 }

@@ -43,9 +43,11 @@ document.querySelector('#row-del').addEventListener('click', function (e) {
             confirmCallBack: () => {
                 edit.parentNode.removeChild(edit);
                 sum_records();
-                sum_weight();
                 rebuild_index();
                 keep_up();
+                if (typeof input_data.del_func == "function") {
+                    input_data.del_func();
+                }
             }
         });
     } else {
