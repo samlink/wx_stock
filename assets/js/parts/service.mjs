@@ -165,6 +165,12 @@ export function make_formal(data) {
             return false;
         }
 
+        if (document.querySelector('#check-button') &&
+            document.querySelector('#check-button').textContent == "质检") {
+            notifier.show('请先质检, 然后再审核', 'danger');
+            return false;
+        }
+
         let that = this;
         alert_confirm("确认审核吗？", {
             confirmText: "确认",
@@ -198,6 +204,13 @@ export function make_formal(data) {
     });
 }
 
+//使编辑表格的功能键只读
+export function edit_button_disabled() {
+    document.querySelector('#row-insert').disabled = true;
+    document.querySelector('#row-del').disabled = true;
+    document.querySelector('#row-up').disabled = true;
+    document.querySelector('#row-down').disabled = true;
+}
 
 //保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
 export function header_error_check(document_table_fields, all_rows) {

@@ -49,28 +49,38 @@ fetch(`/fetch_inout_fields`, {
                         let values = data.split(SPLITER);
                         document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
 
-                        fetch('/fetch_check_stock', {
-                            method: 'post',
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                cate: document_name,
-                                dh: dh_div.textContent
-                            }),
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                let rem = document.querySelector('#remember-button');
-                                if (data != "") {
-                                    rem.textContent = "已审核";
-                                    rem.classList.add('remembered');
-                                    set_readonly();
-                                } else {
-                                    rem.textContent = "审核";
-                                    rem.classList.remove('remembered');
-                                }
-                            });
+                        let rem = document.querySelector('#remember-button');
+                        if (values[values.length - 2] != "") {
+                            rem.textContent = "已审核";
+                            rem.classList.add('remembered');
+                            set_readonly();
+                        } else {
+                            rem.textContent = "审核";
+                            rem.classList.remove('remembered');
+                        }
+                        //
+                        // fetch('/fetch_check_stock', {
+                        //     method: 'post',
+                        //     headers: {
+                        //         "Content-Type": "application/json",
+                        //     },
+                        //     body: JSON.stringify({
+                        //         cate: document_name,
+                        //         dh: dh_div.textContent
+                        //     }),
+                        // })
+                        //     .then(response => response.json())
+                        //     .then(data => {
+                        //         let rem = document.querySelector('#remember-button');
+                        //         if (data != "") {
+                        //             rem.textContent = "已审核";
+                        //             rem.classList.add('remembered');
+                        //             set_readonly();
+                        //         } else {
+                        //             rem.textContent = "审核";
+                        //             rem.classList.remove('remembered');
+                        //         }
+                        //     });
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -80,13 +90,13 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
-
 function set_readonly() {
     let all_edit = document.querySelectorAll('.document-value');
     for (let edit of all_edit) {
         edit.readOnly = true;
     }
     document.querySelector('#save-button').setAttribute("disabled", true);
+    service.edit_button_disabled();
 }
 
 function document_top_handle(html, has_date) {
@@ -337,45 +347,15 @@ document.querySelector('#save-button').addEventListener('click', function () {
         });
 });
 
-//审核
-document.querySelector('#remember-button').addEventListener('click', function () {
-    if (this.textContent == "已审核") {
-        return false;
-    }
-
-    if (dh_div.textContent == "新单据" || edited || input_table_outdata.edited) {
-        notifier.show('请先保存单据', 'danger');
-        return false;
-    }
-
-    let that = this;
-    alert_confirm("确认审核吗？", {
-        confirmText: "确认",
-        cancelText: "取消",
-        confirmCallBack: () => {
-            fetch(`/make_formal_in`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    cate: document_name,
-                    dh: dh_div.textContent
-                }),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        that.textContent = '已审核';
-                        that.classList.add('remembered');
-                        notifier.show('审核完成', 'success');
-                    } else {
-                        notifier.show('权限不够', 'danger');
-                    }
-                });
-        }
-    });
-});
+//审核单据
+let formal_data = {
+    button: document.querySelector('#remember-button'),
+    dh: dh_div.textContent,
+    document_name: document_name,
+    edited: edited || input_table_outdata.edited,
+    readonly_fun: set_readonly,
+}
+service.make_formal(formal_data);
 
 //共用事件和函数 ---------------------------------------------------------------------
 

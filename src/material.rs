@@ -149,9 +149,9 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, 已记账, 经办人, documents.类别, documents.{} as 图片 FROM documents
+            r#"{} 客商id, 名称, documents.{} as 审核, 经办人, documents.类别, documents.{} as 图片 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
-            sql_fields, f_map["图片"], data.dh
+            sql_fields, f_map["审核"], f_map["图片"], data.dh
         );
 
         // println!("{}", sql);
@@ -161,7 +161,7 @@ pub async fn fetch_document_ck(
         for row in rows {
             let id: i32 = row.get("客商id");
             let name: String = row.get("名称");
-            let rem: bool = row.get("已记账");
+            let rem: String = row.get("审核");
             let pic: String = row.get("图片");
             let worker: String = row.get("经办人");
             let cate: String = row.get("类别");

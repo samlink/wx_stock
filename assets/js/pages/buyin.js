@@ -6,6 +6,7 @@ import {customer_init, out_data} from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
+import {edit_button_disabled} from "../parts/service.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -651,6 +652,8 @@ function set_readonly() {
     document.querySelector('#supplier-input').readOnly = true;
     document.querySelector('#supplier-serach').disabled = true;
     document.querySelector('#save-button').disabled = true;
+
+    service.edit_button_disabled();
 }
 
 //审核单据
