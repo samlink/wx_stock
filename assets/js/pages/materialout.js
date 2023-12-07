@@ -166,8 +166,8 @@ function build_items(dh) {
             let info = content.split(SPLITER);
             document.querySelector("#文本字段5").value = info[0];
             document.querySelector("#文本字段4").value = info[1];
+            document.querySelector("#文本字段4").setAttribute("data", info[2]);
         });
-
 
     fetch('/get_items_out', {
         method: 'post',
@@ -181,7 +181,7 @@ function build_items(dh) {
             let tr = "";
             content.forEach(obj => {
                 let material = obj.split(`${SPLITER}`);
-                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td></tr>`;
+                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td><td hidden>${material[2]}</td></tr>`;
             });
 
             document.querySelector(".table-history tbody").innerHTML = tr;
@@ -203,6 +203,7 @@ function build_items(dh) {
                     show_names[8].value = value[4] * value[5];
                     show_names[9].value = "";
                     show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
+                    show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
 
                     let data = {
                         show_names: show_names,
@@ -264,6 +265,14 @@ show_names = [
         type: "普通输入",
         editable: false,
         is_save: false,
+        css: 'style="width:0%; border-left:none; border-right:none; color:white"',
+    },    {
+        name: "",
+        width: 0,
+        class: "s_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
         css: 'style="width:0%; border-left:none; color:white"',
     },
 ];
@@ -417,9 +426,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 
     let all_values = document.querySelectorAll('.document-value');
-
+    let custid = document.querySelector('#文本字段4').getAttribute("data");
     //构建表头存储字符串，将存入单据中
-    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
+    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${custid}${SPLITER}`;
 
     let n = 0;
     for (let f of document_table_fields) {
@@ -466,7 +475,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch(`/save_material_ck`, {
         method: 'post',
@@ -611,7 +620,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         });
 });
 
-fetch_print_models(document.querySelector('#document-bz').textContent.trim());
+// fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
 //审核单据
 let formal_data = {
@@ -623,39 +632,6 @@ let formal_data = {
 }
 service.make_formal(formal_data);
 //共用事件和函数 ---------------------------------------------------------------------
-
-//获取打印模板
-function fetch_print_models(value) {
-    let print_id;
-    if (value == "材料采购") {
-        print_id = 3;
-    } else if (value == "采购退货") {
-        print_id = 4;
-    } else if (value == "商品销售") {
-        print_id = 1;
-    } else if (value == "销售退货") {
-        print_id = 2;
-    } else {
-        print_id = 5;
-    }
-
-    fetch(`/fetch_models`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: print_id,
-    })
-        .then(response => response.json())
-        .then(content => {
-            let model_options = "";
-            for (let data of content) {
-                model_options += `<option value="${data.id}">打印 - ${data.name}</option>`;
-            }
-
-            document.querySelector('#print-choose').innerHTML = model_options;
-        });
-}
 
 //保存、打印和审核前的错误检查
 function error_check() {

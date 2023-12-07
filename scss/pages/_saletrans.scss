@@ -1,22 +1,35 @@
 .saletrans {
+  //.autocomplete {
+  //  position: absolute;
+  //  margin-left: 8px;
+  //
+  //  $auto-width: 253px; //按需修改
+  //  input {
+  //    width: $auto-width;
+  //  }
+  //
+  //  .autocomplete-items {
+  //    width: $auto-width * 0.998;
+  //    top: 28px;
+  //    left: 0;
+  //
+  //    div {
+  //      width: $auto-width * 0.94;
+  //    }
+  //  }
+  //}
+
+  .fields-show {
+    justify-content: normal;
+  }
+
   .autocomplete {
-    position: absolute;
-    margin-left: 8px;
+    position: relative;
+    margin-left: 0
+  }
 
-    $auto-width: 253px; //按需修改
-    input {
-      width: $auto-width;
-    }
-
-    .autocomplete-items {
-      width: $auto-width * 0.998;
-      top: 28px;
-      left: 0;
-
-      div {
-        width: $auto-width * 0.94;
-      }
-    }
+  .form-group {
+    display: inline-flex;
   }
 
   .table-history {

@@ -382,7 +382,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
-    ;
 
     let all_values = document.querySelectorAll('.document-value');
 
@@ -449,124 +448,8 @@ document.querySelector('#print-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
-    ;
 
-    let id = document.querySelector('#print-choose').value;
-    fetch(`/fetch_provider_model`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: Number(id),
-    })
-        .then(response => response.json())
-        .then(content => {
-            var configElementTypeProvider = (function () {
-                return function (options) {
-                    var addElementTypes = function (context) {
-                        context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
-                        context.testModule = [];
-
-                        context.addPrintElementTypes(
-                            "testModule",
-                            [
-                                new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
-                                new hiprint.PrintElementTypeGroup("自定义", [
-                                    {
-                                        tid: 'configModule.customText',
-                                        title: '自定义文本',
-                                        customText: '自定义文本',
-                                        custom: true,
-                                        type: 'text'
-                                    },
-                                    {
-                                        tid: 'configModule.image',
-                                        title: '图片',
-                                        data: `/assets/img/logo.png`,
-                                        type: 'image'
-                                    },
-                                    {
-                                        tid: 'configModule.tableCustom',
-                                        title: '表格',
-                                        type: 'tableCustom',
-                                        field: 'table',
-                                        options: {
-                                            width: 500,
-                                        }
-                                    },
-                                ]),
-                            ]
-                        );
-                    };
-
-                    return {
-                        addElementTypes: addElementTypes
-                    };
-                };
-            })();
-
-            hiprint.init({
-                providers: [new configElementTypeProvider()]
-            });
-
-            let hiprintTemplate = new hiprint.PrintTemplate({
-                template: JSON.parse(content[1]),
-            });
-
-            var printData = {
-                // 供应商: document.querySelector('#supplier-input').value,
-                // 客户: document.querySelector('#supplier-input').value,
-                日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
-                dh: dh_div.textContent,
-                maker: document.querySelector('#user-name').textContent.split('　')[1],
-                // barCode: dh,
-            };
-
-            let show_fields = document.querySelectorAll('.document-value');
-            let n = 0;
-            for (let field of document_table_fields) {
-                if (field.data_type == "布尔") {
-                    printData[field.show_name] = show_fields[n].checked ? "是" : "否";
-                } else {
-                    printData[field.show_name] = show_fields[n].value;
-                }
-                n++;
-            }
-
-            let table_data = [];
-            let all_rows = document.querySelectorAll('.table-items .has-input');
-            let count = 0;
-            let sum = 0;
-            for (let row of all_rows) {
-                if (row.querySelector('td:nth-child(2) input').value != "") {
-                    let row_data = {};
-                    for (let cell of show_names) {
-                        let da = row.querySelector(`.${cell.class}`);
-                        row_data[cell.name] = cell.editable ? da.value : da.textContent;
-                    }
-
-                    table_data.push(row_data);
-
-                    count += Number(row_data["实际重量"]);
-                    sum += Number(row_data["金额"]);
-                }
-            }
-
-            let row_data = {};
-            row_data["序号"] = '合计';
-            row_data["实际重量"] = count.toFixed(2);
-            row_data["金额"] = sum.toFixed(Number(0));
-
-            table_data.push(row_data);
-
-            printData['chinese'] = moneyUppercase(Number(row_data['金额']))
-            printData["table"] = table_data;
-
-            hiprintTemplate.print(printData);
-        });
 });
-
-fetch_print_models(document.querySelector('#document-bz').textContent.trim());
 
 document.querySelector('#check-button').addEventListener('click', function () {
     if (this.textContent == "已质检") {
@@ -617,39 +500,6 @@ let formal_data = {
 service.make_formal(formal_data);
 
 //共用事件和函数 ---------------------------------------------------------------------
-
-//获取打印模板
-function fetch_print_models(value) {
-    let print_id;
-    if (value == "材料采购") {
-        print_id = 3;
-    } else if (value == "采购退货") {
-        print_id = 4;
-    } else if (value == "商品销售") {
-        print_id = 1;
-    } else if (value == "销售退货") {
-        print_id = 2;
-    } else {
-        print_id = 5;
-    }
-
-    fetch(`/fetch_models`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: print_id,
-    })
-        .then(response => response.json())
-        .then(content => {
-            let model_options = "";
-            for (let data of content) {
-                model_options += `<option value="${data.id}">打印 - ${data.name}</option>`;
-            }
-
-            document.querySelector('#print-choose').innerHTML = model_options;
-        });
-}
 
 //保存、打印和审核前的错误检查
 function error_check() {

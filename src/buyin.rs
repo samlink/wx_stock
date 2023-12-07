@@ -447,7 +447,7 @@ pub async fn fetch_trans_items(
 
         let sql = format!(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 长度, 数量, 理重, 重量, 单价, round((单价*重量)::numeric,2)::real as 金额, 备注 FROM document_items
+                规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, round((单价*重量)::numeric,2)::real as 金额, 备注 FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -463,6 +463,7 @@ pub async fn fetch_trans_items(
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
             let status: String = row.get("状态");
+            let lu: String = row.get("炉号");
             let long: i32 = row.get("长度");
             let num: i32 = row.get("数量");
             let price: f32 = row.get("单价");
@@ -471,8 +472,8 @@ pub async fn fetch_trans_items(
             let money: f32 = row.get("金额");
             let note: String = row.get("备注");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, long, SPLITER, num, SPLITER,
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long, SPLITER, num, SPLITER,
                 theory, SPLITER, weight, SPLITER, price, SPLITER, money, SPLITER, note, SPLITER, m_id,
             );
 
@@ -585,9 +586,12 @@ pub async fn get_items_trans(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                {} || '　' || {} || '　' || {} || '　' || 长度 || '　' || 数量 || '　' || 理重 || '　' || 重量 as item from pout_items
+                {} || '　' || {} || '　' || {} || '　' || pout_items.长度 || '　' || pout_items.数量 || '　' ||
+                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 as item
+            FROM pout_items
             JOIN products ON 物料号 = 文本字段1
             JOIN tree ON 商品id = num
+            JOIN document_items ON 销售id = document_items.id
             WHERE pout_items.单号id = '{}'"#,
             SPLITER, f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
@@ -669,9 +673,9 @@ pub async fn save_stransport(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 长度, 数量, 理重, 重量, 单价, 备注, 顺序)
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                dh, value[9], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[0]
+                r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 备注, 顺序)
+                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
+                dh, value[10], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9], value[0]
             );
 
             // println!("{}", items_sql);

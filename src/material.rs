@@ -217,10 +217,10 @@ pub async fn get_items_out(
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 as item from document_items
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || id::text as item from document_items
             JOIN tree ON 商品id = tree.num
             WHERE 单号id = '{}'"#,
-            SPLITER, data
+            SPLITER, SPLITER, data
         );
 
         // println!("{}", sql);
@@ -248,7 +248,7 @@ pub async fn get_docs_out(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await;
         let sql = &format!(
-            r#"SELECT documents.{} as 合同编号,名称 from documents
+            r#"SELECT documents.{} as 合同编号,名称, 客商id from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
             f_map["合同编号"], data
@@ -261,7 +261,45 @@ pub async fn get_docs_out(
         for row in rows {
             let num: &str = row.get("合同编号");
             let name: &str = row.get("名称");
-            item = format!("{}{}{}", num, SPLITER, name);
+            let custid: i32 = row.get("客商id");
+            item = format!("{}{}{}{}{}", num, SPLITER, name, SPLITER, custid);
+        }
+        HttpResponse::Ok().json(item)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/get_trans_info")]
+pub async fn get_trans_info(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map2 = map_fields(db.clone(), "客户").await;
+        let sql = &format!(
+            r#"SELECT documents.{} as 合同编号, 名称, customers.{} 联系人, customers.{} 电话,
+            customers.{} 公司地址 from documents
+            JOIN customers ON 客商id = customers.id
+            WHERE 单号 = '{}'"#,
+            f_map["合同编号"], f_map2["联系人"], f_map2["电话"], f_map2["公司地址"], data
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut item = "".to_owned();
+        for row in rows {
+            let num: &str = row.get("合同编号");
+            let name: &str = row.get("名称");
+            let contact: &str = row.get("联系人");
+            let tel: &str = row.get("电话");
+            let addr: &str = row.get("公司地址");
+            item = format!("{}{}{}{}{}{}{}{}{}", num, SPLITER, name, SPLITER, contact, SPLITER, tel, SPLITER, addr);
         }
         HttpResponse::Ok().json(item)
     } else {
@@ -459,17 +497,17 @@ pub async fn save_material_ck(
                 f_map["经办人"],
                 f_map["区域"],
                 dh,
-                12 // 12 是本公司的 id
+                doc_data[2]
             );
 
-            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 2);
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 3);
             doc_sql += &format!("'{}','{}', '{}')", doc_data[0], user.name, user.area);
         } else {
             let init = "UPDATE documents SET ".to_owned();
-            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 2);
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 3);
             doc_sql += &format!(
-                "类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-                doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
+                "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
+                doc_data[2], doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
             );
         }
 
@@ -490,9 +528,9 @@ pub async fn save_material_ck(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "出库单据" {
                 format!(
-                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 顺序)
-                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {})"#,
-                    dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0]
+                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 销售id, 顺序)
+                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', '{}'::uuid, {})"#,
+                    dh, value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[0]
                 )
             } else {
                 format!(
@@ -585,7 +623,7 @@ pub async fn fetch_document_items_ck(
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 {} as 规格, {} as 状态, {} as 炉号, 长度, 数量, (长度*数量)::integer as 总长度, 
-                物料号, 重量, 理重, pout_items.备注, 商品id FROM pout_items
+                物料号, 重量, 理重, pout_items.备注, 商品id, 销售id::text FROM pout_items
             JOIN products ON 文本字段1=物料号
             JOIN tree ON 商品id=tree.num
             WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
@@ -611,11 +649,12 @@ pub async fn fetch_document_items_ck(
                 let theory: f32 = row.get("理重");
                 let note: String = row.get("备注");
                 let m_id: String = row.get("商品id");
+                let s_id: String = row.get("销售id");
                 let item = format!(
-                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                     name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
                     long, SPLITER, mount, SPLITER, allong, SPLITER, num, SPLITER,
-                    weight, SPLITER, theory, SPLITER, note, SPLITER, m_id
+                    weight, SPLITER, theory, SPLITER, note, SPLITER, m_id, SPLITER, s_id
                 );
 
                 document_items.push(item);

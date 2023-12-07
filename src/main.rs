@@ -105,6 +105,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::get_items)
             .service(material::get_items_out)
             .service(material::fetch_max_num)
+            .service(material::get_trans_info)
             .service(material::save_material)
             .service(material::save_material_ck)
             .service(material::fetch_document_items_rk)

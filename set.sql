@@ -13,5 +13,5 @@
  select table_name,field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,
         show_order,inout_show,inout_order,default_value,all_edit,is_use,inout_width from tmp;
 
-
-        select id, 打印单据id, 名称 from print_model;
+创建外键索引
+ALTER TABLE pout_items ADD CONSTRAINT fk_sale_idx FOREIGN KEY (销售id) REFERENCES document_items (id);
