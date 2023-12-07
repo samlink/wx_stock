@@ -582,13 +582,14 @@ pub async fn get_items_trans(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 理重 || '　' || 重量 || '　' ||
-                单价 || '　' || 单价*重量::integer  as item from document_items
-            JOIN tree ON 商品id = tree.num
-            WHERE 单号id = '{}'"#,
-            SPLITER, data
+                {} || '　' || {} || '　' || {} || '　' || 长度 || '　' || 数量 || '　' || 理重 || '　' || 重量 as item from pout_items
+            JOIN products ON 物料号 = 文本字段1
+            JOIN tree ON 商品id = num
+            WHERE pout_items.单号id = '{}'"#,
+            SPLITER, f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
         // println!("{}", sql);
