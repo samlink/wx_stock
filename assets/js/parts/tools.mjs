@@ -52,7 +52,7 @@ export function append_blanks(len, m) {
     for (let i = 0; i < len; i++) {
         trs += '<tr>';
         for (let j = 0; j < m; j++) {
-            trs += '<td></td>';
+            trs += '<td>　</td>';   //此处是全角空格，使空行高度与内容行一致
         }
         trs += '</tr>';
     }

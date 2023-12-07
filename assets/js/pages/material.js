@@ -2,7 +2,7 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, append_blanks, append_cells} from '../parts/tools.mjs';
 import {
     build_blank_table,
     build_content_table, build_items_table,
@@ -448,6 +448,77 @@ document.querySelector('#print-button').addEventListener('click', function () {
     if (!error_check()) {
         return false;
     }
+
+    document.querySelector('#print .print-title').textContent = "五星(天津)石油装备有限公司-原材料入库单";
+    document.querySelector('#p-block1').innerHTML = `<p> 单号：${document.querySelector('#dh').textContent}</p>`;
+    document.querySelector('#p-block2').innerHTML = `<p>日期：${document.querySelector('#日期').value}</p>`;
+
+    var th = `<tr>
+        <th width="3%">序号</th>
+        <th width="6%">物料号</th>
+        <th width="7%">材质</th>
+        <th width="6%">规格</th>
+        <th width="8%">状态</th>
+        <th width="9%">炉号</th>
+        <th width="4%">长度</th>
+        <th width="3%">支数</th>
+        <th width="7%">执行标准</th>
+        <th width="8%">生产厂家</th>
+        <th width="6%">重量</th>
+    </tr>`;
+
+    document.querySelector('.print-table thead').innerHTML = th;
+
+    let sum = 0;
+    let sum_weight = 0;
+
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    let trs = '';
+    for (let row of all_rows) {
+        trs += `<tr><td>${row.querySelector('td:nth-child(1)').textContent}</td>
+                <td>${row.querySelector('td:nth-child(10) input').value}</td>`;
+
+        for (let i = 3; i < 13; i++) {
+            if (i == 7) {
+                let v = row.querySelector(`td:nth-child(${i})`).textContent;
+                trs += `<td>${row.querySelector('td:nth-child(11) input').value}</td>
+                        <td>1</td><td>${v}</td>`;
+                continue;
+            }
+
+            if (i == 9 || i == 10 || i == 11) {
+                continue;
+            }
+
+            let t = row.querySelector(`td:nth-child(${i}) input`);
+            let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            trs += `<td>${td}</td>`;
+        }
+
+        trs += '</tr>';
+
+        // sum += Number(row.querySelector(`td:nth-child(10) input`).value);
+        sum_weight += Number(row.querySelector(`td:nth-child(12)`).textContent);
+    }
+
+    // 补空行
+    let len = 9 - all_rows.length;
+    trs += append_blanks(len, 11);
+
+    trs += `<tr style="height: 50px"><td colspan="7"></td><td>${all_rows.length}</td>
+            <td style="white-space: normal">来料重量：<br> ${document.querySelector('#实数字段1').value}</td>
+            <td>实际重量：<br> ${document.querySelector('#实数字段2').value}</td><td>理论重量：<br> ${sum_weight.toFixed(2)}</td>`;
+
+    document.querySelector('.print-table tbody').innerHTML = trs;
+
+    document.querySelector('#p-block5').innerHTML = '<p>采购：</p>';
+    document.querySelector('#p-block6').innerHTML = '<p>财务：</p>';
+    document.querySelector('#p-block7').innerHTML = '<p>质检：</p>';
+    document.querySelector('#p-block8').innerHTML = '<p>仓库：</p>';
+
+    document.querySelector('#print').hidden = false;
+    Print('#print', {});
+    document.querySelector('#print').hidden = true;
 
 });
 
