@@ -46,6 +46,27 @@ export function checkFileType(input) {
     }
 }
 
+// 补空行
+export function append_blanks(len, m) {
+    let trs = "";
+    for (let i = 0; i < len; i++) {
+        trs += '<tr>';
+        for (let j = 0; j < m; j++) {
+            trs += '<td></td>';
+        }
+        trs += '</tr>';
+    }
+    return trs;
+}
+
+export function append_cells(m) {
+    let tds = "";
+    for (let j = 0; j < m; j++) {
+        tds += '<td></td>';
+    }
+    return tds;
+}
+
 //获取距屏幕左边值
 export function getLeft(element, parent) {
     var left = element.offsetLeft;

@@ -2,7 +2,16 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase, checkFileType} from '../parts/tools.mjs';
+import {
+    SPLITER,
+    regInt,
+    regReal,
+    regDate,
+    moneyUppercase,
+    checkFileType,
+    append_cells,
+    append_blanks
+} from '../parts/tools.mjs';
 import {
     build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
@@ -266,7 +275,7 @@ show_names = [
         editable: false,
         is_save: false,
         css: 'style="width:0%; border-left:none; border-right:none; color:white"',
-    },    {
+    }, {
         name: "",
         width: 0,
         class: "s_id",
@@ -475,7 +484,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_material_ck`, {
         method: 'post',
@@ -499,128 +508,70 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
 //打印
 document.querySelector('#print-button').addEventListener('click', function () {
-    //错误勘察
-    if (!error_check()) {
-        return false;
+    document.querySelector('#print .print-title').textContent = "五星(天津)石油装备有限公司-下料过磅单";
+    document.querySelector('#p-block1').innerHTML = `<p>客户：${document.querySelector('#文本字段4').value}</p>`;
+    document.querySelector('#p-block2').innerHTML = `<p>日期：${document.querySelector('#日期').value}</p>`;
+    document.querySelector('#p-block3').innerHTML = `<p>合同号：${document.querySelector('#文本字段5').value}</p>`;
+    document.querySelector('#p-block4').innerHTML = `<p> 单号：${document.querySelector('#dh').textContent}</p>`;
+
+    var th = `<tr>
+        <th class = "center" width = "3%">序号</th>
+        <th class="center" width="7%">名称</th>
+        <th class="center" width="8%">材质</th>
+        <th class="center" width="6%">规格</th>
+        <th class="center" width="10%">状态</th>
+        <th class="center" width="10%">料号</th>
+        <th class="center" width="7%">下料长度</th>
+        <th class="center" width="3%">支数</th>
+        <th class="center" width="7%">总长度</th>
+        <th class="center" width="8%">重量</th>
+        <th class="center" width="8%">剩余长度</th>
+        <th class="center" width="8%">备注</th>
+    </tr>`;
+
+    document.querySelector('.print-table thead').innerHTML = th;
+
+    let sum = 0, sum_long = 0;
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    let trs = '';
+    for (let row of all_rows) {
+        trs += '<tr>';
+        for (let i = 1; i < 14; i++) {
+            if (i == 6 || i == 10 || i == 11) {
+                trs += `<td></td>`;
+                continue;
+            }
+            if (i == 12) {
+                continue;
+            }
+            let t = row.querySelector(`td:nth-child(${i}) input`);
+            let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            trs += `<td>${td}</td>`;
+        }
+        trs += '</tr>';
+        sum += Number(row.querySelector(`td:nth-child(8) input`).value);
+        sum_long += Number(row.querySelector(`td:nth-child(9)`).textContent);
     }
-    ;
 
-    let id = document.querySelector('#print-choose').value;
-    fetch(`/fetch_provider_model`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: Number(id),
-    })
-        .then(response => response.json())
-        .then(content => {
-            var configElementTypeProvider = (function () {
-                return function (options) {
-                    var addElementTypes = function (context) {
-                        context.allElementTypes = [];   //在这里清空一次，否则会累积元素，且只有第一次写入的元素有效
-                        context.testModule = [];
+    // 补空行
+    let len = 5 - all_rows.length;
+    trs += append_blanks(len, 12);
 
-                        context.addPrintElementTypes(
-                            "testModule",
-                            [
-                                new hiprint.PrintElementTypeGroup("常规", JSON.parse(content[0])),
-                                new hiprint.PrintElementTypeGroup("自定义", [
-                                    {
-                                        tid: 'configModule.customText',
-                                        title: '自定义文本',
-                                        customText: '自定义文本',
-                                        custom: true,
-                                        type: 'text'
-                                    },
-                                    {
-                                        tid: 'configModule.image',
-                                        title: '图片',
-                                        data: `/assets/img/logo.png`,
-                                        type: 'image'
-                                    },
-                                    {
-                                        tid: 'configModule.tableCustom',
-                                        title: '表格',
-                                        type: 'tableCustom',
-                                        field: 'table',
-                                        options: {
-                                            width: 500,
-                                        }
-                                    },
-                                ]),
-                            ]
-                        );
-                    };
+    trs += `<tr><td class="center" colspan="2">合计</td>${append_cells(5)}
+            <td>${sum}</td><td>${sum_long}</td>${append_cells(4)}</tr>`;
 
-                    return {
-                        addElementTypes: addElementTypes
-                    };
-                };
-            })();
+    document.querySelector('.print-table tbody').innerHTML = trs;
+    document.querySelector('#p-block5').innerHTML = '<p>制单（仓库）：</p>';
+    document.querySelector('#p-block6').innerHTML = '<p>审核（销售）：</p>';
+    document.querySelector('#p-block7').innerHTML = '<p>下料员：</p>';
+    document.querySelector('#p-block8').innerHTML = '<p>过磅员：</p>';
+    document.querySelector('#print .print-note').innerHTML = '<p>注：此单一式三联，第一联（白）仓库，第二联（红）销售，第三联（黄）财务</p>';
 
-            hiprint.init({
-                providers: [new configElementTypeProvider()]
-            });
-
-            let hiprintTemplate = new hiprint.PrintTemplate({
-                template: JSON.parse(content[1]),
-            });
-
-            var printData = {
-                // 供应商: document.querySelector('#supplier-input').value,
-                // 客户: document.querySelector('#supplier-input').value,
-                日期时间: new Date().Format("yyyy-MM-dd hh:mm"),
-                dh: dh_div.textContent,
-                maker: document.querySelector('#user-name').textContent.split('　')[1],
-                // barCode: dh,
-            };
-
-            let show_fields = document.querySelectorAll('.document-value');
-            let n = 0;
-            for (let field of document_table_fields) {
-                if (field.data_type == "布尔") {
-                    printData[field.show_name] = show_fields[n].checked ? "是" : "否";
-                } else {
-                    printData[field.show_name] = show_fields[n].value;
-                }
-                n++;
-            }
-
-            let table_data = [];
-            let all_rows = document.querySelectorAll('.table-items .has-input');
-            let count = 0;
-            let sum = 0;
-            for (let row of all_rows) {
-                if (row.querySelector('td:nth-child(2) input').value != "") {
-                    let row_data = {};
-                    for (let cell of show_names) {
-                        let da = row.querySelector(`.${cell.class}`);
-                        row_data[cell.name] = cell.editable ? da.value : da.textContent;
-                    }
-
-                    table_data.push(row_data);
-
-                    count += Number(row_data["实际重量"]);
-                    sum += Number(row_data["金额"]);
-                }
-            }
-
-            let row_data = {};
-            row_data["序号"] = '合计';
-            row_data["实际重量"] = count.toFixed(2);
-            row_data["金额"] = sum.toFixed(0);
-
-            table_data.push(row_data);
-
-            printData['chinese'] = moneyUppercase(Number(row_data['金额']))
-            printData["table"] = table_data;
-
-            hiprintTemplate.print(printData);
-        });
-});
-
-// fetch_print_models(document.querySelector('#document-bz').textContent.trim());
+    document.querySelector('#print').hidden = false;
+    Print('#print', {});
+    document.querySelector('#print').hidden = true;
+})
+;
 
 //审核单据
 let formal_data = {
