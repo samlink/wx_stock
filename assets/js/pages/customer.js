@@ -14,7 +14,7 @@ let global = {
     eidt_cate: "",
 }
 
-let get_height = getHeight() - 138;
+let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
 
 let table_name = {

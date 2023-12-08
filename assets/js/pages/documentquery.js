@@ -6,7 +6,7 @@ import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
 
-let get_height = getHeight() - 108;
+let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
 
 let document_cate, address;

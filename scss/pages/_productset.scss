@@ -7,17 +7,17 @@
     .tree-show {
         flex-grow: 0;
         flex-shrink: 0;
-        height: calc(100% - 196px);
+        height: calc(100% - 226px);
     }
 
     .tree-container {
-        height: calc(100vh - 238px);
+        height: calc(100vh - 268px);
     }
 
     #product-show {
         flex-grow: 1;
         margin-left: 20px;
-        width: calc(100% - 340px);
+        width: calc(100% - 370px);
         .table-top {
             display: flex;
             justify-content: space-between;

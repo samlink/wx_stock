@@ -160,7 +160,7 @@ show_names = [
 ];
 
 //计算表格行数，33 为 lineHeight （行高）
-table_lines = Math.floor((document.querySelector('body').clientHeight - 360) / 33);
+table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
 let show_th = [
     {name: "物料号", width: 60},

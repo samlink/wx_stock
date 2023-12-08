@@ -298,7 +298,7 @@ show_names = [
 ];
 
 //计算表格行数，33 为 lineHeight （行高）
-table_lines = Math.floor((document.querySelector('body').clientHeight - 360) / 33);
+table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
 if (dh_div.textContent == "新单据") {
     let data = {

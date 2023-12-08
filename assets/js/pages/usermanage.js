@@ -4,7 +4,7 @@ import {alert_confirm} from '../parts/alert.mjs';
 import {getHeight} from '../parts/tools.mjs';
 
 //设置表格行数、高度
-let get_height = getHeight() - 133;
+let get_height = getHeight() - 178;
 let row_num = Math.floor(get_height / 30);  //30 是表格 css 高度，需根据 css 调整
 
 //显示表格数据 ---------------------------------------
