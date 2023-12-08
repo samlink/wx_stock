@@ -234,11 +234,12 @@ function append_blanks(tbody, num) {
 function build_edit_string(show_names, all_width) {
     let control = "";
     let m_id = show_names[show_names.length - 1].value;
+    let idx = 1;
     for (let obj of show_names) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
-            <input class="form-control input-sm has-value ${obj.class}" type="text" value=${obj.value ? obj.value : ''}></td>`;
+            <input class="form-control input-sm has-value ${obj.class}" type="text" tabindex="${idx++}" value=${obj.value ? obj.value : ''}></td>`;
         } else if (obj.type == "普通输入" && !obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td>`;
         } else if (obj.type == "二值选一" && obj.editable) {
@@ -271,13 +272,73 @@ function build_edit_string(show_names, all_width) {
             <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900; position: inherit">
                     <input class="form-control input-sm has-value auto-input ${obj.class}" type="text" 
-                        value="${obj.value}" data="${m_id}">                        
+                        value="${obj.value}" tabindex="${idx++}" data="${m_id}">                        
                     ${button}
                 </div>
             </td>`;
         }
     }
     return control;
+}
+
+function updown_key_move(event, row, input) {
+    var e = event ? event : window.event;
+    if (e.code == 'ArrowUp') {
+        let n = row.querySelector('td:nth-child(1)').textContent;
+        if (n != '1') {
+            let inputs = document.querySelectorAll('.table-items .has-input');
+            let tr = inputs[n - 2];
+            let tabindex = input.getAttribute('tabindex');
+            goto_tabindex(tr, tabindex);
+            remove_inputting();
+            tr.classList.add('inputting');
+        }
+    } else if (e.code == 'ArrowDown') {
+        let n = row.querySelector('td:nth-child(1)').textContent;
+        let inputs = document.querySelectorAll('.table-items .has-input');
+        if (n != inputs.length) {
+            let tr = inputs[n];
+            let tabindex = input.getAttribute('tabindex');
+            goto_tabindex(tr, tabindex);
+            remove_inputting();
+            tr.classList.add('inputting');
+        }
+    }
+}
+
+function enter_key_move(event, row, input, max_idx) {
+    var e = event ? event : window.event;
+    if (e.code == 'Enter' || e.code == 'NumpadEnter') {
+        let idx = enterToTab(row, input, max_idx);
+        if (idx > max_idx) {
+            let tr = document.querySelector('.table-items .inputting+tr');
+            if (tr.classList.contains('has-input')) {
+                goto_tabindex(tr, 1);
+            } else {
+                goto_tabindex(row, 1);
+            }
+        }
+    }
+}
+
+//聚焦到指定 tabindex 的 input。由 enterToTab() 等函数调用
+function goto_tabindex(row, idx) {
+    var inputs = row.getElementsByTagName('input');
+    for (var i = 0, j = inputs.length; i < j; i++) {
+        if (inputs[i].getAttribute('tabindex') == idx) {
+            inputs[i].focus();
+            break;
+        }
+    }
+}
+
+/// 回车变成tab键功能
+/// row 是容器 Dom，里面有很多 input
+/// input 是本身
+function enterToTab(row, input, max_idx) {
+    var tabindex = input.getAttribute('tabindex');
+    goto_tabindex(row, ++tabindex);
+    return tabindex;
 }
 
 //设置自动输入单元格
@@ -466,6 +527,14 @@ function build_input_row(show_names, all_width, num) {
     if (typeof (input_data.calc_func) == "function") {
         input_data.calc_func(input_row);
     }
+
+    input_row.querySelectorAll('input').forEach(input => (
+        input.onkeydown = (e) => {
+            enter_key_move(e, input_row, input, 9);
+            updown_key_move(e, input_row, input);
+            //ArrowUp ArrowDown
+        })
+    );
 
     return input_row;
 }
