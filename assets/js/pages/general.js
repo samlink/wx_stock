@@ -37,6 +37,32 @@ Date.prototype.Format = function (fmt) {
     return fmt;
 }
 
+document.querySelector('#quick-1').onclick = () => {
+    window.location.href = "/buy_in/new";
+}
+document.querySelector('#quick-2').onclick = () => {
+    window.location.href = "/sale/new";
+}
+document.querySelector('#quick-3').onclick = () => {
+    window.location.href = "/transport/new";
+}
+document.querySelector('#quick-4').onclick = () => {
+    window.location.href = "/product_set";
+}
+document.querySelector('#quick-5').onclick = () => {
+    window.location.href = "/material_in/new";
+}
+document.querySelector('#quick-6').onclick = () => {
+    window.location.href = "/material_out/new";
+}
+document.querySelector('#quick-7').onclick = () => {
+    window.location.href = "/stockin_items";
+}
+document.querySelector('#quick-8').onclick = () => {
+    window.location.href = "/stockout_items";
+}
+
+
 //帮助信息点击显示
 document.querySelector('#help-info').addEventListener('click', function () {
     this.setAttribute('show', 'on');
