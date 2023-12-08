@@ -1,7 +1,16 @@
 import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import * as service from '../parts/service.mjs'
-import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {
+    SPLITER,
+    regInt,
+    regReal,
+    regDate,
+    moneyUppercase,
+    goto_tabindex,
+    enterToTab,
+    set_key_move
+} from '../parts/tools.mjs';
 import {customer_init, out_data} from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
@@ -165,6 +174,10 @@ function document_top_handle(html, has_date) {
             showBottom: false,
         })
     }
+
+    let all_input = document.querySelectorAll('.fields-show input');
+    let form = document.querySelector('.fields-show');
+    set_key_move(all_input, form, all_input.length - 1);
 }
 
 if (document.querySelector('#supplier-input')) {

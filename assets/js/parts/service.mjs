@@ -370,6 +370,7 @@ export function build_add_form(table_fields) {
 export function build_inout_form(table_fields, data) {
     let values = data ? data.split(SPLITER) : "";
     let form = "";
+    let idx_n = 1;
     let n = 0;
     for (let name of table_fields) {
         let control;
@@ -383,7 +384,7 @@ export function build_inout_form(table_fields, data) {
                                     <label>${name.show_name}</label>
                                 </div>
                                 <div class="form-input">
-                                    <input class="form-control input-sm document-value" value='${value}' type="text" ${id}
+                                    <input class="form-control input-sm document-value" value='${value}' idx="${idx_n++}" type="text" ${id}
                                         style="width: ${name.show_width * 20}px;" />
                                 </div>
                             </div>`;
@@ -395,7 +396,7 @@ export function build_inout_form(table_fields, data) {
                                     <label class='check-label' for='${name.show_name}'>${name.show_name}</label>
                                 </div>
                                 <label class="check-radio">
-                                    <input class="document-value" id='${name.show_name}' type="checkbox" ${id} ${checked}>
+                                    <input class="document-value" id='${name.show_name}' type="checkbox"  idx="${idx_n++}" ${id} ${checked}>
                                     <span class="checkmark"></span>
                                 </label>
                             </div>`;

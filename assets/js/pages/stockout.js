@@ -2,7 +2,7 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase} from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move} from '../parts/tools.mjs';
 import {
     appand_edit_row,
     build_blank_table,
@@ -110,6 +110,11 @@ function document_top_handle(html, has_date) {
         elem: date,
         showBottom: false,
     });
+
+    // 回车和方向键的移动控制
+    let all_input = document.querySelectorAll('.fields-show input');
+    let form = document.querySelector('.fields-show');
+    set_key_move(all_input, form, 2);
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------

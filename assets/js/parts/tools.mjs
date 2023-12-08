@@ -4,7 +4,6 @@ export var regReal = /^-?\d+(\.\d+)?$/;
 // export var regReal = /^-?[1-9]\d*.\d*|0.\d*[1-9]\d*$/;
 export var regDate = /(([0-9]{3}[1-9]|[0-9]{2}[1-9][0-9]{1}|[0-9]{1}[1-9][0-9]{2}|[1-9][0-9]{3})-(((0[13578]|1[02])-(0[1-9]|[12][0-9]|3[01]))|((0[469]|11)-(0[1-9]|[12][0-9]|30))|(02-(0[1-9]|[1][0-9]|2[0-8]))))|((([0-9]{2})(0[48]|[2468][048]|[13579][26])|((0[48]|[2468][048]|[3579][26])00))-02-29)/;
 
-
 //左侧补零
 export function padZero(num, length) {
     return (Array(length).join('0') + num).slice(-length);
@@ -65,6 +64,61 @@ export function append_cells(m) {
         tds += '<td></td>';
     }
     return tds;
+}
+
+// 聚焦到指定 tabindex 的 input。由 enterToTab() 等函数调用
+// 返回聚焦的 input
+export function goto_tabindex(row, idx) {
+    var inputs = row.getElementsByTagName('input');
+    for (var i = 0, j = inputs.length; i < j; i++) {
+        if (inputs[i].getAttribute('idx') == idx) {
+            inputs[i].focus();
+            break;
+        }
+    }
+    return inputs[i];
+}
+
+/// 回车变成tab键功能
+/// row 是容器 Dom，里面有很多 input
+/// input 是本身
+export function enterToTab(row, input, max_idx) {
+    var tabindex = input.getAttribute('idx');
+    goto_tabindex(row, ++tabindex);
+    return tabindex;
+}
+
+/// 用于表格头部字段的键移动控制
+/// all_input 所有包含的 input 输入元素
+/// form 是 all_input 容器
+/// max_n 是最大个数
+export function set_key_move(all_input, form, max_n) {
+    all_input.forEach((input) => {
+        input.onkeydown = function (e) {
+            var e = event ? event : window.event;
+            if (e.code == 'Enter' || e.code == 'NumpadEnter') {
+                let idx = enterToTab(form, input, all_input.length);
+                // idx 是返回值，最后一个是 max_n + 1
+                if (idx == max_n + 1) {
+                    goto_tabindex(form, 1);
+                }
+            } else if (e.code == 'ArrowUp') {
+                let tabindex = input.getAttribute('idx')
+                if (tabindex != '1') {
+                    goto_tabindex(form, --tabindex);
+                } else {
+                    goto_tabindex(form, max_n);
+                }
+            } else if (e.code == 'ArrowDown') {
+                let tabindex = input.getAttribute('idx');
+                if (tabindex != max_n) {
+                    goto_tabindex(form, ++tabindex);
+                } else {
+                    goto_tabindex(form, 1);
+                }
+            }
+        }
+    })
 }
 
 //获取距屏幕左边值
@@ -218,112 +272,4 @@ export function moneyUppercase2(money) {
 export function open_node() {
     document.querySelector('#t_4 span').click();
     document.querySelector('#t_3 span').click();
-}
-
-/**
- * 单据上部信息编辑回车向右移动
- * @param {any} dic 字典对象: { 姓名: "_电话", 电话: "_邮箱", 邮箱:"... }
- */
-function topOnkeyDown(dic) {
-    document.onkeydown = function (event) {                     //回车键
-        if ((event.target.type === 'text' || event.target.type === 'select-one') && event.code === "Enter") {
-            var getId = $(event.target).attr('id');
-            var getIt = '#' + dic[getId];
-            $(getIt).focus();
-            $(getIt).select();
-        }
-    };
-}
-
-//KeyboardEvent: key='Enter' | code='Enter'
-//KeyboardEvent: key='Escape' | code='Escape'
-//KeyboardEvent: key='ArrowUp' | code='ArrowUp'
-//KeyboardEvent: key='ArrowDown' | code='ArrowDown'
-//KeyboardEvent: key='ArrowLeft' | code='ArrowLeft'
-//KeyboardEvent: key='ArrowRight' | code='ArrowRight'
-//KeyboardEvent: key='Meta' | code='MetaLeft'
-//KeyboardEvent: key='c' | code='KeyC'
-//
-
-/**
- * jqgrid 编辑按回车键焦点向右移动
- * @param {any} dic 字典对象: { 姓名: "_电话", 电话: "_邮箱", 邮箱:"... }
- * @param {any} table jqgrid 表名: "jqgrid-table"
- */
-function EnterMoveRight(dic, table) {
-    document.onkeydown = function (event) {
-        if ($(event.srcElement).parents('table').attr('id') === table && event.srcElement.type !== 'submit' && event.srcElement.type !== 'image' &&
-            event.srcElement.type !== 'textarea' && event.srcElement.parentNode.nodeName === "TD" && event.keyCode === 13) {
-            var getName = $(event.srcElement).attr('id');
-            var next = getName.split('_');
-            var getIt = '#' + next[0] + dic[next[1]];
-            $(getIt).focus();
-            $(getIt).select();
-        }
-    };
-}
-
-/**
- * jqgrid 表格编辑时，回车键向右移动, 上下箭头键移动行，及自动跳入下行
- * @param {any} dic 表列的字典
- * @param {number} count 表格的总行数
- * @param {any} table 表格的名称："jqgrid-table" 等
- * @param {any} myfunc  行保存函数
- * 另，表格中用到了全局变量：currentId，选择的行ID
- */
-function jqgridOnkeyDown(dic, count, table, myfunc) {
-
-    document.onkeydown = function (event) {                     //回车键
-        if ($(event.srcElement).parents('table').attr('id') === "jqgrid-table" && event.srcElement.type !== 'submit' && event.srcElement.type !== 'image' &&
-            event.srcElement.type !== 'textarea' && event.srcElement.parentNode.nodeName === "TD" && event.keyCode === 13) {
-            var getName = $(event.srcElement).attr('id');
-            var next = getName.split('_');
-
-            var numId;
-
-            if (dic[next[1]] !== "END") {
-                var getIt = '#' + next[0] + dic[next[1]];
-                $(getIt).focus();
-                $(getIt).select();
-            } else {
-                numId = Number(currentId);
-                if (numId < count) {
-                    jQuery(table).jqGrid("setSelection", ++numId, true);
-                } else {
-                    myfunc(numId, "rs");
-                }
-            }
-        } else if (event.keyCode === 38) {            //向上箭头
-            numId = Number(currentId);
-            if (numId > 1) {
-                myfunc(numId);
-                jQuery(table).jqGrid("setSelection", --numId, true);
-            }
-        } else if (event.keyCode === 40) {            //向下箭头
-            numId = Number(currentId);
-            if (numId < count && numId !== -1) {
-                myfunc(numId);
-                jQuery(table).jqGrid("setSelection", ++numId, true);
-            }
-        }
-    };
-}
-
-/**
- * jqgrid 表格编辑时，对鼠标按键事件的判断
- * @param {any} dic 单据上部编辑框的字典对象
- * @param {any} myfunc  行保存函数
- * 另，表格中用到了全局变量：currentId，选择的行ID
- */
-function jqgridOnclick(dic, myfunc) {
-    document.onclick = function (event) {                                   //鼠标点击非表格部分, 则保存当前编辑的行数据
-        event = event ? event : window.event;
-        var obj = event.srcElement ? event.srcElement : event.target;
-        if (!(obj.parentNode.nodeName === 'LI' || obj.parentNode.nodeName === 'TD' ||
-            obj.parentNode.nodeName === 'TR' || obj.parentNode.nodeName === 'SPAN' ||
-            obj.parentNode.nodeName === 'LABEL')) {
-            myfunc(currentId, "rs");
-            topOnkeyDown(dic);
-        }
-    };
 }

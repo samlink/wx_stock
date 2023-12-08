@@ -10,7 +10,7 @@ import {
     moneyUppercase,
     checkFileType,
     append_cells,
-    append_blanks
+    append_blanks, set_key_move
 } from '../parts/tools.mjs';
 import {
     build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
@@ -145,6 +145,11 @@ function document_top_handle(html, has_date) {
         elem: date,
         showBottom: false,
     });
+
+    // 回车和方向键的移动控制
+    let all_input = document.querySelectorAll('.fields-show input');
+    let form = document.querySelector('.fields-show');
+    set_key_move(all_input, form, 5);
 }
 
 let show_th = [

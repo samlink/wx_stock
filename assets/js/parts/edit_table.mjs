@@ -4,7 +4,7 @@ import {notifier} from './notifier.mjs';
 import {alert_confirm} from './alert.mjs';
 import {auto_table, AutoInput} from './autocomplete.mjs';
 import * as service from './service.mjs'
-import {SPLITER, regReal, open_node, regInt, padZero, getLeft, getTop} from './tools.mjs';
+import {SPLITER, regReal, open_node, regInt, padZero, getLeft, getTop, goto_tabindex, enterToTab} from './tools.mjs';
 import {close_modal, modal_init} from './modal.mjs';
 
 let all_width;
@@ -334,28 +334,6 @@ function enter_key_move(event, row, input, next_tr, max_idx) {
             }
         }
     }
-}
-
-// 聚焦到指定 tabindex 的 input。由 enterToTab() 等函数调用
-// 返回聚焦的 input
-function goto_tabindex(row, idx) {
-    var inputs = row.getElementsByTagName('input');
-    for (var i = 0, j = inputs.length; i < j; i++) {
-        if (inputs[i].getAttribute('idx') == idx) {
-            inputs[i].focus();
-            break;
-        }
-    }
-    return inputs[i];
-}
-
-/// 回车变成tab键功能
-/// row 是容器 Dom，里面有很多 input
-/// input 是本身
-function enterToTab(row, input, max_idx) {
-    var tabindex = input.getAttribute('idx');
-    goto_tabindex(row, ++tabindex);
-    return tabindex;
 }
 
 //设置自动输入单元格
