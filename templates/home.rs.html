@@ -10,32 +10,32 @@
     <div class="home-content has-bak">
         <div class="show-chart">
             <div class="chart">
-                <p>近10日销售额：</p>
+                <p>近一年销售额（元）：</p>
                 <canvas id="myChart1"></canvas>
             </div>
             <div class="chart">
-                <p>近10日库存成本变化：</p>
+                <p>近一年库存（Kg）：</p>
                 <canvas id="myChart2"></canvas>
             </div>
         </div>
         <div class="show-tip">
             <div class="tip" id="sale-tip">
                 <div class="word">
-                    <h2> <span id="sale-data"></span> 张 </h2>
+                    <h2><span id="sale-data"></span> 张 </h2>
                     <p>今日销售单据</p>
                 </div>
                 <i class="fa fa-shopping-cart"></i>
             </div>
             <div class="tip" id="buy-tip">
                 <div class="word">
-                    <h2> <span id="buy-data"></span> 张 </h2>
+                    <h2><span id="buy-data"></span> 张 </h2>
                     <p>今日采购单据</p>
                 </div>
                 <i class="fa fa-shopping-bag"></i>
             </div>
             <div class="tip" id="warn-tip">
                 <div class="word">
-                    <h2> <span id="warn-data1"></span> 种商品 </h2>
+                    <h2><span id="warn-data1"></span> 种商品 </h2>
                     <p>低于库存下限</p>
                 </div>
                 <i class="fa fa-cubes"></i>
@@ -58,6 +58,6 @@
     </div>
 </div>
 
-<script src="/assets/plugins/chart/Chart2.min.js"></script>
+<script src="/assets/plugins/chart/chart.umd.js"></script>
 <script type="module" src="/assets/js/pages/home.js"></script>
 }, user, theme)
