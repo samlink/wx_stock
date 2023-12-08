@@ -281,13 +281,29 @@ function build_edit_string(show_names, all_width) {
     return control;
 }
 
-function updown_key_move(event, row, input) {
+// 左右方向键移动
+function leftright_key_move(event, row, input) {
+    var e = event ? event : window.event;
+    if (e.code == 'ArrowLeft') {
+        if (input.selectionStart == 0) {
+            let tabindex = input.getAttribute('idx');
+            let focus = goto_tabindex(row, --tabindex);
+        }
+    } else if (e.code == 'ArrowRight') {
+        if (input.selectionEnd == input.value.length) {
+            let tabindex = input.getAttribute('idx');
+            let focus = goto_tabindex(row, ++tabindex);
+        }
+    }
+}
+
+// 上下方向键移动
+function updown_key_move(event, row, input, all_inputs) {
     var e = event ? event : window.event;
     if (e.code == 'ArrowUp') {
         let n = row.querySelector('td:nth-child(1)').textContent;
         if (n != '1') {
-            let inputs = document.querySelectorAll('.table-items .has-input');
-            let tr = inputs[n - 2];
+            let tr = all_inputs[n - 2];
             let tabindex = input.getAttribute('idx');
             goto_tabindex(tr, tabindex);
             remove_inputting();
@@ -295,9 +311,8 @@ function updown_key_move(event, row, input) {
         }
     } else if (e.code == 'ArrowDown') {
         let n = row.querySelector('td:nth-child(1)').textContent;
-        let inputs = document.querySelectorAll('.table-items .has-input');
-        if (n != inputs.length) {
-            let tr = inputs[n];
+        if (n != all_inputs.length) {
+            let tr = all_inputs[n];
             let tabindex = input.getAttribute('idx');
             goto_tabindex(tr, tabindex);
             remove_inputting();
@@ -306,14 +321,14 @@ function updown_key_move(event, row, input) {
     }
 }
 
-function enter_key_move(event, row, input, max_idx) {
+//回车键移动
+function enter_key_move(event, row, input, next_tr, max_idx) {
     var e = event ? event : window.event;
     if (e.code == 'Enter' || e.code == 'NumpadEnter') {
         let idx = enterToTab(row, input, max_idx);
         if (idx > max_idx) {
-            let tr = document.querySelector('.table-items .inputting+tr');
-            if (tr.classList.contains('has-input')) {
-                goto_tabindex(tr, 1);
+            if (next_tr.classList.contains('has-input')) {
+                goto_tabindex(next_tr, 1);
             } else {
                 goto_tabindex(row, 1);
             }
@@ -321,7 +336,8 @@ function enter_key_move(event, row, input, max_idx) {
     }
 }
 
-//聚焦到指定 tabindex 的 input。由 enterToTab() 等函数调用
+// 聚焦到指定 tabindex 的 input。由 enterToTab() 等函数调用
+// 返回聚焦的 input
 function goto_tabindex(row, idx) {
     var inputs = row.getElementsByTagName('input');
     for (var i = 0, j = inputs.length; i < j; i++) {
@@ -330,6 +346,7 @@ function goto_tabindex(row, idx) {
             break;
         }
     }
+    return inputs[i];
 }
 
 /// 回车变成tab键功能
@@ -530,9 +547,11 @@ function build_input_row(show_names, all_width, num) {
 
     input_row.querySelectorAll('input').forEach(input => (
         input.onkeydown = (e) => {
-            enter_key_move(e, input_row, input, 9);
-            updown_key_move(e, input_row, input);
-            //ArrowUp ArrowDown
+            let inputs = document.querySelectorAll('.table-items .has-input');
+            let next_tr = document.querySelector('.table-items .inputting+tr');
+            enter_key_move(e, input_row, input, next_tr, 9);
+            updown_key_move(e, input_row, input, inputs);
+            leftright_key_move(e, input_row, input);
         })
     );
 
