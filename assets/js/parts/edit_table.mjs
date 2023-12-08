@@ -239,7 +239,7 @@ function build_edit_string(show_names, all_width) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
-            <input class="form-control input-sm has-value ${obj.class}" type="text" tabindex="${idx++}" value=${obj.value ? obj.value : ''}></td>`;
+            <input class="form-control input-sm has-value ${obj.class}" type="text" idx="${idx++}" value=${obj.value ? obj.value : ''}></td>`;
         } else if (obj.type == "普通输入" && !obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td>`;
         } else if (obj.type == "二值选一" && obj.editable) {
@@ -272,7 +272,7 @@ function build_edit_string(show_names, all_width) {
             <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900; position: inherit">
                     <input class="form-control input-sm has-value auto-input ${obj.class}" type="text" 
-                        value="${obj.value}" tabindex="${idx++}" data="${m_id}">                        
+                        value="${obj.value}" idx="${idx++}" data="${m_id}">                        
                     ${button}
                 </div>
             </td>`;
@@ -288,7 +288,7 @@ function updown_key_move(event, row, input) {
         if (n != '1') {
             let inputs = document.querySelectorAll('.table-items .has-input');
             let tr = inputs[n - 2];
-            let tabindex = input.getAttribute('tabindex');
+            let tabindex = input.getAttribute('idx');
             goto_tabindex(tr, tabindex);
             remove_inputting();
             tr.classList.add('inputting');
@@ -298,7 +298,7 @@ function updown_key_move(event, row, input) {
         let inputs = document.querySelectorAll('.table-items .has-input');
         if (n != inputs.length) {
             let tr = inputs[n];
-            let tabindex = input.getAttribute('tabindex');
+            let tabindex = input.getAttribute('idx');
             goto_tabindex(tr, tabindex);
             remove_inputting();
             tr.classList.add('inputting');
@@ -325,7 +325,7 @@ function enter_key_move(event, row, input, max_idx) {
 function goto_tabindex(row, idx) {
     var inputs = row.getElementsByTagName('input');
     for (var i = 0, j = inputs.length; i < j; i++) {
-        if (inputs[i].getAttribute('tabindex') == idx) {
+        if (inputs[i].getAttribute('idx') == idx) {
             inputs[i].focus();
             break;
         }
@@ -336,7 +336,7 @@ function goto_tabindex(row, idx) {
 /// row 是容器 Dom，里面有很多 input
 /// input 是本身
 function enterToTab(row, input, max_idx) {
-    var tabindex = input.getAttribute('tabindex');
+    var tabindex = input.getAttribute('idx');
     goto_tabindex(row, ++tabindex);
     return tabindex;
 }
