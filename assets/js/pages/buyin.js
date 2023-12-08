@@ -65,6 +65,9 @@ fetch(`/fetch_inout_fields`, {
                             rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
+                        setTimeout(() => {
+                            document.querySelector('.table-items tbody .名称').focus();
+                        }, 200);
                     });
 
                 //获取相关单据信息
@@ -105,6 +108,9 @@ fetch(`/fetch_inout_fields`, {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
                 document.querySelector('#remember-button').textContent = '审核'
+                setTimeout(() => {
+                    document.querySelector('.table-items tbody .名称').focus();
+                }, 200)
             }
         }
     });

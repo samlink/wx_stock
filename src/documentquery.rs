@@ -150,7 +150,7 @@ pub struct Del {
 
 #[post("/documents_del")]
 pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, del.rights.clone()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(r#"DELETE FROM {} WHERE 单号id='{}'"#, del.base, del.id);

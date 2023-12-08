@@ -296,19 +296,6 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
     }
 }
 
-///报表设计
-#[get("/report_design")]
-pub async fn report_design(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "".to_owned()).await;
-    if user.name != "" {
-        user.show = name_show(&user);
-        let html = r2s(|o| reportdesign(o, user));
-        HttpResponse::Ok().content_type("text/html").body(html)
-    } else {
-        goto_login()
-    }
-}
-
 ///以下连续的是查询
 #[get("/buy_query")]
 pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {

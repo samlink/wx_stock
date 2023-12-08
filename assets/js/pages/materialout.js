@@ -78,11 +78,17 @@ fetch(`/fetch_inout_fields`, {
                             rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
+                        setTimeout(() => {
+                            document.querySelector('#文本字段6').focus();
+                        }, 200);
                     });
             } else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
-                document.querySelector('#remember-button').textContent = '审核'
+                document.querySelector('#remember-button').textContent = '审核';
+                setTimeout(() => {
+                    document.querySelector('#文本字段6').focus();
+                }, 200);
             }
         }
     });

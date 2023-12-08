@@ -238,9 +238,9 @@ function build_edit_string(show_names, all_width) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
-            <input class="form-control input-sm has-value ${obj.class}" type="text" value = ${obj.value ? obj.value : ''}></td>`;
+            <input class="form-control input-sm has-value ${obj.class}" type="text" value=${obj.value ? obj.value : ''}></td>`;
         } else if (obj.type == "普通输入" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td >`;
+            control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td>`;
         } else if (obj.type == "二值选一" && obj.editable) {
             let checked;
             if (obj.value) {
@@ -254,7 +254,7 @@ function build_edit_string(show_names, all_width) {
                             </label>
                         </td>`;
         } else if (obj.type == "二值选一" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td>`;
         } else if (obj.type == "下拉列表" && obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value'>`;
             let options = obj.default.split('_');
@@ -264,7 +264,7 @@ function build_edit_string(show_names, all_width) {
             }
             control += "</select></td>";
         } else if (obj.type == "下拉列表" && !obj.editable) {
-            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td >`;
+            control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td>`;
         } else if (obj.type == "autocomplete" && obj.editable) {
             let button = obj.no_button ? "" : "<button class='btn btn-info btn-sm product-search-button'> ... </button>";
             control += `

@@ -21,7 +21,7 @@
             word-break: keep-all; /* 不换行 */
             white-space: nowrap; /* 不换行 */
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: "";
         }
 
         td:nth-child(1),

@@ -12,7 +12,6 @@ mod documentquery;
 mod field_set;
 mod html;
 mod product;
-mod report_design;
 mod service;
 mod statistic;
 mod tree;
@@ -61,7 +60,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::supplier_manage)
             .service(html::help)
             .service(html::buy_in)
-            .service(html::report_design)
             .service(html::sale)
             .service(html::saleback)
             .service(html::transport)
@@ -169,14 +167,6 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::get_stockout_items)
             .service(statistic::fetch_business)
             .service(statistic::home_statis)
-
-            .service(report_design::fetch_print_documents)
-            .service(report_design::fetch_provider)
-            .service(report_design::save_model)
-            .service(report_design::fetch_models)
-            .service(report_design::fetch_one_model)
-            .service(report_design::fetch_provider_model)
-            .service(report_design::del_model)
 
             .service(service::fetch_blank)
             .service(service::fetch_help)

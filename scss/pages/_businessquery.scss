@@ -19,11 +19,13 @@
 
         .search-div {
             display: flex;            
-            margin-left: 290px;
 
             .checkmark {
                 top: 8px;
             }
         }
+    }
+    .autocomplete {
+        position: relative;
     }
 }

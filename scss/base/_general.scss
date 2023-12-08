@@ -1,44 +1,51 @@
 .red {
-    background-color: #db4747;
+  background-color: #db4747;
 }
 
 .green {
-    background-color: #36ad82;
+  background-color: #36ad82;
 }
 
 .hide {
-    display: none !important;
+  display: none !important;
 }
 
 .no-border {
+  border: 0;
+
+  &:focus {
     border: 0;
-    &:focus {
-        border: 0;
-    }
+  }
 }
 
 .search-input {
-    height: 13px;
-    display: inline-block;
-    width: 200px;
-    margin-right: 3px;
+  height: 13px;
+  display: inline-block;
+  width: 200px;
+  margin-right: 3px;
 
-    &:hover {
-        border-color: $form-border-color;
-    }
+  &:hover {
+    border-color: $form-border-color;
+  }
 
-    &:focus {
-        border-color: $color-primary;
-    }
+  &:focus {
+    border-color: $color-primary;
+  }
 }
 
 .table-top {
-    margin-left: 3px;
-    margin-bottom: 10px;
+  margin-left: 3px;
+  margin-bottom: 10px;
 }
 
+//.table-items {
+//  th, td {
+//    text-overflow: "";
+//  }
+//}
+
 #help-info {
-    img {
-        width: 25px;
-    }    
+  img {
+    width: 25px;
+  }
 }
