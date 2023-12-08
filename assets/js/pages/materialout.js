@@ -585,14 +585,16 @@ document.querySelector('#print-button').addEventListener('click', function () {
 ;
 
 //审核单据
-let formal_data = {
-    button: document.querySelector('#remember-button'),
-    dh: dh_div.textContent,
-    document_name: document_name,
-    edited: edited || input_table_outdata.edited,
-    readonly_fun: set_readonly,
-}
-service.make_formal(formal_data);
+document.querySelector('#remember-button').addEventListener('click', function () {
+    let formal_data = {
+        button: this,
+        dh: dh_div.textContent,
+        document_name: document_name,
+        edited: edited || input_table_outdata.edited,
+        readonly_fun: set_readonly,
+    }
+    service.make_formal(formal_data);
+});
 //共用事件和函数 ---------------------------------------------------------------------
 
 //保存、打印和审核前的错误检查

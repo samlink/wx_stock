@@ -155,7 +155,6 @@ export function build_save_items(n, row, show_names) {
 
 // 审核单据
 export function make_formal(data) {
-    data.button.addEventListener('click', function () {
         if (this.textContent == "已审核") {
             return false;
         }
@@ -171,7 +170,6 @@ export function make_formal(data) {
             return false;
         }
 
-        let that = this;
         alert_confirm("确认审核吗？", {
             confirmText: "确认",
             cancelText: "取消",
@@ -189,8 +187,8 @@ export function make_formal(data) {
                     .then(response => response.json())
                     .then(content => {
                         if (content != -1) {
-                            that.textContent = '已审核';
-                            that.classList.add('remembered');
+                            data.button.textContent = '已审核';
+                            data.button.classList.add('remembered');
                             if (typeof (data.readonly_fun) == "function") {
                                 data.readonly_fun();
                             }
@@ -201,7 +199,6 @@ export function make_formal(data) {
                     });
             }
         });
-    });
 }
 
 //使编辑表格的功能键只读

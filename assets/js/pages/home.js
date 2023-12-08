@@ -40,6 +40,28 @@ var char_data1 = {
         },
         responsive: true,
         maintainAspectRatio: false,
+        hover: {
+            animationDuration: 0  // 防止鼠标移上去，数字闪烁
+        },
+        animation: {           // 这部分是数值显示的功能实现
+            onComplete: function () {
+                var chartInstance = this.chart;
+                let ctx = chartInstance.ctx;
+                // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
+                ctx.fillStyle = "black";
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'bottom';
+
+                this.data.datasets.forEach(function (dataset, i) {
+                    var meta = chartInstance.controller.getDatasetMeta(i);
+                    meta.data.forEach(function (bar, index) {
+                        var data = dataset.data[index];
+                        ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                    });
+                });
+            }
+        }
     }
 }
 
@@ -55,12 +77,12 @@ var char_data2 = {
         }]
     },
     options: {
-        responsive:false,
+        responsive: false,
     }
 }
 
 let da = new Date(Date.now());
-let da2 = da.setDate(da.getDate() - 180);
+let da2 = da.setDate(da.getDate() - 365);
 let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
 let date2 = new Intl.DateTimeFormat('fr-CA').format(new Date());
 
@@ -130,9 +152,58 @@ function set_chart1(data) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                char_data1.data.labels = content[1];
-                char_data1.data.datasets[0].data = content[2];
-                new Chart(ctx1, char_data1);
+                // char_data1.data.labels = content[1];
+                // char_data1.data.datasets[0].data = content[2];
+                new Chart(ctx1,
+                    {
+                        type: 'bar',
+                        data: {
+                            labels: content[1],
+                            datasets: [{
+                                label: '销售额',
+                                data: content[2],
+                                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    }
+                                }],
+                            },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            hover: {
+                                animationDuration: 0  // 防止鼠标移上去，数字闪烁
+                            },
+                            animation: {           // 这部分是数值显示的功能实现
+                                onComplete: function () {
+                                    var chartInstance = this;
+                                    let ctx = chartInstance.ctx;
+                                    // 以下属于canvas的属性（font、fillStyle、textAlign...）
+                                    // ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize,
+                                    //             Chart.defaults.global.defaultFontStyle,
+                                    //             Chart.defaults.global.defaultFontFamily);
+                                    ctx.fillStyle = "dark-gray";
+                                    ctx.textAlign = 'center';
+                                    ctx.textBaseline = 'bottom';
+
+                                    this.data.datasets.forEach(function (dataset, i) {
+                                        var meta = chartInstance.controller.getDatasetMeta(i);
+                                        meta.data.forEach(function (bar, index) {
+                                            var data = dataset.data[index];
+                                            ctx.fillText(data, bar._model.x, bar._model.y - 5);
+                                        });
+                                    });
+                                }
+                            }
+                        }
+                    }
+                );
             }
             // else {
             //     char_data1.data.labels = fill_labels();

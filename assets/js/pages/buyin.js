@@ -532,17 +532,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
         });
 });
 
-//打印
-// if (document.querySelector('#print-button')) {
-//     addEventListener('click', function () {
-//         //错误勘察
-//         if (!error_check()) {
-//             return false;
-//         }
-//
-
-// }
-
 function set_readonly() {
     let all_edit = document.querySelectorAll('.document-value');
     for (let edit of all_edit) {
@@ -556,14 +545,16 @@ function set_readonly() {
 }
 
 //审核单据
-let formal_data = {
-    button: document.querySelector('#remember-button'),
-    dh: dh_div.textContent,
-    document_name: document_name,
-    edited: edited || input_table_outdata.edited,
-    readonly_fun: set_readonly,
-}
-service.make_formal(formal_data);
+document.querySelector('#remember-button').addEventListener('click', function () {
+    let formal_data = {
+        button: this,
+        dh: dh_div.textContent,
+        document_name: document_name,
+        edited: edited || input_table_outdata.edited,
+        readonly_fun: set_readonly,
+    }
+    service.make_formal(formal_data);
+});
 
 //共用事件和函数 ---------------------------------------------------------------------
 
