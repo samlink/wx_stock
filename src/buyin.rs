@@ -250,13 +250,6 @@ pub async fn save_document(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
-        if data.remember == "已审核" {
-            let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
-            if user.name == "" {
-                return HttpResponse::Ok().json(-1);
-            }
-        }
-
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;

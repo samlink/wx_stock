@@ -29,14 +29,14 @@ pub async fn fetch_statis(
         let da_cate: String;
 
         let mut date_sql = format!(
-            "日期::date >= '{}'::date and 日期::date <= '{}'::date ", //注意：小于等于号
+            "日期::date >= '{}'::date and 日期::date <= '{}'::date ",
             post_data.date1, post_data.date2
         );
 
         if post_data.statis_cate == "按月" {
             da_cate = format!("to_char(日期::date, 'YYYY-MM')");
             date_sql = format!(
-                "日期::date >= '{}'::date and 日期::date < '{}'::date ", //注意：小于号
+                "日期::date >= '{}'::date and 日期::date <= '{}'::date ",
                 post_data.date1, post_data.date2
             );
         } else if post_data.statis_cate == "按年" {
@@ -50,11 +50,13 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额, ROW_NUMBER () OVER (order by {}) as 序号
                 from documents
-                where {} 类别 = '商品销售' and 文本字段3 != '' and {}
+                where {} 类别 = '商品销售' and 文本字段10 != '' and {}
                 group by date_cate
                 order by date_cate"#,
             da_cate, da_cate, limits, date_sql
         );
+
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -73,7 +75,7 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额
                 from documents
-                where {} 类别 = '销售退货' and 文本字段3 != '' and {}
+                where {} 类别 = '销售退货' and 文本字段10 != '' and {}
                 group by date_cate
                 "#,
             da_cate, limits, date_sql
@@ -259,13 +261,11 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         //待审核单据 ------------------------
 
-        let f_map = map_fields(db.clone(), "入库单据").await;
         let mut shen = Vec::new();
 
         let sql = format!(
-            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true
-                group by 类别"#,
-            limits,
+            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true and 文本字段10 = ''
+                group by 类别"#, limits,
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -278,7 +278,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         //待质检 ------------------------
 
-        // let f_map = map_fields(db.clone(), "采购单据").await;
+        let f_map = map_fields(db.clone(), "入库单据").await;
         let mut check = Vec::new();
 
         let sql = format!(

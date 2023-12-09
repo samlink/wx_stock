@@ -43,7 +43,7 @@ fetch(`/fetch_inout_fields`, {
         if (content != -1) {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
-                // 获取本单据内容
+                // 加载已有单据的表头内容
                 fetch(`/fetch_document`, {
                     method: 'post',
                     headers: {
@@ -65,6 +65,16 @@ fetch(`/fetch_inout_fields`, {
                         customer.setAttribute('data', values[len - 4]);
                         document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
 
+                        // 非经办人只能查看
+                        if (document.querySelector('#user-name').textContent.indexOf(values[len - 1]) == -1) {
+                            set_readonly();
+                            let all_edit = document.querySelectorAll('.fields-show input');
+                            for (let edit of all_edit) {
+                                edit.disabled = true;
+                            }
+                            document.querySelector('#save-button').disabled = true;
+                        }
+
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] != "") {
                             rem.textContent = "已审核";
@@ -81,7 +91,7 @@ fetch(`/fetch_inout_fields`, {
                         }
                     });
 
-                //获取相关单据信息
+                //同时获取相关单据信息, 加载表头内容时
                 fetch(`/fetch_other_documents`, {
                     method: 'post',
                     headers: {
@@ -355,10 +365,12 @@ fetch(`/fetch_inout_fields`, {
                     }
 
                     build_items_table(edit_data);
-                    if (document.querySelector('#remember-button').textContent == "审核") {
-                        appand_edit_row();
-                    }
-                });
+                    setTimeout(() => {
+                        if (document.querySelector('#remember-button').textContent.trim() == "审核") {
+                            appand_edit_row();
+                        }
+                    }, 200);
+                })
         }
     });
 
@@ -430,7 +442,9 @@ function sum_money() {
     }
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(0)} 元`;
-    document.querySelector('#应结金额').value = sum.toFixed(0);
+    if (document.querySelector('#应结金额')) {
+        document.querySelector('#应结金额').value = sum.toFixed(0)
+    }
 }
 
 // 销售时使用的理论重量计算

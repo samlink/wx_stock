@@ -30,7 +30,7 @@ pub async fn fetch_all_documents(
     id: Identity,
 ) -> HttpResponse {
     // let user = get_user(db.clone(), id, post_data.cate.clone()).await;
-    let user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
 
     if user.name != "" {
         let doc_cate;
@@ -92,7 +92,7 @@ pub async fn fetch_all_documents(
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE {} {} AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
+            WHERE {} ({}) AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, limits, doc_sql, sql_where, post_data.sort, skip, post_data.rec
         );
 

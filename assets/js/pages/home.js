@@ -193,9 +193,10 @@ document.querySelector('#warn-tip').addEventListener('click', function () {
     window.location.href = `/buy_query`;
 });
 
-document.querySelector('#warn-tip2').addEventListener('click', function () {
-    window.open(`/stock_query`);
+document.querySelector('#use-tip').addEventListener('click', function () {
+    window.location.href = `/change_query_in`;
 });
+
 //
 // setInterval(() => {
 //     location.reload();
