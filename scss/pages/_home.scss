@@ -69,6 +69,34 @@
       border: 1px solid #d7d7d7;
       border-top: none;
       margin-right: 35px;
+
+      ul {
+        margin-top: 0;
+        margin-left: 0;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        padding-top: 5px;
+        list-style-type: none;
+
+        li {
+          padding: 5px 10px 5px 15px;
+
+          &:hover {
+            background-color: $table-hover-color;
+
+          }
+        }
+      }
+
+      .more-tip {
+        color: $link-color;
+        margin-left: 70%;
+        &:hover {
+          color: $link-hover-color;
+        }
+
+      }
     }
   }
 

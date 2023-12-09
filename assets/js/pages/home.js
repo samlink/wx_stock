@@ -40,22 +40,53 @@ let data2 = {
 
 set_chart2(data2);
 
-//
-// fetch(`/home_statis`, {
-//     method: 'post',
-//     headers: {
-//         "Content-Type": "application/json",
-//     },
-// })
-//     .then(response => response.json())
-//     .then(content => {
-//         if (content != -1) {
-//             document.querySelector('#sale-data').textContent = content[0];
-//             document.querySelector('#buy-data').textContent = content[1];
-//             document.querySelector('#warn-data2').textContent = content[2];
-//             document.querySelector('#warn-data1').textContent = content[3];
-//         }
-//     });
+
+fetch(`/home_statis`, {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+})
+    .then(response => response.json())
+    .then(content => {
+        if (content != -1) {
+            let reminder = document.querySelector('#show-01 .reminder')
+            let lines = Math.floor(reminder.clientHeight / 33);
+            let add = 0;
+            if (lines >= content.length) {
+                lines = content.length;
+            } else {
+                lines--;
+                add = 1;
+            }
+
+            let line = "<ul>";
+            for (let i = 0; i < lines; i++) {
+                line += `<li onclick='/sale/${content[i].split('　')[0]}'>${content[i]}</li>`;
+            }
+
+            line += "</ul>";
+
+            if (add == 1) {
+                line += '<div class="more-tip">更多......</div>'
+            }
+
+            // console.log(line)
+            document.querySelector('#sale-data').textContent = `销售未收款 ${content.length} 单`;
+            reminder.innerHTML = line;
+
+            reminder.querySelectorAll('li').forEach((li) => {
+                li.addEventListener('click', () => {
+                    window.location.href = `/sale/${li.textContent.split('　')[0]}`;
+                })
+            });
+
+            // document.querySelector('#sale-data').textContent = content[0];
+            // document.querySelector('#buy-data').textContent = content[1];
+            // document.querySelector('#warn-data2').textContent = content[2];
+            // document.querySelector('#warn-data1').textContent = content[3];
+        }
+    });
 
 document.querySelector('#sale-tip').addEventListener('click', function () {
     window.open(`/sale_query`);

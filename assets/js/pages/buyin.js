@@ -74,9 +74,11 @@ fetch(`/fetch_inout_fields`, {
                             rem.textContent = "审核";
                             rem.classList.remove('remembered');
                         }
-                        setTimeout(() => {
-                            document.querySelector('.table-items tbody .名称').focus();
-                        }, 200);
+                        if (rem.textContent == "审核") {
+                            setTimeout(() => {
+                                document.querySelector('.table-items tbody .名称').focus();
+                            }, 200);
+                        }
                     });
 
                 //获取相关单据信息
