@@ -90,10 +90,10 @@ export function build_table_header(table_container, custom_fields, table_fields,
  * @returns 两位小数的字符串
  */
 export function calc_weight(data) {
-    let tech;
-    if (data.cz == "718") {
+    let tech, cz = data.cz.trim();
+    if (cz == "718") {
         tech = 1.05;
-    } else if (data.cz == "17-4" || data.cz == "Super13Cr") {
+    } else if (cz == "17-4" || cz == "Super13Cr") {
         tech = 1.0064;
     } else {
         tech = 1;
@@ -155,50 +155,50 @@ export function build_save_items(n, row, show_names) {
 
 // 审核单据
 export function make_formal(data) {
-        if (this.textContent == "已审核") {
-            return false;
-        }
+    if (this.textContent == "已审核") {
+        return false;
+    }
 
-        if (data.dh == "新单据" || data.edited) {
-            notifier.show('请先保存单据', 'danger');
-            return false;
-        }
+    if (data.dh == "新单据" || data.edited) {
+        notifier.show('请先保存单据', 'danger');
+        return false;
+    }
 
-        if (document.querySelector('#check-button') &&
-            document.querySelector('#check-button').textContent == "质检") {
-            notifier.show('请先质检, 然后再审核', 'danger');
-            return false;
-        }
+    if (document.querySelector('#check-button') &&
+        document.querySelector('#check-button').textContent == "质检") {
+        notifier.show('请先质检, 然后再审核', 'danger');
+        return false;
+    }
 
-        alert_confirm("确认审核吗？", {
-            confirmText: "确认",
-            cancelText: "取消",
-            confirmCallBack: () => {
-                fetch(`/make_formal`, {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        cate: data.document_name,
-                        dh: data.dh,
-                    }),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != -1) {
-                            data.button.textContent = '已审核';
-                            data.button.classList.add('remembered');
-                            if (typeof (data.readonly_fun) == "function") {
-                                data.readonly_fun();
-                            }
-                            notifier.show('审核完成', 'success');
-                        } else {
-                            notifier.show('权限不够', 'danger');
+    alert_confirm("确认审核吗？", {
+        confirmText: "确认",
+        cancelText: "取消",
+        confirmCallBack: () => {
+            fetch(`/make_formal`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    cate: data.document_name,
+                    dh: data.dh,
+                }),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        data.button.textContent = '已审核';
+                        data.button.classList.add('remembered');
+                        if (typeof (data.readonly_fun) == "function") {
+                            data.readonly_fun();
                         }
-                    });
-            }
-        });
+                        notifier.show('审核完成', 'success');
+                    } else {
+                        notifier.show('权限不够', 'danger');
+                    }
+                });
+        }
+    });
 }
 
 //使编辑表格的功能键只读

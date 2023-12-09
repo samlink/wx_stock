@@ -45,8 +45,8 @@ document.querySelector('#row-del').addEventListener('click', function (e) {
                 sum_records();
                 rebuild_index();
                 keep_up();
-                if (typeof input_data.del_func == "function") {
-                    input_data.del_func();
+                if (typeof input_data.change_func == "function") {
+                    input_data.change_func();
                 }
             }
         });
@@ -209,7 +209,11 @@ export function build_items_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 
     append_blanks(tbody, num);
-    // add_event_handle();
+
+    //明细加载后,自动计算一些公式
+    if (typeof input_data.change_func == "function") {
+        input_data.change_func();
+    }
 }
 
 function append_blanks(tbody, num) {

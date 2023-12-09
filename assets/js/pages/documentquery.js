@@ -9,28 +9,21 @@ let cate = document.querySelector('#category').textContent;
 let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
 
-let document_cate, address;
+let document_cate;
 if (cate == "采购查询") {
     document_cate = "采购单据";
-    address = `/buy_in/`;
 } else if (cate == "销售查询") {
     document_cate = "销售单据";
-    address = `/sale/`;
 } else if (cate == "入库查询") {
     document_cate = "入库单据"
-    address = `/material_in/`;
 } else if (cate == "出库查询") {
     document_cate = "出库单据";
-    address = `/material_out/`;
 } else if (cate == "发货查询") {
     document_cate = "发货单据";
-    address = `/transport/`;
 } else if (cate == "调入查询") {
     document_cate = "库存调入";
-    address = `/stock_change_in/`;
 } else if (cate == "调出查询") {
     document_cate = "库存调出";
-    address = `/stock_change_out/`;
 }
 
 let table_fields;
@@ -41,7 +34,7 @@ let init_data = {
     post_data: {
         id: "",
         name: '',
-        sort: "单号 DESC",
+        sort: "开单时间 DESC",
         rec: row_num,
         cate: cate,
     },
@@ -135,8 +128,27 @@ function search_table() {
 //编辑按键
 document.querySelector('#edit-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-    if (id != "") {
+    if (chosed) {
+        let id = chosed.querySelector('td:nth-child(2)').textContent;
+        let cate = chosed.querySelector('td:nth-child(3)').textContent
+        let address;
+        if (cate == "材料采购") {
+            address = `/buy_in/`;
+        } else if (cate == "商品销售") {
+            address = `/sale/`;
+        } else if (cate == "销售退货") {
+            address = '/saleback/';
+        } else if (cate == "采购入库") {
+            address = `/material_in/`;
+        } else if (cate == "销售出库") {
+            address = `/material_out/`;
+        } else if (cate == "运输发货") {
+            address = `/transport/`;
+        } else if (cate == "调整入库") {
+            address = `/stock_change_in/`;
+        } else if (cate == "调整出库") {
+            address = `/stock_change_out/`;
+        }
         window.location = address + id;
     } else {
         notifier.show('请先选择单据', 'danger');

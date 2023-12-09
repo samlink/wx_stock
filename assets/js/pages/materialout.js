@@ -131,8 +131,6 @@ function document_top_handle(html, has_date) {
 
     auto_comp.init();
 
-    document.querySelector('#文本字段5').parentNode.parentNode.style.cssText = "margin-left: 250px;";
-
     let date = document.querySelector('#日期');
     // date.parentNode.parentNode.style.cssText = "margin-left: 250px;";
 

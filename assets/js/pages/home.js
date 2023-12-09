@@ -72,7 +72,7 @@ fetch(`/home_statis`, {
             }
 
             // console.log(line)
-            document.querySelector('#sale-data').textContent = `销售未收款 ${content.length} 单`;
+            document.querySelector('#sale-data').textContent = `销售未完成 ${content.length} 单`; //未审核, 未发货, 未收款
             reminder.innerHTML = line;
 
             reminder.querySelectorAll('li').forEach((li) => {

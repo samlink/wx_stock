@@ -160,7 +160,7 @@ function document_top_handle(html, has_date) {
     auto_comp.init();
 
     let date = document.querySelector('#日期');
-    date.parentNode.parentNode.style.cssText = "margin-left: 230px;";
+    // date.parentNode.parentNode.style.cssText = "margin-left: 230px;";
 
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");

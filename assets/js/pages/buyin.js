@@ -351,11 +351,13 @@ fetch(`/fetch_inout_fields`, {
                         dh: dh_div.textContent,
                         document: document_name,
                         calc_func: calculate,
-                        del_func: sum_money,
+                        change_func: sum_money,         //新加载或删除变动时运行
                     }
 
                     build_items_table(edit_data);
-                    appand_edit_row();
+                    if (document.querySelector('#remember-button').textContent == "审核") {
+                        appand_edit_row();
+                    }
                 });
         }
     });
@@ -437,7 +439,7 @@ function calc_weight(input_row) {
         long: input_row.querySelector('.long').value,
         num: input_row.querySelector('.num').value,
         name: input_row.querySelector('.auto-input').value,
-        cz: input_row.querySelector('.材质').textContent,
+        cz: input_row.querySelector('.材质').textContent.trim(),
         gg: input_row.querySelector('.规格').value,
     }
 
@@ -537,17 +539,32 @@ document.querySelector('#save-button').addEventListener('click', function () {
 function set_readonly() {
     let all_edit = document.querySelectorAll('.document-value');
     for (let edit of all_edit) {
-        edit.readOnly = true;
+        if (document_name == "采购单据" && (edit.id == '入库完成' || edit.id == "备注")) {
+            continue;
+        } else if (document_name == "销售单据" && edit.id == '是否欠款' || edit.id == "文本字段2" ||
+            edit.id == "发货完成" || edit.id == "文本字段5" || edit.id == "文本字段4" || edit.id == "备注") {
+            continue;
+        }
+        edit.disabled = true;
     }
-    document.querySelector('#supplier-input').readOnly = true;
+    document.querySelector('#supplier-input').disabled = true;
     document.querySelector('#supplier-serach').disabled = true;
-    document.querySelector('#save-button').disabled = true;
+
+    setTimeout(() => {
+        document.querySelectorAll('.table-items tbody input').forEach((input) => {
+            input.disabled = true;
+        });
+    }, 100)
 
     service.edit_button_disabled();
 }
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (document.querySelector('#remember-button').textContent.trim() == "已审核") {
+        return false;
+    }
+
     let formal_data = {
         button: this,
         dh: dh_div.textContent,
