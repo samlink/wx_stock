@@ -33,7 +33,7 @@
     div {
       padding: 5px;
       cursor: pointer;
-      border: 1px solid $primary-400;
+      border: 1px solid $primary-100;
       border-top: none;
       width: $auto-width * 0.94;
       height: 18px;
@@ -44,7 +44,7 @@
 
       &:hover {
         color: white;
-        background-color: $primary-400;
+        background-color: $primary-300;
       }
     }
   }

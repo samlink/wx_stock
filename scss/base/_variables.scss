@@ -1,8 +1,11 @@
 //颜色变量
 // $color-primary: #fd3995;
-$color-primary: #48607f;
+// $color-primary: rgb(57, 110, 164);
+// $color-primary: rgb(53, 112, 171);
+$color-primary: #2574a9;
+// $color-primary: #107ebc;
 $color-success: #1dc9b7;
-$color-info: #2196f3;
+$color-info: #2493ea;
 $color-warning: #ffc241;
 $color-danger: #F5844B;
 $color-fusion: darken(desaturate(adjust-hue($color-primary, 5), 80%), 25%);
@@ -19,8 +22,8 @@ $base-text-color: darken(white, 70%) !default;
 $menu-hover-color: lighten($color-primary, 55%) !default;
 
 $editable-color: tomato;
-$table-hover-color: lighten($color-primary, 35%) !default;
-$table-focus-color: lighten($color-primary, 30%) !default;
+$table-hover-color: lighten($color-primary, 45%) !default;
+$table-focus-color: lighten($color-primary, 42%) !default;
 $table-border-color: lighten(desaturate($color-primary, 60%), 35%); //rgba($black, 0.09);
 
 $primary-50: lighten($color-primary, 25%) !default;
@@ -112,7 +115,7 @@ $p-5: 2rem;
 //表单
 $input-height: calc(2.25rem + 1px);
 $input-border-color: #e5e5e5;
-$input-focus-border-color: $color-primary;
+$input-focus-border-color: $primary-300;
 $input-btn-focus-color: transparent;
 $input-padding-y: 0.5rem;
 $input-padding-x: 0.875rem;
