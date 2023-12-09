@@ -122,6 +122,12 @@ pub async fn fetch_cost(
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<String> = Vec::new();
 
+        let limits = if user.duty != "总经理" && user.duty != "销售" {
+            format!("documents.文本字段7 = '{}' and", user.area)
+        } else {
+            "".to_owned()
+        };
+
         let rows = &conn
             .query(r#"select max(日期) as 日期 from documents"#, &[])
             .await
@@ -142,13 +148,13 @@ pub async fn fetch_cost(
                     LEFT JOIN
                         (select 物料号, sum(理重) as 理重合计 from pout_items
                             join documents on 单号id = 单号
-                            where documents.日期::date <= '{}'::date
+                            where {} documents.日期::date <= '{}'::date
                             group by 物料号
                         ) as foo
                     ON products.文本字段1 = foo.物料号
                     JOIN documents on 单号id = 单号
-                    where products.文本字段7 <> '是' and documents.日期::date <= '{}'::date
-                "#, date, date
+                    where {} products.文本字段7 <> '是' and documents.日期::date <= '{}'::date
+                "#, limits, date, limits, date
             );
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

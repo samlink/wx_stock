@@ -1,7 +1,7 @@
 .home-page {
   .home-content {
     padding: 10px 0 30px 20px;
-    height: calc(100vh - 200px);
+    height: calc(100vh - 210px);
   }
 
   #help-info {
@@ -41,7 +41,7 @@
     display: flex;
     justify-content: space-between;
     color: white;
-    width: 18%;
+    //width: 18%;
     height: 60px;
     border-radius: 4px;
     margin-right: 35px;
@@ -52,6 +52,23 @@
       margin-top: 16px;
       margin-right: 10px;
       opacity: .2;
+    }
+  }
+
+  .show-div {
+    height: calc(100vh - 580px);
+    width: 19.7%;
+
+    .tip {
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .reminder {
+      height: 85%;
+      border: 1px solid #d7d7d7;
+      border-top: none;
+      margin-right: 35px;
     }
   }
 
