@@ -27,9 +27,9 @@
   .show-tip {
     display: flex;
 
-    & > div {
-      cursor: pointer;
-    }
+    //& > div {
+    //  cursor: pointer;
+    //}
   }
 
   .word {
@@ -45,6 +45,7 @@
     height: 60px;
     border-radius: 4px;
     margin-right: 35px;
+    cursor: pointer;
 
     i {
       display: block;
@@ -81,7 +82,7 @@
 
         li {
           padding: 5px 10px 5px 15px;
-
+          cursor: pointer;
           &:hover {
             background-color: $table-hover-color;
 
@@ -90,11 +91,11 @@
       }
 
       .more-tip {
-        color: $link-color;
+        //color: $link-color;
         margin-left: 70%;
-        &:hover {
-          color: $link-hover-color;
-        }
+        //&:hover {
+        //  color: $link-hover-color;
+        //}
 
       }
     }
@@ -105,15 +106,15 @@
   }
 
   #buy-tip {
-    background-color: #6ab8f7;
+    background-color: #ffca5b;
   }
 
   #warn-tip {
-    background-color: #ffca5b;
+    background-color: #6ab8f7;
   }
 
   #warn-tip2 {
-    background-color: #ffca5b;
+    background-color: #eb72aa;
   }
 
   #use-tip {

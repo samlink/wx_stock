@@ -50,57 +50,150 @@ fetch(`/home_statis`, {
     .then(response => response.json())
     .then(content => {
         if (content != -1) {
-            let reminder = document.querySelector('#show-01 .reminder')
-            let lines = Math.floor(reminder.clientHeight / 33);
-            let add = 0;
-            if (lines >= content.length) {
-                lines = content.length;
-            } else {
-                lines--;
-                add = 1;
+            let reminder = document.querySelector('#show-01 .reminder');
+            let fit_lines = Math.floor(reminder.clientHeight / 33);
+
+            //销售未收款
+            let data = {
+                content: content[0],
+                lines: fit_lines,
+                reminder: reminder,
+                title_holer: document.querySelector('#sale-data'),
+                title: `销售未收款 ${content[0].length} 单`,
+                more_href: "/sale_query",
+                location: "/sale/",
             }
 
-            let line = "<ul>";
-            for (let i = 0; i < lines; i++) {
-                line += `<li onclick='/sale/${content[i].split('　')[0]}'>${content[i]}</li>`;
+            show_reminders(data);
+
+            //销售未出库
+            let data2 = {
+                content: content[1],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-02 .reminder'),
+                title_holer: document.querySelector('#sale-data2'),
+                title: `销售未出库 ${content[1].length} 单`,
+                more_href: "/sale_query",
+                location: "/sale/",
             }
 
-            line += "</ul>";
+            show_reminders(data2);
 
-            if (add == 1) {
-                line += '<div class="more-tip">更多......</div>'
+            //采购未入库
+            let data3 = {
+                content: content[2],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-03 .reminder'),
+                title_holer: document.querySelector('#buy-data'),
+                title: `采购未入库 ${content[2].length} 单`,
+                more_href: "/buy_query",
+                location: "/buy_in/",
             }
 
-            // console.log(line)
-            document.querySelector('#sale-data').textContent = `销售未完成 ${content.length} 单`; //未审核, 未发货, 未收款
-            reminder.innerHTML = line;
+            show_reminders(data3);
 
-            reminder.querySelectorAll('li').forEach((li) => {
-                li.addEventListener('click', () => {
-                    window.location.href = `/sale/${li.textContent.split('　')[0]}`;
-                })
-            });
+            //未审核
+            let data4 = {
+                content: content[3],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-04 .reminder'),
+                title_holer: document.querySelector('#warn-data2'),
+                title: `待审核 ${content[3].length} 类单据`,
+                alter_func: function () {
+                    this.reminder.querySelectorAll('li').forEach((li) => {
+                        li.addEventListener('click', () => {
+                            let address;
+                            let cate = li.textContent.split('　')[0];
+                            if (cate == "材料采购") {
+                                address = `/buy_query`;
+                            } else if (cate == "商品销售") {
+                                address = `/sale_query`;
+                            } else if (cate == "销售退货") {
+                                address = '/sale_query';
+                            } else if (cate == "采购入库") {
+                                address = `/change_query_in`;
+                            } else if (cate == "销售出库") {
+                                address = `/change_query_out`;
+                            } else if (cate == "运输发货") {
+                                address = `/trans_query`;
+                            } else if (cate == "调整入库") {
+                                address = `/stock_query_in`;
+                            } else if (cate == "调整出库") {
+                                address = `/stock_query_out`;
+                            }
+                            window.location.href = address;
+                        })
+                    });
+                }
+            }
 
-            // document.querySelector('#sale-data').textContent = content[0];
-            // document.querySelector('#buy-data').textContent = content[1];
-            // document.querySelector('#warn-data2').textContent = content[2];
-            // document.querySelector('#warn-data1').textContent = content[3];
+            show_reminders(data4);
+
+            //待质检
+            let data5 = {
+                content: content[4],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-05 .reminder'),
+                title_holer: document.querySelector('#warn-data3'),
+                title: `待质检 ${content[4].length} 单`,
+                more_href: "/change_query_in",
+                location: "/material_in/",
+            }
+
+            show_reminders(data5);
         }
     });
 
+function show_reminders(data) {
+    // 销售提醒
+    let add = 0;
+
+    if (data.lines >= data.content.length) {
+        data.lines = data.content.length;
+    } else {
+        data.lines--;
+        add = 1;
+    }
+
+    let line = "<ul>";
+    for (let i = 0; i < data.lines; i++) {
+        line += `<li>${data.content[i]}</li>`;
+    }
+
+    line += "</ul>";
+
+    if (add == 1) {
+        line += `<div class="more-tip"> <a href=${data.more_href}>更多......</a></div>`
+    }
+
+    data.title_holer.textContent = data.title;
+    data.reminder.innerHTML = line;
+
+    if (!data.alter_func) {
+        data.reminder.querySelectorAll('li').forEach((li) => {
+            li.addEventListener('click', () => {
+                window.location.href = `${data.location}${li.textContent.split('　')[0]}`;
+            })
+        });
+    } else {
+        data.alter_func();
+    }
+
+}
+
 document.querySelector('#sale-tip').addEventListener('click', function () {
-    window.open(`/sale_query`);
+    window.location.href = `/sale_query`;
 });
 
 document.querySelector('#buy-tip').addEventListener('click', function () {
-    window.open(`/buy_query`);
-});
-
-document.querySelector('#warn-tip2').addEventListener('click', function () {
-    window.open(`/stock_query`);
+    window.location.href = `/sale_query`;
 });
 
 document.querySelector('#warn-tip').addEventListener('click', function () {
+    window.location.href = `/buy_query`;
+});
+
+document.querySelector('#warn-tip2').addEventListener('click', function () {
     window.open(`/stock_query`);
 });
 //

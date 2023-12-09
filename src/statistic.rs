@@ -199,15 +199,17 @@ pub async fn fetch_cost(
 
 #[post("/home_statis")]
 pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let today = now().strftime("%Y-%m-%d").unwrap().to_string();
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        // let today = now().strftime("%Y-%m-%d").unwrap().to_string();
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await;
-        //销售未收款
+        let limits = get_limits(user).await;
+
+        //销售完成 ------------------------
         let sql = format!(
-            r#"select 单号, 经办人, {} as 区域 from documents where 类别='商品销售' and 是否欠款=true and {} != ''"#,
-            f_map["区域"], f_map["审核"]
+            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='商品销售' and 是否欠款=true"#,
+            f_map["区域"], limits
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -220,7 +222,82 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             sale1.push(item);
         }
 
-        HttpResponse::Ok().json((sale1))
+        let mut sale2 = Vec::new();
+
+        let sql = format!(
+            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='商品销售' and {}=false"#,
+            f_map["区域"], limits, f_map["发货完成"]
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let dh: &str = row.get("单号");
+            let worker: &str = row.get("经办人");
+            let area: &str = row.get("区域");
+            let item = format!("{}　{:>4}　{}", dh, worker, area);
+            sale2.push(item);
+        }
+
+        //采购未出库 ------------------------
+
+        let f_map = map_fields(db.clone(), "采购单据").await;
+        let mut buy = Vec::new();
+
+        let sql = format!(
+            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='材料采购' and {} = false"#,
+            f_map["区域"], limits, f_map["入库完成"]
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let dh: &str = row.get("单号");
+            let worker: &str = row.get("经办人");
+            let area: &str = row.get("区域");
+            let item = format!("{}　{:>4}　{}", dh, worker, area);
+            buy.push(item);
+        }
+
+        //待审核单据 ------------------------
+
+        let f_map = map_fields(db.clone(), "入库单据").await;
+        let mut shen = Vec::new();
+
+        let sql = format!(
+            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true
+                group by 类别"#,
+            limits,
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let cate: &str = row.get("类别");
+            let num: i64 = row.get("数量");
+            let item = format!("{}　{} 张", cate, num);
+            shen.push(item);
+        }
+
+        //待质检 ------------------------
+
+        // let f_map = map_fields(db.clone(), "采购单据").await;
+        let mut check = Vec::new();
+
+        let sql = format!(
+            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='采购入库' and {} = ''"#,
+            f_map["区域"], limits, f_map["质检"]
+        );
+
+        // println!("{}",sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let dh: &str = row.get("单号");
+            let worker: &str = row.get("经办人");
+            let area: &str = row.get("区域");
+            let item = format!("{}　{:>4}　{}", dh, worker, area);
+            check.push(item);
+        }
+
+        HttpResponse::Ok().json((sale1, sale2, buy, shen, check))
 
         // //今日采购单数
         // let sql = format!(
