@@ -61,7 +61,7 @@ pub async fn fetch_all_documents(
 
         let f_map = map_fields(db.clone(), doc_cate).await;
 
-        let limits = get_limits(user, f_map).await;
+        let limits = get_limits(user).await;
 
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;

@@ -20,67 +20,6 @@ document.querySelector('#date-now').textContent = `${now2[0]}年${now2[1]}月${n
 var ctx1 = document.getElementById('myChart1').getContext('2d');
 var ctx2 = document.getElementById('myChart2').getContext('2d');
 
-var char_data1 = {
-    type: 'bar',
-    data: {
-        datasets: [{
-            label: '销售额',
-            backgroundColor: 'rgba(54, 162, 235, 0.5)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }],
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        hover: {
-            animationDuration: 0  // 防止鼠标移上去，数字闪烁
-        },
-        animation: {           // 这部分是数值显示的功能实现
-            onComplete: function () {
-                var chartInstance = this.chart;
-                let ctx = chartInstance.ctx;
-                // 以下属于canvas的属性（font、fillStyle、textAlign...）
-                ctx.font = Chart.helpers.fontString(Chart.defaults.global.defaultFontSize, Chart.defaults.global.defaultFontStyle, Chart.defaults.global.defaultFontFamily);
-                ctx.fillStyle = "black";
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-
-                this.data.datasets.forEach(function (dataset, i) {
-                    var meta = chartInstance.controller.getDatasetMeta(i);
-                    meta.data.forEach(function (bar, index) {
-                        var data = dataset.data[index];
-                        ctx.fillText(data, bar._model.x, bar._model.y - 5);
-                    });
-                });
-            }
-        }
-    }
-}
-
-var char_data2 = {
-    type: 'line',
-    data: {
-        datasets: [{
-            label: '库存成本',
-            backgroundColor: 'rgba(255, 99, 132, 0.5)',
-            borderColor: 'rgba(255, 99, 132, 1)',
-            borderWidth: 1,
-            fill: false,
-        }]
-    },
-    options: {
-        responsive: false,
-    }
-}
-
 let da = new Date(Date.now());
 let da2 = da.setDate(da.getDate() - 365);
 let date1 = new Intl.DateTimeFormat('fr-CA').format(da2);
@@ -96,13 +35,10 @@ set_chart1(data1);
 
 let data2 = {
     statis_cate: "按月",
-    num: 6
+    num: 12
 };
 
 set_chart2(data2);
-
-let moni_sale = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
-let moni_cost = [1360, 1369, 1490, 1432, 1598, 1588, 1621, 1603, 1653, 1699];
 
 //
 // fetch(`/home_statis`, {
@@ -152,8 +88,6 @@ function set_chart1(data) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                // char_data1.data.labels = content[1];
-                // char_data1.data.datasets[0].data = content[2];
                 new Chart(ctx1,
                     {
                         type: 'bar',
@@ -205,12 +139,6 @@ function set_chart1(data) {
                     }
                 );
             }
-            // else {
-            //     char_data1.data.labels = fill_labels();
-            //     char_data1.data.datasets[0].label = "销售额 (模拟）";
-            //     char_data1.data.datasets[0].data = moni_sale;
-            //     new Chart(ctx1, char_data1);
-            // }
         });
 }
 
@@ -225,27 +153,24 @@ function set_chart2(data) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
-                char_data2.data.labels = content[1].reverse();
-                char_data2.data.datasets[0].data = content[2].reverse();
-                new Chart(ctx2, char_data2);
+                new Chart(ctx2, {
+                    type: 'line',
+                    data: {
+                        labels: content[1].reverse(),
+                        datasets: [{
+                            label: '库存重量',
+                            data: content[2].reverse(),
+                            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            fill: false,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                    }
+                });
             }
-            // else {
-            //     char_data2.data.labels = fill_labels();
-            //     char_data2.data.datasets[0].label = "库存成本 (模拟）";
-            //     char_data2.data.datasets[0].data = moni_cost.reverse();
-            //     new Chart(ctx2, char_data2);
-            // }
         });
 }
-
-// function fill_labels() {
-//     let labels = [];
-//     for (let i = 9; i >= 0; i--) {
-//         let da = new Date(Date.now());
-//         let da2 = da.setDate(da.getDate() - i);
-//         let date = new Intl.DateTimeFormat('fr-CA').format(da2);
-//
-//         labels.push(date);
-//     }
-//     return labels;
-// }

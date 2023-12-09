@@ -1,81 +1,78 @@
 .home-page {
-    .home-content {
-        padding: 10px 0 30px 20px;
-        height: calc(100vh - 200px);
-    }
+  .home-content {
+    padding: 10px 0 30px 20px;
+    height: calc(100vh - 200px);
+  }
 
-    #help-info {
-        display: flex;
-        align-items: center;
-    }
+  #help-info {
+    display: flex;
+    align-items: center;
+  }
 
-    #date-now {
-        margin-right: 15px;
-    }
+  #date-now {
+    margin-right: 15px;
+  }
 
-    .show-chart {
-        display: flex;
-        margin-bottom: 80px;
-    }
+  .show-chart {
+    display: flex;
+    margin-bottom: 80px;
+  }
 
-    .chart {
-        width: 48%;
-        height: 300px;
-        margin-right: 30px;
-    }
+  .chart {
+    width: 48%;
+    height: 300px;
+    margin-right: 30px;
+  }
 
-    #myChart1 {
-        height: 300px;
-        width: 800px;
-    }
+  .show-tip {
+    display: flex;
 
-    .show-tip {
-        display: flex;
-        & > div {
-            cursor: pointer;
-        }
+    & > div {
+      cursor: pointer;
     }
+  }
 
-    .word {
-        margin-left: 30px;
-        margin-top: 10px;
-    }
+  .word {
+    margin-left: 30px;
+    margin-top: 10px;
+  }
 
-    .tip {
-        display: flex;
-        justify-content: space-between;
-        color: white;
-        width: 18%;
-        height: 60px;
-        border-radius: 4px;
-        margin-right: 35px;
+  .tip {
+    display: flex;
+    justify-content: space-between;
+    color: white;
+    width: 18%;
+    height: 60px;
+    border-radius: 4px;
+    margin-right: 35px;
 
-        i {
-            display: block;
-            font-size: 80px;
-            margin-top: 26px;
-            margin-right: 6px;
-            opacity: 0.2;
-        }
+    i {
+      display: block;
+      font-size: 30px;
+      margin-top: 16px;
+      margin-right: 10px;
+      opacity: .2;
     }
-    #sale-tip {
-        background-color: #a38cc6;
-    }
+  }
 
-    #buy-tip {
-        background-color: #6ab8f7;
-    }
+  #sale-tip {
+    background-color: #a38cc6;
+  }
 
-    #warn-tip {
-        background-color: #ffca5b;
-    }
+  #buy-tip {
+    background-color: #6ab8f7;
+  }
 
-    #warn-tip2 {
-        background-color: #ffca5b;
-    }
+  #warn-tip {
+    background-color: #ffca5b;
+  }
 
-    #use-tip {
-        background-color: #4de5d5;
-        cursor: default;
-    }
+  #warn-tip2 {
+    background-color: #ffca5b;
+  }
+
+  #use-tip {
+    background-color: #4de5d5;
+    cursor: default;
+  }
 }

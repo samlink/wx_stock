@@ -2,7 +2,7 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
-use time::now;
+use time::{now, Duration};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize)]
@@ -24,6 +24,7 @@ pub async fn fetch_statis(
         let mut num: Vec<i64> = Vec::new();
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<f32> = Vec::new();
+        let limits = get_limits(user).await;
 
         let da_cate: String;
 
@@ -49,10 +50,10 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额, ROW_NUMBER () OVER (order by {}) as 序号
                 from documents
-                where 类别 = '商品销售' and 文本字段3 != '' and {}
+                where {} 类别 = '商品销售' and 文本字段3 != '' and {}
                 group by date_cate
                 order by date_cate"#,
-            da_cate, da_cate, date_sql
+            da_cate, da_cate, limits, date_sql
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -72,10 +73,10 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额
                 from documents
-                where 类别 = '销售退货' and 文本字段3 != '' and {}
+                where {} 类别 = '销售退货' and 文本字段3 != '' and {}
                 group by date_cate
                 "#,
-            da_cate, date_sql
+            da_cate, limits, date_sql
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -107,87 +108,88 @@ pub struct CostData {
     statis_cate: String,
     num: i32,
 }
-//
-// #[post("/fetch_cost")]
-// pub async fn fetch_cost(
-//     db: web::Data<Pool>,
-//     post_data: web::Json<CostData>,
-//     id: Identity,
-// ) -> HttpResponse {
-//     let user = get_user(db.clone(), id, "库存成本".to_owned()).await;
-//     if user.name != "" {
-//         let conn = db.get().await.unwrap();
-//         let mut num: Vec<i32> = Vec::new();
-//         let mut date_lables: Vec<String> = Vec::new();
-//         let mut sale_data: Vec<String> = Vec::new();
-//
-//         let rows = &conn
-//             .query(r#"select max(日期) as 日期 from documents"#, &[])
-//             .await
-//             .unwrap();
-//
-//         let mut date = "".to_owned();
-//         for row in rows {
-//             date = row.get("日期");
-//         }
-//
-//         if date == "" {
-//             return HttpResponse::Ok().json(-1);
-//         }
-//
-//         for i in 0..post_data.num {
-//             let sql = format!(
-//                 r#"select COALESCE(sum(平均价格*库存数量), '0') as 库存成本 from
-//                 (select 商品id, sum(单价*数量) / sum(数量) as 平均价格 from document_items
-//                 join documents on documents.单号=document_items.单号id
-//                 where 已记账=true and 单号id like 'C%' and 日期::date <= '{}'::date group by 商品id) as foo
-//                 join
-//                 (select 商品id, sum(数量) as 库存数量 from document_items
-//                 join documents on documents.单号=document_items.单号id
-//                 where 直销=false and 已记账=true and 日期::date <= '{}'::date group by 商品id) as bar
-//                 on foo.商品id = bar.商品id"#,
-//                 date, date
-//             );
-//
-//             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-//
-//             let mut stocks = 0f32;
-//
-//             for row in rows {
-//                 stocks = row.get("库存成本");
-//             }
-//
-//             let date_label: String;
-//             let get_time = time::strptime(&date, "%Y-%m-%d").unwrap();
-//             if post_data.statis_cate == "按月" {
-//                 date_label = get_time.strftime("%Y-%m").unwrap().to_string();
-//                 let new_date = get_time - Duration::days(30);
-//                 date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
-//             } else if post_data.statis_cate == "按年" {
-//                 date_label = get_time.strftime("%Y").unwrap().to_string();
-//                 let new_date = get_time - Duration::days(365);
-//                 date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
-//             } else if post_data.statis_cate == "按日" {
-//                 date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
-//                 let new_date = get_time - Duration::days(1);
-//                 date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
-//             } else {
-//                 date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
-//                 let new_date = get_time - Duration::days(7);
-//                 date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
-//             }
-//
-//             //全是倒序，放到前段处理
-//             num.push(post_data.num - i);
-//             date_lables.push(date_label);
-//             sale_data.push(format!("{:.*}", 2, stocks));
-//         }
-//
-//         HttpResponse::Ok().json((num, date_lables, sale_data))
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
+
+#[post("/fetch_cost")]
+pub async fn fetch_cost(
+    db: web::Data<Pool>,
+    post_data: web::Json<CostData>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let mut num: Vec<i32> = Vec::new();
+        let mut date_lables: Vec<String> = Vec::new();
+        let mut sale_data: Vec<String> = Vec::new();
+
+        let rows = &conn
+            .query(r#"select max(日期) as 日期 from documents"#, &[])
+            .await
+            .unwrap();
+
+        let mut date = "".to_owned();
+        for row in rows {
+            date = row.get("日期");
+        }
+
+        if date == "" {
+            return HttpResponse::Ok().json(-1);
+        }
+
+        for i in 0..post_data.num {
+            let sql = format!(
+                r#"select COALESCE(sum(库存下限-COALESCE(理重合计,0)),0) as 库存重量 from products
+                    LEFT JOIN
+                        (select 物料号, sum(理重) as 理重合计 from pout_items
+                            join documents on 单号id = 单号
+                            where documents.日期::date <= '{}'::date
+                            group by 物料号
+                        ) as foo
+                    ON products.文本字段1 = foo.物料号
+                    JOIN documents on 单号id = 单号
+                    where products.文本字段7 <> '是' and documents.日期::date <= '{}'::date
+                "#, date, date
+            );
+
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+            let mut stocks = 0f32;
+
+            for row in rows {
+                stocks = row.get("库存重量");
+            }
+
+            let date_label: String;
+            let get_time = time::strptime(&date, "%Y-%m-%d").unwrap();
+            if post_data.statis_cate == "按月" {
+                date_label = get_time.strftime("%Y-%m").unwrap().to_string();
+                let new_date = get_time - Duration::days(30);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
+            } else if post_data.statis_cate == "按年" {
+                date_label = get_time.strftime("%Y").unwrap().to_string();
+                let new_date = get_time - Duration::days(365);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
+            } else if post_data.statis_cate == "按日" {
+                date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
+                let new_date = get_time - Duration::days(1);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
+            } else {
+                date_label = get_time.strftime("%Y-%m-%d").unwrap().to_string();
+                let new_date = get_time - Duration::days(7);
+                date = new_date.strftime("%Y-%m-%d").unwrap().to_string();
+            }
+
+            //全是倒序，放到前端处理
+            num.push(post_data.num - i);
+            date_lables.push(date_label);
+            sale_data.push(format!("{:.*}", 0, stocks / 1000.0));
+        }
+
+        HttpResponse::Ok().json((num, date_lables, sale_data))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
 
 #[post("/home_statis")]
 pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
@@ -505,7 +507,7 @@ pub async fn fetch_business(
         let data: Vec<&str> = cate.split(SPLITER).collect();
 
         let f_map = map_fields(db.clone(), "销售单据").await;
-        let limits = get_limits(user, f_map).await;
+        let limits = get_limits(user).await;
 
         let query_field = if name != "" {
             //注意前导空格

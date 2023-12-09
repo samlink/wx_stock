@@ -167,6 +167,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::get_stockout_items)
             .service(statistic::fetch_business)
             .service(statistic::fetch_statis)
+            .service(statistic::fetch_cost)
             .service(statistic::home_statis)
 
             .service(service::fetch_blank)
