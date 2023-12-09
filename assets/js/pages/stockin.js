@@ -74,11 +74,20 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function set_readonly() {
-    let all_edit = document.querySelectorAll('.document-value');
+    let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        edit.readOnly = true;
+        if (edit.id == "备注") {
+            continue;
+        }
+        edit.disabled = true;
     }
-    document.querySelector('#save-button').setAttribute("disabled", true);
+
+    setTimeout(() => {
+        document.querySelectorAll('.table-items tbody input').forEach((input) => {
+            input.disabled = true;
+        });
+    }, 100);
+
     service.edit_button_disabled();
 }
 
@@ -221,7 +230,7 @@ let auto_data = [{
 }, {
     n: 8,
     cate: "生产厂家",
-    auto_url: `/get_status_auto`,
+    auto_url: `/get_factory_auto`,
     type: "simple",
 }, {
     n: 9,
@@ -378,6 +387,10 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (document.querySelector('#remember-button').textContent.trim() == "已审核") {
+        return false;
+    }
+
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

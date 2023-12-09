@@ -122,13 +122,20 @@ let auto_comp2 = new AutoInput(position, "库位", "/get_status_auto");
 auto_comp2.init();
 
 function set_readonly() {
-    let all_edit = document.querySelectorAll('.document-value');
+    let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        edit.readOnly = true;
+        if (edit.id == "备注") {
+            continue;
+        }
+        edit.disabled = true;
     }
-    document.querySelector('#文本字段6').readOnly = true;
     document.querySelector('#material-add').setAttribute("disabled", true);
-    document.querySelector('#save-button').setAttribute("disabled", true);
+
+    setTimeout(() => {
+        document.querySelectorAll('.table-items tbody input').forEach((input) => {
+            input.disabled = true;
+        });
+    }, 100);
 
     service.edit_button_disabled();
 }
@@ -160,7 +167,6 @@ function document_top_handle(html, has_date) {
     auto_comp.init();
 
     let date = document.querySelector('#日期');
-    // date.parentNode.parentNode.style.cssText = "margin-left: 230px;";
 
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
@@ -210,7 +216,8 @@ function build_items(dh) {
             let lines = document.querySelectorAll(".table-history tbody tr");
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
-                    if (document.querySelector('#remember-button').textContent == '已审核') {
+                    if (document.querySelector('#remember-button').textContent == '已审核' ||
+                        document.querySelector('#check-button').textContent == '已质检') {
                         return false;
                     }
                     document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
@@ -583,6 +590,10 @@ document.querySelector('#check-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (this.textContent.trim() == "已审核") {
+        return false;
+    }
+
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

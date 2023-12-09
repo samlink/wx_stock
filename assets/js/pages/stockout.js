@@ -74,11 +74,21 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function set_readonly() {
-    let all_edit = document.querySelectorAll('.document-value');
+    let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        edit.readOnly = true;
+        if (edit.id == "备注") {
+            continue;
+        }
+        edit.disabled = true;
     }
-    document.querySelector('#save-button').setAttribute("disabled", true);
+
+    setTimeout(() => {
+        document.querySelectorAll('.table-items tbody input').forEach((input) => {
+            input.disabled = true;
+        });
+    }, 100);
+
+    document.querySelector('#文本字段1').disabled = true;
     service.edit_button_disabled();
 }
 
@@ -278,7 +288,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建表头存储字符串，将存入单据中
-    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}`;
+    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}0${SPLITER}`;   // 0 是本公司id, 后台需保存 客商id
     save_str += service.build_save_header(all_values, document_table_fields);
 
     // 构建字符串数组，将存入单据明细中
@@ -337,6 +347,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
+    if (this.textContent.trim() == "已审核") {
+        return false;
+    }
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

@@ -537,7 +537,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 });
 
 function set_readonly() {
-    let all_edit = document.querySelectorAll('.document-value');
+    let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
         if (document_name == "采购单据" && (edit.id == '入库完成' || edit.id == "备注")) {
             continue;
@@ -547,14 +547,13 @@ function set_readonly() {
         }
         edit.disabled = true;
     }
-    document.querySelector('#supplier-input').disabled = true;
     document.querySelector('#supplier-serach').disabled = true;
 
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
             input.disabled = true;
         });
-    }, 100)
+    }, 100);
 
     service.edit_button_disabled();
 }

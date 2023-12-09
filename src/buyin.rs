@@ -216,6 +216,23 @@ pub async fn get_status_auto(
     }
 }
 
+#[get("/get_factory_auto")]
+pub async fn get_factory_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let sql = format!("select 文本字段1 label, '1' as id from customers
+                                where lower(助记码) like '%{}%' OR 文本字段1 like '%{}%'",
+                          search.s.to_lowercase(), search.s.to_lowercase());
+        autocomplete(db, &sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Document {
     pub rights: String,
@@ -644,7 +661,7 @@ pub async fn save_stransport(
                 f_map["经办人"],
                 f_map["区域"],
                 dh,
-                12 // 12 是本公司的 id
+                0 // 0 是本公司的 id
             );
 
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 2);
