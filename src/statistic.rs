@@ -261,7 +261,24 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             buy.push(item);
         }
 
-        //待审核单据 ------------------------
+        //未提交审核单据 ------------------------
+
+        let mut pre_shen = Vec::new();
+
+        let sql = format!(
+            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = false and 类别 <> ''
+                group by 类别"#, limits,
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let cate: &str = row.get("类别");
+            let num: i64 = row.get("数量");
+            let item = format!("{}　{} 张", cate, num);
+            pre_shen.push(item);
+        }
+
+        //已提交待审核单据 ------------------------
 
         let mut shen = Vec::new();
 
@@ -299,61 +316,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             check.push(item);
         }
 
-        HttpResponse::Ok().json((sale1, sale2, buy, shen, check))
-
-        // //今日采购单数
-        // let sql = format!(
-        //     r#"select count(单号) as 单数 from documents where 单号 like 'CG%' and 已记账=true and 日期::date='{}'::date"#,
-        //     today
-        // );
-        //
-        // let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        // let mut buy_num = 0i64;
-        // for row in rows {
-        //     buy_num = row.get("单数");
-        // }
-        //
-        // //超过库存下限的商品数
-        // let count_sql = format!(
-        //     r#"select count(products.id) as 记录数 from products
-        //     join
-        //     (select 商品id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
-        //     on products.id=foo.商品id
-        //     join warehouse on warehouse.id=foo.仓库id
-        //     where 库存<=库存下限;"#,
-        // );
-        //
-        // let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
-        //
-        // let mut limit_count: i64 = 0;
-        // for row in rows {
-        //     limit_count = row.get("记录数");
-        // }
-        //
-        // //滞库3个月商品数
-        // let count_sql = format!(
-        //     r#"select count(products.id) as 记录数 from products
-        //     join
-        //     (select 商品id,仓库id, sum(数量) as 库存 from document_items join documents on 单号=单号id where 直销=false and 已记账=true group by 仓库id,商品id) as foo
-        //     on products.id=foo.商品id
-        //     join
-        //     (
-        //         SELECT 商品id, 日期, ROW_NUMBER() OVER (PARTITION BY 商品id ORDER BY 日期 DESC) RowIndex
-        //         FROM document_items join documents on 单号=单号id WHERE 单号 like 'XS%' AND 直销=false AND 已记账=true
-        //     ) B
-        //     on products.id=B.商品id
-        //     join warehouse on warehouse.id=foo.仓库id
-        //     where 库存>0 AND B.RowIndex = 1 and B.日期::date + interval '3 month' <= now()"#
-        // );
-        //
-        // let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
-        //
-        // let mut stay_count: i64 = 0;
-        // for row in rows {
-        //     stay_count = row.get("记录数");
-        // }
-
-        // HttpResponse::Ok().json((sale_num, buy_num, stay_count, limit_count))
+        HttpResponse::Ok().json((sale1, sale2, buy, shen, check, pre_shen))
     } else {
         HttpResponse::Ok().json(-1)
     }

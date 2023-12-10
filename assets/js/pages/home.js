@@ -49,100 +49,124 @@ fetch(`/home_statis`, {
 })
     .then(response => response.json())
     .then(content => {
-        if (content != -1) {
-            let reminder = document.querySelector('#show-01 .reminder');
-            let fit_lines = Math.floor(reminder.clientHeight / 33);
+            if (content != -1) {
+                let reminder = document.querySelector('#show-01 .reminder');
+                let fit_lines = Math.floor(reminder.clientHeight / 33);
 
-            //销售未收款
-            let data = {
-                content: content[0],
-                lines: fit_lines,
-                reminder: reminder,
-                title_holer: document.querySelector('#sale-data'),
-                title: `销售未收款 ${content[0].length} 单`,
-                more_href: "/sale_query",
-                location: "/sale/",
-            }
-
-            show_reminders(data);
-
-            //销售未出库
-            let data2 = {
-                content: content[1],
-                lines: fit_lines,
-                reminder: document.querySelector('#show-02 .reminder'),
-                title_holer: document.querySelector('#sale-data2'),
-                title: `销售未出库 ${content[1].length} 单`,
-                more_href: "/sale_query",
-                location: "/sale/",
-            }
-
-            show_reminders(data2);
-
-            //采购未入库
-            let data3 = {
-                content: content[2],
-                lines: fit_lines,
-                reminder: document.querySelector('#show-03 .reminder'),
-                title_holer: document.querySelector('#buy-data'),
-                title: `采购未入库 ${content[2].length} 单`,
-                more_href: "/buy_query",
-                location: "/buy_in/",
-            }
-
-            show_reminders(data3);
-
-            //未审核
-            let data4 = {
-                content: content[3],
-                lines: fit_lines,
-                reminder: document.querySelector('#show-04 .reminder'),
-                title_holer: document.querySelector('#warn-data2'),
-                title: `待审核 ${content[3].length} 类单据`,
-                alter_func: function () {
-                    this.reminder.querySelectorAll('li').forEach((li) => {
-                        li.addEventListener('click', () => {
-                            let address;
-                            let cate = li.textContent.split('　')[0];
-                            if (cate == "材料采购") {
-                                address = `/buy_query`;
-                            } else if (cate == "商品销售") {
-                                address = `/sale_query`;
-                            } else if (cate == "销售退货") {
-                                address = '/sale_query';
-                            } else if (cate == "采购入库") {
-                                address = `/change_query_in`;
-                            } else if (cate == "销售出库") {
-                                address = `/change_query_out`;
-                            } else if (cate == "运输发货") {
-                                address = `/trans_query`;
-                            } else if (cate == "调整入库") {
-                                address = `/stock_query_in`;
-                            } else if (cate == "调整出库") {
-                                address = `/stock_query_out`;
-                            }
-                            window.location.href = address;
-                        })
-                    });
+                //销售未收款
+                let data = {
+                    content: content[0],
+                    lines: fit_lines,
+                    reminder: reminder,
+                    title_holer: document.querySelector('#sale-data'),
+                    title: `销售未收款 ${content[0].length} 单`,
+                    more_href: "/sale_query",
+                    location: "/sale/",
                 }
+
+                show_reminders(data);
+
+                //销售未出库
+                let data2 = {
+                    content: content[1],
+                    lines: fit_lines,
+                    reminder: document.querySelector('#show-02 .reminder'),
+                    title_holer: document.querySelector('#sale-data2'),
+                    title: `销售未出库 ${content[1].length} 单`,
+                    more_href: "/sale_query",
+                    location: "/sale/",
+                }
+
+                show_reminders(data2);
+
+                //采购未入库
+                let data3 = {
+                    content: content[2],
+                    lines: fit_lines,
+                    reminder: document.querySelector('#show-03 .reminder'),
+                    title_holer: document.querySelector('#buy-data'),
+                    title: `采购未入库 ${content[2].length} 单`,
+                    more_href: "/buy_query",
+                    location: "/buy_in/",
+                }
+
+                show_reminders(data3);
+
+                //未审核
+                let data4 = {
+                    content: content[3],
+                    lines: fit_lines,
+                    reminder: document.querySelector('#show-04 .reminder'),
+                    title_holer: document.querySelector('#warn-data2'),
+                    title: `待审核 ${content[3].length} 类单据`,
+                    alter_func: function () {
+                        this.reminder.querySelectorAll('li').forEach((li) => {
+                            li.addEventListener('click', () => {
+                                let cate = li.textContent.split('　')[0];
+                                window.location.href = get_address(cate);
+                            })
+                        });
+                    }
+                }
+
+                show_reminders(data4);
+
+                //待质检
+                let data5 = {
+                    content: content[4],
+                    lines: fit_lines,
+                    reminder: document.querySelector('#show-05 .reminder'),
+                    title_holer: document.querySelector('#warn-data3'),
+                    title: `待质检 ${content[4].length} 单`,
+                    more_href: "/change_query_in",
+                    location: "/material_in/",
+                }
+
+                show_reminders(data5);
+
+                //未提交审核
+                let data6 = {
+                    content: content[5],
+                    lines: fit_lines,
+                    reminder: document.querySelector('#show-06 .reminder'),
+                    title_holer: document.querySelector('#pre-data'),
+                    title: `未提交审核 ${content[5].length} 类单据`,
+                    alter_func: function () {
+                        this.reminder.querySelectorAll('li').forEach((li) => {
+                            li.addEventListener('click', () => {
+                                let cate = li.textContent.split('　')[0];
+                                window.location.href = get_address(cate);
+                            })
+                        })
+                    },
+                }
+
+                show_reminders(data6);
             }
-
-            show_reminders(data4);
-
-            //待质检
-            let data5 = {
-                content: content[4],
-                lines: fit_lines,
-                reminder: document.querySelector('#show-05 .reminder'),
-                title_holer: document.querySelector('#warn-data3'),
-                title: `待质检 ${content[4].length} 单`,
-                more_href: "/change_query_in",
-                location: "/material_in/",
-            }
-
-            show_reminders(data5);
         }
-    });
+    );
+
+function get_address(cate) {
+    let address;
+    if (cate == "材料采购") {
+        address = `/buy_query`;
+    } else if (cate == "商品销售") {
+        address = `/sale_query`;
+    } else if (cate == "销售退货") {
+        address = '/sale_query';
+    } else if (cate == "采购入库") {
+        address = `/change_query_in`;
+    } else if (cate == "销售出库") {
+        address = `/change_query_out`;
+    } else if (cate == "运输发货") {
+        address = `/trans_query`;
+    } else if (cate == "调整入库") {
+        address = `/stock_query_in`;
+    } else if (cate == "调整出库") {
+        address = `/stock_query_out`;
+    }
+    return address;
+}
 
 function show_reminders(data) {
     // 销售提醒
