@@ -351,7 +351,7 @@ function sum_weight() {
         sum += Number(all_input[i].querySelector('.重量').textContent);
     }
     if (document.querySelector('#实数字段3')) {
-        document.querySelector('#实数字段3').value = sum.toFixed(Number(0));
+        document.querySelector('#实数字段3').value = sum.toFixed(Number(1));
     }
 }
 
@@ -536,7 +536,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     trs += `<tr style="height: 50px"><td colspan="7"></td><td>${all_rows.length}</td>
             <td style="white-space: normal">来料重量：<br> ${document.querySelector('#实数字段1').value}</td>
-            <td>实际重量：<br> ${document.querySelector('#实数字段2').value}</td><td>理论重量：<br> ${sum_weight.toFixed(2)}</td>`;
+            <td>实际重量：<br> ${document.querySelector('#实数字段2').value}</td><td>理论重量：<br> ${sum_weight.toFixed(1)}</td>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
 

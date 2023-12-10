@@ -404,9 +404,9 @@ function calc_money(input_row) {
     let money = "";
     if (price && regReal.test(price) && mount && regReal.test(mount)) {
         if (input_row.querySelector('.材质').textContent.trim() != "--") {
-            money = (price * mount).toFixed(0);
+            money = (price * mount).toFixed(2);
         } else {
-            money = (price * input_row.querySelector('.num').value).toFixed(0);
+            money = (price * input_row.querySelector('.num').value).toFixed(2);
         }
     }
 
@@ -433,9 +433,9 @@ function sum_money() {
         }
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(0)} 元`;
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元`;
     if (document.querySelector('#应结金额')) {
-        document.querySelector('#应结金额').value = sum.toFixed(0)
+        document.querySelector('#应结金额').value = sum.toFixed(2)
     }
 }
 

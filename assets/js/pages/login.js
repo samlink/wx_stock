@@ -31,7 +31,7 @@ document.querySelector('#logon a').addEventListener('click', function (e) {
 document.querySelector('#logon-button').addEventListener('click', function (event) {
     event.preventDefault();
 
-    var area = document.querySelector('#area').value.trim();
+    var area = document.querySelector('#area2').value.trim();
     var logon_pass = document.querySelector('#logon-pass').value.trim();
     var logon_pass2 = document.querySelector('#logon-pass2').value.trim();
     var name = document.querySelector('#logon-name').value.trim();
@@ -158,3 +158,4 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
             }
         });
 });
+

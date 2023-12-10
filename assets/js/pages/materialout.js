@@ -431,7 +431,7 @@ document.querySelector('#upload-pic').addEventListener('click', () => {
     let pic = document.querySelector('#upload-pic').src;
     let show = pic.split("?")[0].replace("min_", "pic_") + `?${Math.random()}`;
     let pic_html = `<div class = "form-input show-pic">
-                                <img width = "1200px" src = "${show}" alt = "出库签字图">
+                                <img width = "1190px" src = "${show}" alt = "出库签字图">
                             </div>`;
 
     document.querySelector('.modal-body').innerHTML = pic_html;

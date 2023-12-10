@@ -107,7 +107,7 @@ export function calc_weight(data) {
         weight = 0.02466 * pipe[1] * (pipe[0] - pipe[1]) * data.long * data.num * tech / 1000;
     }
 
-    return weight.toFixed(2);
+    return weight.toFixed(1);
 }
 
 //保存时，读取头部字段内容

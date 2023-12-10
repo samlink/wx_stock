@@ -58,6 +58,7 @@ export function append_blanks(len, m) {
     return trs;
 }
 
+//追加空单元格，用在打印中
 export function append_cells(m) {
     let tds = "";
     for (let j = 0; j < m; j++) {
