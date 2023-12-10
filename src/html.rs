@@ -27,7 +27,7 @@ pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> Http
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         let name = name_show(&user);
-        let html = r2s(|o| home(o, name, format!("{}.css", user.theme)));
+        let html = r2s(|o| home(o, name));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -127,7 +127,7 @@ pub async fn help(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         let name = name_show(&user);
-        let html = r2s(|o| help_say_html(o, name, user.theme));
+        let html = r2s(|o| help_say_html(o, name));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

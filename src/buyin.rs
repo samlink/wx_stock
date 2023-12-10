@@ -723,3 +723,26 @@ pub async fn make_formal(
         HttpResponse::Ok().json(-1)
     }
 }
+
+///反审核
+#[post("/anti_formal")]
+pub async fn anti_formal(
+    db: web::Data<Pool>,
+    data: String,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "反审单据".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "销售单据").await;  //所有单据均为 文本字段10
+        let sql = format!(
+            r#"update documents set {}='' WHERE 单号='{}'"#,
+            f_map["审核"], data
+        );
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

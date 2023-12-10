@@ -56,7 +56,7 @@ pub async fn fetch_statis(
             da_cate, da_cate, limits, date_sql
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -213,6 +213,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='商品销售' and 是否欠款=true"#,
             f_map["区域"], limits
         );
+
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut sale1 = Vec::new();

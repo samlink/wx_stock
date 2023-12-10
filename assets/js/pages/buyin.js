@@ -15,7 +15,7 @@ import {customer_init, out_data} from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-import {edit_button_disabled} from "../parts/service.mjs";
+import {edit_button_disabled, only_worker} from "../parts/service.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -65,15 +65,7 @@ fetch(`/fetch_inout_fields`, {
                         customer.setAttribute('data', values[len - 4]);
                         document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
 
-                        // 非经办人只能查看
-                        if (document.querySelector('#user-name').textContent.indexOf(values[len - 1]) == -1) {
-                            set_readonly();
-                            let all_edit = document.querySelectorAll('.fields-show input');
-                            for (let edit of all_edit) {
-                                edit.disabled = true;
-                            }
-                            document.querySelector('#save-button').disabled = true;
-                        }
+                        service.only_worker(values[len - 1], set_readonly);
 
                         let rem = document.querySelector('#remember-button');
                         if (values[len - 2] != "") {

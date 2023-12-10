@@ -1,5 +1,5 @@
 @use time::now;
-@(content: Content, user: String, theme: String)
+@(content: Content, user: String)
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -11,11 +11,11 @@
     <title id='title-show'>仓储销售</title>
 </head>
 
-<body class="@theme">
+<body>
 <div class="header">
     <div id="logo">
         <a href="/">
-            <img width="24px"/>
+            <img src="/assets/img/logo_blue.png" width="24px"/>
             <span id="title">仓储销售管理</span></a>
     </div>
     <div id="menu">
@@ -124,9 +124,11 @@
                 <div class="sub-menu">
                     <b class="caret fa fa-caret-up"></b>
                     <ul class="sub-ul">
-
                         <li class="nav-item"><a class="nav-link" href="/user_manage"><span
                                 class="nav-text">用户设置</span></a>
+                        </li>
+                        <li class="nav-item"><a class="nav-link" id="anti-shen" href="javascript:void(0);"><span
+                                class="nav-text">反审单据</span></a>
                         </li>
                         <li class="nav-item"><a class="nav-link" href="/field_set"><span
                                 class="nav-text">字段设置</span></a>
@@ -237,7 +239,7 @@
         授权 五星(天津)石油装备有限公司 使用 </p>
     </p>
 </footer>
-<script src="/assets/js/pages/general.js"></script>
+<script type="module" src="/assets/js/pages/general.js"></script>
 </body>
 
 </html>

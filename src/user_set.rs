@@ -114,7 +114,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
             let rows = &conn
                 .query(
-                    r#"SELECT name FROM users Where name=$1 AND password=$2 AND area=$3"#,
+                    r#"SELECT name FROM users Where name=$1 AND password=$2 AND area like '%' || $3 || '%'"#,
                     &[&user.name, &md5_pass, &user.area],
                 )
                 .await

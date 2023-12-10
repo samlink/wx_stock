@@ -1,5 +1,5 @@
 @use super::base;
-@(user: String, theme: String)
+@(user: String)
 
 @:base({
 <div class="help">
@@ -16,4 +16,4 @@
 </div>
 <script type="module" src="/assets/js/pages/help.js"></script>
 
-}, user, format!("{}.css", theme))
+}, user)

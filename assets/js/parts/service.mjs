@@ -209,6 +209,18 @@ export function edit_button_disabled() {
     document.querySelector('#row-down').disabled = true;
 }
 
+// 非经办人只能查看
+export function only_worker(worker, set_readonly) {
+    if (document.querySelector('#user-name').textContent.indexOf(worker) == -1) {
+        set_readonly();
+        let all_edit = document.querySelectorAll('.fields-show input');
+        for (let edit of all_edit) {
+            edit.disabled = true;
+        }
+        document.querySelector('#save-button').disabled = true;
+    }
+}
+
 //保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
 export function header_error_check(document_table_fields, all_rows) {
     if (!regDate.test(document.querySelector('#日期').value)) {

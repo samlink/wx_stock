@@ -197,7 +197,6 @@ document.querySelector('#use-tip').addEventListener('click', function () {
     window.location.href = `/change_query_in`;
 });
 
-//
 // setInterval(() => {
 //     location.reload();
 // }, 600000);

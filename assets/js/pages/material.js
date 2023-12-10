@@ -63,6 +63,7 @@ fetch(`/fetch_inout_fields`, {
 
                         let values = data.split(SPLITER);
                         document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
+                        service.only_worker(values[values.length - 1], set_readonly);
 
                         fetch('/fetch_check', {
                             method: 'post',

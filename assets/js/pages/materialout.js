@@ -69,6 +69,8 @@ fetch(`/fetch_inout_fields`, {
 
                         document.querySelector('#owner').textContent = `[ ${da[da.length - 3]} ]`;
 
+                        service.only_worker(da[da.length - 3], set_readonly);
+
                         let rem = document.querySelector('#remember-button');
                         if (da[da.length - 4] != "") {
                             rem.textContent = "已审核";

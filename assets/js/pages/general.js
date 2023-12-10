@@ -1,10 +1,12 @@
-let class_theme = document.querySelector('body').className;
-let theme_name = class_theme.split('.')[0];
-document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
-document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from "../parts/alert.mjs";
 
-document.styleSheets[0].insertRule(`#tree .item::before{content:url("/assets/img/folder_${theme_name}.png")}`, document.styleSheets[0].cssRules.length);
-document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/assets/img/folder_${theme_name}2.png")}`, document.styleSheets[0].cssRules.length);
+// let class_theme = document.querySelector('body').className;
+// let theme_name = class_theme.split('.')[0];
+// document.querySelector('#help-info img').setAttribute('src', `/assets/img/${theme_name}.png`);
+// document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
+// document.styleSheets[0].insertRule(`#tree .item::before{content:url("/assets/img/folder_${theme_name}.png")}`, document.styleSheets[0].cssRules.length);
+// document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/assets/img/folder_${theme_name}2.png")}`, document.styleSheets[0].cssRules.length);
 
 //去除字符串左右空格
 String.prototype.trim = function (char, type) {
@@ -60,6 +62,41 @@ document.querySelector('#quick-7').onclick = () => {
 }
 document.querySelector('#quick-8').onclick = () => {
     window.location.href = "/stockout_items";
+}
+
+// 反审单据
+document.querySelector('#anti-shen').onclick = () => {
+    if (!document.querySelector('#dh')) {
+        notifier.show('请先进入单据页面', 'danger');
+    } else {
+        let dh = document.querySelector('#dh');
+        if (dh.textContent == "新单据" || document.querySelector('#remember-button').textContent == "审核") {
+            notifier.show('单据还未审核', 'danger');
+            return false;
+        } else {
+            alert_confirm("确认反审核吗？", {
+                confirmText: "确认",
+                cancelText: "取消",
+                confirmCallBack: () => {
+                    fetch(`/anti_formal`, {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: dh.textContent,
+                    })
+                        .then(response => response.json())
+                        .then(content => {
+                            if (content != -1) {
+                                location.reload();
+                            } else {
+                                notifier.show('权限不够', 'danger');
+                            }
+                        });
+                }
+            });
+        }
+    }
 }
 
 
