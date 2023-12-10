@@ -14,4 +14,8 @@
         show_order,inout_show,inout_order,default_value,all_edit,is_use,inout_width from tmp;
 
 创建外键索引
-ALTER TABLE pout_items ADD CONSTRAINT fk_sale_idx FOREIGN KEY (销售id) REFERENCES document_items (id);
+ALTER TABLE pout_items ADD CONSTRAINT fk_sale_idx FOREIGN KEY (销售id) REFERENCES document_items (id) on delete cascade;
+
+删除外键
+ALTER TABLE pout_items DROP CONSTRAINT fk_sale_idx;
+        DELETE FROM document_items WHERE 单号id='XS20231126-03'

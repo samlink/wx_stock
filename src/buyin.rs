@@ -563,8 +563,8 @@ pub async fn fetch_other_documents(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 单号,日期,类别 from documents where 文本字段6 = '{}' order by 日期 desc"#,
-            data
+            r#"select 单号,日期,类别 from documents where 文本字段6 = '{}' or 文本字段4 = '{}' order by 日期 desc"#,
+            data, data
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -573,7 +573,7 @@ pub async fn fetch_other_documents(
             let dh: String = row.get("单号");
             let date: String = row.get("日期");
             let cate: String = row.get("类别");
-            let item = format!("{}{}{}{}{}{}", cate, SPLITER, dh, SPLITER, date, SPLITER);
+            let item = format!("{}　{}　{}", cate, dh, date);
 
             document_items.push(item);
         }
@@ -601,7 +601,6 @@ pub async fn get_items_trans(
             FROM pout_items
             JOIN products ON 物料号 = 文本字段1
             JOIN tree ON 商品id = num
-            JOIN document_items ON 销售id = document_items.id
             WHERE pout_items.单号id = '{}'"#,
             SPLITER, f_map["规格"], f_map["状态"], f_map["炉号"], data
         );

@@ -95,8 +95,7 @@ fetch(`/fetch_inout_fields`, {
                     .then(data => {
                             let tr = "";
                             data.forEach(obj => {
-                                let material = obj.split(`${SPLITER}`);
-                                tr += `<tr><td>${material[0]}</td><td>${material[1]}</td><td>${material[2]}</td></tr>`;
+                                tr += `<tr><td>${obj}</td></tr>`;
                             });
 
                             document.querySelector(".table-history tbody").innerHTML = tr;
@@ -104,7 +103,7 @@ fetch(`/fetch_inout_fields`, {
                             for (let tr of trs) {
                                 tr.addEventListener('click', function () {
                                     let url;
-                                    let cate = tr.querySelector('td:nth-child(1)').textContent;
+                                    let cate = tr.querySelector('td').textContent.split('　')[0];
                                     if (cate.indexOf("出库") != -1) {
                                         url = "/material_out/";
                                     } else if (cate.indexOf("发货") != -1) {
@@ -112,7 +111,7 @@ fetch(`/fetch_inout_fields`, {
                                     } else {
                                         url = "/material_in/";
                                     }
-                                    window.location = url + tr.querySelector('td:nth-child(2)').textContent;
+                                    window.location = url + tr.querySelector('td').textContent.split('　')[1];
                                 })
                             }
                         }
