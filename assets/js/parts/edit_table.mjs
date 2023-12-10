@@ -99,7 +99,27 @@ export function build_blank_table(data) {
     tbody.style.height = input_data.lines * line_height + "px";    //这里设置高度，为了实现Y轴滚动
 }
 
-/// 供材料出库用,但也可通用
+// /// 供材料出库用, 也通用
+// export function build_out_table(data) {
+//     Object.assign(input_data, data);
+//     let tbody = input_data.container.querySelector('tbody');
+//     let trs = tbody.querySelectorAll('tr');
+//     for (let tr of trs) {
+//         if (!tr.classList.contains('has-input')) {
+//             tr.parentNode.removeChild(tr);
+//         }
+//     }
+//
+//     let has_input = tbody.querySelectorAll('.has-input');
+//     let num = has_input.length + 1;
+//     let input_row = build_input_row(input_data.show_names, all_width, num);
+//     tbody.appendChild(input_row);
+//     num += 1;
+//
+//     append_blanks(tbody, num);
+// }
+
+/// 输出明细表（带内容）
 export function build_out_table(data) {
     Object.assign(input_data, data);
     let tbody = input_data.container.querySelector('tbody');
@@ -112,33 +132,15 @@ export function build_out_table(data) {
 
     let has_input = tbody.querySelectorAll('.has-input');
     let num = has_input.length + 1;
-    let input_row = build_input_row(input_data.show_names, all_width, num);
-    tbody.appendChild(input_row);
-    num += 1;
-
-    append_blanks(tbody, num);
-}
-
-/// 材料入库专用
-export function build_content_table(data) {
-    Object.assign(input_data, data);
-    let tbody = input_data.container.querySelector('tbody');
-    let trs = tbody.querySelectorAll('tr');
-    for (let tr of trs) {
-        if (!tr.classList.contains('has-input')) {
-            tr.parentNode.removeChild(tr);
+    let n = input_data.num ? input_data.num : 1;
+    for (let i = 0; i < n; i++) {
+        if (typeof input_data.show_names_fn == "function") {
+            input_data.show_names_fn(i);
         }
-    }
-
-    let has_input = tbody.querySelectorAll('.has-input');
-    let num = has_input.length + 1;
-    for (let i = 0; i < input_data.num; i++) {
-        input_data.show_names[9].value = `M${padZero(input_data.material_num + num, 6)}`;
         let input_row = build_input_row(input_data.show_names, all_width, num);
         tbody.appendChild(input_row);
         num += 1;
     }
-
     append_blanks(tbody, num);
 }
 

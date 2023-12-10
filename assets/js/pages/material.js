@@ -10,12 +10,11 @@ import {
     moneyUppercase,
     append_blanks,
     append_cells,
-    set_key_move
+    set_key_move,
+    padZero
 } from '../parts/tools.mjs';
 import {
-    build_blank_table,
-    build_content_table, build_items_table,
-    input_table_outdata
+    build_blank_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
@@ -373,7 +372,16 @@ document.querySelector("#material-add").addEventListener('click', function () {
     })
         .then(response => response.json())
         .then(content => {
-            let rows = [];
+            //在表内寻找最大值
+            let max_num = content;
+            let nums = document.querySelectorAll('.table-items .has-input .物料号');
+            nums.forEach(num => {
+                let v = Number(num.value.replace('M', ''));
+                if (max_num < v) {
+                    max_num = v;
+                }
+            });
+
             show_names[1].value = document.querySelector('#名称').value;
             show_names[2].value = document.querySelector('#材质').value;
             show_names[3].value = document.querySelector('#规格').value;
@@ -387,16 +395,16 @@ document.querySelector("#material-add").addEventListener('click', function () {
             let data = {
                 show_names: show_names,
                 show_names_fn: function (n) {
-                    this.show_names[9].value = `M${padZero(this.material_num + n, 6)}`;
+                    this.show_names[9].value = `M${padZero(this.material_num + n + 1, 6)}`;
                 },
                 num: n,
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
-                material_num: content,
+                material_num: max_num,
             }
 
-            build_content_table(data);
+            build_out_table(data);
             edited = 1;
         });
 

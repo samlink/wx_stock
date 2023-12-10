@@ -13,7 +13,7 @@ import {
     append_blanks, set_key_move
 } from '../parts/tools.mjs';
 import {
-    build_blank_table, build_content_table, build_items_table, build_out_table, input_table_outdata
+    build_blank_table, build_items_table, build_out_table, input_table_outdata
 } from '../parts/edit_table.mjs';
 import {close_modal, modal_init} from "../parts/modal.mjs";
 
