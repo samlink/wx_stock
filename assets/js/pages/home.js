@@ -27,7 +27,6 @@ let data2 = {
 
 set_chart2(data2);
 
-
 fetch(`/home_statis`, {
     method: 'post',
     headers: {
@@ -191,7 +190,6 @@ function show_reminders(data) {
     } else {
         data.alter_func();
     }
-
 }
 
 document.querySelector('#sale-tip').addEventListener('click', function () {
