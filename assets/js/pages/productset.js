@@ -145,7 +145,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         global.row_id = id;
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, service.table_fields, chosed); //3 是起始位置
         document.querySelector('.modal-title').textContent = global.product_name;
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
@@ -345,7 +345,7 @@ function data_in(fileBtn, info1, info2, cate) {
 
                     global.eidt_cate = cate;
 
-                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
+                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;";
                     document.querySelector('.modal').style.cssText = "display: block";
                     fileBtn.value = "";
 

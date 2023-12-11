@@ -120,8 +120,8 @@ export function customer_init(data) {
             };
 
             document.querySelector('.modal-title').textContent = `选择${customer_data.cate.textContent}`;
-            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-            document.querySelector('.modal-content').style.cssText = `height: 100%;`
+            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
+            document.querySelector('.modal-content').style.cssText = `height: 100%;`;
         }
 
         document.querySelector('.modal').style.display = "block";
