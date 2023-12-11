@@ -41,6 +41,7 @@ pub async fn pull_users(
                     FROM users WHERE {} name LIKE '%{}%' AND name <> 'admin' ORDER BY {} OFFSET {} LIMIT {} ",
             post_data.sort, area, post_data.name, post_data.sort, skip, post_data.rec
         );
+
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut users: Vec<UsersReturn> = Vec::new();

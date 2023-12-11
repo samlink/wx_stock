@@ -329,7 +329,7 @@ pub async fn get_stockin_items(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    let user = get_user(db.clone(), id, "入库明细".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
@@ -440,7 +440,7 @@ pub async fn get_stockout_items(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    let user = get_user(db.clone(), id, "出库明细".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;

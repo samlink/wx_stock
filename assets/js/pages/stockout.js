@@ -6,7 +6,7 @@ import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move} from '.
 import {
     appand_edit_row,
     build_blank_table,
-    build_content_table, build_items_table,
+    build_items_table,
     input_table_outdata
 } from '../parts/edit_table.mjs';
 
