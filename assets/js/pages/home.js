@@ -4,19 +4,6 @@ let now = new Intl.DateTimeFormat('fr-CA').format(new Date());
 let now2 = now.split('-');
 document.querySelector('#date-now').textContent = `${now2[0]}年${now2[1]}月${now2[2]}日`;
 
-// fetch(`/start_date`, {
-//     method: 'post',
-//     headers: {
-//         "Content-Type": "application/json",
-//     },
-// })
-//     .then(response => response.json())
-//     .then(content => {
-//         document.querySelector('#use-day').textContent =
-//             parseInt((new Date().getTime() - new Date(content).getTime()) / (1000 * 60 * 60 * 24)) + 1;
-//     });
-
-
 var ctx1 = document.getElementById('myChart1').getContext('2d');
 var ctx2 = document.getElementById('myChart2').getContext('2d');
 
@@ -60,7 +47,7 @@ fetch(`/home_statis`, {
                     reminder: reminder,
                     title_holer: document.querySelector('#sale-data'),
                     title: `销售未收款 ${content[0].length} 单`,
-                    more_href: "/sale_query",
+                    more_href: "/sale_query?s=wait_money",
                     location: "/sale/",
                 }
 
@@ -73,7 +60,7 @@ fetch(`/home_statis`, {
                     reminder: document.querySelector('#show-02 .reminder'),
                     title_holer: document.querySelector('#sale-data2'),
                     title: `销售未发货 ${content[1].length} 单`,
-                    more_href: "/sale_query",
+                    more_href: "/sale_query?s=wait_trans",
                     location: "/sale/",
                 }
 
@@ -86,13 +73,13 @@ fetch(`/home_statis`, {
                     reminder: document.querySelector('#show-03 .reminder'),
                     title_holer: document.querySelector('#buy-data'),
                     title: `采购未入库 ${content[2].length} 单`,
-                    more_href: "/buy_query",
+                    more_href: "/buy_query?s=wait_in",
                     location: "/buy_in/",
                 }
 
                 show_reminders(data3);
 
-                //未审核
+                //等待审核
                 let data4 = {
                     content: content[3],
                     lines: fit_lines,
@@ -103,7 +90,8 @@ fetch(`/home_statis`, {
                         this.reminder.querySelectorAll('li').forEach((li) => {
                             li.addEventListener('click', () => {
                                 let cate = li.textContent.split('　')[0];
-                                window.location.href = get_address(cate);
+                                let query = "s=wait_shen";
+                                window.location.href = `${get_address(cate)}?${query}`;
                             })
                         });
                     }
@@ -118,7 +106,7 @@ fetch(`/home_statis`, {
                     reminder: document.querySelector('#show-05 .reminder'),
                     title_holer: document.querySelector('#warn-data3'),
                     title: `待质检 ${content[4].length} 单`,
-                    more_href: "/change_query_in",
+                    more_href: "/change_query_in?s=wait_check",
                     location: "/material_in/",
                 }
 
@@ -135,7 +123,8 @@ fetch(`/home_statis`, {
                         this.reminder.querySelectorAll('li').forEach((li) => {
                             li.addEventListener('click', () => {
                                 let cate = li.textContent.split('　')[0];
-                                window.location.href = get_address(cate);
+                                let query = "s=pre_shen";
+                                window.location.href = `${get_address(cate)}?${query}`;
                             })
                         })
                     },
@@ -206,19 +195,19 @@ function show_reminders(data) {
 }
 
 document.querySelector('#sale-tip').addEventListener('click', function () {
-    window.location.href = `/sale_query`;
+    window.location.href = `/sale_query?s=wait_money`;
 });
 
 document.querySelector('#buy-tip').addEventListener('click', function () {
-    window.location.href = `/sale_query`;
+    window.location.href = `/sale_query?s=wait_trans`;
 });
 
 document.querySelector('#warn-tip').addEventListener('click', function () {
-    window.location.href = `/buy_query`;
+    window.location.href = `/buy_query?s=wait_in`;
 });
 
 document.querySelector('#use-tip').addEventListener('click', function () {
-    window.location.href = `/change_query_in`;
+    window.location.href = `/change_query_in?s=wait_check`;
 });
 
 // setInterval(() => {

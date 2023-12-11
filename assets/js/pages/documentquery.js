@@ -5,6 +5,8 @@ import {getHeight, SPLITER} from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
+let limit = document.querySelector('#limit').textContent;
+
 
 let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
@@ -36,7 +38,7 @@ let init_data = {
         name: '',
         sort: "开单时间 DESC",
         rec: row_num,
-        cate: cate,
+        cate: cate + ' ' + limit,
     },
     edit: false,
 

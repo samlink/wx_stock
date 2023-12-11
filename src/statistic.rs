@@ -268,7 +268,6 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         }
 
         //未提交审核单据 ------------------------
-
         let mut pre_shen = Vec::new();
         let sql = format!(
             r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = false and 类别 <> ''

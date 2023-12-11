@@ -1,4 +1,4 @@
-use crate::service::{get_user, r2s, UserData};
+use crate::service::{get_user, r2s, Search, UserData};
 use actix_identity::Identity;
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
@@ -298,11 +298,11 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
 
 ///以下连续的是查询
 #[get("/buy_query")]
-pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn buy_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "采购查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "采购查询", "document_items"));
+        let html = r2s(|o| query(o, user, "采购销售", "采购查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -310,22 +310,23 @@ pub async fn buy_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 #[get("/sale_query")]
-pub async fn sale_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn sale_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "销售查询", "document_items"));
+        let html = r2s(|o| query(o, user, "采购销售", "销售查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
     }
 }
+
 #[get("/trans_query")]
-pub async fn trans_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn trans_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "发货查询", "document_items"));
+        let html = r2s(|o| query(o, user, "采购销售", "发货查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -333,11 +334,11 @@ pub async fn trans_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 #[get("/change_query_in")]
-pub async fn change_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn change_query_in(db: web::Data<Pool>, limt: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "入库查询", "products"));
+        let html = r2s(|o| query(o, user, "仓储管理", "入库查询", "products", &limt.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -345,11 +346,11 @@ pub async fn change_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse 
 }
 
 #[get("/change_query_out")]
-pub async fn change_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn change_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "出库查询", "pout_items"));
+        let html = r2s(|o| query(o, user, "仓储管理", "出库查询", "pout_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -357,11 +358,11 @@ pub async fn change_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse
 }
 
 #[get("/stock_query_in")]
-pub async fn stock_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn stock_query_in(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "调入查询", "products"));
+        let html = r2s(|o| query(o, user, "仓储管理", "调入查询", "products", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -369,11 +370,11 @@ pub async fn stock_query_in(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 }
 
 #[get("/stock_query_out")]
-pub async fn stock_query_out(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn stock_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "调出查询", "pout_items"));
+        let html = r2s(|o| query(o, user, "仓储管理", "调出查询", "pout_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -399,7 +400,7 @@ pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "入库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| stockinitems(o, user,));
+        let html = r2s(|o| stockinitems(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -412,7 +413,7 @@ pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| stockoutitems(o, user,));
+        let html = r2s(|o| stockoutitems(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

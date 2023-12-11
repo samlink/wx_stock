@@ -1,6 +1,6 @@
 @use super::base;
 @use crate::service::UserData;
-@(user: UserData, menu: &str, cate: &str, database:&str)
+@(user: UserData, menu: &str, cate: &str, database:&str, limit: &str)
 
 @:base({
 <div class="docment-query">
@@ -9,6 +9,7 @@
         <p id="help-info" title="帮助信息"><img></p>
         <span id="category" hidden>@cate</span>
         <span id="base" hidden>@database</span>
+        <span id="limit" hidden>@limit</span>
     </div>
     <div class="query-content">
         <div id="query-show" class="has-bak">
