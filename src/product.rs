@@ -44,26 +44,8 @@ pub async fn fetch_product(
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
                        OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%')
                     "#,
-                    f_map["物料号"],
-                    na,
-                    f_map["规格"],
-                    na,
-                    f_map["状态"],
-                    na,
-                    f_map["执行标准"],
-                    na,
-                    f_map["生产厂家"],
-                    na,
-                    f_map["炉号"],
-                    na,
-                    f_map["库位"],
-                    na,
-                    f_map["区域"],
-                    na,
-                    f_map["切完"],
-                    na,
-                    f_map["备注"],
-                    na,
+                    f_map["物料号"], na, f_map["规格"], na, f_map["状态"], na, f_map["执行标准"], na, f_map["生产厂家"], na,
+                    f_map["炉号"], na, f_map["库位"], na, f_map["区域"], na, f_map["切完"], na, f_map["备注"], na,
                 );
             }
         }
@@ -82,15 +64,7 @@ pub async fn fetch_product(
             ON products.文本字段1 = foo.物料号
             WHERE products.商品id='{}' {} {} {} 
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields,
-            post_data.sort,
-            post_data.id,
-            done,
-            area,
-            conditions,
-            post_data.sort,
-            skip,
-            post_data.rec
+            sql_fields, post_data.sort, post_data.id, done, area, conditions, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -234,9 +208,9 @@ pub async fn product_out(
         sheet.set_column(0, 0, 8.0, None).unwrap();
         sheet.set_column(1, 1, 12.0, None).unwrap();
 
-        sheet.write_string(0, 0, "商品id", Some(&format1)).unwrap();
+        // sheet.write_string(0, 0, "商品id", Some(&format1)).unwrap();
 
-        let mut n = 1;
+        let mut n = 0;
         for f in &fields {
             sheet
                 .write_string(0, n, &f.show_name, Some(&format1))
@@ -252,7 +226,7 @@ pub async fn product_out(
         let mut sql = build_sql_for_excel(init, &fields);
 
         sql += &format!(
-            r#"商品id FROM products WHERE 商品id='{}' ORDER BY 规格型号"#,
+            r#"1 FROM products WHERE 商品id='{}' ORDER BY 规格型号"#,     //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
             product.id
         );
 
@@ -261,11 +235,7 @@ pub async fn product_out(
 
         let mut n = 1u32;
         for row in rows {
-            sheet
-                .write_string(n, 0, row.get("商品id"), Some(&format2))
-                .unwrap();
-
-            let mut m = 1u16;
+            let mut m = 0u16;
             for f in &fields {
                 if f.data_type == "布尔" {
                     sheet
@@ -276,10 +246,8 @@ pub async fn product_out(
                         .write_string(n, m, row.get(&*f.field_name), None)
                         .unwrap();
                 }
-
                 m += 1;
             }
-
             n += 1;
         }
 
@@ -290,14 +258,13 @@ pub async fn product_out(
     }
 }
 
-//批量导入、批量更新返回数据
+//批量导入、批量更新返回数据表，展示给用户确认
 #[post("/product_in")]
 pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
         let path = save_file(payload).await.unwrap();
 
-        let mut p_id = "".to_owned(); //商品ID
         let mut total_rows = 0;
         let fields = get_fields(db.clone(), "商品规格").await;
         let mut records = Vec::new();
@@ -307,16 +274,14 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
             let mut num = 1;
             let total_coloum = r.get_size().1;
             total_rows = r.get_size().0 - 1;
-            if total_coloum - 1 != fields.len() {
+            if total_coloum != fields.len() {
                 return HttpResponse::Ok().json(-2);
             }
 
             if total_rows > 0 {
-                p_id = format!("{}", r[(1, 1)]); //r[] 实现了 Display trait, 可以通过 format! 将其转换成字符串
-
                 //制作表头数据
                 let mut rec = "".to_owned();
-                rec += &format!("{}{}", "商品id", SPLITER);
+                // rec += &format!("{}{}", "商品id", SPLITER);
                 for f in &fields {
                     rec += &format!("{}{}", &*f.show_name, SPLITER);
                 }
@@ -336,27 +301,17 @@ pub async fn product_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -
                         break;
                     }
                 }
-
-                let conn = db.get().await.unwrap();
-                let rows = &conn
-                    .query(r#"SELECT node_name FROM tree WHERE num=$1"#, &[&p_id])
-                    .await
-                    .unwrap();
-
-                for row in rows {
-                    p_id = row.get("node_name");
-                }
             }
         }
-        HttpResponse::Ok().json((records, p_id, total_rows))
+        HttpResponse::Ok().json((records, total_rows))
     } else {
         HttpResponse::Ok().json(-1)
     }
 }
 
-//批量导入数据写库
+//批量导入数据写库。在用户确认提交后，将数据写入数据库
 #[post("/product_datain")]
-pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "批量导入".to_owned()).await;
     if user.name != "" {
         let mut excel: Xlsx<_> = open_workbook("./upload/upload_in.xlsx").unwrap();
@@ -374,17 +329,17 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                     init += &format!("{},", &*f.field_name);
                 }
 
-                init += r#"商品id) VALUES("#;
-
+                init += r#"商品id, 单号id) VALUES("#;         // 单号id 是与 documents 单据库的“单号”关联的外键，需有值。这里的值是初始建库时，
+                                                             // 手工 insert into 的单号，所有的数据导入，均以此单号为键
                 for j in 0..total_rows {
                     let mut sql = init.clone();
 
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
-                            sql += &format!("'{}',", r[(j + 1, i + 1)]);
+                            sql += &format!("'{}',", r[(j + 1, i)]);
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
-                            let num = format!("{}", r[(j + 1, i + 1)]);
+                            let num = format!("{}", r[(j + 1, i)]);
                             if num != "" {
                                 sql += &format!("{},", num);
                             } else {
@@ -392,7 +347,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                             }
                         } else {
                             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                            let val = if format!("{}", r[(j + 1, i + 1)]) == op[0] {
+                            let val = if format!("{}", r[(j + 1, i)]) == op[0] {
                                 true
                             } else {
                                 false
@@ -401,8 +356,7 @@ pub async fn product_datain(db: web::Data<Pool>, id: Identity) -> HttpResponse {
                         }
                     }
 
-                    sql += &format!("'{}')", r[(j + 1, 0)]);
-
+                    sql += &format!("'{}','{}')", p_id,  "KT202312-01");    // 这个单号id 是初始建库时手动 insert into documents 中的，
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
@@ -431,14 +385,14 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
 
                     for i in 0..fields.len() {
                         if fields[i].data_type == "文本" {
-                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i + 1)]);
+                            sql += &format!("{}='{}',", fields[i].field_name, r[(j + 1, i)]);
                             // 把第一列 商品id 略过, 所以 i + 1
                         } else if fields[i].data_type == "实数" || fields[i].data_type == "整数"
                         {
-                            sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i + 1)]);
+                            sql += &format!("{}={},", fields[i].field_name, r[(j + 1, i)]);
                         } else {
                             let op: Vec<&str> = fields[i].option_value.split("_").collect();
-                            let val = if format!("{}", r[(j + 1, i + 1)]) == op[0] {
+                            let val = if format!("{}", r[(j + 1, i)]) == op[0] {
                                 true
                             } else {
                                 false
@@ -448,7 +402,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     }
 
                     sql = sql.trim_end_matches(',').to_owned();
-                    sql += &format!(r#" WHERE 文本字段1='{}'"#, r[(j + 1, 1)]);
+                    sql += &format!(r#" WHERE 文本字段1='{}'"#, r[(j + 1, 0)]);
 
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }

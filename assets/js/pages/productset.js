@@ -226,6 +226,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
         fetch(url, {
             method: 'post',
+            body: global.product_id,
         })
             .then(response => response.json())
             .then(content => {
@@ -276,6 +277,10 @@ document.querySelector('#data-out').addEventListener('click', function () {
 let fileBtn = document.getElementById('choose_file');
 
 document.getElementById('data-in').addEventListener('click', function () {
+    if (global.product_name == "") {
+        notifier.show('请先选择商品分类', 'danger');
+        return false;
+    }
     fileBtn.click();
 });
 
@@ -287,6 +292,10 @@ fileBtn.addEventListener('change', () => {
 let fileBtn_update = document.getElementById('choose_file2');
 
 document.getElementById('data-update').addEventListener('click', function () {
+    if (global.product_name == "") {
+        notifier.show('请先选择商品分类', 'danger');
+        return false;
+    }
     fileBtn_update.click();
 });
 
@@ -331,8 +340,8 @@ function data_in(fileBtn, info1, info2, cate) {
                     document.querySelector('.modal-body').innerHTML = rows;
 
                     let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${content[1]} ${info1} ${content[2]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = `${content[1]} ${info2}`;
+                    document.querySelector('.modal-title').innerHTML = `${global.product_name} ${info1} ${content[1]} 条数据${message}：`;
+                    document.querySelector('#modal-info').innerHTML = `${global.product_name} ${info2}`;
 
                     global.eidt_cate = cate;
 
