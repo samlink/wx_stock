@@ -55,7 +55,7 @@ fetch(`/fetch_fields`, {
 
             let table = document.querySelector('.table-customer');
             let custom_fields = [{name: '序号', width: 3}]
-            let data = service.build_table_header(table, custom_fields, table_fields);
+            let data = service.build_table_header(table, custom_fields, table_fields, "", "customers");
             table.querySelector('thead tr').innerHTML = data.th_row;
             // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 

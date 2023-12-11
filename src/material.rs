@@ -387,7 +387,7 @@ pub async fn save_material(
                 f_map["经办人"],
                 f_map["区域"],
                 dh,
-                12 // 12 是本公司的 id
+                0 // 0 是本公司的 id
             );
 
             doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 2);

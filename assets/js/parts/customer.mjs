@@ -1,9 +1,9 @@
-import { SPLITER } from '../parts/tools.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import {SPLITER} from '../parts/tools.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import {table_data, table_init, fetch_table} from '../parts/table.mjs';
 import * as service from '../parts/service.mjs'
-import { close_modal, modal_init } from './modal.mjs';
-import { notifier } from '../parts/notifier.mjs';
+import {close_modal, modal_init} from './modal.mjs';
+import {notifier} from '../parts/notifier.mjs';
 
 var customer_data = {
     input: document.querySelector('#supplier-input'),
@@ -87,7 +87,8 @@ export function customer_init(data) {
                 .then(content => {
                     out_data.customer_table_fields = content;
                     let table = document.querySelector('.table-customer');
-                    let da = service.build_table_header(table, [{ name: '序号', width: 3 }], content);
+                    let da =
+                        service.build_table_header(table, [{name: '序号', width: 3}], content, "", "customers");
                     table.querySelector('thead tr').innerHTML = da.th_row;
                     // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -129,12 +130,11 @@ export function customer_init(data) {
     //点击提交按钮
     document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
         let cate = document.querySelector('.modal-title').textContent;
-        if ( cate == "选择客户" || cate == "选择供应商") {
+        if (cate == "选择客户" || cate == "选择供应商") {
             let selected_row = document.querySelector('table .focus');
             if (selected_row) {
                 chose_exit(selected_row);
-            }
-            else {
+            } else {
                 notifier.show('请先选择再提交', 'danger');
             }
         }
@@ -203,7 +203,7 @@ function row_dbclick(table) {
 function search_table() {
     let table = document.querySelector('.table-customer');
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, { name: search, page: 1 });
+    Object.assign(table_data.post_data, {name: search, page: 1});
     fetch_table(() => {
         row_dbclick(table);
     });
@@ -219,8 +219,7 @@ function chose_exit(selected_row) {
         supplier.setAttribute('data', id);
         // supplier_auto_show();
         close_modal();
-    }
-    else {
+    } else {
         notifier.show('请先选择记录', 'danger');
     }
 }
