@@ -135,16 +135,16 @@ function document_top_handle(html, has_date) {
         let has_auto = document.querySelector('.has-auto');
         let next_auto = document.querySelector('.has-auto+div');
 
-        //加入滚动事件处理
-        fields_show.addEventListener('scroll', function () {
-            if (fields_show.scrollTop != 0) {
-                has_auto.style.cssText = "position: relative; left: 5px;";
-                next_auto.style.cssText = "margin-left: -3px;"
-            } else {
-                has_auto.style.cssText = "";
-                next_auto.style.cssText = "";
-            }
-        });
+        // //加入滚动事件处理
+        // fields_show.addEventListener('scroll', function () {
+        //     if (fields_show.scrollTop != 0) {
+        //         has_auto.style.cssText = "position: relative; left: 5px;";
+        //         next_auto.style.cssText = "margin-left: -3px;"
+        //     } else {
+        //         has_auto.style.cssText = "";
+        //         next_auto.style.cssText = "";
+        //     }
+        // });
     } else {
         document.querySelector('.fields-show').innerHTML = html;
     }

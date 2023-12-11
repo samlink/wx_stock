@@ -116,21 +116,10 @@ function set_readonly() {
 }
 
 function document_top_handle(html, has_date) {
-    let fields_show = document.querySelector('.fields-show .table-head');
+    let fields_show = document.querySelector('.fields-show');
     fields_show.innerHTML = html;
     let has_auto = document.querySelector('.has-auto');
     let next_auto = document.querySelector('.has-auto+div');
-
-    //加入滚动事件处理
-    fields_show.addEventListener('scroll', function () {
-        if (fields_show.scrollTop != 0) {
-            has_auto.style.cssText = "position: relative; left: 5px;";
-            next_auto.style.cssText = "margin-left: -3px;"
-        } else {
-            has_auto.style.cssText = "";
-            next_auto.style.cssText = "";
-        }
-    });
 
     let auto_doc = document.querySelector('#文本字段6');
     auto_doc.parentNode.classList.add("autocomplete");
