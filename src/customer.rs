@@ -40,7 +40,7 @@ pub async fn fetch_customer(
             sql_fields, post_data.sort, post_data.cate, name, post_data.sort, skip, post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
