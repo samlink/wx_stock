@@ -420,20 +420,20 @@ pub async fn save_material(
 
             let items_sql = if fields_cate != "库存调入" {
                 format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{})
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {})"#,
-                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
-                    f_map["物料号"], f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"],
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{},{})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', {})"#,
+                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
+                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["区域"], f_map["备注"], f_map["顺序"],
                     dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
-                    value[8], value[9], value[10], value[0])
+                    value[8], value[9], user.area, value[10], value[0])
             } else {
                 format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {})"#,
-                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"],
-                    f_map["物料号"], f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"],
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {}, '{}')"#,
+                    f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
+                     f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"], f_map["区域"],
                     dh, value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9],
-                    value[9], value[10], value[11], value[0])
+                    value[9], value[10], value[11], value[0], user.area)
             };
 
             // println!("{}", items_sql);

@@ -217,7 +217,8 @@ function build_items(dh) {
             let lines = document.querySelectorAll(".table-history tbody tr");
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
-                    if (document.querySelector('#remember-button').textContent == '已审核') {
+                    if (document.querySelector('#remember-button').textContent == '已审核' ||
+                        document.querySelector('#save-button').disabled == true) {
                         return false;
                     }
                     let value = l.querySelector('td:nth-child(2)').textContent.split('　');

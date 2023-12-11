@@ -217,7 +217,8 @@ function build_items(dh) {
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
                     if (document.querySelector('#remember-button').textContent == '已审核' ||
-                        document.querySelector('#check-button').textContent == '已质检') {
+                        document.querySelector('#check-button').textContent == '已质检' ||
+                        document.querySelector('#save-button').disabled == true) {
                         return false;
                     }
                     document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;

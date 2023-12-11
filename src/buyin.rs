@@ -225,7 +225,7 @@ pub async fn get_factory_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let sql = format!("select 文本字段1 label, '1' as id from customers
-                                where lower(助记码) like '%{}%' OR 文本字段1 like '%{}%'",
+                                where 类别='供应商' and lower(助记码) like '%{}%' OR 文本字段1 like '%{}%'",
                           search.s.to_lowercase(), search.s.to_lowercase());
         autocomplete(db, &sql).await
     } else {

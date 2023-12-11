@@ -143,7 +143,16 @@ show_names = [
     },
     {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
     {name: "规格", width: 60, class: "规格", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: true, is_save: true, default: ""},
+    {
+        name: "状态",
+        width: 80,
+        class: "状态",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        no_button: true,
+        default: ""
+    },
     {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: true, is_save: true, default: ""},
     {
         name: "执行标准",
@@ -223,6 +232,11 @@ let auto_data = [{
     show_th: show_th,
     type: "table",
     cb: fill_gg,
+}, {
+    n: 5,
+    cate: "状态",
+    auto_url: `/get_status_auto`,
+    type: "simple",
 }, {
     n: 7,
     cate: "执行标准",

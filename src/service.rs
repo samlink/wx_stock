@@ -313,14 +313,13 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
 }
 
 // 获取查询单据的权限
-pub async fn get_limits(user: UserData) -> String {
+pub async fn get_limits(user: &UserData) -> String {
     let mut limits = "".to_owned();
     if user.duty == "主管" {
         limits = format!("documents.文本字段7 = '{}' AND", user.area);  // 文本字段7 为 区域
     } else if user.duty == "库管" {
-        limits = format!("documents.文本字段7 = '{}' AND documents.类别 not like '%销售%' and", user.area);  // 文本字段7 为 区域
-    }
-    else if user.duty == "销售" {
+        limits = format!("documents.文本字段7 = '{}' AND 经办人 = '{}' and", user.area, user.name);  // 文本字段7 为 区域
+    } else if user.duty == "销售" {
         limits = format!("经办人 = '{}' AND", user.name);
     }
 

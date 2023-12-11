@@ -59,9 +59,7 @@ pub async fn fetch_all_documents(
             doc_sql = "documents.类别 = '运输发货'";
         }
 
-        let f_map = map_fields(db.clone(), doc_cate).await;
-
-        let limits = get_limits(user).await;
+        let limits = get_limits(&user).await;
 
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;

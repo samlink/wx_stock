@@ -66,13 +66,13 @@ fetch(`/home_statis`, {
 
                 show_reminders(data);
 
-                //销售未出库
+                //销售未发货
                 let data2 = {
                     content: content[1],
                     lines: fit_lines,
                     reminder: document.querySelector('#show-02 .reminder'),
                     title_holer: document.querySelector('#sale-data2'),
-                    title: `销售未出库 ${content[1].length} 单`,
+                    title: `销售未发货 ${content[1].length} 单`,
                     more_href: "/sale_query",
                     location: "/sale/",
                 }

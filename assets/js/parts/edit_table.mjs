@@ -529,11 +529,13 @@ function build_input_row(show_names, all_width, num) {
         input_data.calc_func(input_row);
     }
 
+    let max_n = input_row.querySelectorAll('input').length;
+
     input_row.querySelectorAll('input').forEach(input => (
         input.onkeydown = (e) => {
             let inputs = document.querySelectorAll('.table-items .has-input');
             let next_tr = document.querySelector('.table-items .inputting+tr');
-            enter_key_move(e, input_row, input, next_tr, 9);
+            enter_key_move(e, input_row, input, next_tr, max_n);
             updown_key_move(e, input_row, input, inputs);
             leftright_key_move(e, input_row, input);
         })

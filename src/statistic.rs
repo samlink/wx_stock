@@ -2,8 +2,8 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
-use time::{now, Duration};
-use serde::{Deserialize, Serialize};
+use time::{Duration};
+use serde::{Deserialize};
 
 #[derive(Deserialize)]
 pub struct StatisData {
@@ -24,7 +24,7 @@ pub async fn fetch_statis(
         let mut num: Vec<i64> = Vec::new();
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<f32> = Vec::new();
-        let limits = get_limits(user).await;
+        let limits = get_limits(&user).await;
 
         let da_cate: String;
 
@@ -206,9 +206,15 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         // let today = now().strftime("%Y-%m-%d").unwrap().to_string();
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await;
-        let limits = get_limits(user).await;
+        let limits = get_limits(&user).await;
+        let mut limit = limits.clone();
 
-        //销售完成 ------------------------
+        // 对库管开放的条件限制
+        if user.duty == "库管" {
+            limit = format!(r#"documents.文本字段7 = '{}' and"#, user.area);
+        }
+
+        //销售未收款 ------------------------
         let sql = format!(
             r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='商品销售' and 是否欠款=true"#,
             f_map["区域"], limits
@@ -226,14 +232,14 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             sale1.push(item);
         }
 
-        let mut sale2 = Vec::new();
-
+        // 销售未发货
         let sql = format!(
             r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='商品销售' and {}=false"#,
-            f_map["区域"], limits, f_map["发货完成"]
+            f_map["区域"], limit, f_map["发货完成"]
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut sale2 = Vec::new();
         for row in rows {
             let dh: &str = row.get("单号");
             let worker: &str = row.get("经办人");
@@ -242,14 +248,14 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             sale2.push(item);
         }
 
-        //采购未出库 ------------------------
-
+        //采购未入库 ------------------------
+        //对库管开放
         let f_map = map_fields(db.clone(), "采购单据").await;
         let mut buy = Vec::new();
 
         let sql = format!(
             r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='材料采购' and {} = false"#,
-            f_map["区域"], limits, f_map["入库完成"]
+            f_map["区域"], limit, f_map["入库完成"]
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -264,7 +270,6 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         //未提交审核单据 ------------------------
 
         let mut pre_shen = Vec::new();
-
         let sql = format!(
             r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = false and 类别 <> ''
                 group by 类别"#, limits,
@@ -367,7 +372,7 @@ pub async fn get_stockin_items(
         let sql = format!(
             r#"select documents.{} 到货日期, documents.{} 入库日期, 单号, split_part(node_name,' ',2) as 名称, products.{} 物料号,
                  split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态, products.{} 炉号, products.{} 入库长度,
-                 products.{} 执行标准, products.{} 生产厂家, products.{} 理论重量, documents.备注,
+                 products.{} 执行标准, products.{} 生产厂家, products.{} 理论重量, products.备注,
                  ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
@@ -560,8 +565,7 @@ pub async fn fetch_business(
         let cate = post_data.cate.to_lowercase();
         let data: Vec<&str> = cate.split(SPLITER).collect();
 
-        let f_map = map_fields(db.clone(), "销售单据").await;
-        let limits = get_limits(user).await;
+        let limits = get_limits(&user).await;
 
         let query_field = if name != "" {
             //注意前导空格
