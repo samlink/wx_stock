@@ -26,10 +26,9 @@
 
   .show-tip {
     display: flex;
-
-    //& > div {
-    //  cursor: pointer;
-    //}
+    h4 {
+      font-size: 18px;
+    }
   }
 
   .word {

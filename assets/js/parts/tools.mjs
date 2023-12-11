@@ -273,4 +273,5 @@ export function moneyUppercase2(money) {
 export function open_node() {
     document.querySelector('#t_4 span').click();
     document.querySelector('#t_3 span').click();
+    document.querySelector('#t_4_101').click();
 }
