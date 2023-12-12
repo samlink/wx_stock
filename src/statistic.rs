@@ -125,7 +125,7 @@ pub async fn fetch_cost(
         let mut sale_data: Vec<String> = Vec::new();
 
         let limits = if user.duty != "总经理" && user.duty != "销售" {
-            format!("documents.文本字段7 = '{}' and", user.area)
+            format!("products.文本字段6 = '{}' and", user.area)
         } else {
             "".to_owned()
         };
