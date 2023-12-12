@@ -124,11 +124,12 @@ pub async fn fetch_cost(
         let mut date_lables: Vec<String> = Vec::new();
         let mut sale_data: Vec<String> = Vec::new();
 
-        let limits = if user.duty != "总经理" && user.duty != "销售" {
-            format!("products.文本字段6 = '{}' and", user.area)
-        } else {
-            "".to_owned()
-        };
+        let mut limit1 = "".to_owned();
+        let mut limit2 = "".to_owned();
+        if user.duty != "总经理" && user.duty != "销售" {
+            limit1 = format!("documents.文本字段6 = '{}' and", user.area);
+            limit2 = format!("products.文本字段6 = '{}' and", user.area);
+        }
 
         let rows = &conn
             .query(r#"select max(日期) as 日期 from documents"#, &[])
@@ -156,8 +157,10 @@ pub async fn fetch_cost(
                     ON products.文本字段1 = foo.物料号
                     JOIN documents on 单号id = 单号
                     where {} products.文本字段7 <> '是' and documents.日期::date <= '{}'::date
-                "#, limits, date, limits, date
+                "#, limit1, date, limit2, date
             );
+
+            println!("{}", sql);
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
