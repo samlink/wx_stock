@@ -648,7 +648,9 @@ function chose_exit(selected_row) {
                 let input = document.querySelector('.inputting .auto-input');
                 input.value = content.split(SPLITER)[1];
                 input.setAttribute("data", content);
-                input_data.auto_data.cb();  // 3 是填入规格数据的数量
+                if (typeof input_data.auto_data[0].cb == "function") {
+                    input_data.auto_data[0].cb();
+                }
                 close_modal();
             });
     } else {

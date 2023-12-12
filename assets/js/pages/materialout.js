@@ -165,8 +165,8 @@ let auto_data = [{
     auto_url: `/material_auto_out`,
     show_th: show_th,
     cb: fill_gg,
-    cf: () => {
-        return document.querySelector('.table-items .inputting td:nth-child(14)').textContent;
+    cf: () => {  //前置函数, 用于动态构建查询字符串
+        return document.querySelector('.table-items .inputting .m_id').textContent;
     }
 }];
 
