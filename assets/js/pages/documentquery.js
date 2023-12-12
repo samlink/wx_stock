@@ -17,7 +17,7 @@ if (cate == "采购查询") {
 } else if (cate == "销售查询") {
     document_cate = "销售单据";
 } else if (cate == "入库查询") {
-    document_cate = "入库单据"
+    document_cate = "入库单据";
 } else if (cate == "出库查询") {
     document_cate = "出库单据";
 } else if (cate == "发货查询") {
@@ -132,7 +132,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
     if (chosed) {
         let id = chosed.querySelector('td:nth-child(2)').textContent;
-        let cate = chosed.querySelector('td:nth-child(3)').textContent
+        let cate = chosed.querySelector('td:nth-child(3)').textContent;
         let address;
         if (cate == "材料采购") {
             address = `/buy_in/`;

@@ -1,7 +1,7 @@
 import {SPLITER} from '../parts/tools.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import * as service from '../parts/service.mjs'
+import * as service from '../parts/service.mjs';
 import {close_modal, modal_init} from './modal.mjs';
 import {notifier} from '../parts/notifier.mjs';
 

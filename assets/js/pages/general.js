@@ -94,8 +94,8 @@ document.querySelector('#help-info').addEventListener('click', function () {
                 document.querySelector('.modal-body').innerHTML = html;
 
                 document.querySelector('.modal-title').textContent = "帮助信息";
-                document.querySelector('.modal-dialog').style.cssText = "max-width: 600px;"
-                document.querySelector('#modal-sumit-button').style.cssText = "display: none;"
+                document.querySelector('.modal-dialog').style.cssText = "max-width: 600px;";
+                document.querySelector('#modal-sumit-button').style.cssText = "display: none;";
                 document.querySelector('.modal').style.display = "block";
             }
         });

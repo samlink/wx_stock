@@ -104,7 +104,7 @@ document.querySelector('#add-button').addEventListener('click', function () {
     document.querySelector('.modal-body').innerHTML = service.build_add_form(table_fields);
 
     document.querySelector('.modal-title').textContent = "增加" + cus_cate;
-    document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+    document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
 
     document.querySelector('.modal').style.display = "block";
     document.querySelector('.modal-body input').focus();
@@ -123,7 +123,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, table_fields, chosed); //3 是起始位置
 
         document.querySelector('.modal-title').textContent = "编辑" + cus_cate;
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
         document.querySelector('.modal').style.display = "block";
         document.querySelector('.modal-body input').focus();
         leave_alert();
@@ -269,7 +269,7 @@ function data_in(fileBtn, info1, info2, cate) {
             .then(res => res.json())
             .then(content => {
                 if (content != -1 && content != -2) {
-                    let rows = "<div class='table-container table-customer'><table style='font-size: 12px;'><thead>"
+                    let rows = "<div class='table-container table-customer'><table style='font-size: 12px;'><thead>";
                     let n = 1;
                     for (let item of content[0]) {
                         let arr_p = item.split(SPLITER);
@@ -298,7 +298,7 @@ function data_in(fileBtn, info1, info2, cate) {
 
                     global.eidt_cate = cate;
 
-                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;"
+                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;";
                     document.querySelector('.modal').style.cssText = "display: block";
                     fileBtn.value = "";
 

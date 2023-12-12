@@ -175,7 +175,7 @@ function show_reminders(data) {
     line += "</ul>";
 
     if (add == 1) {
-        line += `<div class="more-tip"> <a href=${data.more_href}>更多......</a></div>`
+        line += `<div class="more-tip"> <a href=${data.more_href}>更多......</a></div>`;
     }
 
     data.title_holer.textContent = data.title;

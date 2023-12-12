@@ -123,7 +123,7 @@ document.querySelector('#find-button').addEventListener('click', function () {
                 document.querySelector('.modal-body').innerHTML = html;
                 document.querySelector('.modal-body .table-pout tbody').innerHTML = tds;
                 document.querySelector('.modal-title').textContent = `${id}：${global.product_name}　${gg}　${status}，入库长度：${long}　现有长度：${now_long}`;
-                document.querySelector('.modal-dialog').style.cssText = "max-width: 800px;"
+                document.querySelector('.modal-dialog').style.cssText = "max-width: 800px;";
                 document.querySelector('.modal').style.display = "block";
                 document.querySelector('#modal-sumit-button').style.display = "none";
             });
@@ -314,7 +314,7 @@ function data_in(fileBtn, info1, info2, cate) {
             .then(res => res.json())
             .then(content => {
                 if (content != -1 && content != -2) {
-                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>"
+                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>";
                     let n = 1;
                     for (let item of content[0]) {
                         let arr_p = item.split("<`*_*`>");

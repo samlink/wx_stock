@@ -1,6 +1,6 @@
 import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
-import * as service from '../parts/service.mjs'
+import * as service from '../parts/service.mjs';
 import {
     SPLITER,
     regInt,
@@ -119,10 +119,10 @@ fetch(`/fetch_inout_fields`, {
             } else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
-                document.querySelector('#remember-button').textContent = '审核'
+                document.querySelector('#remember-button').textContent = '审核';
                 setTimeout(() => {
                     document.querySelector('.table-items tbody .名称').focus();
-                }, 200)
+                }, 200);
             }
         }
     });
@@ -134,17 +134,6 @@ function document_top_handle(html, has_date) {
         let fields_show = document.querySelector('.fields-show');
         let has_auto = document.querySelector('.has-auto');
         let next_auto = document.querySelector('.has-auto+div');
-
-        // //加入滚动事件处理
-        // fields_show.addEventListener('scroll', function () {
-        //     if (fields_show.scrollTop != 0) {
-        //         has_auto.style.cssText = "position: relative; left: 5px;";
-        //         next_auto.style.cssText = "margin-left: -3px;"
-        //     } else {
-        //         has_auto.style.cssText = "";
-        //         next_auto.style.cssText = "";
-        //     }
-        // });
     } else {
         document.querySelector('.fields-show').innerHTML = html;
     }
@@ -434,7 +423,7 @@ function sum_money() {
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元`;
     if (document.querySelector('#应结金额')) {
-        document.querySelector('#应结金额').value = sum.toFixed(2)
+        document.querySelector('#应结金额').value = sum.toFixed(2);
     }
 }
 

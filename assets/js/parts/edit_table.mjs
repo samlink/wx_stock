@@ -3,7 +3,7 @@ import {fetch_tree, tree_init, tree_search} from './tree.mjs';
 import {notifier} from './notifier.mjs';
 import {alert_confirm} from './alert.mjs';
 import {auto_table, AutoInput} from './autocomplete.mjs';
-import * as service from './service.mjs'
+import * as service from './service.mjs';
 import {SPLITER, regReal, open_node, regInt, padZero, getLeft, getTop, goto_tabindex, enterToTab} from './tools.mjs';
 import {close_modal, modal_init} from './modal.mjs';
 
@@ -517,8 +517,8 @@ function build_input_row(show_names, all_width, num) {
                 service.build_product_table(row_num, row_dbclick);
 
                 document.querySelector('.modal-title').textContent = "选择商品";
-                document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`
-                document.querySelector('.modal-content').style.cssText = `height: 100%;`
+                document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
+                document.querySelector('.modal-content').style.cssText = `height: 100%;`;
             }
 
             document.querySelector('.modal').style.display = "block";

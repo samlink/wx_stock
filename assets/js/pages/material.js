@@ -194,7 +194,7 @@ function build_items(dh) {
             let tr = "";
             content.forEach(obj => {
                 let material = obj.split(SPLITER);
-                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td>`
+                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td>`;
                 // let m = material[1].split('　');
                 // tr += `<tr><td hidden>${material[0]}</td><td width="20%">${m[0]}</td><td width="30%">${m[1]}</td>
                 //        <td width="10%">${m[2]}</td><td width="40%">${m[3]}</td></tr>`;

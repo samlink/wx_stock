@@ -146,7 +146,7 @@ for (let check of all_checks) {
 
 let marks = document.querySelectorAll('.rights-show .checkmark');
 for (let mark of marks) {
-    mark.setAttribute("style", "background: lightgrey; border: none;")
+    mark.setAttribute("style", "background: lightgrey; border: none;");
 }
 
 //编辑用户数据 -----------------------------------------------------------
@@ -177,7 +177,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         confirm_save = focus.children[6].textContent;
         select_save = focus.children[2].textContent;
 
-        let select = "<select class='select-sm'>"
+        let select = "<select class='select-sm'>";
         let user_id = document.querySelector('#user-name').textContent.split('　')[1];
         let options = user_id == "admin" ? ["总经理", "主管", "销售", "库管"] : ["主管", "销售", "库管"];
         for (let value of options) {
@@ -206,7 +206,7 @@ document.querySelector('#cancel-button').addEventListener('click', function () {
     document.querySelector('#cancel-button').classList.add("hide");
 
     for (let mark of marks) {
-        mark.setAttribute("style", "background: lightgrey; border: none;")
+        mark.setAttribute("style", "background: lightgrey; border: none;");
     }
 
     for (let check of all_checks) {

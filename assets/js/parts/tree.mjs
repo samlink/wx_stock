@@ -152,7 +152,7 @@ export var tree_init = function (data) {
         var value = selected_node.innerHTML;
         global.edit_cate = "编辑";
         global.name_save = value;
-        selected_node.innerHTML = '<input type="text" id="input_node" value="' + value + '">'
+        selected_node.innerHTML = '<input type="text" id="input_node" value="' + value + '">';
         selected_node.firstChild.focus();
         zhezhao.style.display = "block";
     });
