@@ -160,7 +160,7 @@ pub async fn fetch_cost(
                 "#, limit1, date, limit2, date
             );
 
-            println!("{}", sql);
+            // println!("{}", sql);
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
