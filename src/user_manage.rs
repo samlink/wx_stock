@@ -30,7 +30,7 @@ pub async fn pull_users(
                 r#"area='{}' and duty <> '总经理' and duty <> '主管' and"#,
                 user.area
             );
-        } else if user.duty == "总经理" {
+        } else if user.duty == "总经理" && user.name != "admin" {
             area = "duty <> '总经理' and".to_owned();
         }
 

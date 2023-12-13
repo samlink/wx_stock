@@ -286,7 +286,7 @@ pub async fn get_trans_info(
             customers.{} 公司地址 from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
-            f_map["销售单号"], f_map["合同编号"], f_map2["联系人"], f_map2["电话"], f_map2["公司地址"], data
+            f_map["销售单号"], f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], data
         );
 
         // println!("{}", sql);

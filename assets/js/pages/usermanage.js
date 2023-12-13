@@ -179,7 +179,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
         let select = "<select class='select-sm'>";
         let user_id = document.querySelector('#user-name').textContent.split('　')[1];
-        let options = user_id == "admin" ? ["总经理", "主管", "销售", "库管"] : ["主管", "销售", "库管"];
+        let options = user_id == "admin" ? ["总经理", "主管", "销售", "库管", "质检", "财务"] : ["主管", "销售", "库管", "质检", "财务"];
         for (let value of options) {
             let selected = value == select_save ? 'selected' : '';
             select += `<option value="${value}" ${selected}>${value}</option>`;
