@@ -153,9 +153,20 @@ export function build_save_items(n, row, show_names) {
     return save_str;
 }
 
+// 放置提交审核按钮, 在单据头部
+export function set_sumit_shen() {
+    let sumit_shen = document.createElement("Button");
+    sumit_shen.setAttribute('id', 'sumit-shen');
+    sumit_shen.classList.add("btn-info");
+    sumit_shen.classList.add("btn");
+    sumit_shen.classList.add("button-shen");
+    sumit_shen.textContent = '提交审核';
+    document.querySelector('.fields-show').appendChild(sumit_shen);
+}
+
 // 审核单据
 export function make_formal(data) {
-    if (this.textContent == "已审核") {
+    if (data.button.textContent == "已审核") {
         return false;
     }
 
@@ -199,6 +210,74 @@ export function make_formal(data) {
                 });
         }
     });
+}
+
+//提交审核
+export function sumit_shen(data) {
+    if (data.button.textContent == "已提审核") {
+        return false;
+    }
+
+    if (data.dh == "新单据" || data.edited) {
+        notifier.show('请先保存单据', 'danger');
+        return false;
+    }
+
+    alert_confirm("确认提交审核吗？", {
+        confirmText: "确认",
+        cancelText: "取消",
+        confirmCallBack: () => {
+            fetch(`/make_sumit_shen`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    cate: data.document_name,
+                    dh: data.dh,
+                }),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        data.button.textContent = '已提审核';
+                        data.button.classList.add('remembered');
+                        notifier.show('提交完成', 'success');
+                    } else {
+                        notifier.show('权限不够', 'danger');
+                    }
+                });
+        }
+    });
+}
+
+//设置只读: 提交审核、审核以及用户
+export function set_shens_owner(data) {
+    let values = data.content.split(SPLITER);
+    let len = values.length;
+    document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
+    only_worker(values[len - 1], data.readonly_fun);
+    let shen = document.querySelector('#sumit-shen');
+    if (values[len - 5] == "true") {
+        shen.textContent = "已提审核";
+        shen.classList.add('remembered');
+    } else {
+        shen.textContent = "提交审核";
+        shen.classList.remove('remembered');
+    }
+
+    let rem = document.querySelector('#remember-button');
+    if (values[len - 2] != "") {
+        rem.textContent = "已审核";
+        rem.classList.add('remembered');
+        data.readonly_fun();
+    } else {
+        rem.textContent = "审核";
+        rem.classList.remove('remembered');
+    }
+    if (rem.textContent == "审核" && data.focus_fun && typeof data.focus_fun == "function") {
+        data.focus_fun();
+    }
 }
 
 //使编辑表格的功能键只读

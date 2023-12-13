@@ -60,9 +60,20 @@ fetch(`/fetch_inout_fields`, {
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
 
-                        let values = data.split(SPLITER);
-                        document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
-                        service.only_worker(values[values.length - 1], set_readonly);
+                        let set_data = {
+                            content: data,
+                            readonly_fun: set_readonly,
+                            focus_fun: () => {
+                                setTimeout(() => {
+                                    document.querySelector('#文本字段6').focus();
+                                }, 200);
+                            }
+                        }
+                        service.set_shens_owner(set_data);
+
+                        // let values = data.split(SPLITER);
+                        // document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
+                        // service.only_worker(values[values.length - 1], set_readonly);
 
                         fetch('/fetch_check', {
                             method: 'post',
@@ -77,15 +88,15 @@ fetch(`/fetch_inout_fields`, {
                             .then(response => response.json())
                             .then(data => {
                                 let check = data.split('-');
-                                let rem = document.querySelector('#remember-button');
-                                if (check[0] != "") {
-                                    rem.textContent = "已审核";
-                                    rem.classList.add('remembered');
-                                    set_readonly();
-                                } else {
-                                    rem.textContent = "审核";
-                                    rem.classList.remove('remembered');
-                                }
+                                // let rem = document.querySelector('#remember-button');
+                                // if (check[0] != "") {
+                                //     rem.textContent = "已审核";
+                                //     rem.classList.add('remembered');
+                                //     set_readonly();
+                                // } else {
+                                //     rem.textContent = "审核";
+                                //     rem.classList.remove('remembered');
+                                // }
 
                                 let chk = document.querySelector('#check-button');
                                 if (check[1] != "") {
@@ -97,10 +108,6 @@ fetch(`/fetch_inout_fields`, {
                                     chk.classList.remove('remembered');
                                 }
                             });
-
-                        setTimeout(() => {
-                            document.querySelector('#文本字段6').focus();
-                        }, 200);
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -179,6 +186,18 @@ function document_top_handle(html, has_date) {
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, 7);
+    service.set_sumit_shen();
+
+    //提交审核
+    document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let shen_data = {
+            button: this,
+            dh: dh_div.textContent,
+            document_name: document_name,
+            edited: edited || input_table_outdata.edited,
+        }
+        service.sumit_shen(shen_data);
+    });
 }
 
 function build_items(dh) {
@@ -589,10 +608,6 @@ document.querySelector('#check-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
-    if (this.textContent.trim() == "已审核") {
-        return false;
-    }
-
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

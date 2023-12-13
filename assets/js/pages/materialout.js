@@ -147,6 +147,18 @@ function document_top_handle(html, has_date) {
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, 5);
+    service.set_sumit_shen();
+
+    //提交审核
+    document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let shen_data = {
+            button: this,
+            dh: dh_div.textContent,
+            document_name: document_name,
+            edited: edited || input_table_outdata.edited,
+        }
+        service.sumit_shen(shen_data);
+    });
 }
 
 let show_th = [

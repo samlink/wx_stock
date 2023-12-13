@@ -15,7 +15,7 @@ import {customer_init, out_data} from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-import {edit_button_disabled, only_worker} from "../parts/service.mjs";
+import {edit_button_disabled, only_worker, sumit_shen} from "../parts/service.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -63,24 +63,16 @@ fetch(`/fetch_inout_fields`, {
                         let customer = document.querySelector('#supplier-input');
                         customer.value = values[len - 3];
                         customer.setAttribute('data', values[len - 4]);
-                        document.querySelector('#owner').textContent = `[ ${values[len - 1]} ]`;
-
-                        service.only_worker(values[len - 1], set_readonly);
-
-                        let rem = document.querySelector('#remember-button');
-                        if (values[len - 2] != "") {
-                            rem.textContent = "已审核";
-                            rem.classList.add('remembered');
-                            set_readonly();
-                        } else {
-                            rem.textContent = "审核";
-                            rem.classList.remove('remembered');
+                        let set_data = {
+                            content: data,
+                            readonly_fun: set_readonly,
+                            focus_fun: () => {
+                                setTimeout(() => {
+                                    document.querySelector('.table-items tbody .名称').focus();
+                                }, 200);
+                            }
                         }
-                        if (rem.textContent == "审核") {
-                            setTimeout(() => {
-                                document.querySelector('.table-items tbody .名称').focus();
-                            }, 200);
-                        }
+                        service.set_shens_owner(set_data);
                     });
 
                 //同时获取相关单据信息, 加载表头内容时
@@ -170,6 +162,18 @@ function document_top_handle(html, has_date) {
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, all_input.length - 1);
+    service.set_sumit_shen();
+
+    //提交审核
+    document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let shen_data = {
+            button: this,
+            dh: dh_div.textContent,
+            document_name: document_name,
+            edited: edited || input_table_outdata.edited,
+        }
+        service.sumit_shen(shen_data);
+    });
 }
 
 if (document.querySelector('#supplier-input')) {
@@ -545,7 +549,9 @@ function set_readonly() {
 
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
-            input.disabled = true;
+            if (!(input.classList.contains("备注") || input.classList.contains("note"))) {
+                input.disabled = true;
+            }
         });
     }, 100);
 
@@ -554,10 +560,6 @@ function set_readonly() {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
-    if (document.querySelector('#remember-button').textContent.trim() == "已审核") {
-        return false;
-    }
-
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

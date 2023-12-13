@@ -114,6 +114,7 @@ function document_top_handle(html, has_date) {
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, 2);
+    service.set_sumit_shen();
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------

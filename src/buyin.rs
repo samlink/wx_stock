@@ -370,8 +370,8 @@ pub async fn fetch_document(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, documents.{} as 审核, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
-            sql_fields, f_map["审核"], data.dh
+            r#"{} documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, f_map["提交审核"], f_map["审核"], data.dh
         );
 
         // println!("{}", sql);
@@ -381,11 +381,12 @@ pub async fn fetch_document(
         for row in rows {
             let id: i32 = row.get("客商id");
             let name: String = row.get("名称");
+            let sumit_shen: bool = row.get("提交审核");
             let rem: &str = row.get("审核");
             let worker: &str = row.get("经办人");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name, SPLITER,
+                "{}{}{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields), SPLITER, sumit_shen, SPLITER, id, SPLITER, name, SPLITER,
                 rem, SPLITER, worker,
             );
         }
@@ -695,6 +696,29 @@ pub async fn save_stransport(
         let _result = transaction.commit().await;
 
         HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///提交审核
+#[post("/make_sumit_shen")]
+pub async fn make_sumit_shen(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), &data.cate).await;
+        let sql = format!(
+            r#"update documents set {}=true WHERE 单号='{}'"#,
+            f_map["提交审核"], data.dh
+        );
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

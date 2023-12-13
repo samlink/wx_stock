@@ -134,6 +134,7 @@ function document_top_handle(html, has_date) {
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, 9);
+    service.set_sumit_shen();
 }
 
 function build_items(dh) {

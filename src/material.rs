@@ -149,9 +149,9 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, documents.{} as 审核, 经办人, documents.类别, documents.{} as 图片 FROM documents
+            r#"{} 客商id, 名称, documents.{} as 审核, 经办人, documents.类别, documents.{} as 图片, documents.{} as 提交审核 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
-            sql_fields, f_map["审核"], f_map["图片"], data.dh
+            sql_fields, f_map["审核"], f_map["图片"], f_map["提交审核"], data.dh
         );
 
         // println!("{}", sql);
@@ -161,6 +161,7 @@ pub async fn fetch_document_ck(
         for row in rows {
             let id: i32 = row.get("客商id");
             let name: String = row.get("名称");
+            let sumit_shen: bool = row.get("提交审核");
             let rem: String = row.get("审核");
             let pic: String = row.get("图片");
             let worker: String = row.get("经办人");
@@ -431,7 +432,7 @@ pub async fn save_material(
                     r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
                      VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {}, '{}')"#,
                     f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
-                     f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"], f_map["区域"],
+                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"], f_map["区域"],
                     dh, value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9],
                     value[9], value[10], value[11], value[0], user.area)
             };
