@@ -71,10 +71,6 @@ fetch(`/fetch_inout_fields`, {
                         }
                         service.set_shens_owner(set_data);
 
-                        // let values = data.split(SPLITER);
-                        // document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
-                        // service.only_worker(values[values.length - 1], set_readonly);
-
                         fetch('/fetch_check', {
                             method: 'post',
                             headers: {
@@ -88,16 +84,6 @@ fetch(`/fetch_inout_fields`, {
                             .then(response => response.json())
                             .then(data => {
                                 let check = data.split('-');
-                                // let rem = document.querySelector('#remember-button');
-                                // if (check[0] != "") {
-                                //     rem.textContent = "已审核";
-                                //     rem.classList.add('remembered');
-                                //     set_readonly();
-                                // } else {
-                                //     rem.textContent = "审核";
-                                //     rem.classList.remove('remembered');
-                                // }
-
                                 let chk = document.querySelector('#check-button');
                                 if (check[1] != "") {
                                     chk.textContent = "已质检";

@@ -62,27 +62,21 @@ fetch(`/fetch_inout_fields`, {
                         build_items(dh);
 
                         let da = data.split(SPLITER);
-                        let pic = da[da.length - 1].replace("pic_", "min_");
+                        let pic = da[da.length - 3].replace("pic_", "min_");
                         if (pic.startsWith("/upload")) {
                             document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
                         }
 
-                        document.querySelector('#owner').textContent = `[ ${da[da.length - 3]} ]`;
-
-                        service.only_worker(da[da.length - 3], set_readonly);
-
-                        let rem = document.querySelector('#remember-button');
-                        if (da[da.length - 4] != "") {
-                            rem.textContent = "已审核";
-                            rem.classList.add('remembered');
-                            set_readonly();
-                        } else {
-                            rem.textContent = "审核";
-                            rem.classList.remove('remembered');
+                        let set_data = {
+                            content: data,
+                            readonly_fun: set_readonly,
+                            focus_fun: () => {
+                                setTimeout(() => {
+                                    document.querySelector('#文本字段6').focus();
+                                }, 200);
+                            }
                         }
-                        setTimeout(() => {
-                            document.querySelector('#文本字段6').focus();
-                        }, 200);
+                        service.set_shens_owner(set_data);
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -595,10 +589,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
-    if (document.querySelector('#remember-button').textContent.trim() == "已审核") {
-        return false;
-    }
-
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

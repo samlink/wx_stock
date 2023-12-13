@@ -46,22 +46,16 @@ fetch(`/fetch_inout_fields`, {
                         let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
 
-                        let values = data.split(SPLITER);
-                        document.querySelector('#owner').textContent = `[ ${values[values.length - 1]} ]`;
-                        service.only_worker(values[values.length - 1], set_readonly);
-
-                        let rem = document.querySelector('#remember-button');
-                        if (values[values.length - 2] != "") {
-                            rem.textContent = "已审核";
-                            rem.classList.add('remembered');
-                            set_readonly();
-                        } else {
-                            rem.textContent = "审核";
-                            rem.classList.remove('remembered');
+                        let set_data = {
+                            content: data,
+                            readonly_fun: set_readonly,
+                            focus_fun: () => {
+                                setTimeout(() => {
+                                    document.querySelector('.table-items tbody .名称').focus();
+                                }, 200);
+                            }
                         }
-                        setTimeout(() => {
-                            document.querySelector('.table-items tbody .名称').focus();
-                        }, 200);
+                        service.set_shens_owner(set_data);
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -115,6 +109,16 @@ function document_top_handle(html, has_date) {
     let form = document.querySelector('.fields-show');
     set_key_move(all_input, form, 2);
     service.set_sumit_shen();
+    //提交审核
+    document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let shen_data = {
+            button: this,
+            dh: dh_div.textContent,
+            document_name: document_name,
+            edited: edited || input_table_outdata.edited,
+        }
+        service.sumit_shen(shen_data);
+    });
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -392,10 +396,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
-    if (document.querySelector('#remember-button').textContent.trim() == "已审核") {
-        return false;
-    }
-
     let formal_data = {
         button: this,
         dh: dh_div.textContent,

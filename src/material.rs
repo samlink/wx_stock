@@ -149,7 +149,7 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 客商id, 名称, documents.{} as 审核, 经办人, documents.类别, documents.{} as 图片, documents.{} as 提交审核 FROM documents
+            r#"{} documents.{} as 审核, 经办人, documents.{} as 图片, documents.{} as 提交审核 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["审核"], f_map["图片"], f_map["提交审核"], data.dh
         );
@@ -159,18 +159,14 @@ pub async fn fetch_document_ck(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document = "".to_owned();
         for row in rows {
-            let id: i32 = row.get("客商id");
-            let name: String = row.get("名称");
             let sumit_shen: bool = row.get("提交审核");
             let rem: String = row.get("审核");
             let pic: String = row.get("图片");
             let worker: String = row.get("经办人");
-            let cate: String = row.get("类别");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields),
-                SPLITER, id, SPLITER, name, SPLITER, rem, SPLITER, worker, SPLITER,
-                cate, SPLITER, pic,
+                "{}{}{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields), SPLITER, sumit_shen, SPLITER, 1,   // 1 是占位置的, 为了共享前端函数
+                SPLITER, pic, SPLITER, rem, SPLITER, worker
             );
         }
 

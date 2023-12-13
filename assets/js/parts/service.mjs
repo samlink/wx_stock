@@ -166,7 +166,7 @@ export function set_sumit_shen() {
 
 // 审核单据
 export function make_formal(data) {
-    if (data.button.textContent == "已审核") {
+    if (data.button.textContent.trim() == "已审核") {
         return false;
     }
 
