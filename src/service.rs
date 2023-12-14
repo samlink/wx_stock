@@ -459,17 +459,17 @@ pub fn build_sql_for_insert(
 }
 
 //将显示字段拼接成导出 excel 用的查询语句
-pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>) -> String {
+pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>, table: String) -> String {
     for f in fields {
         if f.data_type == "文本" {
-            sql += &format!("{},", f.field_name);
+            sql += &format!("{}.{},", table, f.field_name);
         } else if f.data_type == "整数" || f.data_type == "实数" {
-            sql += &format!("cast({} as VARCHAR),", f.field_name);
+            sql += &format!("cast({}.{} as VARCHAR),", table, f.field_name);
         } else {
             let op: Vec<&str> = f.option_value.split("_").collect();
             sql += &format!(
-                "case when {} then '{}' else '{}' end as {},",
-                f.field_name, op[0], op[1], f.field_name
+                "case when {}.{} then '{}' else '{}' end as {},",
+                table, f.field_name, op[0], op[1], f.field_name
             );
         }
     }

@@ -27,7 +27,7 @@ pub async fn material_auto(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND {}=false  LIMIT 10"#,
+            WHERE {} 单号 like '%{}%' AND {}=false AND documents.文本字段10 <> '' LIMIT 10"#,
             format!("customers.{}", f_map2["简称"]),
             cate_s,
             s,
@@ -82,13 +82,16 @@ pub async fn material_auto_out(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+            r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
+                || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}'||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
+                JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
+                WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND
+                products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
         );
@@ -111,14 +114,16 @@ pub async fn material_auto_sotckout(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || {} || '{}' ||
-                ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+            r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' ||
+                split_part(node_name,' ',1) || '{}' || products.{} || '{}' || products.{} || '{}' ||
+                products.{} || '{}' || products.{} || '{}' || products.{} || '{}' ||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
+                JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                     ON products.文本字段1 = foo.物料号
-                WHERE LOWER({}) LIKE '%{}%' LIMIT 10"#,
+                WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["执行标准"], SPLITER,
             f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s
         );

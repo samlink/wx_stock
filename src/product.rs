@@ -28,10 +28,10 @@ pub async fn fetch_product(
         let mut area = "".to_owned();
         let mut done = "".to_owned();
         if !user.rights.contains("跨区查库存") {
-            area = format!(r#"AND {}='{}'"#, f_map["区域"], user.area);
+            area = format!(r#"AND products.{}='{}'"#, f_map["区域"], user.area);
         }
         if post_data.cate == "销售单据" {
-            done = format!("AND {}='否'", f_map["切完"]);
+            done = format!("AND products.{}='否'", f_map["切完"]);
         }
         // 构建搜索字符串
         let mut conditions = "".to_owned();
@@ -40,9 +40,11 @@ pub async fn fetch_product(
             let name: Vec<&str> = post.split(" ").collect();
             for na in name {
                 conditions += &format!(
-                    r#"AND (LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
-                       OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%'
-                       OR LOWER({}) LIKE '%{}%' OR LOWER({}) LIKE '%{}%')
+                    r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
+                       LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                       OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
+                       LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                       OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
                     "#,
                     f_map["物料号"], na, f_map["规格"], na, f_map["状态"], na, f_map["执行标准"], na, f_map["生产厂家"], na,
                     f_map["炉号"], na, f_map["库位"], na, f_map["区域"], na, f_map["切完"], na, f_map["备注"], na,
@@ -52,18 +54,20 @@ pub async fn fetch_product(
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let sql_fields = "SELECT 文本字段1 as id, 文本字段1, 规格型号,文本字段2,文本字段3,文本字段5,文本字段4,出售价格,整数字段1, 
-                            (COALESCE(切分次数,0) + 整数字段2)::integer as 整数字段2,
-                            (整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer as 整数字段3,
+        let sql_fields = "SELECT products.文本字段1 as id, products.文本字段1, 规格型号, products.文本字段2,
+                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
+                            (COALESCE(切分次数,0) + products.整数字段2)::integer as 整数字段2,
+                            (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer as 整数字段3,
                             round((库存下限-COALESCE(理重合计,0))::numeric,2)::real as 库存下限,
-                            文本字段8,库位,文本字段6,文本字段7,备注,".to_owned();
+                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,".to_owned();
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products             
+            r#"{} ROW_NUMBER () OVER (ORDER BY products.{}) as 序号 FROM products
+            JOIN documents on 单号id = 单号
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE products.商品id='{}' {} {} {} 
-            ORDER BY {} OFFSET {} LIMIT {}"#,
+            WHERE products.商品id='{}' {} {} {} AND documents.文本字段10 <>''
+            ORDER BY products.{} OFFSET {} LIMIT {}"#,
             sql_fields, post_data.sort, post_data.id, done, area, conditions, post_data.sort, skip, post_data.rec
         );
 
@@ -73,7 +77,9 @@ pub async fn fetch_product(
         let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(文本字段1) as 记录数 FROM products WHERE 商品id='{}' {} {}"#,
+            r#"SELECT count(products.文本字段1) as 记录数 FROM products
+            JOIN documents on 单号id = 单号
+            WHERE 商品id='{}' {} {} AND documents.文本字段10 <>''"#,
             post_data.id, area, conditions
         );
 
@@ -164,8 +170,9 @@ pub async fn product_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let sql = &format!(
-            r#"SELECT id, 规格型号 AS label FROM products 
-               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' LIMIT 10"#,
+            r#"SELECT id, 规格型号 AS label FROM products
+               JOIN documents ON 单号id = 单号
+               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
             search.cate,
             search.s.to_lowercase()
         );
@@ -223,10 +230,11 @@ pub async fn product_out(
         }
 
         let init = r#"SELECT "#.to_owned();
-        let mut sql = build_sql_for_excel(init, &fields);
+        let mut sql = build_sql_for_excel(init, &fields, "products".to_owned());
 
         sql += &format!(
-            r#"1 FROM products WHERE 商品id='{}' ORDER BY 规格型号"#,     //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
+            r#"1 FROM products JOIN documents ON 单号id = 单号
+               WHERE 商品id='{}' AND documents.文本字段10 <> '' ORDER BY 规格型号"#,     //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
             product.id
         );
 
@@ -436,7 +444,7 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
 
         let sql = format!("select 单号id, 类别, 日期, 长度, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
                                 join documents on 单号 = 单号id
-                                where 物料号 = '{}' order by 单号id desc", data);
+                                where 物料号 = '{}' and 文本字段10 <> '' order by 单号id desc", data);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut date = Vec::new();

@@ -191,7 +191,7 @@ pub async fn customer_out(
         }
 
         let init = r#"SELECT id as 编号,"#.to_owned();
-        let mut sql = build_sql_for_excel(init, &fields);
+        let mut sql = build_sql_for_excel(init, &fields, "customers".to_owned());
         sql = sql.trim_end_matches(",").to_owned();
 
         sql += &format!(" FROM customers WHERE 类别='{}'", out_data.cate);
