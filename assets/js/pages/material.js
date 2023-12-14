@@ -320,6 +320,7 @@ show_names = [
     {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {name: "合格", width: 30, class: "合格", type: "二值选一", editable: true, is_save: true, default: "是"},
     {
         name: "备注",
         width: 100,
