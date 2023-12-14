@@ -86,9 +86,8 @@ pub async fn material_auto_out(
                 || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN 
-                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
-                    ON products.文本字段1 = foo.物料号
+                LEFT JOIN cut_length() as foo
+                ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
@@ -117,8 +116,7 @@ pub async fn material_auto_sotckout(
                 ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN
-                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                LEFT JOIN cut_length() as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["执行标准"], SPLITER,
@@ -143,14 +141,15 @@ pub async fn material_auto_kt(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+            r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
+                || '{}' || products.{} || '{}' || products.{} || '{}' ||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN
-                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
-                    ON products.文本字段1 = foo.物料号
-                WHERE LOWER({}) LIKE '%{}%' AND {} != '是' LIMIT 10"#,
+                JOIN documents ON 单号id = 单号
+                LEFT JOIN cut_length() as foo
+                ON products.文本字段1 = foo.物料号
+                WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND documents.文本字段10 !='' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["库存长度"], f_map["物料号"], search.s, f_map["切完"]
         );

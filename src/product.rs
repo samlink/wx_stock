@@ -60,8 +60,7 @@ pub async fn fetch_product(
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products             
-            LEFT JOIN 
-            (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+            LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
             WHERE products.商品id='{}' {} {} {} 
             ORDER BY {} OFFSET {} LIMIT {}"#,

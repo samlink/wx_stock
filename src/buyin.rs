@@ -129,15 +129,15 @@ pub async fn buyin_auto(
         }
         let mut cate_s = "".to_owned();
         if search.cate == "销售单据" {
-            cate_s = format!("{}!='是' AND ", f_map["切完"]);
+            cate_s = format!("products.{}!='是' AND ", f_map["切完"]);
         }
 
         let mut sql_fields = "".to_owned();
         let mut sql_where = "".to_owned();
         for f in &fields {
-            sql_fields += &format!("{} || '{}' ||", f.field_name, SPLITER);
+            sql_fields += &format!("products.{} || '{}' ||", f.field_name, SPLITER);
             if f.data_type == "文本" {
-                sql_where += &format!("LOWER({}) LIKE '%{}%' OR ", f.field_name, s[1])
+                sql_where += &format!("LOWER(products.{}) LIKE '%{}%' OR ", f.field_name, s[1]);
             }
         }
 
@@ -147,11 +147,11 @@ pub async fn buyin_auto(
 
         let sql = &format!(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer || '{}'||
-                round(({}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
+                || '{}' || {} || '{}' || products.{} || '{}' ||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer || '{}'||
+                round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN 
-                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
@@ -166,7 +166,6 @@ pub async fn buyin_auto(
     }
 }
 
-
 //获取指定 id 的产品
 #[post("/fetch_one_product")]
 pub async fn fetch_one_product(
@@ -179,10 +178,12 @@ pub async fn fetch_one_product(
         let f_map = map_fields(db.clone(), "商品规格").await;
 
         let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                            || '{}' || {} || '{}' || {} || '{}' || {} as p from products
+                            || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} as p from products
                             JOIN tree ON products.商品id = tree.num
-                            WHERE {} = '{}'",
-                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
+                            JOIN documents on 单号id = 单号
+                            WHERE products.{} = '{}' and documents.文本字段10 <> ''",
+                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER,
+                          f_map["状态"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -208,7 +209,9 @@ pub async fn get_status_auto(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
-        let sql = format!("select distinct {} label, '1' as id from products where lower({}) like '%{}%' order by {}",
+        let sql = format!("select distinct products.{} label, '1' as id from products
+                        join documents on 单号id = 单号
+                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' order by products.{}",
                           f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
         autocomplete(db, &sql).await
     } else {
@@ -370,7 +373,9 @@ pub async fn fetch_document(
         }
 
         let sql = format!(
-            r#"{} documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人 FROM documents JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            r#"{} documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人
+            FROM documents
+            JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["提交审核"], f_map["审核"], data.dh
         );
 

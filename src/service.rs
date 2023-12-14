@@ -341,21 +341,6 @@ pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<Fiel
     return_fields(rows)
 }
 
-// //获取出入库用使用的全部字段 is_use
-// pub async fn get_used_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
-//     let conn = db.get().await.unwrap();
-//     let rows = &conn
-//         .query(
-//             r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit 
-//                 FROM tableset WHERE table_name=$1 AND is_use=true ORDER BY show_order"#,
-//             &[&table_name],
-//         )
-//         .await
-//         .unwrap();
-
-//     return_fields(rows)
-// }
-
 //返回字段数组，内部辅助函数
 fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
     let mut fields: Vec<FieldsData> = Vec::new();

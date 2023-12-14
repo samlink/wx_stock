@@ -159,6 +159,7 @@ export function set_sumit_shen() {
     sumit_shen.setAttribute('id', 'sumit-shen');
     sumit_shen.classList.add("btn-info");
     sumit_shen.classList.add("btn");
+    sumit_shen.classList.add("btn-sm");
     sumit_shen.classList.add("button-shen");
     sumit_shen.textContent = '提交审核';
     document.querySelector('.fields-show').appendChild(sumit_shen);
