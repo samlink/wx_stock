@@ -174,12 +174,12 @@ export function make_formal(data) {
         notifier.show('请先保存单据', 'danger');
         return false;
     }
-
-    if (document.querySelector('#check-button') &&
-        document.querySelector('#check-button').textContent == "质检") {
-        notifier.show('请先质检, 然后再审核', 'danger');
-        return false;
-    }
+    //
+    // if (document.querySelector('#check-button') &&
+    //     document.querySelector('#check-button').textContent == "质检") {
+    //     notifier.show('请先质检, 然后再审核', 'danger');
+    //     return false;
+    // }
 
     alert_confirm("确认审核吗？", {
         confirmText: "确认",

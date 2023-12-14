@@ -71,29 +71,29 @@ fetch(`/fetch_inout_fields`, {
                         }
                         service.set_shens_owner(set_data);
 
-                        fetch('/fetch_check', {
-                            method: 'post',
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                cate: document_name,
-                                dh: dh_div.textContent,
-                            }),
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                let check = data.split('-');
-                                let chk = document.querySelector('#check-button');
-                                if (check[1] != "") {
-                                    chk.textContent = "已质检";
-                                    chk.classList.add('remembered');
-                                    set_readonly();
-                                } else {
-                                    chk.textContent = "质检";
-                                    chk.classList.remove('remembered');
-                                }
-                            });
+                        // fetch('/fetch_check', {
+                        //     method: 'post',
+                        //     headers: {
+                        //         "Content-Type": "application/json",
+                        //     },
+                        //     body: JSON.stringify({
+                        //         cate: document_name,
+                        //         dh: dh_div.textContent,
+                        //     }),
+                        // })
+                        //     .then(response => response.json())
+                        //     .then(data => {
+                        //         let check = data.split('-');
+                        //         let chk = document.querySelector('#check-button');
+                        //         if (check[1] != "") {
+                        //             chk.textContent = "已质检";
+                        //             chk.classList.add('remembered');
+                        //             set_readonly();
+                        //         } else {
+                        //             chk.textContent = "质检";
+                        //             chk.classList.remove('remembered');
+                        //         }
+                        //     });
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -197,32 +197,15 @@ document.querySelector('#lu_button').addEventListener('click', (e) => {
 
     e.preventDefault();
     lu_upload.click();
-
-    // fetch('/set_lu', {
-    //     method: 'post',
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //     },
-    //     body: lu,
-    // })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data != -1) {
-    //             this.classList.add('remembered');
-    //         }
-    //         else {
-    //             notifier.show('上传质保书出现错误', 'danger');
-    //         }
-    //     })
-
 });
 
 //上传 pdf 文件
-lu_upload.addEventListener('click', () => {
+lu_upload.addEventListener('change', () => {
     let lu_btn = document.querySelector('#lu_button');
+    let lh = document.querySelector('#炉号').value.trim();
     lu_btn.disabled = true;
     const fd = new FormData();
-    fd.append('file', fileBtn.files[0]);
+    fd.append('file', lu_upload.files[0]);
     fetch(`/pdf_in`, {
         method: 'POST',
         body: fd,
@@ -234,20 +217,34 @@ lu_upload.addEventListener('click', () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({
-                    lh: document.querySelector('#炉号').value.trim(),
-                    pdf: content,
-                }),
+                body: JSON.stringify(lh)
             })
                 .then(response => response.json())
                 .then(content => {
                     if (content == -2) {
-                        notifier.show('pdf 保存出错', 'danger');
+                        alert_confirm("炉号质保书已存在, 是否替换？", {
+                            confirmText: "确认",
+                            cancelText: "取消",
+                            confirmCallBack: () => {
+                                fetch(`/pdf_in_save`, {
+                                    method: 'post',
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify(lh + ' ' + "yyy"),
+                                })
+                                    .then(response => response.json())
+                                    .then(content => {
+                                        lu_btn.classList.add('remembered');
+                                        notifier.show('质保书成功保存', 'success');
+                                    });
+                            }
+                        });
                     } else {
-                        lu_btn.disabled = "";
                         lu_btn.classList.add('remembered');
                         notifier.show('质保书成功保存', 'success');
                     }
+                    lu_btn.disabled = "";
                 });
         });
 });
@@ -277,7 +274,6 @@ function build_items(dh) {
             for (let l of lines) {
                 l.addEventListener("dblclick", () => {
                     if (document.querySelector('#remember-button').textContent == '已审核' ||
-                        document.querySelector('#check-button').textContent == '已质检' ||
                         document.querySelector('#save-button').disabled == true) {
                         return false;
                     }
@@ -522,7 +518,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let data = {
         rights: document_bz,
         document: save_str,
-        remember: `${document.querySelector('#remember-button').textContent}${SPLITER}${document.querySelector('#check-button').textContent}`,
+        remember: document.querySelector('#remember-button').textContent,
         items: table_data,
     }
 
@@ -628,43 +624,43 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 });
 
-document.querySelector('#check-button').addEventListener('click', function () {
-    if (this.textContent == "已质检") {
-        return false;
-    }
-
-    let dh = dh_div.textContent;
-    let that = this;
-    if (dh == "新单据") {
-        notifier.show('请先保存单据', 'danger');
-        return false;
-    }
-
-    alert_confirm("确认质检吗？", {
-        confirmText: "确认",
-        cancelText: "取消",
-        confirmCallBack: () => {
-            fetch(`/check_in`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(dh),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        that.textContent = '已质检';
-                        that.classList.add('remembered');
-                        notifier.show('质检完成', 'success');
-                    } else {
-                        notifier.show('权限不够', 'danger');
-
-                    }
-                });
-        }
-    })
-});
+// document.querySelector('#check-button').addEventListener('click', function () {
+//     if (this.textContent == "已质检") {
+//         return false;
+//     }
+//
+//     let dh = dh_div.textContent;
+//     let that = this;
+//     if (dh == "新单据") {
+//         notifier.show('请先保存单据', 'danger');
+//         return false;
+//     }
+//
+//     alert_confirm("确认质检吗？", {
+//         confirmText: "确认",
+//         cancelText: "取消",
+//         confirmCallBack: () => {
+//             fetch(`/check_in`, {
+//                 method: 'post',
+//                 headers: {
+//                     "Content-Type": "application/json",
+//                 },
+//                 body: JSON.stringify(dh),
+//             })
+//                 .then(response => response.json())
+//                 .then(content => {
+//                     if (content != -1) {
+//                         that.textContent = '已质检';
+//                         that.classList.add('remembered');
+//                         notifier.show('质检完成', 'success');
+//                     } else {
+//                         notifier.show('权限不够', 'danger');
+//
+//                     }
+//                 });
+//         }
+//     })
+// });
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {

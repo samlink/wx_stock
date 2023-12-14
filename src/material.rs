@@ -739,25 +739,25 @@ pub async fn fetch_document_items_ck(
     }
 }
 
-//质检
-#[post("/check_in")]
-pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
-    // let user_name = id.identity().unwrap_or("".to_owned());
-    let user = get_user(db.clone(), id.clone(), "入库质检".to_owned()).await;
-
-    if user.name != "" {
-        let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), "入库单据").await;
-        let sql = format!(
-            r#"update documents set {}='{}' WHERE 单号='{}'"#,
-            f_map["质检"], user.name, data
-        );
-        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+// //质检
+// #[post("/check_in")]
+// pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
+//     // let user_name = id.identity().unwrap_or("".to_owned());
+//     let user = get_user(db.clone(), id.clone(), "入库质检".to_owned()).await;
+//
+//     if user.name != "" {
+//         let conn = db.get().await.unwrap();
+//         let f_map = map_fields(db.clone(), "入库单据").await;
+//         let sql = format!(
+//             r#"update documents set {}='{}' WHERE 单号='{}'"#,
+//             f_map["质检"], user.name, data
+//         );
+//         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+//         HttpResponse::Ok().json(1)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
 #[post("/make_formal_in")]
 pub async fn make_formal_in(
@@ -856,15 +856,8 @@ pub async fn fetch_document_rk(
             let rem: bool = row.get("已记账");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields),
-                SPLITER,
-                id,
-                SPLITER,
-                name,
-                SPLITER,
-                rem,
-                SPLITER,
-                cate,
+                simple_string_from_base(row, &fields), SPLITER, id, SPLITER, name,
+                SPLITER, rem, SPLITER, cate,
             );
         }
 
@@ -873,34 +866,34 @@ pub async fn fetch_document_rk(
         HttpResponse::Ok().json(-1)
     }
 }
-
-#[post("/fetch_check")]
-pub async fn fetch_check(
-    db: web::Data<Pool>,
-    data: web::Json<DocumentDh>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), &data.cate).await;
-        let sql = format!(
-            r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#,
-            f_map["审核"], f_map["质检"], data.dh
-        );
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-        let mut check = "".to_owned();
-        for row in rows {
-            let chk: &str = row.get("审核");
-            let chk2: &str = row.get("质检");
-            check = format!("{}-{}", chk, chk2);
-        }
-        HttpResponse::Ok().json(check)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
+//
+// #[post("/fetch_check")]
+// pub async fn fetch_check(
+//     db: web::Data<Pool>,
+//     data: web::Json<DocumentDh>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user_name = id.identity().unwrap_or("".to_owned());
+//     if user_name != "" {
+//         let conn = db.get().await.unwrap();
+//         let f_map = map_fields(db.clone(), &data.cate).await;
+//         let sql = format!(
+//             r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#,
+//             f_map["审核"], f_map["质检"], data.dh
+//         );
+//         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+//
+//         let mut check = "".to_owned();
+//         for row in rows {
+//             let chk: &str = row.get("审核");
+//             let chk2: &str = row.get("质检");
+//             check = format!("{}-{}", chk, chk2);
+//         }
+//         HttpResponse::Ok().json(check)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
 #[post("/fetch_check_stock")]
 pub async fn fetch_check_stock(
@@ -985,11 +978,9 @@ pub async fn pic_in_save(
 pub async fn pdf_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
-        let path = "./upload/pics/coin.jpg".to_owned();
-        let path2 = "./upload/pics/".to_owned();
+        let path = "./upload/pdf/lu.pdf".to_owned();
         save_pic(payload, path.clone()).await.unwrap();
-        let path3 = smaller(path.clone(), path2);
-        HttpResponse::Ok().json(path3)
+        HttpResponse::Ok().json(path)
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -1001,30 +992,21 @@ pub async fn pdf_in_save(
     data: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
-        let da: Vec<&str> = data.split(SPLITER).collect();
-        if da[1] == "/upload/pics/min.jpg" {
-            let pic = format!("/upload/pics/pic_{}.jpg", da[0]);
-            let min_pic = format!("/upload/pics/min_{}.jpg", da[0]);
-            fs::rename("./upload/pics/coin.jpg", format!(".{}", pic)).unwrap();
-            fs::rename(
-                "./upload/pics/min.jpg",
-                format!("./upload/pics/min_{}.jpg", da[0]),
-            )
-                .unwrap();
+        let conn = db.get().await.unwrap();
+        let sql = format!("delete from lu where 炉号 = '{}'", data);
+        let _result = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
-            let conn = db.get().await.unwrap();
-            let f_map = map_fields(db.clone(), "出库单据").await;
-            let sql = format!(
-                r#"update documents set {}='{}' WHERE 单号='{}'"#,
-                f_map["图片"], pic, da[0]
-            );
-            let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-            HttpResponse::Ok().json(min_pic)
-        } else {
-            HttpResponse::Ok().json(-2)
-        }
+        let pdf = format!("/upload/pdf/{}.pdf", data);
+        fs::rename("./upload/pdf/lu.pdf", format!(".{}", pdf)).unwrap();
+
+        let sql = format!(
+            r#"insert into lu (炉号, 质保书) values ('{}', '{}')"#,
+            data, pdf
+        );
+        let _result = &conn.execute(sql.as_str(), &[]).await.unwrap_or(0);
+        HttpResponse::Ok().json(pdf)
     } else {
         HttpResponse::Ok().json(-1)
     }
