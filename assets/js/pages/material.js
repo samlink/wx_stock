@@ -186,6 +186,72 @@ function document_top_handle(html, has_date) {
     });
 }
 
+// 点击上传炉号质保书
+let lu_upload = document.querySelector('#lu_upload');
+document.querySelector('#lu_button').addEventListener('click', (e) => {
+    let lu = document.querySelector('#炉号').value.trim();
+    if (lu == "") {
+        notifier.show('请先输入炉号', 'danger');
+        return false;
+    }
+
+    e.preventDefault();
+    lu_upload.click();
+
+    // fetch('/set_lu', {
+    //     method: 'post',
+    //     headers: {
+    //         "Content-Type": "application/json",
+    //     },
+    //     body: lu,
+    // })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data != -1) {
+    //             this.classList.add('remembered');
+    //         }
+    //         else {
+    //             notifier.show('上传质保书出现错误', 'danger');
+    //         }
+    //     })
+
+});
+
+//上传 pdf 文件
+lu_upload.addEventListener('click', () => {
+    let lu_btn = document.querySelector('#lu_button');
+    lu_btn.disabled = true;
+    const fd = new FormData();
+    fd.append('file', fileBtn.files[0]);
+    fetch(`/pdf_in`, {
+        method: 'POST',
+        body: fd,
+    })
+        .then(res => res.json())
+        .then(content => {
+            fetch(`/pdf_in_save`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    lh: document.querySelector('#炉号').value.trim(),
+                    pdf: content,
+                }),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content == -2) {
+                        notifier.show('pdf 保存出错', 'danger');
+                    } else {
+                        lu_btn.disabled = "";
+                        lu_btn.classList.add('remembered');
+                        notifier.show('质保书成功保存', 'success');
+                    }
+                });
+        });
+});
+
 function build_items(dh) {
     fetch('/get_items', {
         method: 'post',
@@ -244,7 +310,15 @@ show_names = [
     {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "执行标准", width: 120, class: "执行标准", type: "普通输入", editable: false, is_save: true, default: ""},
+    {
+        name: "执行标准",
+        width: 120,
+        class: "执行标准",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        default: ""
+    },
     {name: "生产厂家", width: 80, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "库位", width: 60, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},

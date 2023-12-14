@@ -83,14 +83,46 @@ pub async fn material_auto_out(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0))::integer AS label FROM products
+                || '{}' || {} || '{}' || {} || '{}' || {} || '{}'|| ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN 
-                (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND num='{}' AND {} != '是' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
+        );
+
+        // println!("{}", sql);
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[get("/material_auto_sotckout")]
+pub async fn material_auto_sotckout(
+    db: web::Data<Pool>,
+    search: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = &format!(
+            r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
+                || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || {} || '{}' || {} || '{}' ||
+                ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                FROM products
+                JOIN tree ON products.商品id = tree.num
+                LEFT JOIN
+                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                    ON products.文本字段1 = foo.物料号
+                WHERE LOWER({}) LIKE '%{}%' LIMIT 10"#,
+            f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["执行标准"], SPLITER,
+            f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s
         );
 
         // println!("{}", sql);
@@ -112,10 +144,11 @@ pub async fn material_auto_kt(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
             r#"SELECT num as id, {} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0))::integer AS label FROM products
+                || '{}' || {} || '{}' || {} || '{}' || ({}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN
-                (select 物料号, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
+                (select 物料号, count(物料号) as 切分次数, sum(长度*数量) as 长度合计, sum(理重) as 理重合计 from pout_items group by 物料号) as foo
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER({}) LIKE '%{}%' AND {} != '是' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
@@ -307,7 +340,7 @@ pub async fn get_trans_info(
 
 //获取最近的单号
 #[get("/fetch_max_num")]
-pub async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
+async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
@@ -327,6 +360,28 @@ pub async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
         "".to_owned()
     }
 }
+
+//上传炉号质保书
+#[get("/set_lu")]
+async fn set_lu(db: web::Data<Pool>, lu: String, id: Identity) -> String {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = &format!(
+            r#"insert into lu (炉号, 质保书) values ('{}', '{}')"#, lu, lu
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut num = "".to_owned();
+        for row in rows {
+            num = row.get("num");
+        }
+        num
+    } else {
+        "".to_owned()
+    }
+}
+
 
 // buyin.rs 中相同，需整合
 #[derive(Deserialize, Serialize)]
@@ -892,6 +947,56 @@ pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
 
 #[post("/pic_in_save")]
 pub async fn pic_in_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
+    if user.name != "" {
+        let da: Vec<&str> = data.split(SPLITER).collect();
+        if da[1] == "/upload/pics/min.jpg" {
+            let pic = format!("/upload/pics/pic_{}.jpg", da[0]);
+            let min_pic = format!("/upload/pics/min_{}.jpg", da[0]);
+            fs::rename("./upload/pics/coin.jpg", format!(".{}", pic)).unwrap();
+            fs::rename(
+                "./upload/pics/min.jpg",
+                format!("./upload/pics/min_{}.jpg", da[0]),
+            )
+                .unwrap();
+
+            let conn = db.get().await.unwrap();
+            let f_map = map_fields(db.clone(), "出库单据").await;
+            let sql = format!(
+                r#"update documents set {}='{}' WHERE 单号='{}'"#,
+                f_map["图片"], pic, da[0]
+            );
+            let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            HttpResponse::Ok().json(min_pic)
+        } else {
+            HttpResponse::Ok().json(-2)
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//上传pdf
+#[post("/pdf_in")]
+pub async fn pdf_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let path = "./upload/pics/coin.jpg".to_owned();
+        let path2 = "./upload/pics/".to_owned();
+        save_pic(payload, path.clone()).await.unwrap();
+        let path3 = smaller(path.clone(), path2);
+        HttpResponse::Ok().json(path3)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/pdf_in_save")]
+pub async fn pdf_in_save(
     db: web::Data<Pool>,
     data: web::Json<String>,
     id: Identity,

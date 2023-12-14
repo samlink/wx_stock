@@ -2,7 +2,7 @@ import {notifier} from '../parts/notifier.mjs';
 import {alert_confirm} from '../parts/alert.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move} from '../parts/tools.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move, padZero} from '../parts/tools.mjs';
 import {
     appand_edit_row,
     build_blank_table,
@@ -126,48 +126,54 @@ function document_top_handle(html, has_date) {
 show_names = [
     {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
     {
+        name: "原物料号",
+        width: 60,
+        class: "原物料号",
+        type: "autocomplete",
+        editable: true,
+        is_save: false,
+        no_button: true,
+        default: ""
+    },
+    {
         name: "名称",
         width: 60,
         class: "名称",
-        type: "autocomplete",
-        editable: true,
-        is_save: true,
-        save: "id",
+        type: "普通输入",
+        editable: false,
+        is_save: false,
         default: ""
     },
     {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
     {
         name: "状态",
         width: 80,
         class: "状态",
-        type: "autocomplete",
-        editable: true,
+        type: "普通输入",
+        editable: false,
         is_save: true,
-        no_button: true,
         default: ""
     },
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: true, is_save: true, default: ""},
     {
         name: "执行标准",
         width: 120,
         class: "执行标准",
-        type: "autocomplete",
-        editable: true,
+        type: "普通输入",
+        editable: false,
         is_save: true,
-        save: "value",
-        no_button: true,
+        // save: "value",
+        // no_button: true,
         default: ""
     },
+    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
     {
         name: "生产厂家",
         width: 80,
         class: "生产厂家",
-        type: "autocomplete",
-        editable: true,
+        type: "普通输入",
+        editable: false,
         is_save: true,
-        save: "value",
-        no_button: true,
         default: ""
     },
     {
@@ -181,7 +187,7 @@ show_names = [
         no_button: true,
         default: ""
     },
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: ""},
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
     {
@@ -210,44 +216,30 @@ show_names = [
 table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
 let show_th = [
+    {name: "物料号", width: 60},
     {name: "名称", width: 60},
     {name: "材质", width: 80},
     {name: "规格", width: 80},
     {name: "状态", width: 100},
-    {name: "售价", width: 60},
+    {name: "执行标准", width: 100},
+    {name: "炉号", width: 100},
+    {name: "生产厂家", width: 100},
     {name: "库存长度", width: 80},
-    {name: "库存重量", width: 80},
 ];
 
 let auto_data = [{
     n: 2,
-    cate: document_name,
-    auto_url: `/buyin_auto`,
+    cate: "1",
+    auto_url: `/material_auto_sotckout`,
     show_th: show_th,
     type: "table",
     cb: fill_gg,
 }, {
-    n: 5,
-    cate: "状态",
-    auto_url: `/get_status_auto`,
-    type: "simple",
-}, {
-    n: 7,
-    cate: "执行标准",
-    auto_url: `/get_status_auto`,
-    type: "simple",
-}, {
-    n: 8,
-    cate: "生产厂家",
-    auto_url: `/get_factory_auto`,
-    type: "simple",
-}, {
-    n: 9,
+    n: 10,
     cate: "库位",
     auto_url: `/get_status_auto`,
     type: "simple",
-},
-];
+},];
 
 if (dh_div.textContent == "新单据") {
     let data = {
@@ -303,9 +295,9 @@ function weight(input_row) {
     let data = {
         long: input_row.querySelector('.长度').value.trim(),
         num: 1,
-        name: input_row.querySelector('.auto-input').value.trim(),
+        name: input_row.querySelector('.名称').textContent.trim(),
         cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').value.trim(),
+        gg: input_row.querySelector('.规格').textContent.trim(),
     }
 
     if (regInt.test(data.long) && regInt.test(data.num)) {
@@ -317,8 +309,8 @@ function weight(input_row) {
 
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
-    let n = 3;
-    let num = 3;  //从第 3 列开始填入数据
+    let n = 3;   //从第 3 列开始填入数据
+    let num = 7;  //填充的单元格个数
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
         if (show_names[i].type == "普通输入" && show_names[i].editable) {
@@ -329,7 +321,25 @@ function fill_gg() {
         n++;
     }
 
-    let focus_input = document.querySelector(`.inputting .炉号`);
+    fetch(`/fetch_max_num`, {
+        method: 'get',
+    })
+        .then(response => response.json())
+        .then(content => {
+            //在表内寻找最大值
+            let max_num = content;
+            let nums = document.querySelectorAll('.table-items .has-input .物料号');
+            nums.forEach(num => {
+                let v = Number(num.textContent.replace('M', ''));
+                if (max_num < v) {
+                    max_num = v;
+                }
+            });
+            document.querySelector('.table-items .inputting .物料号').textContent =
+                `M${padZero(max_num + 1, 6)}`;
+        });
+
+    let focus_input = document.querySelector(`.inputting .库位`);
     focus_input.focus();
 
     appand_edit_row();

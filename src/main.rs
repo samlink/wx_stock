@@ -100,6 +100,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::material_auto)
             .service(material::materialout_auto)
             .service(material::material_auto_out)
+            .service(material::material_auto_sotckout)
             .service(material::material_auto_kt)
             .service(material::fetch_document_ck)
             .service(material::get_docs_out)

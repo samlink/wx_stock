@@ -53,7 +53,8 @@ pub async fn fetch_product(
         let fields = get_fields(db.clone(), "商品规格").await;
 
         let sql_fields = "SELECT 文本字段1 as id, 文本字段1, 规格型号,文本字段2,文本字段3,文本字段5,文本字段4,出售价格,整数字段1, 
-                            (COALESCE(切分次数,0) + 整数字段2)::integer as 整数字段2, (整数字段3-COALESCE(长度合计,0))::integer as 整数字段3, 
+                            (COALESCE(切分次数,0) + 整数字段2)::integer as 整数字段2,
+                            (整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer as 整数字段3,
                             round((库存下限-COALESCE(理重合计,0))::numeric,2)::real as 库存下限,
                             文本字段8,库位,文本字段6,文本字段7,备注,".to_owned();
 
@@ -330,7 +331,7 @@ pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> 
                 }
 
                 init += r#"商品id, 单号id) VALUES("#;         // 单号id 是与 documents 单据库的“单号”关联的外键，需有值。这里的值是初始建库时，
-                                                             // 手工 insert into 的单号，所有的数据导入，均以此单号为键
+                // 手工 insert into 的单号，所有的数据导入，均以此单号为键
                 for j in 0..total_rows {
                     let mut sql = init.clone();
 
@@ -356,7 +357,7 @@ pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> 
                         }
                     }
 
-                    sql += &format!("'{}','{}')", p_id,  "KT202312-01");    // 这个单号id 是初始建库时手动 insert into documents 中的，
+                    sql += &format!("'{}','{}')", p_id, "KT202312-01");    // 这个单号id 是初始建库时手动 insert into documents 中的，
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }

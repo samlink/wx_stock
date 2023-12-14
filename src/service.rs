@@ -318,7 +318,7 @@ pub async fn get_limits(user: &UserData) -> String {
     if user.duty == "主管" {
         limits = format!("documents.文本字段7 = '{}' AND", user.area);  // 文本字段7 为 区域
     } else if user.duty == "库管" {
-        limits = format!("documents.文本字段7 = '{}' AND 经办人 = '{}' and", user.area, user.name);  // 文本字段7 为 区域
+        limits = format!("documents.文本字段7 = '{}' AND 经办人 = '{}' AND", user.area, user.name);  // 文本字段7 为 区域
     } else if user.duty == "销售" {
         limits = format!("经办人 = '{}' AND", user.name);
     }

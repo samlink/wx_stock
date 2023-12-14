@@ -534,10 +534,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th class="center" width="8%">材质</th>
         <th class="center" width="6%">规格</th>
         <th class="center" width="10%">状态</th>
-        <th class="center" width="10%">料号</th>
         <th class="center" width="7%">下料长度</th>
         <th class="center" width="3%">支数</th>
         <th class="center" width="7%">总长度</th>
+        <th class="center" width="10%">料号</th>        
         <th class="center" width="8%">重量</th>
         <th class="center" width="8%">剩余长度</th>
         <th class="center" width="8%">备注</th>
@@ -551,15 +551,16 @@ document.querySelector('#print-button').addEventListener('click', function () {
     for (let row of all_rows) {
         trs += '<tr>';
         for (let i = 1; i < 14; i++) {
-            if (i == 6 || i == 10 || i == 11) {
+            if (i == 11 || i == 12) {
                 trs += `<td></td>`;
                 continue;
             }
-            if (i == 12) {
+            if (i == 6) {
                 continue;
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
             let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            console.log(td)
             trs += `<td>${td}</td>`;
         }
         trs += '</tr>';
