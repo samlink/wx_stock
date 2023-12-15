@@ -39,7 +39,7 @@ pub async fn fetch_all_documents(
 
         if cate[0] == "采购查询" {
             doc_cate = "采购单据";
-            doc_sql = "documents.类别 = '材料采购'";
+            doc_sql = "documents.类别 = '材料采购' or documents.类别 = '采购退货'";
         } else if cate[0] == "销售查询" {
             doc_cate = "销售单据";
             doc_sql = "documents.类别 = '商品销售' or documents.类别 = '销售退货'";

@@ -415,7 +415,8 @@ pub async fn fetch_document_items(
 
         let sql = format!(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 单价, 重量, round((单价*重量)::numeric,2)::real as 金额, 备注 FROM document_items 
+                规格, 状态, 单价, round((重量)::numeric,1)::real 重量, round((单价*重量)::numeric,2)::real as 金额, 备注
+                FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh

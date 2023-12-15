@@ -98,18 +98,31 @@ fetch(`/home_statis`, {
 
                 show_reminders(data4);
 
-                //待质检
+                //采购退货未完成
                 let data5 = {
                     content: content[4],
                     lines: fit_lines,
                     reminder: document.querySelector('#show-05 .reminder'),
                     title_holer: document.querySelector('#warn-data3'),
-                    title: `待质检 ${content[4].length} 单`,
-                    more_href: "/change_query_in?s=wait_check",
-                    location: "/material_in/",
+                    title: `采购退货未完成 ${content[4].length} 单`,
+                    more_href: "/buy_query?s=wait_buy_back",
+                    location: "/buy_back/",
                 }
 
                 show_reminders(data5);
+
+                // //待质检
+                // let data5 = {
+                //     content: content[4],
+                //     lines: fit_lines,
+                //     reminder: document.querySelector('#show-05 .reminder'),
+                //     title_holer: document.querySelector('#warn-data3'),
+                //     title: `待质检 ${content[4].length} 单`,
+                //     more_href: "/change_query_in?s=wait_check",
+                //     location: "/material_in/",
+                // }
+                //
+                // show_reminders(data5);
 
                 //未提交审核
                 let data6 = {
@@ -144,6 +157,8 @@ function get_address(cate) {
         address = '/sale_query';
     } else if (cate == "采购入库") {
         address = `/change_query_in`;
+    } else if (cate == "采购退货") {
+        address = `/buy_query`;
     } else if (cate == "销售出库") {
         address = `/change_query_out`;
     } else if (cate == "运输发货") {

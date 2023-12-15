@@ -70,30 +70,6 @@ fetch(`/fetch_inout_fields`, {
                             }
                         }
                         service.set_shens_owner(set_data);
-
-                        // fetch('/fetch_check', {
-                        //     method: 'post',
-                        //     headers: {
-                        //         "Content-Type": "application/json",
-                        //     },
-                        //     body: JSON.stringify({
-                        //         cate: document_name,
-                        //         dh: dh_div.textContent,
-                        //     }),
-                        // })
-                        //     .then(response => response.json())
-                        //     .then(data => {
-                        //         let check = data.split('-');
-                        //         let chk = document.querySelector('#check-button');
-                        //         if (check[1] != "") {
-                        //             chk.textContent = "已质检";
-                        //             chk.classList.add('remembered');
-                        //             set_readonly();
-                        //         } else {
-                        //             chk.textContent = "质检";
-                        //             chk.classList.remove('remembered');
-                        //         }
-                        //     });
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -481,7 +457,6 @@ document.querySelector("#material-add").addEventListener('click', function () {
             build_out_table(data);
             edited = 1;
         });
-
 });
 
 
@@ -686,26 +661,34 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 
 function handle_not_pass() {
     let rows = document.querySelectorAll('.table-items .has-input');
-    let ids = "";
-    rows.forEach(row => {
+    let dh = "";
+    let factory = "";
+    for (let row of rows) {
         if (row.querySelector('.合格').checked == false) {
-            ids += row.querySelector('.物料号').value + "-";
+            factory = row.querySelector('.生产厂家').textContent.trim();
+            dh = document.querySelector('#dh').textContent.trim();
+            break;
         }
-    });
+    }
 
-    if (ids != "") {
+    if (dh != "") {
         fetch(`/handle_not_pass`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(ids.trim('-', "right")),
-        })
-            .then(response => response.json())
+            body: JSON.stringify({
+                cate: factory,
+                dh: dh,
+            })
+        }).then(response => response.json())
             .then(content => {
                 if (content != -1) {
                     alert_confirm("不合格材料已转入退货单 " + content, {
-                        cancelText: "返回",
+                        cancel: false,
+                        confirmText: "返回",
+                        confirmCallBack: () => {
+                        }
                     })
                 }
             });

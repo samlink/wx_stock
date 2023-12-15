@@ -154,6 +154,26 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
     }
 }
 
+///采购退货
+#[get("/buy_back/{dh}")]
+pub async fn buy_back(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "材料采购".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+        let setup = vec!["采购退货", "供应商", "出库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
+
+        user.show = name_show(&user);
+        let html = r2s(|o| buyin(o, user, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 ///商品销售
 #[get("/sale/{dh}")]
 pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {

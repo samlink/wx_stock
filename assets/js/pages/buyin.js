@@ -120,6 +120,14 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function document_top_handle(html, has_date) {
+    if (document_bz == "采购退货") {
+        html = html.replace("到货", "发货");
+        html = html.replace("入库完成</label>", "出库完成</label>");
+    } else if (document_bz == "销售退货") {
+        html = html.replace("交货", "收货");
+        html = html.replace("发货完成</label>", "收货完成</label>");
+    }
+
     if (document.querySelector('.has-auto')) {
         document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
 

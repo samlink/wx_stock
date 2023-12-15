@@ -136,6 +136,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         let address;
         if (cate == "材料采购") {
             address = `/buy_in/`;
+        } else if (cate == "采购退货") {
+            address = '/buy_back/';
         } else if (cate == "商品销售") {
             address = `/sale/`;
         } else if (cate == "销售退货") {
