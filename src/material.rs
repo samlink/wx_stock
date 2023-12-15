@@ -406,7 +406,7 @@ pub async fn save_material(
     // let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
-        let rem: Vec<&str> = data.remember.split(SPLITER).collect();
+        // let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
@@ -612,15 +612,45 @@ pub async fn handle_not_pass(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let not_pass: Vec<&str> = data.split("-").collect();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+
         let conn = db.get().await.unwrap();
-        let sql = format!(
-            r#""#,
+        for num in not_pass {
+            let sql = format!(
+                r#"select 商品id, {} 物料号, {} 规格, {} 状态, {} 炉号, {} 执行标准,
+                        {} 生产厂家, {} 库位, {} 入库长度, {} 理论重量, {} 备注 from products
+                        where {} = '{}' "#,
+                f_map["物料号"], f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"],
+                f_map["生产厂家"], f_map["库位"], f_map["入库长度"], f_map["理论重量"],
+                f_map["备注"], f_map["物料号"], num);
 
-        );
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            let mut np = Vec::new();
+            for row in rows {
+                let 商品id: &str = row.get("商品id");
+                let 物料号: &str = row.get("物料号");
+                let 规格: &str = row.get("规格");
+                let 状态: &str = row.get("状态");
+                let 炉号: &str = row.get("炉号");
+                let 执行标准: &str = row.get("执行标准");
+                let 生产厂家: &str = row.get("生产厂家");
+                let 库位: &str = row.get("库位");
+                let 入库长度: i32 = row.get("入库长度");
+                let 理论重量: f32 = row.get("理论重量");
+                let 备注: &str = row.get("备注");
 
-        // println!("{}", sql);
+                let item = format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}", 商品id, SPLITER, 物料号, SPLITER,
+                                   规格, SPLITER, 状态, SPLITER, 炉号, SPLITER, 执行标准, SPLITER, 生产厂家, SPLITER,
+                                   库位, SPLITER, 入库长度, SPLITER, 理论重量, SPLITER, 备注);
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+                np.push(item);
+
+                let dh = get_dh(db.clone(), "采购退货");
+                let sql = format!("insert into documents () values ()");
+                let sql = format!("insert into document_items () values ()");
+            }
+        }
+
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
