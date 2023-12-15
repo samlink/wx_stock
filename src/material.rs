@@ -404,16 +404,9 @@ pub async fn save_material(
     id: Identity,
 ) -> HttpResponse {
     // let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
-    let user = get_user(db.clone(), id.clone(), "调整库存".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         let rem: Vec<&str> = data.remember.split(SPLITER).collect();
-        if rem[0] == "已审核" {
-            let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
-            if user.name == "" {
-                return HttpResponse::Ok().json(-1);
-            }
-        }
-
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
@@ -476,12 +469,12 @@ pub async fn save_material(
 
             let items_sql = if fields_cate != "库存调入" {
                 format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{},{})
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', {})"#,
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', {})"#,
                     f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
-                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["区域"], f_map["备注"], f_map["顺序"],
-                    dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
-                    value[8], value[9], user.area, value[10], value[0])
+                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["区域"], f_map["合格"], f_map["备注"], f_map["顺序"],
+                    dh, value[12], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
+                    value[8], value[9], user.area, value[10], value[11], value[0])
             } else {
                 format!(
                     r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
@@ -624,11 +617,11 @@ pub async fn fetch_document_items_rk(
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 库位, {} as 物料号, {} as 入库长度,
-                {} as 理论重量, {} as 备注, 商品id FROM products
+                {} as 理论重量, {} 合格, {} as 备注, 商品id FROM products
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY {}"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
-            f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
+            f_map["入库长度"], f_map["理论重量"], f_map["合格"], f_map["备注"], data.dh, f_map["顺序"]
         );
 
         // println!("{}", sql);
@@ -649,12 +642,13 @@ pub async fn fetch_document_items_rk(
             let theary: f32 = row.get("理论重量");
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
-            // let from: String = row.get("来源");
+            let ok: String = row.get("合格");
+            let pass = if ok == "是" { "checked" } else { "" };
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
                 stand, SPLITER, factory, SPLITER, kw, SPLITER, num, SPLITER, long, SPLITER,
-                theary, SPLITER, note, SPLITER, m_id
+                theary, SPLITER, pass, SPLITER, note, SPLITER, m_id
             );
 
             document_items.push(item)
