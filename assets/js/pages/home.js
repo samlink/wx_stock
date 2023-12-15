@@ -89,7 +89,7 @@ fetch(`/home_statis`, {
                         this.reminder.querySelectorAll('li').forEach((li) => {
                             li.addEventListener('click', () => {
                                 let cate = li.textContent.split('　')[0];
-                                let query = "s=wait_shen";
+                                let query = "s=wait_shen" + " " + cate;
                                 window.location.href = `${get_address(cate)}?${query}`;
                             })
                         });
@@ -135,7 +135,7 @@ fetch(`/home_statis`, {
                         this.reminder.querySelectorAll('li').forEach((li) => {
                             li.addEventListener('click', () => {
                                 let cate = li.textContent.split('　')[0];
-                                let query = "s=pre_shen";
+                                let query = "s=pre_shen" + " " + cate;
                                 window.location.href = `${get_address(cate)}?${query}`;
                             })
                         })
@@ -220,7 +220,7 @@ document.querySelector('#warn-tip').addEventListener('click', function () {
 });
 
 document.querySelector('#use-tip').addEventListener('click', function () {
-    window.location.href = `/change_query_in?s=wait_check`;
+    window.location.href = `/buy_query?s=wait_buy_back`;
 });
 
 // setInterval(() => {

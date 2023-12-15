@@ -306,15 +306,25 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             shen.push(item);
         }
 
-        //待质检 ------------------------
+        //采购退货未完成 ------------------------
 
-        let f_map = map_fields(db.clone(), "入库单据").await;
+        let f_map = map_fields(db.clone(), "采购单据").await;
         let mut check = Vec::new();
 
         let sql = format!(
-            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='采购入库' and {} = ''"#,
-            f_map["区域"], limits, f_map["质检"]
+            r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='采购退货' and {} = false"#,
+            f_map["区域"], limits, f_map["入库完成"]
         );
+
+        // //待质检 ------------------------
+        //
+        // let f_map = map_fields(db.clone(), "入库单据").await;
+        // let mut check = Vec::new();
+        //
+        // let sql = format!(
+        //     r#"select 单号, 经办人, {} as 区域 from documents where {} 类别='采购入库' and {} = ''"#,
+        //     f_map["区域"], limits, f_map["质检"]
+        // );
 
         // println!("{}",sql);
 

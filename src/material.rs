@@ -623,9 +623,9 @@ pub async fn handle_not_pass(
 
         let dh = get_dh(db.clone(), "采购退货").await;
         let date = now().strftime("%Y-%m-%d").unwrap().to_string();
-        let sql = format!("insert into documents (单号, 客商id, 日期, 经办人, 类别, 备注)
-                                          values ('{}', {}, '{}', '{}', '采购退货', '不合格品退货')",
-                          dh, cus_id, date, user.name);
+        let sql = format!("insert into documents (单号, 客商id, 日期, 经办人, 类别, 备注, 文本字段7)
+                                          values ('{}', {}, '{}', '{}', '采购退货', '不合格品退货', '{}')",
+                          dh, cus_id, date, user.name, user.area);
 
         let transaction = conn.transaction().await.unwrap();
         transaction.execute(sql.as_str(), &[]).await.unwrap();
