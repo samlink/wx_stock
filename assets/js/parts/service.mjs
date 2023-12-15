@@ -175,12 +175,12 @@ export function make_formal(data) {
         notifier.show('请先保存单据', 'danger');
         return false;
     }
-    //
-    // if (document.querySelector('#check-button') &&
-    //     document.querySelector('#check-button').textContent == "质检") {
-    //     notifier.show('请先质检, 然后再审核', 'danger');
-    //     return false;
-    // }
+
+    if (document.querySelector('#sumit-shen') &&
+        document.querySelector('#sumit-shen').textContent == "提交审核") {
+        notifier.show('该单还未提交审核', 'danger');
+        return false;
+    }
 
     alert_confirm("确认审核吗？", {
         confirmText: "确认",
@@ -198,6 +198,9 @@ export function make_formal(data) {
             })
                 .then(response => response.json())
                 .then(content => {
+                    if (data.after_shen_fun) {
+                        data.after_shen_fun();
+                    }
                     if (content != -1) {
                         data.button.textContent = '已审核';
                         data.button.classList.add('remembered');

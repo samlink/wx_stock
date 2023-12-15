@@ -253,7 +253,7 @@ function build_edit_string(show_names, all_width) {
             if (obj.value) {
                 checked = obj.value;
             } else {
-                checked = obj.default.split('_')[0] == obj.default ? 'checked' : '';
+                checked = '';
             }
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><label class="check-radio">
                                 <input class="has-value ${obj.class}" type="checkbox" ${checked}>

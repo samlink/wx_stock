@@ -320,7 +320,16 @@ show_names = [
     {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
     {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "合格", width: 20, class: "合格", type: "二值选一", value: 'checked', editable: true, is_save: true, default: ""},
+    {
+        name: "合格",
+        width: 20,
+        class: "合格",
+        type: "二值选一",
+        value: 'checked',
+        editable: true,
+        is_save: true,
+        default: ""
+    },
     {
         name: "备注",
         width: 100,
@@ -670,9 +679,38 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         document_name: document_name,
         edited: edited || input_table_outdata.edited,
         readonly_fun: set_readonly,
+        after_shen_fun: handle_not_pass,    //审核后执行的函数
     }
     service.make_formal(formal_data);
 });
+
+function handle_not_pass() {
+    let rows = document.querySelectorAll('.table-items .has-input');
+    let ids = "";
+    rows.forEach(row => {
+        if (row.querySelector('.合格').checked == false) {
+            ids += row.querySelector('.物料号').value + "-";
+        }
+    });
+
+    if (ids != "") {
+        fetch(`/handle_not_pass`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(ids.trim('-', "right")),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    alert_confirm("不合格材料已转入退货单 " + content, {
+                        cancelText: "返回",
+                    })
+                }
+            });
+    }
+}
 
 //共用事件和函数 ---------------------------------------------------------------------
 

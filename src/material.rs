@@ -603,6 +603,30 @@ pub async fn save_material_ck(
     }
 }
 
+#[post("/handle_not_pass")]
+pub async fn handle_not_pass(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let not_pass: Vec<&str> = data.split("-").collect();
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#""#,
+
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取入库单据明细
 #[post("/fetch_document_items_rk")]
 pub async fn fetch_document_items_rk(
