@@ -211,7 +211,7 @@ pub async fn get_status_auto(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!("select distinct products.{} label, '1' as id from products
                         join documents on 单号id = 单号
-                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' order by products.{}",
+                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' order by products.{} limit 10",
                           f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
         autocomplete(db, &sql).await
     } else {

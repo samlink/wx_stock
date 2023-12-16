@@ -1,4 +1,3 @@
-use std::fmt::format;
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
