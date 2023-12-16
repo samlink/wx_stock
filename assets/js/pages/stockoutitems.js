@@ -1,7 +1,7 @@
 import {table_init, fetch_table} from '../parts/table.mjs';
 import {notifier} from '../parts/notifier.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
-import {SPLITER, getHeight} from '../parts/tools.mjs';
+import {SPLITER, getHeight, download_file} from '../parts/tools.mjs';
 
 let get_height = getHeight() - 133;
 let row_num = Math.floor(get_height / 33);
@@ -99,3 +99,26 @@ function blank_row_fn() {
     return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
             <td></td><td></td><td></td><td></td><td></td></tr>`;
 }
+
+document.querySelector('#data-out').addEventListener('click', ()=> {
+    let da1 = document.querySelector('#search-date1').value;
+    let da2 = document.querySelector('#search-date2').value;
+    let name = document.querySelector('#search-fields').value;
+    let data = `${da1}${SPLITER}${da2}${SPLITER}${name}`;
+    fetch(`/stockout_excel`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content != -1) {
+                download_file(`/download/出库明细表.xlsx`);
+                notifier.show('成功导出至 Excel 文件', 'success');
+            } else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+});

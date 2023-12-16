@@ -4,6 +4,7 @@ use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use time::{Duration};
 use serde::{Deserialize};
+use xlsxwriter::{FormatAlignment, Workbook};
 
 #[derive(Deserialize)]
 pub struct StatisData {
@@ -562,6 +563,249 @@ pub async fn get_stockout_items(
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
         HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+struct Fields {
+    name: &'static str,
+    width: i32,
+}
+
+//入库明细导出到 excel
+#[post("/stockin_excel")]
+pub async fn stockin_excel(
+    db: web::Data<Pool>,
+    post_data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "入库明细".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let data: Vec<&str> = post_data.split(SPLITER).collect();
+        let name = data[2].trim().to_lowercase();
+
+        let f_map = map_fields(db.clone(), "入库单据").await;
+        let f_map2 = map_fields(db.clone(), "商品规格").await;
+        // let limits = get_limits(user, f_map).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'OR LOWER(documents.{}) LIKE '%{}%'
+                 OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, f_map2["物料号"], name, name, name, f_map2["状态"], name, f_map2["执行标准"], name, f_map2["生产厂家"],
+                name, f_map2["炉号"], name, f_map["到货日期"], name, f_map["入库日期"], name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select documents.{} 到货日期, documents.{} 入库日期, 单号, split_part(node_name,' ',2) as 名称, products.{} 物料号,
+                 split_part(node_name,' ',1) as 材质, 规格型号 规格, products.{} 状态, products.{} 炉号, products.{}::text 入库长度,
+                 products.{} 执行标准, products.{} 生产厂家, products.{}::text 理论重量, products.备注,
+                 ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from products
+            join documents on products.单号id = documents.单号
+            join tree on tree.num = products.商品id
+            where {}{} and documents.文本字段10 != ''
+            ORDER BY documents.日期 DESC"#,
+            f_map["到货日期"], f_map["入库日期"], f_map2["物料号"], f_map2["状态"], f_map2["炉号"], f_map2["入库长度"],
+            f_map2["执行标准"], f_map2["生产厂家"], f_map2["理论重量"], query_date, query_field,
+        );
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 导出到 Excel
+        let file_name = format!("./download/{}.xlsx", "入库明细表");
+        let wb = Workbook::new(&file_name);
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        let format1 = wb
+            .add_format()
+            .set_align(FormatAlignment::CenterAcross)
+            .set_bold(); //设置格式：居中，加粗
+
+        let format2 = wb.add_format().set_align(FormatAlignment::Center);
+
+        let fields: Vec<Fields> = vec![
+            Fields { name: "序号", width: 6 },
+            Fields { name: "到货日期", width: 12 },
+            Fields { name: "入库日期", width: 12 },
+            Fields { name: "单号", width: 15 },
+            Fields { name: "名称", width: 12 },
+            Fields { name: "物料号", width: 12 },
+            Fields { name: "材质", width: 12 },
+            Fields { name: "规格", width: 12 },
+            Fields { name: "状态", width: 18 },
+            Fields { name: "炉号", width: 18 },
+            Fields { name: "入库长度", width: 10 },
+            Fields { name: "执行标准", width: 18 },
+            Fields { name: "生产厂家", width: 15 },
+            Fields { name: "理论重量", width: 12 },
+            Fields { name: "备注", width: 15 },
+        ];
+
+        let mut n = 0;
+        for f in &fields {
+            sheet
+                .write_string(0, n, &f.name, Some(&format1))
+                .unwrap();
+            sheet
+                .set_column(n, n, f.width.into(), None)
+                .unwrap();
+            n += 1;
+        }
+
+        let mut n = 1u32;
+        for row in rows {
+            let mut m = 0u16;
+            for f in &fields {
+                sheet
+                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .unwrap();
+                m += 1;
+            }
+            n += 1;
+        }
+
+        wb.close().unwrap();
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//出库明细导出到 excel
+#[post("/stockout_excel")]
+pub async fn stockout_excel(
+    db: web::Data<Pool>,
+    post_data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "出库明细".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let data: Vec<&str> = post_data.split(SPLITER).collect();
+        let name = data[2].trim().to_lowercase();
+
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map2 = map_fields(db.clone(), "商品规格").await;
+        // let limits = get_limits(user, f_map).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
+                OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, f_map2["状态"], name, f_map2["炉号"], name,
+                name, f_map["合同编号"], name, f_map["客户"], name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, split_part(node_name,' ',2) as 名称, 物料号,
+                 split_part(node_name,' ',1) as 材质, 规格型号 规格, products.{} 状态, products.{} 炉号, 长度::text, 数量::text, 重量::text,
+                 pout_items.备注, ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号
+            from pout_items
+            join documents on pout_items.单号id = documents.单号
+            join products on pout_items.物料号 = products.文本字段1
+            join customers on documents.客商id = customers.id
+            join tree on tree.num = products.商品id
+            where {}{} and documents.文本字段10 != '' order by documents.日期 DESC"#,
+            f_map["客户"], f_map["合同编号"], f_map2["状态"], f_map2["炉号"],
+            query_date, query_field
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 导出到 Excel
+        let file_name = format!("./download/{}.xlsx", "出库明细表");
+        let wb = Workbook::new(&file_name);
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        let format1 = wb
+            .add_format()
+            .set_align(FormatAlignment::CenterAcross)
+            .set_bold(); //设置格式：居中，加粗
+
+        let format2 = wb.add_format().set_align(FormatAlignment::Center);
+
+        // //设置列宽
+        // sheet.set_column(0, 0, 8.0, None).unwrap();
+        // sheet.set_column(1, 1, 12.0, None).unwrap();
+
+        let fields: Vec<Fields> = vec![
+            Fields { name: "序号", width: 6 },
+            Fields { name: "日期", width: 12 },
+            Fields { name: "公司名称", width: 25 },
+            Fields { name: "合同号", width: 15 },
+            Fields { name: "单号", width: 15 },
+            Fields { name: "物料号", width: 12 },
+            Fields { name: "名称", width: 12 },
+            Fields { name: "材质", width: 12 },
+            Fields { name: "规格", width: 12 },
+            Fields { name: "状态", width: 18 },
+            Fields { name: "炉号", width: 15 },
+            Fields { name: "长度", width: 10 },
+            Fields { name: "数量", width: 10 },
+            Fields { name: "重量", width: 10 },
+            Fields { name: "备注", width: 15 },
+        ];
+
+        let mut n = 0;
+        for f in &fields {
+            sheet
+                .write_string(0, n, &f.name, Some(&format1))
+                .unwrap();
+            sheet
+                .set_column(n, n, f.width.into(), None)
+                .unwrap();
+            n += 1;
+        }
+
+        let mut n = 1u32;
+        for row in rows {
+            let mut m = 0u16;
+            for f in &fields {
+                sheet
+                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .unwrap();
+                m += 1;
+            }
+            n += 1;
+        }
+
+        wb.close().unwrap();
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
