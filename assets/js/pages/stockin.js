@@ -367,7 +367,9 @@ document.querySelector('#save-button').addEventListener('click', function () {
     for (let row of all_rows) {
         if (row.querySelector('.材质').textContent.trim() != "") {
             let save_str = "";
+            save_str = row.querySelector('.原物料号').getAttribute("data").split(SPLITER)[0] + SPLITER;
             save_str += service.build_save_items(0, row, show_names);
+            save_str += row.querySelector('.原物料号').value;
             table_data.push(save_str);
         }
     }
@@ -379,7 +381,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch(`/save_material`, {
         method: 'post',
@@ -418,14 +420,14 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 
 //共用事件和函数 ---------------------------------------------------------------------
 
-//保存、打印和审核前的错误检查
+//错误检查, 用于保存, 打印和审核
 function error_check() {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     service.header_error_check(document_table_fields, all_rows);
 
     for (let row of all_rows) {
         if (row.querySelector('.材质').textContent.trim() != "") {
-            if (row.querySelector('.物料号').value.trim() == "") {
+            if (row.querySelector('.物料号').textContent.trim() == "") {
                 notifier.show(`物料号不能为空`, 'danger');
                 return false;
             }
