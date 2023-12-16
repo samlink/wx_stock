@@ -355,7 +355,7 @@ pub async fn trans_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Ide
 
 #[get("/change_query_in")]
 pub async fn change_query_in(db: web::Data<Pool>, limt: web::Query<Search>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query(o, user, "仓储管理", "入库查询", "products", &limt.s));
@@ -367,7 +367,7 @@ pub async fn change_query_in(db: web::Data<Pool>, limt: web::Query<Search>, id: 
 
 #[get("/change_query_out")]
 pub async fn change_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "出入库查询".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "出库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query(o, user, "仓储管理", "出库查询", "pout_items", &limit.s));
