@@ -619,3 +619,27 @@ export function build_product_table(row_num, cb, more) {
         }
     }
 }
+
+// 业务报表设置起始日期
+export function set_date() {
+    let date1 = document.querySelector('#search-date1');
+    let date2 = document.querySelector('#search-date2');
+
+    var dateTime=new Date();
+    let d1 = dateTime.setDate(dateTime.getDate() - 30);
+    date1.value = new Date(d1).Format("yyyy-MM-dd");
+    date2.value = new Date().Format("yyyy-MM-dd");
+
+    laydate.render({
+        elem: date1,
+        showBottom: false,
+        // theme: 'molv',
+        // value: '2021-05-02'
+        // theme: '#62468d',
+    });
+
+    laydate.render({
+        elem: date2,
+        showBottom: false,
+    });
+}

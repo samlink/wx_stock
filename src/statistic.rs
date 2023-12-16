@@ -832,32 +832,32 @@ pub async fn fetch_business(
             //注意前导空格
             format!(
                 r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, name, name
+                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name, name
             )
         } else {
             "".to_owned()
         };
 
-        let query_date = if data[1] != "" && data[2] != "" {
+        let query_date = if data[0] != "" && data[1] != "" {
             format!(
                 r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#,
-                data[1], data[2]
+                data[0], data[1]
             )
         } else {
             "".to_owned()
         };
 
         let sql = format!(
-            r#"select 日期, 单号, documents.文本字段6 as 合同编号, documents.类别, 应结金额, split_part(node_name,' ',2) as 名称,
+            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额, split_part(node_name,' ',2) as 名称,
                  split_part(node_name,' ',1) as 材质, 规格, 状态, 长度, 数量, 单价, 重量, documents.备注,
                  ROW_NUMBER () OVER (ORDER BY {}) as 序号 from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where {} documents.文本字段10 != '' and customers.名称 = '{}' {}{}
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, limits, data[0], query_field, query_date, post_data.sort, skip, post_data.rec
+            post_data.sort, limits, query_field, query_date, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -869,6 +869,7 @@ pub async fn fetch_business(
             let f1: i64 = row.get("序号");
             let f2: String = row.get("日期");
             let f3: String = row.get("单号");
+            let f31: String = row.get("客户名称");
             let f4: String = row.get("合同编号");
             let f5: String = row.get("类别");
             let f6: f32 = row.get("应结金额");
@@ -883,8 +884,8 @@ pub async fn fetch_business(
             let f15: String = row.get("备注");
 
             let product = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f31, SPLITER, f4, SPLITER, f5, SPLITER,
                 f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
                 f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
             );
@@ -893,13 +894,13 @@ pub async fn fetch_business(
         }
 
         let count_sql = format!(
-            r#"select count(单号) as 记录数, sum(case when 重量=0 and 理重=0 then 单价*数量
-               else 单价*重量 end) as 金额 from document_items
+            r#"select count(单号) as 记录数, COALESCE(sum(case when 重量=0 and 理重=0 then 单价*数量
+               else 单价*重量 end), 0) as 金额 from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where {} documents.文本字段10 != '' customers.名称 = '{}' {}{}"#,
-            limits, data[0], query_field, query_date
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}"#,
+            limits, query_field, query_date
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -916,6 +917,118 @@ pub async fn fetch_business(
         let money2 = format!("{:.*}", 0, money);
 
         HttpResponse::Ok().json((products, count, pages, money2))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//业务往来导出到 excel
+#[post("/business_excel")]
+pub async fn business_excel(
+    db: web::Data<Pool>,
+    post_data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "业务往来".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let data: Vec<&str> = post_data.split(SPLITER).collect();
+        let name = data[2].trim().to_lowercase();
+
+        let limits = get_limits(&user).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额::text, split_part(node_name,' ',2) as 名称,
+                 split_part(node_name,' ',1) as 材质, 规格, 状态, 长度::text, 数量::text, 单价::text, 重量::text, documents.备注,
+                 ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from document_items
+            join documents on documents.单号 = document_items.单号id
+            join customers on documents.客商id = customers.id
+            join tree on tree.num = document_items.商品id
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}
+            ORDER BY documents.日期 DESC"#,
+            limits, query_field, query_date
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 导出到 Excel
+        let file_name = format!("./download/{}.xlsx", "业务往来明细表");
+        let wb = Workbook::new(&file_name);
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        let format1 = wb
+            .add_format()
+            .set_align(FormatAlignment::CenterAcross)
+            .set_bold(); //设置格式：居中，加粗
+
+        let format2 = wb.add_format().set_align(FormatAlignment::Center);
+
+        let fields: Vec<Fields> = vec![
+            Fields { name: "序号", width: 6 },
+            Fields { name: "日期", width: 12 },
+            Fields { name: "单号", width: 15 },
+            Fields { name: "客户名称", width: 25 },
+            Fields { name: "合同编号", width: 15 },
+            Fields { name: "类别", width: 12 },
+            Fields { name: "应结金额", width: 12 },
+            Fields { name: "名称", width: 12 },
+            Fields { name: "材质", width: 12 },
+            Fields { name: "规格", width: 12 },
+            Fields { name: "状态", width: 18 },
+            Fields { name: "长度", width: 10 },
+            Fields { name: "数量", width: 10 },
+            Fields { name: "单价", width: 10 },
+            Fields { name: "重量", width: 10 },
+            Fields { name: "备注", width: 15 },
+        ];
+
+        let mut n = 0;
+        for f in &fields {
+            sheet
+                .write_string(0, n, &f.name, Some(&format1))
+                .unwrap();
+            sheet
+                .set_column(n, n, f.width.into(), None)
+                .unwrap();
+            n += 1;
+        }
+
+        let mut n = 1u32;
+        for row in rows {
+            let mut m = 0u16;
+            for f in &fields {
+                sheet
+                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .unwrap();
+                m += 1;
+            }
+            n += 1;
+        }
+
+        wb.close().unwrap();
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }

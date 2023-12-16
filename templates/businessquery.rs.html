@@ -15,30 +15,18 @@
         <div id="query-show">
             <div class="table-top">
                 <div class="query-search">
-                    <div class="form-input autocomplete">
-                        <input type="text" class="form-control search-input autocomplete" id="search-customer"
-                            placeholder="客户供应商（必填）">
-                    </div>
                     <div class="search-div">
-                        <label class="check-radio"><input type="checkbox" id="checkbox-fields">
-                            <span class="checkmark"></span>
-                        </label>
-                        <input type="text" class="form-control search-input" id="search-fields" placeholder="模糊搜索" disabled />
-                        <label class="check-radio"><input type="checkbox" id="checkbox-date">
-                            <span class="checkmark"></span>
-                        </label>
+                        <input type="text" class="form-control search-input" id="search-fields" placeholder="模糊搜索" />
                         <input type="text" class="form-control search-input date-input" id="search-date1"
-                            placeholder="起始日期" disabled>
+                            placeholder="起始日期">
                         _
                         <input type="text" class="form-control search-input date-input" id="search-date2"
-                            placeholder="终止日期" disabled>
+                            placeholder="终止日期">
                         <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                     </div>
                 </div>
-                <div class="table-tools">
-                    <div class="table-edit">
-                        <button class="btn btn-info btn-sm" id="edit-button">查阅单据</button>
-                    </div>
+                <div class="data-button">
+                    <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
                 </div>
             </div>
 
@@ -48,19 +36,20 @@
                         <tr>
                             <th width="4%">序号</th>
                             <th>日期</th>
-                            <th width="8%">单号</th>
+                            <th width="6%">单号</th>
+                            <th width="10%">客户名称</th>
                             <th>合同编号</th>
                             <th>类别</th>
                             <th>单据金额</th>
                             <th>商品名称</th>
-                            <th width="8%">材质</th>
-                            <th width="8%">规格</th>
-                            <th width="8%">状态</th>
+                            <th width="7%">材质</th>
+                            <th width="7%">规格</th>
+                            <th width="9%">状态</th>
                             <th width="4%">长度</th>
                             <th width="4%">数量</th>
                             <th width="4%">价格</th>
                             <th width="4%">重量</th>
-                            <th width="15%">备注</th>
+                            <th width="10%">备注</th>
                         </tr>
                     </thead>
                     <tbody>

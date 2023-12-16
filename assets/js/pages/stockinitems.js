@@ -2,33 +2,13 @@ import {table_init, fetch_table} from '../parts/table.mjs';
 import {notifier} from '../parts/notifier.mjs';
 import {AutoInput} from '../parts/autocomplete.mjs';
 import {SPLITER, getHeight, download_file} from '../parts/tools.mjs';
+import {set_date} from "../parts/service.mjs";
 
 let get_height = getHeight() - 133;
 let row_num = Math.floor(get_height / 33);
 
 //执行日期实例------------------------------------------------
-
-let date1 = document.querySelector('#search-date1');
-let date2 = document.querySelector('#search-date2');
-
-var dateTime=new Date();
-let d1 = dateTime.setDate(dateTime.getDate() - 30);
-date1.value = new Date(d1).Format("yyyy-MM-dd");
-date2.value = new Date().Format("yyyy-MM-dd");
-
-laydate.render({
-    elem: date1,
-    showBottom: false,
-    // theme: 'molv',
-    // value: '2021-05-02'
-    // theme: '#62468d',
-});
-
-laydate.render({
-    elem: date2,
-    showBottom: false,
-    // theme: 'molv',
-});
+set_date();
 
 //填充表格空行-------------------------------------------------
 let blank_rows = "";
