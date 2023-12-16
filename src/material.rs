@@ -481,9 +481,9 @@ pub async fn save_material(
                     r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
                      VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {}, '{}', '{}')"#,
                     f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
-                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"], f_map["区域"], f_map["原物料号"]
-                    dh, value[0], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9],
-                    value[9], value[10], value[11], value[1], user.area, value[12])  // value[12] 是原物料号
+                    f_map["入库长度"], f_map["库存长度"], f_map["理论重量"], f_map["备注"], f_map["顺序"], f_map["区域"], f_map["原物料号"],
+                    dh, value[11], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8],
+                    value[8], value[9], value[10], value[0], user.area, value[12])  // value[12] 是原物料号
             };
 
             // println!("{}", items_sql);
@@ -664,6 +664,62 @@ pub async fn handle_not_pass(
 }
 
 ///获取入库单据明细
+#[post("/fetch_document_items_tr")]
+pub async fn fetch_document_items_tr(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = format!(
+            r#"select {} 原物料号, split_part(node_name,' ', 2) as 名称, split_part(node_name,' ', 1) as 材质,
+                {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 库位, {} as 物料号, {} as 入库长度,
+                {} as 理论重量, {} as 备注, 商品id FROM products
+                JOIN tree ON 商品id=tree.num
+                WHERE 单号id='{}' ORDER BY {}"#,
+            f_map["原物料号"], f_map["规格"], f_map["状态"], f_map["炉号"], f_map["执行标准"], f_map["生产厂家"], f_map["库位"], f_map["物料号"],
+            f_map["入库长度"], f_map["理论重量"], f_map["备注"], data.dh, f_map["顺序"]
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let origin: String = row.get("原物料号");
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
+            let lu: String = row.get("炉号");
+            let stand: String = row.get("执行标准");
+            let factory: String = row.get("生产厂家");
+            let kw: String = row.get("库位");
+            let num: String = row.get("物料号");
+            let long: i32 = row.get("入库长度");
+            let theary: f32 = row.get("理论重量");
+            let note: String = row.get("备注");
+            let m_id: String = row.get("商品id");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                origin, SPLITER, name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER,
+                stand, SPLITER, factory, SPLITER, kw, SPLITER, num, SPLITER, long, SPLITER,
+                theary, SPLITER, note, SPLITER, m_id
+            );
+
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取采购入库单据明细
 #[post("/fetch_document_items_rk")]
 pub async fn fetch_document_items_rk(
     db: web::Data<Pool>,
@@ -684,7 +740,7 @@ pub async fn fetch_document_items_rk(
             f_map["入库长度"], f_map["理论重量"], f_map["合格"], f_map["备注"], data.dh, f_map["顺序"]
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();

@@ -203,6 +203,11 @@ export function build_items_table(data) {
         for (let i = 1; i < input_data.show_names.length; i++) {
             input_data.show_names[i].value = row_data[i - 1];
         }
+        // 将商品id 加入自动完成的 data 属性, 用于保存
+        // if (input_data.attr_data_func) {
+        //     input_data.attr_data_func(row_data);
+        // }
+
         let input_row = build_input_row(input_data.show_names, all_width, num);
         tbody.appendChild(input_row);
         num += 1;

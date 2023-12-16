@@ -112,6 +112,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::save_material)
             .service(material::save_material_ck)
             .service(material::fetch_document_items_rk)
+            .service(material::fetch_document_items_tr)
             .service(material::fetch_document_items_ck)
             .service(material::handle_not_pass)
             // .service(material::check_in)

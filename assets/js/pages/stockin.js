@@ -51,7 +51,7 @@ fetch(`/fetch_inout_fields`, {
                             readonly_fun: set_readonly,
                             focus_fun: () => {
                                 setTimeout(() => {
-                                    document.querySelector('.table-items tbody .名称').focus();
+                                    document.querySelector('.table-items tbody .原物料号').focus();
                                 }, 200);
                             }
                         }
@@ -255,8 +255,7 @@ if (dh_div.textContent == "新单据") {
     build_blank_table(data);
     appand_edit_row();
 } else {
-    // let url = document_name == "入库单据" ?  : "/fetch_document_items"
-    fetch("/fetch_document_items_rk", {
+    fetch("/fetch_document_items_tr", {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -320,6 +319,8 @@ function fill_gg() {
         }
         n++;
     }
+    // 将商品id 存入最后一个单元格
+    document.querySelector(`.inputting td:last-child`).textContent = field_values[0];
 
     fetch(`/fetch_max_num`, {
         method: 'get',
@@ -367,7 +368,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     for (let row of all_rows) {
         if (row.querySelector('.材质').textContent.trim() != "") {
             let save_str = "";
-            save_str = row.querySelector('.原物料号').getAttribute("data").split(SPLITER)[0] + SPLITER;
+            // save_str = row.querySelector('.原物料号').getAttribute("data").split(SPLITER)[0] + SPLITER;
             save_str += service.build_save_items(0, row, show_names);
             save_str += row.querySelector('.原物料号').value;
             table_data.push(save_str);
@@ -381,7 +382,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_material`, {
         method: 'post',
