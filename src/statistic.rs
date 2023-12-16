@@ -831,9 +831,10 @@ pub async fn fetch_business(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, name, name, name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR
+                LOWER(documents.文本字段6) LIKE '%{}%' OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR
+                LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name, name, name
             )
         } else {
             "".to_owned()
@@ -940,9 +941,10 @@ pub async fn business_excel(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, name, name, name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR
+                LOWER(documents.文本字段6) LIKE '%{}%' OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR
+                LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name, name, name
             )
         } else {
             "".to_owned()
