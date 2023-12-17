@@ -20,6 +20,7 @@
     font-size: 18px;
     //text-align: center;
     margin-bottom: 10px;
+
     img {
       width: 25px;
       margin-right: 10px;
@@ -34,7 +35,18 @@
   }
 
   .print-table {
+    border: 1.5px solid black;
     border-radius: 0;
+
+    th, td {
+      border: 1px solid black;
+    }
+
+    .sum-cell {
+      td {
+        border-bottom: none;
+      }
+    }
   }
 
   .print-foot {

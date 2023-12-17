@@ -572,7 +572,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     let len = 5 - all_rows.length;
     trs += append_blanks(len, 12);
 
-    trs += `<tr><td class="center" colspan="2">合计</td>${append_cells(5)}
+    trs += `<tr class="sum-cell"><td class="center" colspan="2">合计</td>${append_cells(4)}
             <td>${sum}</td><td>${sum_long}</td>${append_cells(4)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
