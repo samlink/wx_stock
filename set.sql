@@ -25,5 +25,7 @@ CREATE TABLE public.lu (
     "质保书" text NOT NULL,
 );
 
-备份单表
+备份还原单表
 pg_dump -U postgres sales -t tableset -f set.sql
+drop table tableset
+psql sales < set.sql
