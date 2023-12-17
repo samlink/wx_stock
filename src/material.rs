@@ -26,13 +26,13 @@ pub async fn material_auto(
             "".to_string()
         };
         let sql = &format!(
-            r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
+            r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND {}=false AND documents.文本字段10 <> '' LIMIT 10"#,
-            format!("customers.{}", f_map2["简称"]),
+            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.文本字段10 <> '' LIMIT 10"#,
+            f_map2["简称"],
             cate_s,
             s,
-            format!("documents.{}", f_map["入库完成"]),
+            f_map["入库完成"],
         );
 
         autocomplete(db, sql).await
@@ -58,13 +58,13 @@ pub async fn materialout_auto(
             "".to_string()
         };
         let sql = &format!(
-            r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
+            r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND {}=false AND {} <> '' LIMIT 10"#,
-            format!("customers.{}", f_map2["简称"]),
+            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.{} <> '' LIMIT 10"#,
+            f_map2["简称"],
             cate_s,
             s,
-            format!("documents.{}", f_map["发货完成"]),
+            f_map["发货完成"],
             f_map["审核"]
         );
 

@@ -342,7 +342,7 @@ pub async fn save_document(
             let comp: bool = row.get("发货完成");
             let f_map2 = map_fields(db.clone(), "出库单据").await;
             let comp_sql = format!(r#"update documents set {} = {} where {}='{}'"#, f_map2["发货完成"], comp, f_map2["销售单号"], dh);
-            &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
+            let _ = &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
         }
 
         HttpResponse::Ok().json(dh)
