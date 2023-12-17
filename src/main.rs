@@ -114,6 +114,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::fetch_document_items_rk)
             .service(material::fetch_document_items_tr)
             .service(material::fetch_document_items_ck)
+            .service(material::materialout_docs)
             .service(material::handle_not_pass)
             .service(material::pic_in)
             .service(material::pic_in_save)

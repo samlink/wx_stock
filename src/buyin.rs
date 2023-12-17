@@ -273,7 +273,7 @@ pub async fn save_document(
         let mut dh = doc_data[1].to_owned();
 
         if dh_data == "新单据" {
-            dh = get_dh(db, doc_data[0]).await;
+            dh = get_dh(db.clone(), doc_data[0]).await;
 
             let mut init = "INSERT INTO documents (单号,".to_owned();
             for f in &fields {
@@ -334,6 +334,16 @@ pub async fn save_document(
         }
 
         let _result = transaction.commit().await;
+
+        if dh_data != "新单据" && fields_cate == "销售单据" {
+            let conn2 = db.get().await.unwrap();
+            let sql = format!(r#"select {} 发货完成 from documents where 单号='{}'"#, f_map["发货完成"], dh);
+            let row = &conn2.query_one(sql.as_str(), &[]).await.unwrap();
+            let comp: bool = row.get("发货完成");
+            let f_map2 = map_fields(db.clone(), "出库单据").await;
+            let comp_sql = format!(r#"update documents set {} = {} where {}='{}'"#, f_map2["发货完成"], comp, f_map2["销售单号"], dh);
+            &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
+        }
 
         HttpResponse::Ok().json(dh)
     } else {

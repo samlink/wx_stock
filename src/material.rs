@@ -73,6 +73,27 @@ pub async fn materialout_auto(
     }
 }
 
+#[post("/materialout_docs")]
+pub async fn materialout_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 AS label FROM documents
+            WHERE 类别='{}' AND {}=false"#,
+            search, f_map["发货完成"],
+        );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[get("/material_auto_out")]
 pub async fn material_auto_out(
     db: web::Data<Pool>,
@@ -652,7 +673,7 @@ pub async fn handle_not_pass(
 
         let sql = format!(
             r#"delete from products where 单号id = '{}' and {}='否'"#,
-           data.dh, f_map["合格"],);
+            data.dh, f_map["合格"], );
 
         transaction.execute(sql.as_str(), &[]).await.unwrap();
         let _result = transaction.commit().await.unwrap();

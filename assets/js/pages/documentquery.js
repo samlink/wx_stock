@@ -158,39 +158,39 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         notifier.show('请先选择单据', 'danger');
     }
 });
-
-//删除按键
-document.querySelector('#del-button').addEventListener('click', function () {
-    let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-
-    let del = {
-        id: id,
-        rights: "记账编辑",
-        base: document.querySelector('#base').textContent,
-    }
-
-    if (id != "") {
-        alert_confirm(`确认删除单据 ${id} 吗？`, {
-            confirmCallBack: () => {
-                fetch(`/documents_del`, {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(del),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != -1) {
-                            search_table();
-                        } else {
-                            notifier.show('权限不够，操作失败', 'danger');
-                        }
-                    });
-            }
-        });
-    } else {
-        notifier.show('请先选择单据', 'danger');
-    }
-});
+//
+// //删除按键
+// document.querySelector('#del-button').addEventListener('click', function () {
+//     let chosed = document.querySelector('tbody .focus');
+//     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+//
+//     let del = {
+//         id: id,
+//         rights: "记账编辑",
+//         base: document.querySelector('#base').textContent,
+//     }
+//
+//     if (id != "") {
+//         alert_confirm(`确认删除单据 ${id} 吗？`, {
+//             confirmCallBack: () => {
+//                 fetch(`/documents_del`, {
+//                     method: 'post',
+//                     headers: {
+//                         "Content-Type": "application/json",
+//                     },
+//                     body: JSON.stringify(del),
+//                 })
+//                     .then(response => response.json())
+//                     .then(content => {
+//                         if (content != -1) {
+//                             search_table();
+//                         } else {
+//                             notifier.show('权限不够，操作失败', 'danger');
+//                         }
+//                     });
+//             }
+//         });
+//     } else {
+//         notifier.show('请先选择单据', 'danger');
+//     }
+// });

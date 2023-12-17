@@ -60,7 +60,7 @@
         }
     }
 
-    .table-history {
+    .table-history, .table-docs {
         width: 320px;
 
         tbody {
@@ -68,7 +68,7 @@
                 cursor: pointer;
             }
             td {
-                text-align: left !important;
+                text-align: left;
                 border: none;
                 // border-: none;
                 // border-bottom: none;

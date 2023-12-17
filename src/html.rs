@@ -307,7 +307,7 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
         } else {
             &*dh_num
         };
-        let setup = vec!["运输发货", "客户", "出库条目", dh, "no_customer"];
+        let setup = vec!["运输发货", "客户", "发货条目", dh, "no_customer"];
         user.show = name_show(&user);
         let html = r2s(|o| saletrans(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)

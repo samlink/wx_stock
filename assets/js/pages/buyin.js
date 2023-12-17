@@ -475,8 +475,11 @@ function fill_gg() {
         // if (product_table_fields[i - 2].ctr_type == "二值选一") {
         //     val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
         // }
-        let row =document.querySelector('.table-items .inputting');
-        calc_weight(row);
+
+        if (document_name == "销售单据") {
+            let row = document.querySelector('.table-items .inputting');
+            calc_weight(row);
+        }
         n++;
     }
 
