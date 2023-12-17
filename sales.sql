@@ -83,7 +83,7 @@ END;
 $$;
 
 
-ALTER FUNCTION public.cut_length() OWNER TO sam;
+ALTER FUNCTION public.cut_length() OWNER TO postgres;
 
 SET default_tablespace = '';
 
