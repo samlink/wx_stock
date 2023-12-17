@@ -351,7 +351,7 @@ async fn fetch_max_num(db: web::Data<Pool>, id: Identity) -> String {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"select max(cast(SUBSTRING('{}', 2, 6) as integer))::text as num from products where {} like 'M%';"#,
+            r#"select max(cast(SUBSTRING({}, 2, 6) as integer))::text as num from products where {} like 'M%';"#,
             f_map["物料号"], f_map["物料号"]
         );
 

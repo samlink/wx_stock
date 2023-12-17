@@ -126,6 +126,9 @@ pub async fn buyin_auto(
         let mut s: Vec<&str> = search.s.split(" ").collect();
         if s.len() == 1 {
             s.push("");
+            s.push("");
+        } else if s.len() == 2 {
+            s.push("");
         }
         let mut cate_s = "".to_owned();
         if search.cate == "销售单据" {
@@ -133,17 +136,15 @@ pub async fn buyin_auto(
         }
 
         let mut sql_fields = "".to_owned();
-        let mut sql_where = "".to_owned();
         for f in &fields {
             sql_fields += &format!("products.{} || '{}' ||", f.field_name, SPLITER);
-            if f.data_type == "文本" {
-                sql_where += &format!("LOWER(products.{}) LIKE '%{}%' OR ", f.field_name, s[1]);
-            }
         }
+
+        let sql_where = format!("LOWER(node_name) LIKE '%{}%' and {} like '%{}%'", s[1].to_lowercase(), f_map["规格"], s[2]);
 
         let str_match = format!(" || '{}' ||", SPLITER);
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
-        sql_where = sql_where.trim_end_matches(" OR ").to_owned();
+        // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = &format!(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
@@ -155,7 +156,7 @@ pub async fn buyin_auto(
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
             SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
-            f_map["理论重量"], cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where,
+            f_map["理论重量"], cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where
         );
 
         // println!("{}", sql);
