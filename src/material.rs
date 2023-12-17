@@ -108,7 +108,7 @@ pub async fn materialin_docs(
         let f_map = map_fields(db.clone(), "采购单据").await;
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 AS label FROM documents
-            WHERE 类别='{}' AND {}=false" AND {} <> ''"#,
+            WHERE 类别='{}' AND {}=false AND {} <> ''"#,
             search, f_map["入库完成"], f_map["审核"]
         );
 

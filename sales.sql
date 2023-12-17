@@ -69,7 +69,7 @@ COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UU
 -- Name: cut_length(); Type: FUNCTION; Schema: public; Owner: sam
 --
 
-CREATE FUNCTION public.cut_length() RETURNS TABLE("物料号" text, "切分次数" bigint, "长度合计" bigint, "理重合计" real)
+CREATE FUNCTION OR REPLACE public.cut_length() RETURNS TABLE("物料号" text, "切分次数" bigint, "长度合计" bigint, "理重合计" real)
     LANGUAGE plpgsql
     AS $$
 BEGIN

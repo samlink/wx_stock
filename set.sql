@@ -24,3 +24,6 @@ CREATE TABLE public.lu (
     "炉号" text PRIMARY KEY NOT NULL,
     "质保书" text NOT NULL,
 );
+
+备份单表
+pg_dump -U postgres sales -t tableset -f set.sql
