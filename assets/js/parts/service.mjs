@@ -620,6 +620,43 @@ export function build_product_table(row_num, cb, more) {
     }
 }
 
+//出入库时，获取单据列表
+export function get_materials_docs(url, cate, build_func) {
+    fetch(url, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(cate),
+    })
+        .then(response => response.json())
+        .then(content => {
+            let tr = "";
+            content.forEach(obj => {
+                tr += `<tr><td>${obj.label}</td></tr>`;
+            });
+
+            document.querySelector(".table-docs tbody").innerHTML = tr;
+
+            let lines = document.querySelectorAll(".table-docs tbody tr");
+            for (let l of lines) {
+                l.addEventListener("dblclick", () => {
+                    if (document.querySelector('#remember-button').textContent == "已审核" ||
+                        document.querySelector('#save-button').disabled == true) {
+                        return false;
+                    }
+                    let dh = l.querySelector('td:nth-child(1)').textContent;
+                    document.querySelector('#文本字段6').value = dh;
+                    build_func(dh);
+                    lines.forEach(l => {
+                        l.classList.remove('has-bak')
+                    })
+                    l.classList.add('has-bak');
+                });
+            }
+        });
+}
+
 // 业务报表设置起始日期
 export function set_date() {
     let date1 = document.querySelector('#search-date1');

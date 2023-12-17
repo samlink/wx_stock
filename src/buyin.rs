@@ -705,8 +705,6 @@ pub async fn save_stransport(
                 dh, value[10], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9], value[0]
             );
 
-            // println!("{}", items_sql);
-
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
         }
 

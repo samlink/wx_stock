@@ -162,6 +162,8 @@ function document_top_handle(html, has_date) {
     });
 }
 
+service.get_materials_docs("/materialin_docs", "材料采购", build_items);
+
 // 点击上传炉号质保书
 let lu_upload = document.querySelector('#lu_upload');
 document.querySelector('#lu_button').addEventListener('click', (e) => {

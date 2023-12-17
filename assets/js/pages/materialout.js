@@ -155,6 +155,8 @@ function document_top_handle(html, has_date) {
     });
 }
 
+service.get_materials_docs("/materialsale_docs", "商品销售", build_items);
+
 let show_th = [
     {name: "物料号", width: 60},
     {name: "名称", width: 60},

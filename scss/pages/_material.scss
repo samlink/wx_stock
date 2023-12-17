@@ -75,4 +75,32 @@
             }
         }
     }
+
+    .documents-show {
+        display: flex;
+        //flex-direction: column;
+        width: 520px;
+        margin-left: 5px;
+        margin-right: 10px;
+
+        div {
+            width: 340px;
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        .table-docs {
+            width: 160px;
+            margin-right: 10px;
+            td {
+                text-align: center;
+            }
+        }
+        tbody {
+            overflow-y: auto;
+        }
+        .has-bak {
+            background-color: $table-hover-color;
+        }
+    }
 }

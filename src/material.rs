@@ -60,11 +60,12 @@ pub async fn materialout_auto(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || {} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND {}=false  LIMIT 10"#,
+            WHERE {} 单号 like '%{}%' AND {}=false AND {} <> '' LIMIT 10"#,
             format!("customers.{}", f_map2["简称"]),
             cate_s,
             s,
             format!("documents.{}", f_map["发货完成"]),
+            f_map["审核"]
         );
 
         autocomplete(db, sql).await
@@ -73,6 +74,7 @@ pub async fn materialout_auto(
     }
 }
 
+// 发货单获得出库单据
 #[post("/materialout_docs")]
 pub async fn materialout_docs(
     db: web::Data<Pool>,
@@ -84,8 +86,52 @@ pub async fn materialout_docs(
         let f_map = map_fields(db.clone(), "出库单据").await;
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 AS label FROM documents
-            WHERE 类别='{}' AND {}=false"#,
-            search, f_map["发货完成"],
+            WHERE 类别='{}' AND {}=false AND {} <> ''"#,
+            search, f_map["发货完成"], f_map["审核"]
+        );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 入库单获得采购单据
+#[post("/materialin_docs")]
+pub async fn materialin_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "采购单据").await;
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 AS label FROM documents
+            WHERE 类别='{}' AND {}=false" AND {} <> ''"#,
+            search, f_map["入库完成"], f_map["审核"]
+        );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 出库单获得销售单据
+#[post("/materialsale_docs")]
+pub async fn materialsale_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 AS label FROM documents
+            WHERE 类别='{}' AND {}=false AND {} <> ''"#,
+            search, f_map["发货完成"], f_map["审核"]
         );
 
         autocomplete(db, sql).await
@@ -761,7 +807,7 @@ pub async fn fetch_document_items_rk(
             f_map["入库长度"], f_map["理论重量"], f_map["合格"], f_map["备注"], data.dh, f_map["顺序"]
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
