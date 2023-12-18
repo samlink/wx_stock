@@ -62,18 +62,20 @@ pub async fn fetch_all_documents(
 
         let mut query_limit = "".to_owned();
         if cate.len() > 1 {
-            query_limit = if cate[1] == "pre_shen" {
-                format!(r#"documents.布尔字段3 = false and documents.类别 = '{}' and"#, &cate[2])
+            query_limit = if cate[1] == "wait_out" {
+                r#"documents.类别='商品销售' and documents.布尔字段1=false and documents.文本字段10 != ''
+                        and 单号 in (select documents.文本字段6 from documents where documents.文本字段6 <>''
+                        and documents.类别='销售出库' and documents.文本字段10 != '') and"#.to_string()
             } else if cate[1] == "wait_shen" {
                 format!("documents.布尔字段3 = true and documents.文本字段10 = '' and documents.类别 = '{}' and", &cate[2])
             } else if cate[1] == "wait_trans" {
-                "documents.类别 = '商品销售' and documents.布尔字段1 = false and".to_owned()
+                "documents.类别 = '商品销售' and documents.布尔字段1 = false and documents.文本字段10 != '' and".to_owned()
             } else if cate[1] == "wait_money" {
-                "documents.类别 = '商品销售' and documents.是否欠款 = true and".to_owned()
+                "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and".to_owned()
             } else if cate[1] == "wait_in" {
-                "documents.类别 = '材料采购' and documents.布尔字段2 = false and".to_owned()
+                "documents.类别 = '材料采购' and documents.布尔字段2 = false and documents.文本字段10 != '' and".to_owned()
             } else if cate[1] == "wait_buy_back" {
-                "documents.类别 = '采购退货' and documents.布尔字段2 = false and".to_owned()
+                "documents.类别 = '采购退货' and documents.布尔字段2 = false and documents.文本字段10 != '' and".to_owned()
             } else {
                 "".to_owned()
             };

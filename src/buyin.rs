@@ -581,7 +581,7 @@ pub async fn fetch_other_documents(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 单号,日期,类别 from documents where 文本字段6 = '{}' or 文本字段4 = '{}' order by 日期 desc"#,
+            r#"select 单号,日期,类别 from documents where (文本字段6 = '{}' or 文本字段4 = '{}') and 文本字段10 <>'' order by 日期 desc"#,
             data, data
         );
 

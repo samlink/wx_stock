@@ -45,7 +45,7 @@ fetch(`/home_statis`, {
                     lines: fit_lines,
                     reminder: reminder,
                     title_holer: document.querySelector('#sale-data'),
-                    title: `销售未收款 ${content[0].length} 单`,
+                    title: `销售待收款 ${content[0].length} 单`,
                     more_href: "/sale_query?s=wait_money",
                     location: "/sale/",
                 }
@@ -58,7 +58,7 @@ fetch(`/home_statis`, {
                     lines: fit_lines,
                     reminder: document.querySelector('#show-02 .reminder'),
                     title_holer: document.querySelector('#sale-data2'),
-                    title: `销售未发货 ${content[1].length} 单`,
+                    title: `销售待发货 ${content[1].length} 单`,
                     more_href: "/sale_query?s=wait_trans",
                     location: "/sale/",
                 }
@@ -71,7 +71,7 @@ fetch(`/home_statis`, {
                     lines: fit_lines,
                     reminder: document.querySelector('#show-03 .reminder'),
                     title_holer: document.querySelector('#buy-data'),
-                    title: `采购未入库 ${content[2].length} 单`,
+                    title: `采购待入库 ${content[2].length} 单`,
                     more_href: "/buy_query?s=wait_in",
                     location: "/buy_in/",
                 }
@@ -111,35 +111,15 @@ fetch(`/home_statis`, {
 
                 show_reminders(data5);
 
-                // //待质检
-                // let data5 = {
-                //     content: content[4],
-                //     lines: fit_lines,
-                //     reminder: document.querySelector('#show-05 .reminder'),
-                //     title_holer: document.querySelector('#warn-data3'),
-                //     title: `待质检 ${content[4].length} 单`,
-                //     more_href: "/change_query_in?s=wait_check",
-                //     location: "/material_in/",
-                // }
-                //
-                // show_reminders(data5);
-
-                //未提交审核
+                //销售待出库
                 let data6 = {
                     content: content[5],
                     lines: fit_lines,
                     reminder: document.querySelector('#show-06 .reminder'),
                     title_holer: document.querySelector('#pre-data'),
-                    title: `未提交审核 ${content[5].length} 类单据`,
-                    alter_func: function () {
-                        this.reminder.querySelectorAll('li').forEach((li) => {
-                            li.addEventListener('click', () => {
-                                let cate = li.textContent.split('　')[0];
-                                let query = "s=pre_shen" + " " + cate;
-                                window.location.href = `${get_address(cate)}?${query}`;
-                            })
-                        })
-                    },
+                    title: `销售待出库 ${content[5].length} 单`,
+                    more_href: "/sale_query?s=wait_out",
+                    location: "/sale/",
                 }
 
                 show_reminders(data6);
@@ -199,7 +179,7 @@ function show_reminders(data) {
     if (!data.alter_func) {
         data.reminder.querySelectorAll('li').forEach((li) => {
             li.addEventListener('click', () => {
-                window.location.href = `${data.location}${li.textContent.split('　')[0]}`;
+                window.location.href = `${data.location}${li.textContent.split(' ')[0]}`;
             })
         });
     } else {
