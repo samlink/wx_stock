@@ -512,3 +512,5 @@ pub fn start_date() -> HttpResponse {
     dotenv().ok();
     HttpResponse::Ok().json(dotenv::var("start").unwrap())
 }
+
+

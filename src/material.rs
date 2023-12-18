@@ -154,7 +154,8 @@ pub async fn material_auto_out(
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}'||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
+                0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
@@ -163,7 +164,7 @@ pub async fn material_auto_out(
                 WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND
                 products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
+            f_map["炉号"], SPLITER, f_map["库存长度"], f_map["库存长度"], f_map["物料号"], search.s, search.ss, f_map["切完"]
         );
 
         // println!("{}", sql);
@@ -187,7 +188,8 @@ pub async fn material_auto_sotckout(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' ||
                 split_part(node_name,' ',1) || '{}' || products.{} || '{}' || products.{} || '{}' ||
                 products.{} || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
+                 0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
@@ -195,7 +197,7 @@ pub async fn material_auto_sotckout(
                     ON products.文本字段1 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, f_map["执行标准"], SPLITER,
-            f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s
+            f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"], f_map["库存长度"], f_map["物料号"], search.s
         );
 
         // println!("{}", sql);
@@ -218,7 +220,8 @@ pub async fn material_auto_kt(
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*3)::integer AS label
+                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
+                 0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
@@ -226,7 +229,7 @@ pub async fn material_auto_kt(
                 ON products.文本字段1 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND documents.文本字段10 !='' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["库存长度"], f_map["物料号"], search.s, f_map["切完"]
+            f_map["库存长度"], f_map["库存长度"], f_map["物料号"], search.s, f_map["切完"]
         );
 
         // println!("{}", sql);
