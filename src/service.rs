@@ -211,6 +211,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
 
 //自动完成
 pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
+    println!("{}", sql);
     let conn = db.get().await.unwrap();
     let rows = &conn.query(sql, &[]).await.unwrap();
 
