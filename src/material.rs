@@ -131,9 +131,9 @@ pub async fn materialsale_docs(
         let f_map2 = map_fields(db.clone(), "出库单据").await;
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 AS label FROM documents
-            WHERE 类别='{}' AND {} <> '' AND 单号 not in
+            WHERE 类别='{}' AND {} <> '' AND {} = false AND 单号 not in
             (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')"#,
-            search, f_map["审核"], f_map2["销售单号"], f_map2["销售单号"], f_map2["审核"]
+            search, f_map["审核"], f_map["发货完成"], f_map2["销售单号"], f_map2["销售单号"], f_map2["审核"]
         );
 
         autocomplete(db, sql).await
