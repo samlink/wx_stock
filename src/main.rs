@@ -1,6 +1,6 @@
 use actix_files as fs;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{web, App, HttpServer};
+use actix_web::{App, HttpServer};
 use config::ConfigError;
 use dotenv::dotenv;
 use serde::Deserialize;
@@ -185,7 +185,7 @@ async fn main() -> std::io::Result<()> {
             .service(service::fetch_help)
             .service(service::serve_download)
             .service(service::start_date)
-            .service(web::resource("static/{name}").to(html::serve_static))
+            // .service(web::resource("static/{name}").to(html::serve_static))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "upload"))
     })

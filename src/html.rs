@@ -3,7 +3,6 @@ use actix_identity::Identity;
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
-use serde::Deserialize;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
 use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
