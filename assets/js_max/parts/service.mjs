@@ -519,7 +519,7 @@ export function build_inout_form(table_fields, data) {
 export function build_product_table(row_num, cb, more) {
     let init_data = {
         container: '.table-product',
-        url: `/fetch_blank`,
+        url: `/fetch_product`,
         post_data: {
             id: "",
             name: '',
@@ -565,15 +565,15 @@ export function build_product_table(row_num, cb, more) {
                 table_init(init_data)
                 fetch_table();
 
-                let data = {
-                    url: `/fetch_product`,
-                }
+                // let data = {
+                //     url: `/fetch_product`,
+                // }
 
                 let post_data = {
                     page: 1,
                 }
 
-                Object.assign(table_data, data);
+                // Object.assign(table_data, data);
                 Object.assign(table_data.post_data, post_data);
             }
         });

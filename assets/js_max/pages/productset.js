@@ -60,21 +60,21 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 service.build_product_table(row_num);
 
-// //增加按键
-// document.querySelector('#add-button').addEventListener('click', function () {
-//     global.eidt_cate = "add";
-//
-//     if (global.product_name != "") {
-//         document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields);
-//         document.querySelector('.modal-title').textContent = global.product_name;
-//         document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
-//         document.querySelector('.modal').style.display = "block";
-//         document.querySelector('.modal-body input').focus();
-//         leave_alert();
-//     } else {
-//         notifier.show('请先选择商品', 'danger');
-//     }
-// });
+//增加按键
+document.querySelector('#add-button').addEventListener('click', function () {
+    global.eidt_cate = "add";
+
+    if (global.product_name != "") {
+        document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields);
+        document.querySelector('.modal-title').textContent = global.product_name;
+        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
+        document.querySelector('.modal').style.display = "block";
+        document.querySelector('.modal-body input').focus();
+        leave_alert();
+    } else {
+        notifier.show('请先选择商品', 'danger');
+    }
+});
 
 //查阅出库按键
 document.querySelector('#find-button').addEventListener('click', function () {
