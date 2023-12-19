@@ -318,9 +318,9 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], n
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9], n
                 )
             } else {
                 format!(
@@ -532,7 +532,7 @@ pub async fn fetch_document_items_sales(
 
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 单价, 长度, 数量, 理重, 重量,
+                规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量,
                 case when 重量=0 and 理重=0 then round((单价*数量)::numeric,2)::real
                 else round((单价*理重)::numeric,2)::real end as 金额, 备注, 商品id
                 FROM document_items
@@ -550,6 +550,7 @@ pub async fn fetch_document_items_sales(
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
             let status: String = row.get("状态");
+            let stand: String = row.get("执行标准");
             let price: f32 = row.get("单价");
             let long: i32 = row.get("长度");
             let num: i32 = row.get("数量");
@@ -559,9 +560,9 @@ pub async fn fetch_document_items_sales(
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, price, SPLITER,
-                long, SPLITER, num, SPLITER, theary, SPLITER, weight, SPLITER,
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER, 
+                price, SPLITER, long, SPLITER, num, SPLITER, theary, SPLITER, weight, SPLITER,
                 money, SPLITER, note, SPLITER, m_id,
             );
 

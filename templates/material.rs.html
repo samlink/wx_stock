@@ -36,6 +36,10 @@
                                 readonly style="width: 120px;">
                         </div>
                         <div class="form-input">
+                            <input class="form-control input-sm material-value" id="执行标准" type="text" placeholder="执行标准"
+                                style="width: 160px;">
+                        </div>
+                        <div class="form-input">
                             <input class="form-control input-sm material-value" id="生产厂家" type="text" placeholder="生产厂家"
                                 readonly style="width: 80px;">
                         </div>
@@ -44,10 +48,6 @@
                                 style="width: 120px;">
                             <button class="btn btn-sm btn-info" id="lu_button">质</button>
                             <input type="file" id="lu_upload" accept="application/pdf" hidden="hidden">
-                        </div>
-                        <div class="form-input autocomplete" style="position: relative">
-                            <input class="form-control input-sm material-value" id="执行标准" type="text" placeholder="执行标准"
-                                style="width: 160px;">
                         </div>
                         <div class="form-input autocomplete" style="position: relative">
                             <input class="form-control input-sm material-value" id="库位" type="text" placeholder="库位"
@@ -61,10 +61,12 @@
                     </div>
                 </div>
                 <div class="buy-buttons">
-                    <div class="has-dh">№: <span id="dh">@setup[3]</span>  <span id="owner"></span></div>
+                    <div class="has-dh">№: <span id="dh">@setup[3]</span> <span id="owner"></span></div>
                     <div class="buttons">
-                        <button class="btn btn-info btn-sm" id="save-button" style="margin-right: 10px; width: 60px;">保存</button>
-                        <button class="btn btn-info btn-sm" id="print-button" style="margin-right: 10px; width: 60px;">打印</button>
+                        <button class="btn btn-info btn-sm" id="save-button"
+                            style="margin-right: 10px; width: 60px;">保存</button>
+                        <button class="btn btn-info btn-sm" id="print-button"
+                            style="margin-right: 10px; width: 60px;">打印</button>
                         <button class="btn btn-info btn-sm" id="remember-button" style="min-width: 60px">审核</button>
                     </div>
                 </div>
@@ -74,9 +76,9 @@
                     <div class="table-container table-docs">
                         <table>
                             <thead>
-                            <tr>
-                                <th>待入库单据</th>
-                            </tr>
+                                <tr>
+                                    <th>待入库单据</th>
+                                </tr>
                             </thead>
                             <tbody>
                             </tbody>
@@ -85,9 +87,9 @@
                     <div class="table-container table-history">
                         <table>
                             <thead>
-                            <tr>
-                                <th>@setup[2]</th>
-                            </tr>
+                                <tr>
+                                    <th>@setup[2]</th>
+                                </tr>
                             </thead>
                             <tbody>
                             </tbody>
