@@ -853,8 +853,9 @@ pub async fn fetch_business(
         };
 
         let sql = format!(
-            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额, split_part(node_name,' ',2) as 名称,
-                 split_part(node_name,' ',1) as 材质, 规格, 状态, 长度, 数量, 单价, 重量, documents.备注,
+            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额, 
+                 split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
+                 规格, 状态, 长度, 数量, 单价, 重量, documents.备注,
                  ROW_NUMBER () OVER (ORDER BY {}) as 序号 from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
@@ -864,7 +865,7 @@ pub async fn fetch_business(
             post_data.sort, limits, query_field, query_date, post_data.sort, skip, post_data.rec
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 

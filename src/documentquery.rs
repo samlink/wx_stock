@@ -69,7 +69,9 @@ pub async fn fetch_all_documents(
             } else if cate[1] == "wait_shen" {
                 format!("documents.布尔字段3 = true and documents.文本字段10 = '' and documents.类别 = '{}' and", &cate[2])
             } else if cate[1] == "wait_trans" {
-                "documents.类别 = '商品销售' and documents.布尔字段1 = false and documents.文本字段10 != '' and".to_owned()
+                "documents.类别 = '商品销售' and documents.布尔字段1 = false and documents.文本字段10 != ''
+                and 单号 in (select documents.文本字段6 from documents where documents.文本字段6 <>''
+                and documents.类别='销售出库' and documents.文本字段10 != '') and".to_owned()
             } else if cate[1] == "wait_money" {
                 "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and".to_owned()
             } else if cate[1] == "wait_in" {
