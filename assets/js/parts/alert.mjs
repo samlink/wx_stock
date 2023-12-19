@@ -1,1 +1,73 @@
-var element,cancelElement,confirmElement,options={cancel:!0,confirmText:"确认",cancelText:"取消",cancelCallBack:()=>{},confirmCallBack:()=>{}};function init(){element=document.querySelector("#roar-alert"),cancelElement=document.querySelector(".roar-alert-message-button-cancel"),confirmElement=document.querySelector(".roar-alert-message-button-confirm"),options.cancel?(cancelElement.innerHTML=options.cancelText,cancelElement.addEventListener("click",(function(){options.cancelCallBack(),element.style.display="none"}))):cancelElement.style.display="none",confirmElement.innerHTML=options.confirmText,confirmElement.addEventListener("click",(function(){options.confirmCallBack(),element.style.display="none"})),document.addEventListener("keydown",(function(event){(event||window.event||arguments.callee.caller.arguments[0])&&"Escape"==event.key&&element&&"block"==element.style.display&&(element.style.display="none")}))}export function alert_confirm(message,optionsA){"object"==typeof optionsA&&Object.assign(options,optionsA),element?(options.cancel?(cancelElement.innerHTML=options.cancelText,cancelElement.addEventListener("click",(function(){options.cancelCallBack(),element.style.display="none"}))):cancelElement.style.display="none",confirmElement.innerHTML=options.confirmText):init(),document.querySelector(".roar-alert-message-content").innerHTML=message,element.style.display="block"}
+/* 确认对话框
+ * roar - v1.0.5 - 2018-05-25
+ * https://getbutterfly.com/roarjs-vanilla-javascript-alert-confirm-replacement/
+ * Copyright (c) 2018 Ciprian Popescu
+ * Licensed GPLv3
+ */
+
+var options = {
+    cancel: true,
+    confirmText: "确认",
+    cancelText: "取消",
+    cancelCallBack: () => { },
+    confirmCallBack: () => { }
+}
+
+var element, cancelElement, confirmElement;
+
+function init() {
+    element = document.querySelector('#roar-alert');
+    cancelElement = document.querySelector('.roar-alert-message-button-cancel');
+    confirmElement = document.querySelector('.roar-alert-message-button-confirm');
+
+    if (!options.cancel) {
+        cancelElement.style.display = 'none';
+    }
+    else {
+        cancelElement.innerHTML = options.cancelText;
+        cancelElement.addEventListener('click', function () {
+            options.cancelCallBack();
+            element.style.display = "none";
+        });
+    }
+
+    confirmElement.innerHTML = options.confirmText;
+    confirmElement.addEventListener('click', function () {
+        options.confirmCallBack();
+        element.style.display = "none";
+    });
+
+    document.addEventListener('keydown', function (event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && event.key == "Escape" && element && element.style.display == "block") {
+            element.style.display = "none";
+        }
+    });
+}
+
+export function alert_confirm(message, optionsA) {
+    if (typeof optionsA === 'object') {
+        Object.assign(options, optionsA);
+    }
+
+    if (!element) {
+        init();
+    }
+    else {
+        if (!options.cancel) {
+            cancelElement.style.display = 'none';
+        }
+        else {
+            cancelElement.innerHTML = options.cancelText;
+            cancelElement.addEventListener('click', function () {
+                options.cancelCallBack();
+                element.style.display = "none";
+            });
+        }
+
+        confirmElement.innerHTML = options.confirmText;
+    }
+
+    document.querySelector('.roar-alert-message-content').innerHTML = message;
+    element.style.display = "block";
+}

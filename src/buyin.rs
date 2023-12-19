@@ -324,9 +324,9 @@ pub async fn save_document(
                 )
             } else {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 单价, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], n
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 重量, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], n
                 )
             };
             // println!("{}", items_sql);
@@ -428,7 +428,8 @@ pub async fn fetch_document_items(
 
         let sql = format!(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 单价, round((重量)::numeric,1)::real 重量, round((单价*重量)::numeric,2)::real as 金额, 备注
+                规格, 状态, 执行标准, 单价, 长度, round((重量)::numeric,1)::real 重量, 
+                round((单价*重量)::numeric,2)::real as 金额, 备注
                 FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
@@ -445,14 +446,16 @@ pub async fn fetch_document_items(
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
             let status: String = row.get("状态");
+            let stand: String = row.get("执行标准");
             let price: f32 = row.get("单价");
+            let long: i32 = row.get("长度");
             let weight: f32 = row.get("重量");
             let money: f32 = row.get("金额");
             let note: String = row.get("备注");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, price, SPLITER,
-                weight, SPLITER, money, SPLITER, note, SPLITER, m_id,
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER, price, SPLITER,
+                long, SPLITER, weight, SPLITER, money, SPLITER, note, SPLITER, m_id,
             );
 
             document_items.push(item)

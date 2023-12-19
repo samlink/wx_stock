@@ -101,7 +101,7 @@ pub async fn materialin_docs(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "采购单据").await;
-        let f_map2 = map_fields(db.clone(), "客户").await;
+        let f_map2 = map_fields(db.clone(), "供应商").await;
 
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
@@ -131,12 +131,11 @@ pub async fn materialsale_docs(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false AND 单号 not in
+            WHERE documents.类别='{}' AND documents.{} <> '' AND 单号 not in
             (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')"#,
             f_map3["简称"],
             search,
             f_map["审核"],
-            f_map["发货完成"],
             f_map2["销售单号"],
             f_map2["销售单号"],
             f_map2["审核"]
@@ -1168,26 +1167,6 @@ pub async fn fetch_document_items_ck(
     }
 }
 
-// //质检
-// #[post(" / check_in")]
-// pub async fn check_in(db: web::Data<Pool>, data: web::Json<String>, id: Identity) -> HttpResponse {
-//     // let user_name = id.identity().unwrap_or("".to_owned());
-//     let user = get_user(db.clone(), id.clone(), "入库质检".to_owned()).await;
-//
-//     if user.name != "" {
-//         let conn = db.get().await.unwrap();
-//         let f_map = map_fields(db.clone(), "入库单据").await;
-//         let sql = format!(
-//             r#"update documents set {} = '{}' WHERE 单号='{}'" # ,
-//             f_map["质检"], user.name, data
-//         );
-//         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-//         HttpResponse::Ok().json(1)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
-
 #[post("/make_formal_in")]
 pub async fn make_formal_in(
     db: web::Data<Pool>,
@@ -1302,34 +1281,6 @@ pub async fn fetch_document_rk(
         HttpResponse::Ok().json(-1)
     }
 }
-//
-// #[post("/fetch_check")]
-// pub async fn fetch_check(
-//     db: web::Data<Pool>,
-//     data: web::Json<DocumentDh>,
-//     id: Identity,
-// ) -> HttpResponse {
-//     let user_name = id.identity().unwrap_or("".to_owned());
-//     if user_name != "" {
-//         let conn = db.get().await.unwrap();
-//         let f_map = map_fields(db.clone(), &data.cate).await;
-//         let sql = format!(
-//             r#"select {} as 审核,{} as 质检 from documents WHERE 单号='{}'"#,
-//             f_map["审核"], f_map["质检"], data.dh
-//         );
-//         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-//
-//         let mut check = "".to_owned();
-//         for row in rows {
-//             let chk: &str = row.get("审核");
-//             let chk2: &str = row.get("质检");
-//             check = format!("{}-{}", chk, chk2);
-//         }
-//         HttpResponse::Ok().json(check)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
 
 #[post("/fetch_check_stock")]
 pub async fn fetch_check_stock(

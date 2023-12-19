@@ -1,1 +1,390 @@
-import{notifier}from"../parts/notifier.mjs";import{alert_confirm}from"../parts/alert.mjs";import{AutoInput}from"../parts/autocomplete.mjs";import*as service from"../parts/service.mjs";import{SPLITER,regInt,regReal,regDate,moneyUppercase,set_key_move}from"../parts/tools.mjs";import{appand_edit_row,build_blank_table,build_items_table,input_table_outdata}from"../parts/edit_table.mjs";let document_table_fields,table_lines,show_names,edited,document_bz=document.querySelector("#document-bz").textContent.trim(),dh_div=document.querySelector("#dh"),document_name="库存调出";function set_readonly(){let all_edit=document.querySelectorAll(".fields-show input");for(let edit of all_edit)"备注"!=edit.id&&(edit.disabled=!0);setTimeout((()=>{document.querySelectorAll(".table-items tbody input").forEach((input=>{input.disabled=!0}))}),100),document.querySelector("#文本字段1").disabled=!0,service.edit_button_disabled()}function document_top_handle(html,has_date){document.querySelector(".fields-show .table-head").innerHTML=html;document.querySelector(".has-auto"),document.querySelector(".has-auto+div");let date=document.querySelector("#日期");has_date||(date.value=(new Date).Format("yyyy-MM-dd")),laydate.render({elem:date,showBottom:!1});let all_input=document.querySelectorAll(".fields-show input"),form=document.querySelector(".fields-show");set_key_move(all_input,form,2),service.set_sumit_shen(),document.querySelector("#sumit-shen").addEventListener("click",(function(){let shen_data={button:this,dh:dh_div.textContent,document_name:document_name,edited:edited||input_table_outdata.edited};service.sumit_shen(shen_data)}))}fetch("/fetch_inout_fields",{method:"post",headers:{"Content-Type":"application/json"},body:JSON.stringify(document_name)}).then((response=>response.json())).then((content=>{if(-1!=content)if(document_table_fields=content,"新单据"!=dh_div.textContent)fetch("/fetch_document",{method:"post",headers:{"Content-Type":"application/json"},body:JSON.stringify({cate:document_name,dh:dh_div.textContent})}).then((response=>response.json())).then((data=>{document_top_handle(service.build_inout_form(document_table_fields,data),!0);let set_data={content:data,readonly_fun:set_readonly,focus_fun:()=>{setTimeout((()=>{document.querySelector(".table-items tbody .物料号").focus()}),200)}};service.set_shens_owner(set_data)}));else{document_top_handle(service.build_inout_form(content),!1),document.querySelector("#remember-button").textContent="审核",setTimeout((()=>{document.querySelector(".table-items tbody .物料号").focus()}),200)}})),show_names=[{name:"序号",width:10,class:"序号",type:"普通输入",editable:!1,is_save:!0,default:""},{name:"物料号",width:60,class:"物料号",type:"autocomplete",editable:!0,is_save:!0,default:""},{name:"名称",width:60,class:"名称",type:"普通输入",editable:!1,is_save:!1,default:""},{name:"材质",width:60,class:"材质",type:"普通输入",editable:!1,is_save:!1,default:""},{name:"规格",width:60,class:"规格",type:"普通输入",editable:!1,is_save:!1,default:""},{name:"状态",width:80,class:"状态",type:"普通输入",editable:!1,is_save:!1,default:""},{name:"出库长度",width:30,class:"长度",type:"普通输入",editable:!0,is_save:!0,default:""},{name:"实际重量",width:30,class:"实际重量",type:"普通输入",editable:!0,is_save:!0,default:""},{name:"理论重量",width:30,class:"理论重量",type:"普通输入",editable:!1,is_save:!0,default:""},{name:"备注",width:100,class:"备注",type:"普通输入",editable:!0,is_save:!0,default:"",css:'style="border-right:none"'},{name:"",width:0,class:"m_id",type:"普通输入",editable:!1,is_save:!0,default:"",css:'style="width:0%; border-left:none; color:white"'}],table_lines=Math.floor((document.querySelector("body").clientHeight-395)/33);let show_th=[{name:"物料号",width:60},{name:"名称",width:60},{name:"材质",width:80},{name:"规格",width:80},{name:"状态",width:100},{name:"库存长度",width:80}],auto_data=[{n:2,cate:"123",auto_url:"/material_auto_kt",show_th:show_th,cb:fill_gg}];if("新单据"==dh_div.textContent){build_blank_table({width:document.querySelector(".content").clientWidth-15,show_names:show_names,lines:table_lines,auto_data:auto_data,dh:dh_div.textContent,document:document_name,calc_func:get_weight}),appand_edit_row()}else fetch("/fetch_document_items_ck",{method:"post",headers:{"Content-Type":"application/json"},body:JSON.stringify({cate:document_name,dh:dh_div.textContent})}).then((response=>response.json())).then((content=>{let data={width:document.querySelector(".content").clientWidth-15,show_names:show_names,rows:content,lines:table_lines,auto_data:auto_data,dh:dh_div.textContent,document:document_name,calc_func:get_weight};build_items_table(data),appand_edit_row()}));function get_weight(input_row){input_row.querySelector(".长度").addEventListener("blur",(function(){weight(input_row)}))}function weight(input_row){let data={long:input_row.querySelector(".长度").value.trim(),num:1,name:input_row.querySelector(".名称").textContent.trim(),cz:input_row.querySelector(".材质").textContent.trim(),gg:input_row.querySelector(".规格").textContent.trim()};regInt.test(data.long)&&regInt.test(data.num)?input_row.querySelector(".理论重量").textContent=service.calc_weight(data):input_row.querySelector(".理论重量").textContent=0}function fill_gg(){let field_values=document.querySelector(".inputting .auto-input").getAttribute("data").split(SPLITER),n=3;for(let i=2;i<6;i++){let val=field_values[i];"普通输入"==show_names[i].type&&show_names[i].editable?document.querySelector(`.inputting td:nth-child(${n}) input`).value=val:"普通输入"!=show_names[i].type||show_names[i].editable||(document.querySelector(`.inputting td:nth-child(${n})`).textContent=val),n++}document.querySelector(".inputting .长度").focus(),appand_edit_row(),edited=!0}function error_check(){let all_rows=document.querySelectorAll(".table-items .has-input");if(!service.header_error_check(document_table_fields,all_rows))return!1;for(let row of all_rows)if(""!=row.querySelector(".材质").textContent.trim()){if(""==row.querySelector(".auto-input").value.trim())return notifier.show("物料号不能为空","danger"),!1;if(row.querySelector(".长度").value&&!regReal.test(row.querySelector(".长度").value))return notifier.show("长度输入错误","danger"),!1;row.querySelector(".长度").value||(row.querySelector(".长度").value=0),""==row.querySelector(".实际重量").textContent.trim()&&(row.querySelector(".实际重量").textContent=0)}return!0}document.querySelector("#save-button").addEventListener("click",(function(){if(!error_check())return!1;let all_values=document.querySelectorAll(".document-value"),save_str=`${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}0${SPLITER}`;save_str+=service.build_save_header(all_values,document_table_fields);let table_data=[],all_rows=document.querySelectorAll(".table-items .has-input");for(let row of all_rows)if(""!=row.querySelector(".材质").textContent.trim()){let len=show_names.length,save_str="";for(let i=0;i<len;i++)if(show_names[i].is_save&&("普通输入"==show_names[i].type||"autocomplete"==show_names[i].type||"下拉列表"==show_names[i].type)){let value=row.querySelector(`.${show_names[i].class}`).value;value||(value=row.querySelector(`.${show_names[i].class}`).textContent),save_str+=`${value.trim()}${SPLITER}`}table_data.push(save_str)}let data={rights:document_bz,document:save_str,remember:document.querySelector("#remember-button").textContent,items:table_data};fetch("/save_material_ck",{method:"post",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then((response=>response.json())).then((content=>{if(-2==content)return notifier.show("物料号有重复，无法保存","danger"),!1;-1!=content?(dh_div.textContent=content,notifier.show("单据保存成功","success"),edited=!1,input_table_outdata.edited=!1):notifier.show("权限不够，操作失败","danger")}))})),document.querySelector("#remember-button").addEventListener("click",(function(){let formal_data={button:this,dh:dh_div.textContent,document_name:document_name,edited:edited||input_table_outdata.edited,readonly_fun:set_readonly};service.make_formal(formal_data)})),window.onbeforeunload=function(e){(edited||input_table_outdata.edited)&&((e=window.event||e).returnValue="编辑未保存提醒")};
+import {notifier} from '../parts/notifier.mjs';
+import {alert_confirm} from '../parts/alert.mjs';
+import {AutoInput} from '../parts/autocomplete.mjs';
+import * as service from '../parts/service.mjs';
+import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move} from '../parts/tools.mjs';
+import {
+    appand_edit_row,
+    build_blank_table,
+    build_items_table,
+    input_table_outdata
+} from '../parts/edit_table.mjs';
+
+let document_table_fields, table_lines, show_names, edited;
+let document_bz = document.querySelector('#document-bz').textContent.trim();
+let dh_div = document.querySelector('#dh');
+
+//单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
+
+let document_name = "库存调出";
+
+//获取单据表头部分的字段（字段设置中的右表内容）
+fetch(`/fetch_inout_fields`, {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify(document_name),
+})
+    .then(response => response.json())
+    .then(content => {
+        if (content != -1) {
+            document_table_fields = content;
+            if (dh_div.textContent != "新单据") {
+                fetch(`/fetch_document`, {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        cate: document_name,
+                        dh: dh_div.textContent,
+                    }),
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = service.build_inout_form(document_table_fields, data);
+                        document_top_handle(html, true);
+
+                        let set_data = {
+                            content: data,
+                            readonly_fun: set_readonly,
+                            focus_fun: () => {
+                                setTimeout(() => {
+                                    document.querySelector('.table-items tbody .物料号').focus();
+                                }, 200);
+                            }
+                        }
+                        service.set_shens_owner(set_data);
+                    });
+            } else {
+                let html = service.build_inout_form(content);
+                document_top_handle(html, false);
+                document.querySelector('#remember-button').textContent = '审核';
+                setTimeout(() => {
+                    document.querySelector('.table-items tbody .物料号').focus();
+                }, 200);
+            }
+        }
+    });
+
+function set_readonly() {
+    let all_edit = document.querySelectorAll('.fields-show input');
+    for (let edit of all_edit) {
+        if (edit.id == "备注") {
+            continue;
+        }
+        edit.disabled = true;
+    }
+
+    setTimeout(() => {
+        document.querySelectorAll('.table-items tbody input').forEach((input) => {
+            input.disabled = true;
+        });
+    }, 100);
+
+    document.querySelector('#文本字段1').disabled = true;
+    service.edit_button_disabled();
+}
+
+function document_top_handle(html, has_date) {
+    let fields_show = document.querySelector('.fields-show .table-head');
+    fields_show.innerHTML = html;
+    let has_auto = document.querySelector('.has-auto');
+    let next_auto = document.querySelector('.has-auto+div');
+
+    let date = document.querySelector('#日期');
+
+    if (!has_date) {
+        date.value = new Date().Format("yyyy-MM-dd");
+    }
+
+    //执行一个laydate实例
+    laydate.render({
+        elem: date,
+        showBottom: false,
+    });
+
+    // 回车和方向键的移动控制
+    let all_input = document.querySelectorAll('.fields-show input');
+    let form = document.querySelector('.fields-show');
+    set_key_move(all_input, form, 2);
+    service.set_sumit_shen();
+    //提交审核
+    document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let shen_data = {
+            button: this,
+            dh: dh_div.textContent,
+            document_name: document_name,
+            edited: edited || input_table_outdata.edited,
+        }
+        service.sumit_shen(shen_data);
+    });
+}
+
+//构建商品规格表字段，字段设置中的右表数据 --------------------------
+
+show_names = [
+    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
+    {
+        name: "物料号",
+        width: 60,
+        class: "物料号",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        default: ""
+    },
+    {name: "名称", width: 60, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false, default: ""},
+    {name: "出库长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: true, is_save: true, default: ""},
+    {name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    {
+        name: "备注",
+        width: 100,
+        class: "备注",
+        type: "普通输入",
+        editable: true,
+        is_save: true,
+        default: "",
+        css: 'style="border-right:none"'
+    },
+    {
+        name: "",
+        width: 0,
+        class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        default: "",
+        css: 'style="width:0%; border-left:none; color:white"',
+    }, //此列不可省略
+];
+
+//计算表格行数，33 为 lineHeight （行高）
+table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
+
+let show_th = [
+    {name: "物料号", width: 60},
+    {name: "名称", width: 60},
+    {name: "材质", width: 80},
+    {name: "规格", width: 80},
+    {name: "状态", width: 100},
+    {name: "库存长度", width: 80},
+];
+
+let auto_data = [{
+    n: 2,
+    cate: "123",
+    auto_url: `/material_auto_kt`,
+    show_th: show_th,
+    cb: fill_gg,
+}];
+
+if (dh_div.textContent == "新单据") {
+    let data = {
+        width: document.querySelector('.content').clientWidth - 15,
+        show_names: show_names,
+        lines: table_lines,
+        auto_data: auto_data,
+        dh: dh_div.textContent,
+        document: document_name,
+        calc_func: get_weight,
+    }
+
+    build_blank_table(data);
+    appand_edit_row();
+} else {
+    // let url = document_name == "入库单据" ?  : "/fetch_document_items"
+    fetch("/fetch_document_items_ck", {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+            cate: document_name,
+            dh: dh_div.textContent,
+        }),
+    })
+        .then(response => response.json())
+        .then(content => {
+            let data = {
+                width: document.querySelector('.content').clientWidth - 15,
+                show_names: show_names,
+                rows: content,
+                lines: table_lines,
+                auto_data: auto_data,
+                dh: dh_div.textContent,
+                document: document_name,
+                calc_func: get_weight,
+            }
+
+            build_items_table(data);
+            appand_edit_row();
+        });
+}
+
+function get_weight(input_row) {
+    input_row.querySelector('.长度').addEventListener('blur', function () {
+        weight(input_row);
+    });
+}
+
+// 理论重量计算
+function weight(input_row) {
+    let data = {
+        long: input_row.querySelector('.长度').value.trim(),
+        num: 1,
+        name: input_row.querySelector('.名称').textContent.trim(),
+        cz: input_row.querySelector('.材质').textContent.trim(),
+        gg: input_row.querySelector('.规格').textContent.trim(),
+    }
+
+    if (regInt.test(data.long) && regInt.test(data.num)) {
+        input_row.querySelector('.理论重量').textContent = service.calc_weight(data);
+    } else {
+        input_row.querySelector('.理论重量').textContent = 0;
+    }
+}
+
+function fill_gg() {
+    let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
+    let n = 3;    //从第 3 列开始填入数据
+    let num = 4;  // 填充个数
+    for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
+        let val = field_values[i];
+        if (show_names[i].type == "普通输入" && show_names[i].editable) {
+            document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
+        } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {
+            document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
+        }
+        n++;
+    }
+
+    let focus_input = document.querySelector(`.inputting .长度`);
+    focus_input.focus();
+
+    appand_edit_row();
+    edited = true;
+}
+
+//保存、打印、质检、审核 -------------------------------------------------------------------
+
+//保存
+document.querySelector('#save-button').addEventListener('click', function () {
+    //错误勘察
+    if (!error_check()) {
+        return false;
+    }
+
+    let all_values = document.querySelectorAll('.document-value');
+
+    //构建表头存储字符串，将存入单据中
+    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}0${SPLITER}`;   // 0 是本公司id, 后台需保存 客商id
+    save_str += service.build_save_header(all_values, document_table_fields);
+
+    // 构建字符串数组，将存入单据明细中
+    let table_data = [];
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    for (let row of all_rows) {
+        if (row.querySelector('.材质').textContent.trim() != "") {
+            let len = show_names.length;
+            let save_str = ``;
+
+            for (let i = 0; i < len; i++) {
+                if (show_names[i].is_save) {
+                    if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                        let value = row.querySelector(`.${show_names[i].class}`).value;
+                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
+                        save_str += `${value.trim()}${SPLITER}`;
+                    }
+                }
+            }
+
+            table_data.push(save_str);
+        }
+    }
+
+    let data = {
+        rights: document_bz,
+        document: save_str,
+        remember: document.querySelector('#remember-button').textContent,
+        items: table_data,
+    }
+
+    // console.log(data);
+
+    fetch(`/save_material_ck`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == -2) {
+                notifier.show('物料号有重复，无法保存', 'danger');
+                return false;
+            } else if (content != -1) {
+                dh_div.textContent = content;
+                notifier.show('单据保存成功', 'success');
+                edited = false;
+                input_table_outdata.edited = false;
+            } else {
+                notifier.show('权限不够，操作失败', 'danger');
+            }
+        });
+});
+
+//审核单据
+document.querySelector('#remember-button').addEventListener('click', function () {
+    let formal_data = {
+        button: this,
+        dh: dh_div.textContent,
+        document_name: document_name,
+        edited: edited || input_table_outdata.edited,
+        readonly_fun: set_readonly,
+    }
+    service.make_formal(formal_data);
+});
+
+//共用事件和函数 ---------------------------------------------------------------------
+
+//保存、打印和审核前的错误检查
+function error_check() {
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    if (!service.header_error_check(document_table_fields, all_rows)) {
+        return false;
+    }
+    for (let row of all_rows) {
+        if (row.querySelector('.材质').textContent.trim() != "") {
+            if (row.querySelector('.auto-input').value.trim() == "") {
+                notifier.show(`物料号不能为空`, 'danger');
+                return false;
+            }
+
+            if (row.querySelector('.长度').value && !regReal.test(row.querySelector('.长度').value)) {
+                notifier.show(`长度输入错误`, 'danger');
+                return false;
+            } else if (!row.querySelector('.长度').value) {
+                row.querySelector('.长度').value = 0;
+            }
+
+            if (row.querySelector('.实际重量').textContent.trim() == "") {
+                row.querySelector('.实际重量').textContent = 0;
+            }
+        }
+    }
+    return true;
+}
+
+window.onbeforeunload = function (e) {
+    if (edited || input_table_outdata.edited) {
+        var e = window.event || e;
+        e.returnValue = ("编辑未保存提醒");
+    }
+}
