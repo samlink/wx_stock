@@ -646,7 +646,7 @@ export function get_materials_docs(url, cate, build_func) {
                         document.querySelector('#save-button').disabled == true) {
                         return false;
                     }
-                    let dh = l.querySelector('td:nth-child(1)').textContent;
+                    let dh = l.querySelector('td:nth-child(1)').textContent.split('　')[0];
                     document.querySelector('#文本字段6').value = dh;
                     build_func(dh);
                     lines.forEach(l => {

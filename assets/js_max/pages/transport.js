@@ -460,7 +460,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th width="6%">理论重量</th>
         <th width="6%">实际重量</th>
         <th width="5%">单价<br>(元/kg)</th>
-        <th width="6%">总价</th>
+        <th width="8%">总价</th>
         <th width="8%">备注</th>
     </tr>`;
 
@@ -493,7 +493,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
                               <td>${sum_weight}</td><td></td><td>${sum_money}</td><td></td>`;
 
         trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money)}</td>`;
-        trs += `<tr style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
+        trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
 
         document.querySelector('.print-table tbody').innerHTML = trs;
 
