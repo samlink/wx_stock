@@ -8,7 +8,7 @@
 
 4. 将 assets/js 文件夹改为发布状态，即 js 改名为 js_max, min 改名为 js
 
-5. push 到 hithub 上的 五星石油 分支
+5. push 到 github 上的 五星石油 分支
 
 6. 如果修改了 html 和 rs 文件, 需要重新编译, 则登录到本地 FreeBSD 的虚拟机, 进入 programs/sales 目录, pull 五星石油分支：
     git pull origin 五星石油 
