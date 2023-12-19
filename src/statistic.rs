@@ -865,7 +865,7 @@ pub async fn fetch_business(
             post_data.sort, limits, query_field, query_date, post_data.sort, skip, post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
