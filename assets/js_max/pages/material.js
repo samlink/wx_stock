@@ -264,14 +264,8 @@ function build_items(dh) {
                     document.querySelector('#生产厂家').value = na[4];
                     document.querySelector('#执行标准').value = na[5];
                     document.querySelector('#炉号').focus();
-                    // let fa = document.querySelector("#文本字段6").value;
-                    // let fac;
-                    // if (fa.split('　')[1]) {
-                    //     fac = fa.split('　')[1];
-                    // } else {
-                    //     fac = document.querySelector('.table-items tbody>tr .生产厂家').textContent;
-                    // }
-                    // document.querySelector('#生产厂家').value = fac;
+                    // document.querySelector("#文本字段6").click();
+
                 })
             }
         });

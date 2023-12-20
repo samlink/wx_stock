@@ -653,6 +653,7 @@ export function get_materials_docs(url, cate, build_func) {
                         l.classList.remove('has-bak')
                     })
                     l.classList.add('has-bak');
+                    document.querySelector('#文本字段6').focus();
                 });
             }
         });

@@ -35,6 +35,7 @@ let init_data = {
         "出库日期": "documents.日期",
         "出库单号": "documents.单号",
         "合同号": "documents.文本字段5",
+        "销售单号": "documents.文本字段6",
         "公司名称": "documents.文本字段4",
         "名称": "split_part(node_name,' ',2)",
         "物料号": "products.文本字段1",
@@ -72,14 +73,15 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 function row_fn(tr) {
     let row = tr.split(SPLITER);
-    return `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
-            <td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td><td>${row[9]}</td><td>${row[10]}</td>
-            <td>${row[11]}</td><td>${row[12]}</td><td>${row[13]}</td><td>${row[14]}</td></tr>`;
+    return `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td>
+            <td>${row[5]}</td><td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td><td>${row[9]}</td>
+            <td>${row[10]}</td><td>${row[11]}</td><td>${row[12]}</td><td>${row[13]}</td><td>${row[14]}</td>
+            <td>${row[15]}</td></tr>`;
 }
 
 function blank_row_fn() {
     return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            <td></td><td></td><td></td><td></td><td></td></tr>`;
+            <td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
 }
 
 document.querySelector('#data-out').addEventListener('click', ()=> {

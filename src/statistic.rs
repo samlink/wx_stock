@@ -501,8 +501,9 @@ pub async fn get_stockout_items(
         };
 
         let sql = format!(
-            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, split_part(node_name,' ',2) as 名称, 物料号,
-                 split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态, products.{} 炉号, 长度, 数量, 重量,
+            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, documents.{} 销售单号,
+                 split_part(node_name,' ',2) as 名称, 物料号, split_part(node_name,' ',1) as 材质, 
+                 规格型号, products.{} 状态, products.{} 炉号, 长度, 数量, 重量,
                  pout_items.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
             from pout_items
             join documents on pout_items.单号id = documents.单号
@@ -510,7 +511,7 @@ pub async fn get_stockout_items(
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
-            f_map["客户"], f_map["合同编号"], f_map2["状态"], f_map2["炉号"], post_data.sort,
+            f_map["客户"], f_map["合同编号"], f_map["销售单号"], f_map2["状态"], f_map2["炉号"], post_data.sort,
             query_date, query_field, post_data.sort, skip, post_data.rec
         );
 
@@ -535,12 +536,13 @@ pub async fn get_stockout_items(
             let f13: i32 = row.get("数量");
             let f14: f32 = row.get("重量");
             let f15: &str = row.get("备注");
+            let f16: &str = row.get("销售单号");
 
             let product = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
-                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
-                f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+                f16, SPLITER, f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, 
+                f10, SPLITER, f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
             );
 
             products.push(product);
