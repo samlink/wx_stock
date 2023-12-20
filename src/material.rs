@@ -67,7 +67,7 @@ pub async fn materialout_auto(
     }
 }
 
-// 发货单获得出库单据
+// 发货单获得销售单据
 #[post("/materialout_docs")]
 pub async fn materialout_docs(
     db: web::Data<Pool>,
@@ -76,16 +76,25 @@ pub async fn materialout_docs(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
-        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map = map_fields(db.clone(), "销售单据").await;
         let f_map2 = map_fields(db.clone(), "客户").await;
+        let f_map3 = map_fields(db.clone(), "出库单据").await;
+
         let limit = get_limits(&user).await;
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
-            join customers on 客商id = customers.id
-            WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} in
-            (select 单号 from documents where 布尔字段1 = false and 类别='商品销售' and  文本字段10 <> '')
+            join customers on 客商id = customers.id            
+            WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')
             "#,
-            f_map2["简称"], limit, search, f_map["审核"], f_map["销售单号"]
+            f_map2["简称"],
+            limit,
+            search,
+            f_map["审核"],
+            f_map["发货完成"],
+            f_map3["销售单号"],
+            f_map3["销售单号"],
+            f_map3["审核"]
         );
 
         // println!("{}", sql);
@@ -454,19 +463,14 @@ pub async fn get_trans_info(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map = map_fields(db.clone(), "销售单据").await;
         let f_map2 = map_fields(db.clone(), "客户").await;
         let sql = &format!(
-            r#"SELECT documents.{} as 销售单号, documents.{} as 合同编号, 名称, customers.{} 联系人, customers.{} 电话,
+            r#"SELECT documents.{} as 合同编号, 名称, customers.{} 联系人, customers.{} 电话,
             customers.{} 公司地址 from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
-            f_map["销售单号"],
-            f_map["合同编号"],
-            f_map2["收货人"],
-            f_map2["收货电话"],
-            f_map2["收货地址"],
-            data
+            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], data
         );
 
         // println!("{}", sql);
@@ -474,15 +478,14 @@ pub async fn get_trans_info(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut item = "".to_owned();
         for row in rows {
-            let sale: &str = row.get("销售单号");
             let num: &str = row.get("合同编号");
             let name: &str = row.get("名称");
             let contact: &str = row.get("联系人");
             let tel: &str = row.get("电话");
             let addr: &str = row.get("公司地址");
             item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}",
-                num, SPLITER, name, SPLITER, contact, SPLITER, tel, SPLITER, addr, SPLITER, sale
+                "{}{}{}{}{}{}{}{}{}",
+                num, SPLITER, name, SPLITER, contact, SPLITER, tel, SPLITER, addr
             );
         }
         HttpResponse::Ok().json(item)

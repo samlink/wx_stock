@@ -140,7 +140,12 @@ pub async fn buyin_auto(
             sql_fields += &format!("products.{} || '{}' ||", f.field_name, SPLITER);
         }
 
-        let sql_where = format!("LOWER(node_name) LIKE '%{}%' and {} like '%{}%'", s[1].to_lowercase(), f_map["规格"], s[2]);
+        let sql_where = format!(
+            "LOWER(node_name) LIKE '%{}%' and {} like '%{}%'",
+            s[1].to_lowercase(),
+            f_map["规格"],
+            s[2]
+        );
 
         let str_match = format!(" || '{}' ||", SPLITER);
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
@@ -156,8 +161,20 @@ pub async fn buyin_auto(
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
                  (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
-            SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
-            f_map["理论重量"], cate_s, f_map["库存长度"], s[0].to_lowercase(), s[0].to_lowercase(), sql_where
+            SPLITER,
+            SPLITER,
+            sql_fields,
+            SPLITER,
+            f_map["售价"],
+            SPLITER,
+            f_map["库存长度"],
+            SPLITER,
+            f_map["理论重量"],
+            cate_s,
+            f_map["库存长度"],
+            s[0].to_lowercase(),
+            s[0].to_lowercase(),
+            sql_where
         );
 
         // println!("{}", sql);
@@ -296,7 +313,13 @@ pub async fn save_document(
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
                 "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-                doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
+                doc_data[2],
+                doc_data[0],
+                f_map["经办人"],
+                doc_data[3],
+                f_map["区域"],
+                user.area,
+                dh
             );
         }
 
@@ -319,13 +342,33 @@ pub async fn save_document(
                 format!(
                     r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
                      VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9], n
+                    dh,
+                    value[0],
+                    value[1],
+                    value[2],
+                    value[3],
+                    value[4],
+                    value[5],
+                    value[6],
+                    value[7],
+                    value[8],
+                    value[9],
+                    n
                 )
             } else {
                 format!(
                     r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 重量, 备注, 顺序) 
                      VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6], value[7], n
+                    dh,
+                    value[0],
+                    value[1],
+                    value[2],
+                    value[3],
+                    value[4],
+                    value[5],
+                    value[6],
+                    value[7],
+                    n
                 )
             };
             // println!("{}", items_sql);
@@ -338,11 +381,17 @@ pub async fn save_document(
 
         if dh_data != "新单据" && fields_cate == "销售单据" {
             let conn2 = db.get().await.unwrap();
-            let sql = format!(r#"select {} 发货完成 from documents where 单号='{}'"#, f_map["发货完成"], dh);
+            let sql = format!(
+                r#"select {} 发货完成 from documents where 单号='{}'"#,
+                f_map["发货完成"], dh
+            );
             let row = &conn2.query_one(sql.as_str(), &[]).await.unwrap();
             let comp: bool = row.get("发货完成");
             let f_map2 = map_fields(db.clone(), "出库单据").await;
-            let comp_sql = format!(r#"update documents set {} = {} where {}='{}'"#, f_map2["发货完成"], comp, f_map2["销售单号"], dh);
+            let comp_sql = format!(
+                r#"update documents set {} = {} where {}='{}'"#,
+                f_map2["发货完成"], comp, f_map2["销售单号"], dh
+            );
             let _ = &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
         }
 
@@ -403,8 +452,17 @@ pub async fn fetch_document(
             let worker: &str = row.get("经办人");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields), SPLITER, sumit_shen, SPLITER, id, SPLITER, name, SPLITER,
-                rem, SPLITER, worker,
+                simple_string_from_base(row, &fields),
+                SPLITER,
+                sumit_shen,
+                SPLITER,
+                id,
+                SPLITER,
+                name,
+                SPLITER,
+                rem,
+                SPLITER,
+                worker,
             );
         }
 
@@ -453,8 +511,27 @@ pub async fn fetch_document_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER, price, SPLITER,
-                long, SPLITER, weight, SPLITER, money, SPLITER, note, SPLITER, m_id,
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                stand,
+                SPLITER,
+                price,
+                SPLITER,
+                long,
+                SPLITER,
+                weight,
+                SPLITER,
+                money,
+                SPLITER,
+                note,
+                SPLITER,
+                m_id,
             );
 
             document_items.push(item)
@@ -505,8 +582,31 @@ pub async fn fetch_trans_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long, SPLITER, num, SPLITER,
-                theory, SPLITER, weight, SPLITER, price, SPLITER, money, SPLITER, note, SPLITER, m_id,
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                lu,
+                SPLITER,
+                long,
+                SPLITER,
+                num,
+                SPLITER,
+                theory,
+                SPLITER,
+                weight,
+                SPLITER,
+                price,
+                SPLITER,
+                money,
+                SPLITER,
+                note,
+                SPLITER,
+                m_id,
             );
 
             document_items.push(item)
@@ -560,9 +660,31 @@ pub async fn fetch_document_items_sales(
             let m_id: String = row.get("商品id");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER, 
-                price, SPLITER, long, SPLITER, num, SPLITER, theary, SPLITER, weight, SPLITER,
-                money, SPLITER, note, SPLITER, m_id,
+                name,
+                SPLITER,
+                cz,
+                SPLITER,
+                gg,
+                SPLITER,
+                status,
+                SPLITER,
+                stand,
+                SPLITER,
+                price,
+                SPLITER,
+                long,
+                SPLITER,
+                num,
+                SPLITER,
+                theary,
+                SPLITER,
+                weight,
+                SPLITER,
+                money,
+                SPLITER,
+                note,
+                SPLITER,
+                m_id,
             );
 
             document_items.push(item)
@@ -607,6 +729,35 @@ pub async fn fetch_other_documents(
     }
 }
 
+#[post("/get_sale_out")]
+pub async fn get_sale_out(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "出库单据").await;
+        let sql = &format!(
+            r#"SELECT 单号 || '　' || 日期 as item FROM documents WHERE {} = '{}' and 类别='销售出库'"#,
+            f_map["销售单号"], data
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let item = row.get("item");
+            document_items.push(item);
+        }
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/get_items_trans")]
 pub async fn get_items_trans(
     db: web::Data<Pool>,
@@ -618,14 +769,14 @@ pub async fn get_items_trans(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
+            r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
                 {} || '　' || {} || '　' || {} || '　' || pout_items.长度 || '　' || pout_items.数量 || '　' ||
-                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 as item
+                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 || '　' || pout_items.备注 || '　' || 商品id as item
             FROM pout_items
             JOIN products ON 物料号 = 文本字段1
             JOIN tree ON 商品id = num
             WHERE pout_items.单号id = '{}'"#,
-            SPLITER, f_map["规格"], f_map["状态"], f_map["炉号"], data
+            f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
         // println!("{}", sql);
@@ -707,7 +858,18 @@ pub async fn save_stransport(
             let items_sql = format!(
                 r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 备注, 顺序)
                      VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                dh, value[10], value[1], value[2], value[3], value[4], value[5], value[6], value[7], value[8], value[9], value[0]
+                dh,
+                value[10],
+                value[1],
+                value[2],
+                value[3],
+                value[4],
+                value[5],
+                value[6],
+                value[7],
+                value[8],
+                value[9],
+                value[0]
             );
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
@@ -769,15 +931,11 @@ pub async fn make_formal(
 
 ///反审核
 #[post("/anti_formal")]
-pub async fn anti_formal(
-    db: web::Data<Pool>,
-    data: String,
-    id: Identity,
-) -> HttpResponse {
+pub async fn anti_formal(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "反审单据".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let f_map = map_fields(db.clone(), "销售单据").await;  //所有单据均为 文本字段10, 提交审核为 布尔字段3
+        let f_map = map_fields(db.clone(), "销售单据").await; //所有单据均为 文本字段10, 提交审核为 布尔字段3
         let sql = format!(
             r#"update documents set {}='', {}=false WHERE 单号='{}'"#,
             f_map["审核"], f_map["提交审核"], data

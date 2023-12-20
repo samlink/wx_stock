@@ -1,21 +1,24 @@
 .saletrans {
-  .fields-show {
-    justify-content: normal;
-  }
-
-  .autocomplete {
-    position: relative;
-    margin-left: 0
-  }
-
-  .form-group {
-    display: inline-flex;
-  }
-
-  .print-block {
-    p {
-      border: 1px solid;
+    .fields-show {
+        justify-content: normal;
     }
-  }
 
+    .autocomplete {
+        position: relative;
+        margin-left: 0;
+    }
+
+    .form-group {
+        display: inline-flex;
+    }
+
+    .table-history {
+        width: 220px;
+    }
+
+    .print-block {
+        p {
+            border: 1px solid;
+        }
+    }
 }
