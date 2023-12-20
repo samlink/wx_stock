@@ -149,16 +149,15 @@ pub async fn buyin_auto(
         let sql = &format!(
             r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || products.{} || '{}' ||
-                 case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
-                 0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
-                 || '{}'||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
                 round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE {} (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
-            SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], f_map["库存长度"], SPLITER,
-            f_map["理论重量"], cate_s, s[0].to_lowercase(), s[0].to_lowercase(), sql_where
+                WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
+                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+            SPLITER, SPLITER, sql_fields, SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
+            f_map["理论重量"], cate_s, f_map["库存长度"], s[0].to_lowercase(), s[0].to_lowercase(), sql_where
         );
 
         // println!("{}", sql);

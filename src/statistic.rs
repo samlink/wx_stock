@@ -472,6 +472,7 @@ pub async fn get_stockout_items(
         let name = post_data.name.trim().to_lowercase();
         let cate = post_data.cate.to_lowercase();
         let data: Vec<&str> = cate.split(SPLITER).collect();
+        let limit = get_limits(&user).await;
 
         let f_map = map_fields(db.clone(), "出库单据").await;
         let f_map2 = map_fields(db.clone(), "商品规格").await;
@@ -510,9 +511,9 @@ pub async fn get_stockout_items(
             join products on pout_items.物料号 = products.文本字段1
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
+            where {} {} {} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
             f_map["客户"], f_map["合同编号"], f_map["销售单号"], f_map2["状态"], f_map2["炉号"], post_data.sort,
-            query_date, query_field, post_data.sort, skip, post_data.rec
+            limit, query_date, query_field, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -554,7 +555,7 @@ pub async fn get_stockout_items(
             join products on pout_items.物料号 = products.文本字段1
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != ''"#, query_date, query_field
+            where {} {}{} and documents.文本字段10 != ''"#, limit, query_date, query_field
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

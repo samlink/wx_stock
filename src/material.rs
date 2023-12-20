@@ -74,17 +74,21 @@ pub async fn materialout_docs(
     search: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
         let f_map = map_fields(db.clone(), "出库单据").await;
         let f_map2 = map_fields(db.clone(), "客户").await;
+        let limit = get_limits(&user).await;
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
-            f_map2["简称"], search, f_map["发货完成"], f_map["审核"]
+            WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} in
+            (select 单号 from documents where 布尔字段1 = false and 类别='商品销售' and  文本字段10 <> '')
+            "#,
+            f_map2["简称"], limit, search, f_map["审核"], f_map["销售单号"]
         );
 
+        // println!("{}", sql);
         autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -98,16 +102,17 @@ pub async fn materialin_docs(
     search: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
         let f_map = map_fields(db.clone(), "采购单据").await;
         let f_map2 = map_fields(db.clone(), "供应商").await;
+        let limit = get_limits(&user).await;
 
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
-            f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
+            WHERE {} documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
+            f_map2["简称"], limit, search, f_map["入库完成"], f_map["审核"]
         );
 
         autocomplete(db, sql).await
@@ -123,23 +128,28 @@ pub async fn materialsale_docs(
     search: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
         let f_map = map_fields(db.clone(), "销售单据").await;
         let f_map2 = map_fields(db.clone(), "出库单据").await;
         let f_map3 = map_fields(db.clone(), "客户").await;
+        let limit = get_limits(&user).await;
+
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{} <> '' AND 单号 not in
+            WHERE {} documents.类别='{}' AND documents.{} <> '' AND 单号 not in
             (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')"#,
             f_map3["简称"],
+            limit,
             search,
             f_map["审核"],
             f_map2["销售单号"],
             f_map2["销售单号"],
             f_map2["审核"]
         );
+
+        // println!("{}",sql);
 
         autocomplete(db, sql).await
     } else {
@@ -159,14 +169,14 @@ pub async fn material_auto_out(
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}'||
-                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
-                0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND
+                WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND 
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND
                 products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"],
             SPLITER,
@@ -179,10 +189,10 @@ pub async fn material_auto_out(
             f_map["炉号"],
             SPLITER,
             f_map["库存长度"],
-            f_map["库存长度"],
             f_map["物料号"],
             search.s,
             search.ss,
+            f_map["库存长度"],
             f_map["切完"]
         );
 
@@ -255,14 +265,15 @@ pub async fn material_auto_kt(
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
-                 0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND documents.文本字段10 !='' LIMIT 10"#,
+                WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND 
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND                
+                documents.文本字段10 !='' LIMIT 10"#,
             f_map["物料号"],
             SPLITER,
             SPLITER,
@@ -272,10 +283,10 @@ pub async fn material_auto_kt(
             f_map["状态"],
             SPLITER,
             f_map["库存长度"],
-            f_map["库存长度"],
             f_map["物料号"],
             search.s,
-            f_map["切完"]
+            f_map["切完"],
+            f_map["库存长度"],
         );
 
         // println!("{}", sql);
