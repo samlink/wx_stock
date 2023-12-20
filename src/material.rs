@@ -395,10 +395,11 @@ pub async fn get_items_out(
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 || '{}' || id as item from document_items
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 || '{}' || id || '{}' || 出库完成 as item 
+            from document_items
             JOIN tree ON 商品id = tree.num
             WHERE 单号id = '{}'"#,
-            SPLITER, SPLITER, SPLITER, data
+            SPLITER, SPLITER, SPLITER, SPLITER, data
         );
 
         // println!("{}", sql);

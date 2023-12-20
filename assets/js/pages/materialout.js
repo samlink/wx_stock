@@ -206,7 +206,8 @@ function build_items(dh) {
             let tr = "";
             content.forEach(obj => {
                 let material = obj.split(`${SPLITER}`);
-                tr += `<tr><td hidden>${material[0]}</td><td>${material[1]}</td>
+                let done = material[4] == "true" ? "class='red'" : "";
+                tr += `<tr ${done}><td hidden>${material[0]}</td><td>${material[1]}</td>
                     <td hidden>${material[2]}</td><td hidden>${material[3]}</td></tr>`;
             });
 
