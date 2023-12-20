@@ -63,9 +63,7 @@ pub async fn fetch_all_documents(
         let mut query_limit = "".to_owned();
         if cate.len() > 1 {
             query_limit = if cate[1] == "wait_out" {
-                r#"documents.类别='商品销售' and documents.文本字段10 != ''
-                        and 单号 not in (select documents.文本字段6 from documents where documents.文本字段6 <>''
-                        and documents.类别='销售出库' and documents.文本字段10 != '') and"#.to_string()
+                r#"documents.类别='商品销售' and documents.文本字段10 != '' and documents.布尔字段2 = false and"#.to_string()
             } else if cate[1] == "wait_shen" {
                 format!("documents.布尔字段3 = true and documents.文本字段10 = '' and documents.类别 = '{}' and", &cate[2])
             } else if cate[1] == "wait_trans" {

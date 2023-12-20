@@ -289,9 +289,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.文本字段10 != '' and
-            单号 not in (select documents.{} from documents where documents.{} <>''
-            and documents.类别='销售出库' and documents.{} <> '')"#,
-            f_map2["简称"], limit, f_map4["销售单号"], f_map4["销售单号"], f_map4["审核"]
+            documents.{} = false"#,
+            f_map2["简称"], limit, f_map["出库完成"], 
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

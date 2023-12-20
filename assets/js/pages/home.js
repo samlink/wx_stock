@@ -203,6 +203,10 @@ document.querySelector('#use-tip').addEventListener('click', function () {
     window.location.href = `/buy_query?s=wait_buy_back`;
 });
 
+document.querySelector('#pre-shen').addEventListener('click', function () {
+    window.location.href = `/sale_query?s=wait_out`;
+});
+
 // setInterval(() => {
 //     location.reload();
 // }, 600000);
