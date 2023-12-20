@@ -2,7 +2,7 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
-use serde::{Deserialize, Serialize};
+use serde::{de::value, Deserialize, Serialize};
 
 ///获取单据显示字段
 #[post("/fetch_inout_fields")]
@@ -740,8 +740,8 @@ pub async fn get_sale_out(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "出库单据").await;
         let sql = &format!(
-            r#"SELECT 单号 || '　' || 日期 as item FROM documents WHERE {} = '{}' and 类别='销售出库'"#,
-            f_map["销售单号"], data
+            r#"SELECT 单号 || '　' || 日期 || '{}' || 布尔字段1 as item FROM documents WHERE {} = '{}' and 类别='销售出库'"#,
+            SPLITER, f_map["销售单号"], data
         );
 
         // println!("{}", sql);
@@ -771,7 +771,8 @@ pub async fn get_items_trans(
         let sql = &format!(
             r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
                 {} || '　' || {} || '　' || {} || '　' || pout_items.长度 || '　' || pout_items.数量 || '　' ||
-                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 || '　' || pout_items.备注 || '　' || 商品id as item
+                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 || '　' || pout_items.备注 || '　' || 
+                商品id || '　' || pout_items.单号id as item
             FROM pout_items
             JOIN products ON 物料号 = 文本字段1
             JOIN tree ON 商品id = num
@@ -803,6 +804,7 @@ pub async fn save_stransport(
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         let mut conn = db.get().await.unwrap();
+        let conn2 = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
@@ -853,6 +855,7 @@ pub async fn save_stransport(
                 .unwrap();
         }
 
+        let mut ckdh = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
@@ -871,6 +874,17 @@ pub async fn save_stransport(
                 value[9],
                 value[0]
             );
+
+            if value.len() > 11 && value[11] != "" {
+                if ckdh != value[11] {
+                    ckdh = value[11];
+                    let dh_sql = format!(
+                        r#"update documents set 布尔字段1 = true where 单号 = '{}'"#,
+                        ckdh
+                    );
+                    let _ = conn2.query(dh_sql.as_str(), &[]).await;
+                }
+            }
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
         }

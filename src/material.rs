@@ -111,17 +111,16 @@ pub async fn materialin_docs(
     search: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "采购入库".to_owned()).await;
     if user.name != "" {
         let f_map = map_fields(db.clone(), "采购单据").await;
         let f_map2 = map_fields(db.clone(), "供应商").await;
-        let limit = get_limits(&user).await;
 
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE {} documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
-            f_map2["简称"], limit, search, f_map["入库完成"], f_map["审核"]
+            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
+            f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
         );
 
         autocomplete(db, sql).await
@@ -137,25 +136,20 @@ pub async fn materialsale_docs(
     search: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "销售出库".to_owned()).await;
     if user.name != "" {
         let f_map = map_fields(db.clone(), "销售单据").await;
-        let f_map2 = map_fields(db.clone(), "出库单据").await;
+        // let f_map2 = map_fields(db.clone(), "出库单据").await;
         let f_map3 = map_fields(db.clone(), "客户").await;
-        let limit = get_limits(&user).await;
 
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE {} documents.类别='{}' AND documents.{} <> '' AND 单号 not in
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')"#,
+            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false"#,
             f_map3["简称"],
-            limit,
             search,
             f_map["审核"],
-            f_map2["销售单号"],
-            f_map2["销售单号"],
-            f_map2["审核"]
+            f_map["出库完成"],
         );
 
         // println!("{}",sql);
@@ -401,10 +395,10 @@ pub async fn get_items_out(
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 as item from document_items
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 || '{}' || id as item from document_items
             JOIN tree ON 商品id = tree.num
             WHERE 单号id = '{}'"#,
-            SPLITER, SPLITER, data
+            SPLITER, SPLITER, SPLITER, data
         );
 
         // println!("{}", sql);
@@ -719,15 +713,8 @@ pub async fn save_material_ck(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), "调整库存".to_owned()).await;
     if user.name != "" {
-        let rem: Vec<&str> = data.remember.split(SPLITER).collect();
-        if rem[0] == "已审核" {
-            let user = get_user(db.clone(), id, "单据审核".to_owned()).await;
-            if user.name == "" {
-                return HttpResponse::Ok().json(-1);
-            }
-        }
-
         let mut conn = db.get().await.unwrap();
+        let conn2 = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
@@ -780,6 +767,7 @@ pub async fn save_material_ck(
                 .unwrap();
         }
 
+        let mut ckid = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "出库单据" {
@@ -803,6 +791,18 @@ pub async fn save_material_ck(
                     dh, value[1], value[2], 1, value[3], value[4], value[5], value[0]
                 )
             };
+
+
+            if value.len() > 8 && value[8] != "" {
+                if ckid != value[8] {
+                    ckid = value[8];
+                    let dh_sql = format!(
+                        r#"update document_items set 出库完成 = true where id::text = '{}'"#,
+                        ckid
+                    );
+                    let _ = conn2.query(dh_sql.as_str(), &[]).await;
+                }
+            }
 
             // println!("{}", items_sql);
 

@@ -566,8 +566,8 @@ function set_readonly() {
     for (let edit of all_edit) {
         if (document_name == "采购单据" && (edit.id == '入库完成' || edit.id == "备注")) {
             continue;
-        } else if (document_name == "销售单据" && edit.id == '是否欠款' || edit.id == "文本字段2" ||
-            edit.id == "发货完成" || edit.id == "文本字段5" || edit.id == "文本字段4" || edit.id == "备注") {
+        } else if (document_name == "销售单据" && (edit.id == '是否欠款' || edit.id == "文本字段2" || edit.id == "出库完成" ||
+            edit.id == "发货完成" || edit.id == "文本字段5" || edit.id == "文本字段4" || edit.id == "备注")) {
             continue;
         }
         edit.disabled = true;

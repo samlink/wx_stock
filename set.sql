@@ -29,3 +29,5 @@ CREATE TABLE public.lu (
 pg_dump -U postgres sales -t tableset -f set.sql
 drop table tableset
 psql sales < set.sql
+
+alter table document_items add column 出库完成 bool;

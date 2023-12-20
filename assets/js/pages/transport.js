@@ -173,7 +173,9 @@ function build_items(dh) {
         .then(content => {
             let tr = "";
             content.forEach(obj => {
-                tr += `<tr><td>${obj}</td></tr>`;
+                let c = obj.split(SPLITER);
+                let done = c[1] == "true" ? "class='red'" : "";
+                tr += `<tr ${done}><td>${c[0]}</td></tr>`;
             });
 
             document.querySelector(".table-history tbody").innerHTML = tr;
@@ -212,6 +214,7 @@ function build_items(dh) {
                                 show_names[11].value = Number(value[9] * value[8]).toFixed(2);
                                 show_names[12].value = value[10];
                                 show_names[13].value = value[11];
+                                show_names[14].value = value[12];
 
                                 let data = {
                                     show_names: show_names,
@@ -298,6 +301,15 @@ show_names = [
         name: "",
         width: 0,
         class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        css: 'style="width:0%; border-left:none; border-right:none; color:white"',
+    },
+    {
+        name: "",
+        width: 0,
+        class: "m_dh",
         type: "普通输入",
         editable: false,
         is_save: true,
