@@ -404,7 +404,7 @@ pub async fn get_items_out(
                 规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 || '{}' || id || '{}' || 出库完成 as item 
             from document_items
             JOIN tree ON 商品id = tree.num
-            WHERE 单号id = '{}'"#,
+            WHERE 单号id = '{}' order by 顺序"#,
             SPLITER, SPLITER, SPLITER, SPLITER, data
         );
 
