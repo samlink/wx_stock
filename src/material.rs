@@ -85,7 +85,7 @@ pub async fn materialout_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id            
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') order by 单号 desc
             "#,
             f_map2["简称"],
             limit,
@@ -119,7 +119,8 @@ pub async fn materialin_docs(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''"#,
+            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> '' 
+            order by 单号 desc"#,
             f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
         );
 
@@ -145,7 +146,8 @@ pub async fn materialsale_docs(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false"#,
+            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false 
+            order by 单号 desc"#,
             f_map3["简称"], search, f_map["审核"], f_map["出库完成"],
         );
 
