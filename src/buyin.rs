@@ -740,7 +740,8 @@ pub async fn get_sale_out(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "出库单据").await;
         let sql = &format!(
-            r#"SELECT 单号 || '　' || 日期 || '{}' || 布尔字段1 as item FROM documents WHERE {} = '{}' and 类别='销售出库'"#,
+            r#"SELECT 单号 || '　' || 日期 || '{}' || 布尔字段1 as item FROM documents WHERE {} = '{}' 
+                and 类别='销售出库' and 文本字段10 !=''"#,
             SPLITER, f_map["销售单号"], data
         );
 
