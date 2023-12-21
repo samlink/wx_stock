@@ -2,8 +2,8 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
-use time::{Duration};
-use serde::{Deserialize};
+use serde::Deserialize;
+use time::Duration;
 use xlsxwriter::{FormatAlignment, Workbook};
 
 #[derive(Deserialize)]
@@ -159,7 +159,8 @@ pub async fn fetch_cost(
                     JOIN documents on 单号id = 单号
                     where {} products.文本字段7 <> '是' and
                     documents.日期::date <= '{}'::date and documents.文本字段10 != ''
-                "#, limit1, date, limit2, date
+                "#,
+                limit1, date, limit2, date
             );
 
             // println!("{}", sql);
@@ -211,9 +212,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         // let today = now().strftime("%Y-%m-%d").unwrap().to_string();
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await;
-        let f_map2= map_fields(db.clone(), "客户").await;
-        let f_map3= map_fields(db.clone(), "供应商").await;
-        let f_map4= map_fields(db.clone(), "出库单据").await;
+        let f_map2 = map_fields(db.clone(), "客户").await;
+        let f_map3 = map_fields(db.clone(), "供应商").await;
+        let f_map4 = map_fields(db.clone(), "出库单据").await;
         let limits = get_limits(&user).await;
         let mut limit = limits.clone();
 
@@ -249,7 +250,12 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             where {} documents.类别='商品销售' and documents.{} = false and documents.文本字段10 != ''
             and 单号 in (select documents.{} from documents where documents.{} <>''
             and documents.类别='销售出库' and documents.{} <> '')"#,
-            f_map2["简称"], limit, f_map["发货完成"], f_map4["销售单号"], f_map4["销售单号"], f_map4["审核"]
+            f_map2["简称"],
+            limit,
+            f_map["发货完成"],
+            f_map4["销售单号"],
+            f_map4["销售单号"],
+            f_map4["审核"]
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -290,7 +296,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.文本字段10 != '' and
             documents.{} = false"#,
-            f_map2["简称"], limit, f_map["出库完成"], 
+            f_map2["简称"], limit, f_map["出库完成"],
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -308,7 +314,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
         let sql = format!(
             r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true and 文本字段10 = ''
-                group by 类别"#, limits,
+                group by 类别"#,
+            limits,
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -372,8 +379,24 @@ pub async fn get_stockin_items(
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'OR LOWER(documents.{}) LIKE '%{}%'
                  OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, f_map2["物料号"], name, name, name, f_map2["状态"], name, f_map2["执行标准"], name, f_map2["生产厂家"],
-                name, f_map2["炉号"], name, f_map["到货日期"], name, f_map["入库日期"], name, name
+                name,
+                f_map2["物料号"],
+                name,
+                name,
+                name,
+                f_map2["状态"],
+                name,
+                f_map2["执行标准"],
+                name,
+                f_map2["生产厂家"],
+                name,
+                f_map2["炉号"],
+                name,
+                f_map["到货日期"],
+                name,
+                f_map["入库日期"],
+                name,
+                name
             )
         } else {
             "".to_owned()
@@ -397,9 +420,21 @@ pub async fn get_stockin_items(
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != ''
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            f_map["到货日期"], f_map["入库日期"], f_map2["物料号"], f_map2["状态"], f_map2["炉号"], f_map2["入库长度"],
-            f_map2["执行标准"], f_map2["生产厂家"], f_map2["理论重量"],
-            post_data.sort, query_date, query_field, post_data.sort, skip, post_data.rec
+            f_map["到货日期"],
+            f_map["入库日期"],
+            f_map2["物料号"],
+            f_map2["状态"],
+            f_map2["炉号"],
+            f_map2["入库长度"],
+            f_map2["执行标准"],
+            f_map2["生产厂家"],
+            f_map2["理论重量"],
+            post_data.sort,
+            query_date,
+            query_field,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
         // println!("{}", sql);
@@ -426,9 +461,35 @@ pub async fn get_stockin_items(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
-                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
-                f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+                f1,
+                SPLITER,
+                f2,
+                SPLITER,
+                f3,
+                SPLITER,
+                f4,
+                SPLITER,
+                f5,
+                SPLITER,
+                f6,
+                SPLITER,
+                f7,
+                SPLITER,
+                f8,
+                SPLITER,
+                f9,
+                SPLITER,
+                f10,
+                SPLITER,
+                f11,
+                SPLITER,
+                f12,
+                SPLITER,
+                f13,
+                SPLITER,
+                f14,
+                SPLITER,
+                f15
             );
 
             products.push(product);
@@ -438,7 +499,8 @@ pub async fn get_stockin_items(
             r#"select count(products.{}) as 记录数 from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != ''"#, f_map2["物料号"], query_date, query_field
+            where {}{} and documents.文本字段10 != ''"#,
+            f_map2["物料号"], query_date, query_field
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -484,8 +546,20 @@ pub async fn get_stockout_items(
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
                 OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, f_map2["状态"], name, f_map2["炉号"], name,
-                name, f_map["合同编号"], name, f_map["客户"], name, name
+                name,
+                name,
+                name,
+                name,
+                f_map2["状态"],
+                name,
+                f_map2["炉号"],
+                name,
+                name,
+                f_map["合同编号"],
+                name,
+                f_map["客户"],
+                name,
+                name
             )
         } else {
             "".to_owned()
@@ -511,8 +585,18 @@ pub async fn get_stockout_items(
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {} {} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
-            f_map["客户"], f_map["合同编号"], f_map["销售单号"], f_map2["状态"], f_map2["炉号"], post_data.sort,
-            limit, query_date, query_field, post_data.sort, skip, post_data.rec
+            f_map["客户"],
+            f_map["合同编号"],
+            f_map["销售单号"],
+            f_map2["状态"],
+            f_map2["炉号"],
+            post_data.sort,
+            limit,
+            query_date,
+            query_field,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
         // println!("{}", sql);
@@ -540,9 +624,37 @@ pub async fn get_stockout_items(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER,
-                f16, SPLITER, f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, 
-                f10, SPLITER, f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+                f1,
+                SPLITER,
+                f2,
+                SPLITER,
+                f3,
+                SPLITER,
+                f4,
+                SPLITER,
+                f5,
+                SPLITER,
+                f16,
+                SPLITER,
+                f6,
+                SPLITER,
+                f7,
+                SPLITER,
+                f8,
+                SPLITER,
+                f9,
+                SPLITER,
+                f10,
+                SPLITER,
+                f11,
+                SPLITER,
+                f12,
+                SPLITER,
+                f13,
+                SPLITER,
+                f14,
+                SPLITER,
+                f15
             );
 
             products.push(product);
@@ -554,7 +666,8 @@ pub async fn get_stockout_items(
             join products on pout_items.物料号 = products.文本字段1
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {} {}{} and documents.文本字段10 != ''"#, limit, query_date, query_field
+            where {} {}{} and documents.文本字段10 != ''"#,
+            limit, query_date, query_field
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -602,8 +715,24 @@ pub async fn stockin_excel(
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'OR LOWER(documents.{}) LIKE '%{}%'
                  OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, f_map2["物料号"], name, name, name, f_map2["状态"], name, f_map2["执行标准"], name, f_map2["生产厂家"],
-                name, f_map2["炉号"], name, f_map["到货日期"], name, f_map["入库日期"], name, name
+                name,
+                f_map2["物料号"],
+                name,
+                name,
+                name,
+                f_map2["状态"],
+                name,
+                f_map2["执行标准"],
+                name,
+                f_map2["生产厂家"],
+                name,
+                f_map2["炉号"],
+                name,
+                f_map["到货日期"],
+                name,
+                f_map["入库日期"],
+                name,
+                name
             )
         } else {
             "".to_owned()
@@ -627,8 +756,17 @@ pub async fn stockin_excel(
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != ''
             ORDER BY documents.日期 DESC"#,
-            f_map["到货日期"], f_map["入库日期"], f_map2["物料号"], f_map2["状态"], f_map2["炉号"], f_map2["入库长度"],
-            f_map2["执行标准"], f_map2["生产厂家"], f_map2["理论重量"], query_date, query_field,
+            f_map["到货日期"],
+            f_map["入库日期"],
+            f_map2["物料号"],
+            f_map2["状态"],
+            f_map2["炉号"],
+            f_map2["入库长度"],
+            f_map2["执行标准"],
+            f_map2["生产厂家"],
+            f_map2["理论重量"],
+            query_date,
+            query_field,
         );
         // println!("{}", sql);
 
@@ -647,31 +785,72 @@ pub async fn stockin_excel(
         let format2 = wb.add_format().set_align(FormatAlignment::Center);
 
         let fields: Vec<Fields> = vec![
-            Fields { name: "序号", width: 6 },
-            Fields { name: "到货日期", width: 12 },
-            Fields { name: "入库日期", width: 12 },
-            Fields { name: "单号", width: 15 },
-            Fields { name: "名称", width: 12 },
-            Fields { name: "物料号", width: 12 },
-            Fields { name: "材质", width: 12 },
-            Fields { name: "规格", width: 12 },
-            Fields { name: "状态", width: 18 },
-            Fields { name: "炉号", width: 18 },
-            Fields { name: "入库长度", width: 10 },
-            Fields { name: "执行标准", width: 18 },
-            Fields { name: "生产厂家", width: 15 },
-            Fields { name: "理论重量", width: 12 },
-            Fields { name: "备注", width: 15 },
+            Fields {
+                name: "序号",
+                width: 6,
+            },
+            Fields {
+                name: "到货日期",
+                width: 12,
+            },
+            Fields {
+                name: "入库日期",
+                width: 12,
+            },
+            Fields {
+                name: "单号",
+                width: 15,
+            },
+            Fields {
+                name: "名称",
+                width: 12,
+            },
+            Fields {
+                name: "物料号",
+                width: 12,
+            },
+            Fields {
+                name: "材质",
+                width: 12,
+            },
+            Fields {
+                name: "规格",
+                width: 12,
+            },
+            Fields {
+                name: "状态",
+                width: 18,
+            },
+            Fields {
+                name: "炉号",
+                width: 18,
+            },
+            Fields {
+                name: "入库长度",
+                width: 10,
+            },
+            Fields {
+                name: "执行标准",
+                width: 18,
+            },
+            Fields {
+                name: "生产厂家",
+                width: 15,
+            },
+            Fields {
+                name: "理论重量",
+                width: 12,
+            },
+            Fields {
+                name: "备注",
+                width: 15,
+            },
         ];
 
         let mut n = 0;
         for f in &fields {
-            sheet
-                .write_string(0, n, &f.name, Some(&format1))
-                .unwrap();
-            sheet
-                .set_column(n, n, f.width.into(), None)
-                .unwrap();
+            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
 
@@ -718,8 +897,20 @@ pub async fn stockout_excel(
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
                 OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name, name, name, name, f_map2["状态"], name, f_map2["炉号"], name,
-                name, f_map["合同编号"], name, f_map["客户"], name, name
+                name,
+                name,
+                name,
+                name,
+                f_map2["状态"],
+                name,
+                f_map2["炉号"],
+                name,
+                name,
+                f_map["合同编号"],
+                name,
+                f_map["客户"],
+                name,
+                name
             )
         } else {
             "".to_owned()
@@ -744,8 +935,12 @@ pub async fn stockout_excel(
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != '' order by documents.日期 DESC"#,
-            f_map["客户"], f_map["合同编号"], f_map2["状态"], f_map2["炉号"],
-            query_date, query_field
+            f_map["客户"],
+            f_map["合同编号"],
+            f_map2["状态"],
+            f_map2["炉号"],
+            query_date,
+            query_field
         );
 
         // println!("{}", sql);
@@ -769,31 +964,72 @@ pub async fn stockout_excel(
         // sheet.set_column(1, 1, 12.0, None).unwrap();
 
         let fields: Vec<Fields> = vec![
-            Fields { name: "序号", width: 6 },
-            Fields { name: "日期", width: 12 },
-            Fields { name: "公司名称", width: 25 },
-            Fields { name: "合同号", width: 15 },
-            Fields { name: "单号", width: 15 },
-            Fields { name: "物料号", width: 12 },
-            Fields { name: "名称", width: 12 },
-            Fields { name: "材质", width: 12 },
-            Fields { name: "规格", width: 12 },
-            Fields { name: "状态", width: 18 },
-            Fields { name: "炉号", width: 15 },
-            Fields { name: "长度", width: 10 },
-            Fields { name: "数量", width: 10 },
-            Fields { name: "重量", width: 10 },
-            Fields { name: "备注", width: 15 },
+            Fields {
+                name: "序号",
+                width: 6,
+            },
+            Fields {
+                name: "日期",
+                width: 12,
+            },
+            Fields {
+                name: "公司名称",
+                width: 25,
+            },
+            Fields {
+                name: "合同号",
+                width: 15,
+            },
+            Fields {
+                name: "单号",
+                width: 15,
+            },
+            Fields {
+                name: "物料号",
+                width: 12,
+            },
+            Fields {
+                name: "名称",
+                width: 12,
+            },
+            Fields {
+                name: "材质",
+                width: 12,
+            },
+            Fields {
+                name: "规格",
+                width: 12,
+            },
+            Fields {
+                name: "状态",
+                width: 18,
+            },
+            Fields {
+                name: "炉号",
+                width: 15,
+            },
+            Fields {
+                name: "长度",
+                width: 10,
+            },
+            Fields {
+                name: "数量",
+                width: 10,
+            },
+            Fields {
+                name: "重量",
+                width: 10,
+            },
+            Fields {
+                name: "备注",
+                width: 15,
+            },
         ];
 
         let mut n = 0;
         for f in &fields {
-            sheet
-                .write_string(0, n, &f.name, Some(&format1))
-                .unwrap();
-            sheet
-                .set_column(n, n, f.width.into(), None)
-                .unwrap();
+            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
 
@@ -892,9 +1128,37 @@ pub async fn fetch_business(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1, SPLITER, f2, SPLITER, f3, SPLITER, f31, SPLITER, f4, SPLITER, f5, SPLITER,
-                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER,
-                f11, SPLITER, f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
+                f1,
+                SPLITER,
+                f2,
+                SPLITER,
+                f3,
+                SPLITER,
+                f31,
+                SPLITER,
+                f4,
+                SPLITER,
+                f5,
+                SPLITER,
+                f6,
+                SPLITER,
+                f7,
+                SPLITER,
+                f8,
+                SPLITER,
+                f9,
+                SPLITER,
+                f10,
+                SPLITER,
+                f11,
+                SPLITER,
+                f12,
+                SPLITER,
+                f13,
+                SPLITER,
+                f14,
+                SPLITER,
+                f15
             );
 
             products.push(product);
@@ -994,32 +1258,76 @@ pub async fn business_excel(
         let format2 = wb.add_format().set_align(FormatAlignment::Center);
 
         let fields: Vec<Fields> = vec![
-            Fields { name: "序号", width: 6 },
-            Fields { name: "日期", width: 12 },
-            Fields { name: "单号", width: 15 },
-            Fields { name: "客户名称", width: 25 },
-            Fields { name: "合同编号", width: 15 },
-            Fields { name: "类别", width: 12 },
-            Fields { name: "应结金额", width: 12 },
-            Fields { name: "名称", width: 12 },
-            Fields { name: "材质", width: 12 },
-            Fields { name: "规格", width: 12 },
-            Fields { name: "状态", width: 18 },
-            Fields { name: "长度", width: 10 },
-            Fields { name: "数量", width: 10 },
-            Fields { name: "单价", width: 10 },
-            Fields { name: "重量", width: 10 },
-            Fields { name: "备注", width: 15 },
+            Fields {
+                name: "序号",
+                width: 6,
+            },
+            Fields {
+                name: "日期",
+                width: 12,
+            },
+            Fields {
+                name: "单号",
+                width: 15,
+            },
+            Fields {
+                name: "客户名称",
+                width: 25,
+            },
+            Fields {
+                name: "合同编号",
+                width: 15,
+            },
+            Fields {
+                name: "类别",
+                width: 12,
+            },
+            Fields {
+                name: "应结金额",
+                width: 12,
+            },
+            Fields {
+                name: "名称",
+                width: 12,
+            },
+            Fields {
+                name: "材质",
+                width: 12,
+            },
+            Fields {
+                name: "规格",
+                width: 12,
+            },
+            Fields {
+                name: "状态",
+                width: 18,
+            },
+            Fields {
+                name: "长度",
+                width: 10,
+            },
+            Fields {
+                name: "数量",
+                width: 10,
+            },
+            Fields {
+                name: "单价",
+                width: 10,
+            },
+            Fields {
+                name: "重量",
+                width: 10,
+            },
+            Fields {
+                name: "备注",
+                width: 15,
+            },
         ];
 
         let mut n = 0;
         for f in &fields {
-            sheet
-                .write_string(0, n, &f.name, Some(&format1))
-                .unwrap();
-            sheet
-                .set_column(n, n, f.width.into(), None)
-                .unwrap();
+            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
 

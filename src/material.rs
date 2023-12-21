@@ -169,6 +169,7 @@ pub async fn material_auto_out(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
+        let ss:Vec<&str> = search.ss.split('　').collect();
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}'||
@@ -179,6 +180,7 @@ pub async fn material_auto_out(
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND 
+                products.{} = '{}' and products.{} = '{}' and
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND
                 products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"],
@@ -194,7 +196,11 @@ pub async fn material_auto_out(
             f_map["库存长度"],
             f_map["物料号"],
             search.s,
-            search.ss,
+            ss[0],
+            f_map["规格"],
+            ss[1].trim(),
+            f_map["状态"],
+            ss[2].trim(),
             f_map["库存长度"],
             f_map["切完"]
         );

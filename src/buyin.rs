@@ -2,7 +2,7 @@ use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
-use serde::{de::value, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 
 ///获取单据显示字段
 #[post("/fetch_inout_fields")]

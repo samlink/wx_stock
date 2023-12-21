@@ -174,7 +174,9 @@ let auto_data = [{
     show_th: show_th,
     cb: fill_gg,
     cf: () => {  //前置函数, 用于动态构建查询字符串
-        return document.querySelector('.table-items .inputting .m_id').textContent;
+        return `${document.querySelector('.table-items .inputting .m_id').textContent.trim()}　
+                ${document.querySelector('.table-items .inputting .规格').textContent.trim()}　
+                ${document.querySelector('.table-items .inputting .状态').textContent.trim()}`
     }
 }];
 
@@ -260,15 +262,15 @@ show_names = [
     { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true },
     { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false },
     { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false },
-    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false },
+    { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false },
     { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
     { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
     { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
-    { name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true },
+    { name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true },
     { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
     {
         name: "物料号",
-        width: 60,
+        width: 80,
         class: "物料号",
         type: "autocomplete",
         editable: true,
