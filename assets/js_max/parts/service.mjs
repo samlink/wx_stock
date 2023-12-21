@@ -207,6 +207,10 @@ export function make_formal(data) {
                         if (typeof (data.readonly_fun) == "function") {
                             data.readonly_fun();
                         }
+                        if (typeof (data.after_func) == "function") {
+                            data.after_func(data.xsdh);
+                        }                        
+
                         notifier.show('审核完成', 'success');
                     } else {
                         notifier.show('权限不够', 'danger');

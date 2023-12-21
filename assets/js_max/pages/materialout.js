@@ -265,7 +265,7 @@ show_names = [
     { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false },
     { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
     { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
-    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
+    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true },
     { name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true },
     { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
     {
@@ -359,13 +359,25 @@ if (dh_div.textContent == "新单据") {
 function get_weight(input_row) {
     input_row.querySelector('.数量').addEventListener('blur', function () {
         let mount = input_row.querySelector('.数量').value;
-        if (regInt.test(mount)) {
-            input_row.querySelector('.总长度').textContent = mount * input_row.querySelector('.长度').textContent;
+        let long = input_row.querySelector('.长度').value;
+        if (regInt.test(mount) && regInt.test(long)) {
+            input_row.querySelector('.总长度').textContent = mount * long;
             weight(input_row);
         } else {
             input_row.querySelector('.总长度').textContent = 0;
         }
-    })
+    });
+
+    input_row.querySelector('.长度').addEventListener('blur', function () {
+        let mount = input_row.querySelector('.数量').value;
+        let long = input_row.querySelector('.长度').value;
+        if (regInt.test(mount) && regInt.test(long)) {
+            input_row.querySelector('.总长度').textContent = mount * long;
+            weight(input_row);
+        } else {
+            input_row.querySelector('.总长度').textContent = 0;
+        }
+    });
 
     input_row.querySelector('.auto-input').addEventListener('blur', function () {
         weight(input_row);
@@ -611,9 +623,23 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         document_name: document_name,
         edited: edited || input_table_outdata.edited,
         readonly_fun: set_readonly,
+        xsdh: document.querySelector('#文本字段6').value,    //销售单号，用于确认出库完成
+        after_func: make_complete  //审核后，确认出库完成
     }
     service.make_formal(formal_data);
 });
+
+//审核时，将对销售单做出库完成的确认
+function make_complete(dh) {
+    fetch(`/make_ck_complete`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    });
+}
+
 //共用事件和函数 ---------------------------------------------------------------------
 
 //保存、打印和审核前的错误检查

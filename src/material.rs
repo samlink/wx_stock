@@ -146,10 +146,7 @@ pub async fn materialsale_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false"#,
-            f_map3["简称"],
-            search,
-            f_map["审核"],
-            f_map["出库完成"],
+            f_map3["简称"], search, f_map["审核"], f_map["出库完成"],
         );
 
         // println!("{}",sql);
@@ -169,7 +166,7 @@ pub async fn material_auto_out(
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
-        let ss:Vec<&str> = search.ss.split('　').collect();
+        let ss: Vec<&str> = search.ss.split('　').collect();
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
                 || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}'||
@@ -718,7 +715,7 @@ pub async fn save_material_ck(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), "调整库存".to_owned()).await;
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         let mut conn = db.get().await.unwrap();
         let conn2 = db.get().await.unwrap();
@@ -798,7 +795,6 @@ pub async fn save_material_ck(
                     dh, value[1], value[2], 1, value[3], value[4], value[5], value[0]
                 )
             };
-
 
             if value.len() > 8 && value[8] != "" {
                 if ckid != value[8] {
@@ -1235,6 +1231,29 @@ pub async fn make_formal_out(
             f_map["审核"], user.name, data
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/make_ck_complete")]
+pub async fn make_ck_complete(
+    db: web::Data<Pool>,
+    dh: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
+            (select 出库完成 from document_items where 单号id='{}');"#,
+            dh, dh
+        );
+
+        let _ = conn.query(sql.as_str(), &[]).await;
 
         HttpResponse::Ok().json(1)
     } else {
