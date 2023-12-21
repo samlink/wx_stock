@@ -1238,6 +1238,7 @@ pub async fn make_formal_out(
     }
 }
 
+// 确认销售单的出库完成
 #[post("/make_ck_complete")]
 pub async fn make_ck_complete(
     db: web::Data<Pool>,
@@ -1250,6 +1251,31 @@ pub async fn make_ck_complete(
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
             (select 出库完成 from document_items where 单号id='{}');"#,
+            dh, dh
+        );
+
+        let _ = conn.query(sql.as_str(), &[]).await;
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 确认销售单的发货完成
+#[post("/make_fh_complete")]
+pub async fn make_fh_complete(
+    db: web::Data<Pool>,
+    dh: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"update documents set 布尔字段1 = true where 单号='{}' and 布尔字段2=true 
+             and false not in (select 布尔字段1 from documents where 文本字段6 ='{}' and 
+             类别 = '销售出库' and 文本字段10 !='')"#,
             dh, dh
         );
 

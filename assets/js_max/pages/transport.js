@@ -547,9 +547,22 @@ document.querySelector('#remember-button').addEventListener('click', function ()
         document_name: document_name,
         edited: edited || input_table_outdata.edited,
         readonly_fun: set_readonly,
+        xsdh: document.querySelector('#文本字段6').value,    //销售单号，用于确认发货完成
+        after_func: make_complete  //审核后，确认发货完成
     }
     service.make_formal(formal_data);
 });
+
+//审核时，将对销售单做发货完成的确认
+function make_complete(dh) {
+    fetch(`/make_fh_complete`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    });
+}
 
 //错误检查, 保存、打印和审核前
 function error_check() {
