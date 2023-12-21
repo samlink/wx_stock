@@ -54,11 +54,11 @@ pub async fn fetch_product(
 
         let sql_fields = "SELECT products.文本字段1 as id, products.文本字段1, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
-                            (COALESCE(切分次数,0) + products.整数字段2)::integer as 整数字段2,
+                            COALESCE(切分次数,0)::integer as 整数字段2,
                             case when (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
                             0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
                             as 整数字段3,
-                            round((库存下限-COALESCE(理重合计,0))::numeric,2)::real as 库存下限,
+                            case when 库存下限-COALESCE(理重合计,0)<0.1 then 0 else round((库存下限-COALESCE(理重合计,0))::numeric,2)::real end as 库存下限,
                             products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,".to_owned();
 
         let sql = format!(
