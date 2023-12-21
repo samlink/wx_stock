@@ -35,96 +35,96 @@ fetch(`/home_statis`, {
 })
     .then(response => response.json())
     .then(content => {
-            if (content != -1) {
-                let reminder = document.querySelector('#show-01 .reminder');
-                let fit_lines = Math.floor(reminder.clientHeight / 33);
+        if (content != -1) {
+            let reminder = document.querySelector('#show-01 .reminder');
+            let fit_lines = Math.floor(reminder.clientHeight / 33);
 
-                //销售未收款
-                let data = {
-                    content: content[0],
-                    lines: fit_lines,
-                    reminder: reminder,
-                    title_holer: document.querySelector('#sale-data'),
-                    title: `销售待收款 ${content[0].length} 单`,
-                    more_href: "/sale_query?s=wait_money",
-                    location: "/sale/",
-                }
-
-                show_reminders(data);
-
-                //销售未发货
-                let data2 = {
-                    content: content[1],
-                    lines: fit_lines,
-                    reminder: document.querySelector('#show-02 .reminder'),
-                    title_holer: document.querySelector('#sale-data2'),
-                    title: `销售待发货 ${content[1].length} 单`,
-                    more_href: "/sale_query?s=wait_trans",
-                    location: "/sale/",
-                }
-
-                show_reminders(data2);
-
-                //采购未入库
-                let data3 = {
-                    content: content[2],
-                    lines: fit_lines,
-                    reminder: document.querySelector('#show-03 .reminder'),
-                    title_holer: document.querySelector('#buy-data'),
-                    title: `采购待入库 ${content[2].length} 单`,
-                    more_href: "/buy_query?s=wait_in",
-                    location: "/buy_in/",
-                }
-
-                show_reminders(data3);
-
-                //等待审核
-                let data4 = {
-                    content: content[3],
-                    lines: fit_lines,
-                    reminder: document.querySelector('#show-04 .reminder'),
-                    title_holer: document.querySelector('#warn-data2'),
-                    title: `待审核 ${content[3].length} 类单据`,
-                    alter_func: function () {
-                        this.reminder.querySelectorAll('li').forEach((li) => {
-                            li.addEventListener('click', () => {
-                                let cate = li.textContent.split('　')[0];
-                                let query = "s=wait_shen" + " " + cate;
-                                window.location.href = `${get_address(cate)}?${query}`;
-                            })
-                        });
-                    }
-                }
-
-                show_reminders(data4);
-
-                //采购退货未完成
-                let data5 = {
-                    content: content[4],
-                    lines: fit_lines,
-                    reminder: document.querySelector('#show-05 .reminder'),
-                    title_holer: document.querySelector('#warn-data3'),
-                    title: `采购退货未完成 ${content[4].length} 单`,
-                    more_href: "/buy_query?s=wait_buy_back",
-                    location: "/buy_back/",
-                }
-
-                show_reminders(data5);
-
-                //销售待出库
-                let data6 = {
-                    content: content[5],
-                    lines: fit_lines,
-                    reminder: document.querySelector('#show-06 .reminder'),
-                    title_holer: document.querySelector('#pre-data'),
-                    title: `销售待出库 ${content[5].length} 单`,
-                    more_href: "/sale_query?s=wait_out",
-                    location: "/sale/",
-                }
-
-                show_reminders(data6);
+            //销售未收款
+            let data = {
+                content: content[0],
+                lines: fit_lines,
+                reminder: reminder,
+                title_holer: document.querySelector('#sale-data'),
+                title: `销售待收款 ${content[0].length} 单`,
+                more_href: "/sale_query?s=wait_money",
+                location: "/sale/",
             }
+
+            show_reminders(data);
+
+            //销售未发货
+            let data2 = {
+                content: content[1],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-02 .reminder'),
+                title_holer: document.querySelector('#sale-data2'),
+                title: `销售待发货 ${content[1].length} 单`,
+                more_href: "/sale_query?s=wait_trans",
+                location: "/sale/",
+            }
+
+            show_reminders(data2);
+
+            //采购未入库
+            let data3 = {
+                content: content[2],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-03 .reminder'),
+                title_holer: document.querySelector('#buy-data'),
+                title: `采购待入库 ${content[2].length} 单`,
+                more_href: "/buy_query?s=wait_in",
+                location: "/buy_in/",
+            }
+
+            show_reminders(data3);
+
+            //等待审核
+            let data4 = {
+                content: content[3],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-04 .reminder'),
+                title_holer: document.querySelector('#warn-data2'),
+                title: `待审核 ${content[3].length} 类单据`,
+                alter_func: function () {
+                    this.reminder.querySelectorAll('li').forEach((li) => {
+                        li.addEventListener('click', () => {
+                            let cate = li.textContent.split('　')[0];
+                            let query = "s=wait_shen" + " " + cate;
+                            window.location.href = `${get_address(cate)}?${query}`;
+                        })
+                    });
+                }
+            }
+
+            show_reminders(data4);
+
+            //采购退货未完成
+            let data5 = {
+                content: content[4],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-05 .reminder'),
+                title_holer: document.querySelector('#warn-data3'),
+                title: `采购退货未完成 ${content[4].length} 单`,
+                more_href: "/buy_query?s=wait_buy_back",
+                location: "/buy_back/",
+            }
+
+            show_reminders(data5);
+
+            //销售待出库
+            let data6 = {
+                content: content[5],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-06 .reminder'),
+                title_holer: document.querySelector('#pre-data'),
+                title: `销售待出库 ${content[5].length} 单`,
+                more_href: "/sale_query?s=wait_out",
+                location: "/sale/",
+            }
+
+            show_reminders(data6);
         }
+    }
     );
 
 function get_address(cate) {
@@ -222,6 +222,7 @@ function set_chart1(data) {
         .then(response => response.json())
         .then(content => {
             if (content != -1) {
+                let cont = content[2].map(n => Math.round((n / 10000), 1));
                 new Chart(ctx1,
                     {
                         type: 'bar',
@@ -229,7 +230,7 @@ function set_chart1(data) {
                             labels: content[1],
                             datasets: [{
                                 label: '销售额',
-                                data: content[2],
+                                data: cont,
                                 backgroundColor: 'rgba(54, 162, 235, 0.5)',
                                 borderColor: 'rgba(54, 162, 235, 1)',
                                 borderWidth: 1
