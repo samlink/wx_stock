@@ -644,6 +644,7 @@ function make_complete(dh) {
     });
 }
 
+// 处理不合格产品
 function handle_not_pass() {
     let rows = document.querySelectorAll('.table-items .has-input');
     let dh = "";
