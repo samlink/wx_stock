@@ -369,12 +369,14 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 ||  '　' || customers.文本字段1 || '　' || 执行标准  as item from document_items 
+                规格 || '　' || 状态 ||  '　' || customers.文本字段1 || '　' || 执行标准 || '{}' || document_items.id
+                || '{}' || 出库完成 as item
+            from document_items 
             JOIN tree ON 商品id = tree.num
             JOIN documents on 单号id = 单号
             JOIN customers on 客商id = customers.id
             WHERE 单号id = '{}'"#,
-            SPLITER, data
+            SPLITER, SPLITER, SPLITER, data
         );
 
         // println!("{}", sql);
@@ -617,7 +619,8 @@ pub async fn save_material(
         }
 
         let f_map = map_fields(db, "商品规格").await;
-
+        
+        let mut rkid = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
 
@@ -694,6 +697,18 @@ pub async fn save_material(
             };
 
             // println!("{}", items_sql);
+
+            if value.len() > 13 && value[13] != "" {
+                if rkid != value[13] {
+                    rkid = value[13];
+                    let dh_sql = format!(
+                        r#"update document_items set 出库完成 = true where id::text = '{}'"#,   // 与销售单据共用出库完成
+                        rkid
+                    );
+                    // let _ = conn2.query(dh_sql.as_str(), &[]).await;
+                    transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
+                }
+            }
 
             let re = transaction
                 .execute(items_sql.as_str(), &[])
@@ -1289,6 +1304,29 @@ pub async fn make_xs_wight(
     }
 }
 
+// // 确认采购单的入库完成
+// #[post("/make_rk_complete")]
+// pub async fn make_rk_complete(
+//     db: web::Data<Pool>,
+//     dh: web::Json<String>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user = get_user(db.clone(), id, "".to_owned()).await;
+//     if user.name != "" {
+//         let conn = db.get().await.unwrap();
+//         let sql = format!(
+//             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
+//             (select 出库完成 from document_items where 单号id='{}');"#,
+//             dh, dh
+//         );
+
+//         let _ = conn.query(sql.as_str(), &[]).await;
+
+//         HttpResponse::Ok().json(1)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 // 确认销售单的出库完成
 #[post("/make_ck_complete")]
 pub async fn make_ck_complete(
