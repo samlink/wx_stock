@@ -472,7 +472,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value}</p>`;
     document.querySelector('#p-block3').innerHTML = p;
 
-    p = `<p>出库单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>
+    p = `<p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>
          <p>销售员：${document.querySelector('#owner').textContent.split(']')[0].replace('[', '')}</p>`;
     document.querySelector('#p-block4').innerHTML = p;
 

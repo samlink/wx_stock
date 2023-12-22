@@ -174,9 +174,10 @@ let auto_data = [{
     show_th: show_th,
     cb: fill_gg,
     cf: () => {  //前置函数, 用于动态构建查询字符串
+        let stat = document.querySelector('.table-items .inputting .状态').textContent.trim();
         return `${document.querySelector('.table-items .inputting .m_id').textContent.trim()}　
                 ${document.querySelector('.table-items .inputting .规格').textContent.trim()}　
-                ${document.querySelector('.table-items .inputting .状态').textContent.trim()}`
+                ${stat.replace('+', SPLITER)}`
     }
 }];
 

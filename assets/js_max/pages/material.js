@@ -1,6 +1,6 @@
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
 import * as service from '../parts/service.mjs';
 import {
     SPLITER,
@@ -274,12 +274,12 @@ function build_items(dh) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "执行标准",
         width: 120,
@@ -289,11 +289,11 @@ show_names = [
         is_save: true,
         default: ""
     },
-    {name: "生产厂家", width: 70, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "库位", width: 20, class: "库位", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "生产厂家", width: 70, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "库位", width: 20, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "合格",
         width: 20,
@@ -438,6 +438,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
             show_names[6].value = document.querySelector('#执行标准').value;
             show_names[7].value = document.querySelector('#生产厂家').value;
             show_names[8].value = document.querySelector('#库位').value;
+            show_names[12].value = 'checked';
             show_names[14].value = document.querySelector('#m_id').value;
 
             let data = {
@@ -606,44 +607,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
 });
 
-// document.querySelector('#check-button').addEventListener('click', function () {
-//     if (this.textContent == "已质检") {
-//         return false;
-//     }
-//
-//     let dh = dh_div.textContent;
-//     let that = this;
-//     if (dh == "新单据") {
-//         notifier.show('请先保存单据', 'danger');
-//         return false;
-//     }
-//
-//     alert_confirm("确认质检吗？", {
-//         confirmText: "确认",
-//         cancelText: "取消",
-//         confirmCallBack: () => {
-//             fetch(`/check_in`, {
-//                 method: 'post',
-//                 headers: {
-//                     "Content-Type": "application/json",
-//                 },
-//                 body: JSON.stringify(dh),
-//             })
-//                 .then(response => response.json())
-//                 .then(content => {
-//                     if (content != -1) {
-//                         that.textContent = '已质检';
-//                         that.classList.add('remembered');
-//                         notifier.show('质检完成', 'success');
-//                     } else {
-//                         notifier.show('权限不够', 'danger');
-//
-//                     }
-//                 });
-//         }
-//     })
-// });
-
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
     let formal_data = {
@@ -660,10 +623,10 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 function handle_not_pass() {
     let rows = document.querySelectorAll('.table-items .has-input');
     let dh = "";
-    let factory = "";
+    let cgdh = ""
     for (let row of rows) {
         if (row.querySelector('.合格').checked == false) {
-            factory = row.querySelector('.生产厂家').textContent.trim();
+            cgdh = document.querySelector('#文本字段6').value;
             dh = document.querySelector('#dh').textContent.trim();
             break;
         }
@@ -676,7 +639,7 @@ function handle_not_pass() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                cate: factory,
+                cate: cgdh,
                 dh: dh,
             })
         }).then(response => response.json())
