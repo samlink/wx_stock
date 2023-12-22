@@ -169,7 +169,7 @@ pub async fn material_auto_out(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let ss: Vec<&str> = search.ss.split('　').collect();
-        let ss2 = ss[2].replace(SPLITER, "+");   //加号传不过来
+        let ss2 = ss[2].replace(SPLITER, "+"); //加号传不过来
 
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
@@ -722,7 +722,7 @@ pub async fn save_material_ck(
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
         let mut conn = db.get().await.unwrap();
-        let conn2 = db.get().await.unwrap();
+        // let conn2 = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
@@ -780,8 +780,8 @@ pub async fn save_material_ck(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "出库单据" {
                 format!(
-                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 单价, 顺序)
-                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {}, {})"#,
+                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 单价, 顺序, xsid)
+                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {}, {}, '{}')"#,
                     dh,
                     value[1],
                     value[2],
@@ -790,7 +790,8 @@ pub async fn save_material_ck(
                     value[5],
                     value[6],
                     value[7],
-                    value[0]
+                    value[0],
+                    value[8],
                 )
             } else {
                 format!(
@@ -807,7 +808,8 @@ pub async fn save_material_ck(
                         r#"update document_items set 出库完成 = true where id::text = '{}'"#,
                         ckid
                     );
-                    let _ = conn2.query(dh_sql.as_str(), &[]).await;
+                    // let _ = conn2.query(dh_sql.as_str(), &[]).await;
+                    transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
                 }
             }
 
@@ -848,16 +850,24 @@ pub async fn handle_not_pass(
 
         let dh = get_dh(db.clone(), "采购退货").await;
         let date = now().strftime("%Y-%m-%d").unwrap().to_string();
-        let sql = format!("insert into documents (单号, 客商id, 日期, 经办人, 类别, 备注, 文本字段7)
+        let sql = format!(
+            "insert into documents (单号, 客商id, 日期, 经办人, 类别, 备注, 文本字段7)
                             values ('{}', {}, '{}', '{}', '采购退货', '不合格品退货', '{}')",
-                          dh, cus_id, date, user.name, user.area);
+            dh, cus_id, date, user.name, user.area
+        );
 
         transaction.execute(sql.as_str(), &[]).await.unwrap();
 
         let sql = format!(
             r#"select 商品id, max({}) 规格, max({}) 状态, max({}) 炉号, sum({})::int4 长度, sum({}) 重量 from products
             where 单号id = '{}' and {} = '否' group by 商品id"#,
-            f_map["规格"], f_map["状态"], f_map["炉号"], f_map["入库长度"], f_map["理论重量"], data.dh, f_map["合格"]
+            f_map["规格"],
+            f_map["状态"],
+            f_map["炉号"],
+            f_map["入库长度"],
+            f_map["理论重量"],
+            data.dh,
+            f_map["合格"]
         );
 
         let rows = &conn2.query(sql.as_str(), &[]).await.unwrap();
@@ -1239,6 +1249,40 @@ pub async fn make_formal_out(
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 实际重量填入销售单
+#[post("/make_xs_wight")]
+pub async fn make_xs_wight(
+    db: web::Data<Pool>,
+    dh: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select xsid, sum(重量) as 重量 from pout_items where 单号id = '{}' group by xsid;"#,
+            dh
+        );
+
+        let rows = conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let id: &str = row.get("xsid");
+            let weight: f32 = row.get("重量");
+
+            let sql = format!(
+                r#"update document_items set 重量 = {} where id::text = '{}'"#,
+                weight, id
+            );
+
+            let _ = conn.query(sql.as_str(), &[]).await;
+        }
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

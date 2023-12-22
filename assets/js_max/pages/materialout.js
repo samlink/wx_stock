@@ -630,14 +630,24 @@ document.querySelector('#remember-button').addEventListener('click', function ()
     service.make_formal(formal_data);
 });
 
-//审核时，将对销售单做出库完成的确认
-function make_complete(dh) {
-    fetch(`/make_ck_complete`, {
+//审核时，将对销售单做出库完成的确认并填入实际重量
+function make_complete(xsdh, dh) {
+    // 将实际重量填入销售单
+    fetch(`/make_xs_wight`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify(dh),
+    });
+
+    // 出库完成确认
+    fetch(`/make_ck_complete`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(xsdh),
     });
 }
 

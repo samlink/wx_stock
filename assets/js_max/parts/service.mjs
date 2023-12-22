@@ -208,7 +208,7 @@ export function make_formal(data) {
                             data.readonly_fun();
                         }
                         if (typeof (data.after_func) == "function") {
-                            data.after_func(data.xsdh);
+                            data.after_func(data.xsdh, data.dh);
                         }                        
 
                         notifier.show('审核完成', 'success');
