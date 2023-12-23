@@ -1113,11 +1113,11 @@ pub async fn fetch_document_items_ck(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!(
-            r#"select split_part(node_name,' ', 2) as 名称, split_part(node_name,' ', 1) as 材质,
-                {} as 规格, {} as 状态, {} as 炉号, 长度, 数量, (长度*数量)::integer as 总长度,
-                物料号, 重量, 理重, pout_items.备注, 商品id, 单价 FROM pout_items
-                JOIN products ON 文本字段1=物料号
-                JOIN tree ON 商品id=tree.num
+            r#"select COALESCE(split_part(node_name,' ', 2),'') as 名称, COALESCE(split_part(node_name,' ', 1), '') as 材质,
+                COALESCE({},'') as 规格, COALESCE({}, '') as 状态, COALESCE({}, '') as 炉号, 长度, 数量, (长度*数量)::integer as 总长度,
+                物料号, 重量, 理重, pout_items.备注, COALESCE(商品id, '') 商品id, 单价 FROM pout_items
+                left JOIN products ON 文本字段1=物料号
+                left JOIN tree ON 商品id=tree.num
                 WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data.dh
         );
