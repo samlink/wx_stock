@@ -375,7 +375,7 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
             JOIN tree ON 商品id = tree.num
             JOIN documents on 单号id = 单号
             JOIN customers on 客商id = customers.id
-            WHERE 单号id = '{}'"#,
+            WHERE 单号id = '{}' order by 顺序"#,
             SPLITER, SPLITER, SPLITER, data
         );
 
