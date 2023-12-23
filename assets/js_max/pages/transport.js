@@ -486,7 +486,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th width="5%">长度</th>
         <th width="3%">支数</th>
         <th width="6%">理论重量</th>
-        <th width="6%">实际重量</th>
+        <th width="7%">实际重量</th>
         <th width="5%">单价<br>(元/kg)</th>
         <th width="8%">总价</th>
         <th width="8%">备注</th>
@@ -518,9 +518,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
     trs += append_blanks(len, 13);
 
     trs += `<tr><td colspan="2">合计</td>${append_cells(7)}
-                              <td>${sum_weight}</td><td></td><td>${sum_money}</td><td></td>`;
+                              <td>${sum_weight.toFixed(1)}</td><td></td><td>${sum_money.toFixed(2)}</td><td></td>`;
 
-    trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money)}</td>`;
+    trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money.toFixed(2))}</td>`;
     trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
