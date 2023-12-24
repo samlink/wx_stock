@@ -182,7 +182,7 @@ async fn main() -> std::io::Result<()> {
             .service(service::fetch_help)
             .service(service::serve_download)
             .service(service::start_date)
-            .service(web::resource("static/{name}").to(html::serve_static))
+            .service(web::resource("static/{name}").to(html::static_file))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "upload"))
     })

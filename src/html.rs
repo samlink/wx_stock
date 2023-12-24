@@ -1,24 +1,25 @@
 use crate::service::{get_user, r2s, Search, UserData};
 use actix_identity::Identity;
-use actix_web::{get, web, HttpRequest, HttpResponse};
+use actix_web::{get, web, web::Path, HttpRequest, HttpResponse};
+use actix_web::http::header::ContentType;
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
-use serde::Deserialize;
+// use serde::Deserialize;
+use templates::statics::StaticFile;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
 use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
 
-#[derive(Deserialize)]
-pub struct File {
-    name: String,
-}
-
-///静态文件服务
-pub async fn serve_static(file: web::Path<File>) -> HttpResponse {
-    if let Some(data) = statics::StaticFile::get(&file.name) {
-        HttpResponse::Ok().body(data.content)
+pub async fn static_file(path: Path<String>) -> HttpResponse {
+    let name = &path.into_inner();
+    if let Some(data) = StaticFile::get(name) {
+        HttpResponse::Ok()
+            .insert_header(ContentType(data.mime.clone()))
+            .body(data.content)
     } else {
-        HttpResponse::NotFound().into()
+        HttpResponse::NotFound()
+            .reason("No such static file.")
+            .finish()
     }
 }
 

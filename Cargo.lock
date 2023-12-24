@@ -2806,6 +2806,7 @@ dependencies = [
  "bytecount",
  "itertools",
  "md5",
+ "mime",
  "nom",
 ]
 
@@ -2908,6 +2909,7 @@ dependencies = [
  "dotenv",
  "futures 0.3.19",
  "image",
+ "mime",
  "postgres",
  "rand 0.7.3",
  "regex",
