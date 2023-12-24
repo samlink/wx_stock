@@ -1,8 +1,8 @@
-@use super::base;
+@use super::base_html;
 @use crate::service::UserData;
 @(user: UserData, cate: &str)
 
-@:base({
+@:base_html({
 <div class="customer-set">
     <div class="top-title"><span><i class="fa fa-user"></i> 客户供应商 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> @cate管理 </span>

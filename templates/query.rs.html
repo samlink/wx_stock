@@ -1,8 +1,8 @@
-@use super::base;
+@use super::base_html;
 @use crate::service::UserData;
 @(user: UserData, menu: &str, cate: &str, database:&str, limit: &str)
 
-@:base({
+@:base_html({
 <div class="docment-query">
     <div class="top-title"><span><i class="fa fa-search"></i> @menu </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> @cate </span>

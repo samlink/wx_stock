@@ -42,10 +42,6 @@ async fn main() -> std::io::Result<()> {
         .pg
         .create_pool(Some(Runtime::Tokio1), tokio_postgres::NoTls)
         .unwrap();
-    // let mut cfg = Config::new();
-    // cfg.dbname = Some("sales".to_string());
-    // cfg.manager = Some(ManagerConfig { recycling_method: RecyclingMethod::Fast });
-    // let pool = config.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
 
     println!("服务已启动: 127.0.0.1:{}", port);
 
@@ -186,7 +182,7 @@ async fn main() -> std::io::Result<()> {
             .service(service::fetch_help)
             .service(service::serve_download)
             .service(service::start_date)
-            // .service(web::resource("static/{name}").to(html::serve_static))
+            .service(web::resource("static/{name}").to(html::serve_static))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "upload"))
     })

@@ -1,8 +1,8 @@
-@use super::base;
+@use super::base_html;
 @use crate::service::UserData;
 @(user: UserData, setup: Vec<&str>)
 
-@:base({
+@:base_html({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
 
 <div class="buy-in material materialout">

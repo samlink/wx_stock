@@ -3,9 +3,24 @@ use actix_identity::Identity;
 use actix_web::{get, web, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
+use serde::Deserialize;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
 use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成的, 无需修改
+
+#[derive(Deserialize)]
+pub struct File {
+    name: String,
+}
+
+///静态文件服务
+pub async fn serve_static(file: web::Path<File>) -> HttpResponse {
+    if let Some(data) = statics::StaticFile::get(&file.name) {
+        HttpResponse::Ok().body(data.content)
+    } else {
+        HttpResponse::NotFound().into()
+    }
+}
 
 fn goto_login() -> HttpResponse {
     HttpResponse::Found()
@@ -27,7 +42,7 @@ pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> Http
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         let name = name_show(&user);
-        let html = r2s(|o| home(o, name));
+        let html = r2s(|o| home_html(o, name));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -49,7 +64,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| userset(o, user));
+        let html = r2s(|o| userset_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -62,7 +77,7 @@ pub async fn user_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db, id, "用户设置".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| usermanage(o, user));
+        let html = r2s(|o| usermanage_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -75,7 +90,7 @@ pub async fn product_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db, id, "库存状态".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| productset(o, user));
+        let html = r2s(|o| productset_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -88,7 +103,7 @@ pub async fn field_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| fieldset(o, user));
+        let html = r2s(|o| fieldset_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -101,7 +116,7 @@ pub async fn customer_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     let mut user = get_user(db, id, "客户管理".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| customer(o, user, "客户"));
+        let html = r2s(|o| customer_html(o, user, "客户"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -114,7 +129,7 @@ pub async fn supplier_manage(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     let mut user = get_user(db, id, "供应商管理".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| customer(o, user, "供应商"));
+        let html = r2s(|o| customer_html(o, user, "供应商"));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -147,7 +162,7 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
         let setup = vec!["材料采购", "供应商", "入库单号", dh, "customer"]; // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, setup));
+        let html = r2s(|o| buyin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -171,7 +186,7 @@ pub async fn buy_back(
         let setup = vec!["采购退货", "供应商", "出库单号", dh, "customer"]; // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, setup));
+        let html = r2s(|o| buyin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -191,7 +206,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
 
         let setup = vec!["商品销售", "客户", "出库及发货单号", dh, "customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, setup));
+        let html = r2s(|o| buyin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -214,7 +229,7 @@ pub async fn saleback(
         };
         let setup = vec!["销售退货", "客户", "入库单号", dh, "customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| buyin(o, user, setup));
+        let html = r2s(|o| buyin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -237,7 +252,7 @@ pub async fn stock_change_in(
         };
         let setup = vec!["调整入库", "供应商", "近期调整", dh];
         user.show = name_show(&user);
-        let html = r2s(|o| stockin(o, user, setup));
+        let html = r2s(|o| stockin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -260,7 +275,7 @@ pub async fn stock_change_out(
         };
         let setup = vec!["调整出库", "供应商", "近期调整", dh];
         user.show = name_show(&user);
-        let html = r2s(|o| stockout(o, user, setup));
+        let html = r2s(|o| stockout_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -283,7 +298,7 @@ pub async fn material_in(
         };
         let setup = vec!["采购入库", "客户", "采购条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| material(o, user, setup));
+        let html = r2s(|o| material_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -306,7 +321,7 @@ pub async fn material_out(
         };
         let setup = vec!["销售出库", "客户", "出库条目", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| materialout(o, user, setup));
+        let html = r2s(|o| materialout_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -329,7 +344,7 @@ pub async fn transport(
         };
         let setup = vec!["运输发货", "客户", "出库单", dh, "no_customer"];
         user.show = name_show(&user);
-        let html = r2s(|o| saletrans(o, user, setup));
+        let html = r2s(|o| saletrans_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -346,7 +361,7 @@ pub async fn buy_query(
     let mut user = get_user(db.clone(), id, "采购查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "采购查询", "document_items", &limit.s));
+        let html = r2s(|o| query_html(o, user, "采购销售", "采购查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -362,7 +377,7 @@ pub async fn sale_query(
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "销售查询", "document_items", &limit.s));
+        let html = r2s(|o| query_html(o, user, "采购销售", "销售查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -378,7 +393,7 @@ pub async fn trans_query(
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "采购销售", "发货查询", "document_items", &limit.s));
+        let html = r2s(|o| query_html(o, user, "采购销售", "发货查询", "document_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -394,7 +409,7 @@ pub async fn change_query_in(
     let mut user = get_user(db.clone(), id, "入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "入库查询", "products", &limt.s));
+        let html = r2s(|o| query_html(o, user, "仓储管理", "入库查询", "products", &limt.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -410,7 +425,7 @@ pub async fn change_query_out(
     let mut user = get_user(db.clone(), id, "出库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "出库查询", "pout_items", &limit.s));
+        let html = r2s(|o| query_html(o, user, "仓储管理", "出库查询", "pout_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -426,7 +441,7 @@ pub async fn stock_query_in(
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "调入查询", "products", &limit.s));
+        let html = r2s(|o| query_html(o, user, "仓储管理", "调入查询", "products", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -442,7 +457,7 @@ pub async fn stock_query_out(
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| query(o, user, "仓储管理", "调出查询", "pout_items", &limit.s));
+        let html = r2s(|o| query_html(o, user, "仓储管理", "调出查询", "pout_items", &limit.s));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -455,7 +470,7 @@ pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "业务往来".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| businessquery(o, user));
+        let html = r2s(|o| businessquery_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -468,7 +483,7 @@ pub async fn stockin_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "入库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| stockinitems(o, user));
+        let html = r2s(|o| stockinitems_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -481,7 +496,7 @@ pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出库明细".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
-        let html = r2s(|o| stockoutitems(o, user));
+        let html = r2s(|o| stockoutitems_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

@@ -1,8 +1,8 @@
-@use super::base;
+@use super::base_html;
 @use crate::service::UserData;
 @(user: UserData)
 
-@:base({
+@:base_html({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
 
 <div class="docment-query business_query">

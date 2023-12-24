@@ -7,7 +7,7 @@ edition = "2021"
 build = "src/build.rs"
 
 [build-dependencies]
-ructe = "0.13.4"
+ructe = "0.17"
 
 [dependencies]
 time = "0.1"

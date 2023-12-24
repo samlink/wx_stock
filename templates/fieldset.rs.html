@@ -1,8 +1,8 @@
-@use super::base;
+@use super::base_html;
 @use crate::service::UserData;
 @(user: UserData)
 
-@:base({
+@:base_html({
 <div class="fields-set">
     <div class="top-title"><span><i class="fa fa-wrench"></i> 功能设置 </span>
         <span class="t1"><i class="fa fa-angle-double-right"></i> 字段设置 </span>
