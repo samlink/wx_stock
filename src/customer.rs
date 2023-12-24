@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
@@ -5,7 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use xlsxwriter::*;
+use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
 pub struct Customer {
@@ -81,7 +82,7 @@ pub async fn update_customer(
         let mut sql = build_sql_for_update(field_names.clone(), init, fields, 2);
         sql += &format!(r#"助记码='{}' WHERE id={}"#, py, field_names[0]);
 
-        let _ =  &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
     } else {
@@ -165,23 +166,43 @@ pub async fn customer_out(
         let fields = get_fields(db.clone(), &out_data.cate).await;
 
         let file_name = format!("./download/{}.xlsx", out_data.cate);
-        let wb = Workbook::new(&file_name);
+        let wb = Workbook::new(&file_name).unwrap();
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
 
-        let format1 = wb
-            .add_format()
-            .set_align(FormatAlignment::CenterAcross)
-            .set_bold(); //设置格式：居中，加粗
-
-        let format2 = wb.add_format().set_align(FormatAlignment::CenterAcross);
-
-        sheet.write_string(0, 0, "编号", Some(&format1)).unwrap();
-        sheet.set_column(0, 0, 10.0, Some(&format2)).unwrap();
+        sheet
+            .write_string(
+                0,
+                0,
+                "编号",
+                Some(
+                    &wb.add_format()
+                        .set_align(FormatAlignment::CenterAcross)
+                        .set_bold(),
+                ),
+            )
+            .unwrap();
+        sheet
+            .set_column(
+                0,
+                0,
+                10.0,
+                Some(&wb.add_format().set_align(FormatAlignment::CenterAcross)),
+            )
+            .unwrap();
 
         let mut n = 1;
         for f in &fields {
             sheet
-                .write_string(0, n, &f.show_name, Some(&format1))
+                .write_string(
+                    0,
+                    n,
+                    &f.show_name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
                 .unwrap();
             sheet
                 .set_column(n, n, (f.show_width * 2.5).into(), None)
@@ -202,12 +223,24 @@ pub async fn customer_out(
         let mut n = 1u32;
         for row in rows {
             let id: i32 = row.get("编号");
-            sheet.write_number(n, 0, id as f64, Some(&format2)).unwrap();
+            sheet
+                .write_number(
+                    n,
+                    0,
+                    id as f64,
+                    Some(&wb.add_format().set_align(FormatAlignment::CenterAcross)),
+                )
+                .unwrap();
             let mut m = 1u16;
             for f in &fields {
                 if f.data_type == "布尔" {
                     sheet
-                        .write_string(n, m, row.get(&*f.field_name), Some(&format2))
+                        .write_string(
+                            n,
+                            m,
+                            row.get(&*f.field_name),
+                            Some(&wb.add_format().set_align(FormatAlignment::CenterAcross)),
+                        )
                         .unwrap();
                 } else {
                     sheet

@@ -5,13 +5,13 @@ use actix_web::Either;
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
-use futures::{StreamExt, TryStreamExt};
+use futures::TryStreamExt;
+use image::imageops::FilterType;
+use image::GenericImageView;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
 use time::now;
-use image::imageops::FilterType;
-use image::GenericImageView;
 
 pub static SPLITER: &str = "<`*_*`>";
 
@@ -103,7 +103,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
     let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
     let local: Vec<&str> = date_string.split("-").collect();
 
-    let date = format!("{}{}{}-", dh_pre, local[0], local[1]);  //按月
+    let date = format!("{}{}{}-", dh_pre, local[0], local[1]); //按月
 
     //获取尾号
     let sql = format!(
@@ -143,18 +143,18 @@ pub async fn serve_download(
     let user = get_user(db, id, "导出数据".to_owned()).await;
     if user.name != "" {
         let path = req.match_info().query("filename");
-        Either::A(Ok(
+        Either::Left(Ok(
             fs::NamedFile::open(format!("./download/{}", path)).unwrap()
         ))
     } else {
-        Either::B(Ok("你没有权限下载该文件"))
+        Either::Right(Ok("你没有权限下载该文件"))
     }
 }
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
-    where
-        Call: FnOnce(&mut dyn Write) -> io::Result<()>,
+where
+    Call: FnOnce(&mut dyn Write) -> io::Result<()>,
 {
     let mut buf = Vec::new();
     call(&mut buf).unwrap();
@@ -229,7 +229,7 @@ pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
 
 ///获取一条空记录，用于无数据表格初始化
 #[post("/fetch_blank")]
-pub fn fetch_blank() -> HttpResponse {
+pub async fn fetch_blank() -> HttpResponse {
     let v: Vec<i32> = Vec::new();
     HttpResponse::Ok().json((v, 0, 0))
 }
@@ -237,29 +237,23 @@ pub fn fetch_blank() -> HttpResponse {
 //上传文件保存
 pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     let path = "./upload/upload_in.xlsx".to_owned();
-    while let Ok(Some(mut field)) = payload.try_next().await {
+    while let Some(mut field) = payload.try_next().await? {
         let filepath = path.clone();
-        let mut f = web::block(|| std::fs::File::create(filepath))
-            .await
-            .unwrap();
-        while let Some(chunk) = field.next().await {
-            let data = chunk.unwrap();
-            f = web::block(move || f.write_all(&data).map(|_| f)).await?;
+        let mut f = web::block(|| std::fs::File::create(filepath)).await??;
+        while let Some(chunk) = field.try_next().await? {
+            f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
         }
     }
     Ok(path)
 }
 
 pub async fn save_pic(mut payload: Multipart, path: String) -> Result<String, Error> {
-    while let Ok(Some(mut field)) = payload.try_next().await {
+    while let Some(mut field) = payload.try_next().await? {
         let filepath = path.clone();
-        let mut f = web::block(|| std::fs::File::create(filepath))
-            .await
-            .unwrap();
+        let mut f = web::block(|| std::fs::File::create(filepath)).await??;
 
-        while let Some(chunk) = field.next().await {
-            let data = chunk.unwrap();
-            f = web::block(move || f.write_all(&data).map(|_| f)).await?;
+        while let Some(chunk) = field.try_next().await? {
+            f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
         }
     }
     Ok(path)
@@ -316,9 +310,12 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
 pub async fn get_limits(user: &UserData) -> String {
     let mut limits = "".to_owned();
     if user.duty == "主管" {
-        limits = format!("documents.文本字段7 = '{}' AND", user.area);  // 文本字段7 为 区域
+        limits = format!("documents.文本字段7 = '{}' AND", user.area); // 文本字段7 为 区域
     } else if user.duty == "库管" {
-        limits = format!("documents.文本字段7 = '{}' AND 经办人 = '{}' AND", user.area, user.name);  // 文本字段7 为 区域
+        limits = format!(
+            "documents.文本字段7 = '{}' AND 经办人 = '{}' AND",
+            user.area, user.name
+        ); // 文本字段7 为 区域
     } else if user.duty == "销售" {
         limits = format!("经办人 = '{}' AND", user.name);
     }
@@ -507,9 +504,7 @@ pub async fn fetch_help(
 }
 
 #[post("/start_date")]
-pub fn start_date() -> HttpResponse {
+pub async fn start_date() -> HttpResponse {
     dotenv().ok();
     HttpResponse::Ok().json(dotenv::var("start").unwrap())
 }
-
-

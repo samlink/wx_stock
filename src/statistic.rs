@@ -1,10 +1,11 @@
+#![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::Deserialize;
 use time::Duration;
-use xlsxwriter::{FormatAlignment, Workbook};
+use xlsxwriter::{prelude::FormatAlignment, Workbook};
 
 #[derive(Deserialize)]
 pub struct StatisData {
@@ -777,15 +778,8 @@ pub async fn stockin_excel(
 
         // 导出到 Excel
         let file_name = format!("./download/{}.xlsx", "入库明细表");
-        let wb = Workbook::new(&file_name);
+        let wb = Workbook::new(&file_name).unwrap();
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
-
-        let format1 = wb
-            .add_format()
-            .set_align(FormatAlignment::CenterAcross)
-            .set_bold(); //设置格式：居中，加粗
-
-        let format2 = wb.add_format().set_align(FormatAlignment::Center);
 
         let fields: Vec<Fields> = vec![
             Fields {
@@ -852,7 +846,18 @@ pub async fn stockin_excel(
 
         let mut n = 0;
         for f in &fields {
-            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet
+                .write_string(
+                    0,
+                    n,
+                    &f.name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
+                .unwrap();
             sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
@@ -862,7 +867,12 @@ pub async fn stockin_excel(
             let mut m = 0u16;
             for f in &fields {
                 sheet
-                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .write_string(
+                        n,
+                        m,
+                        row.get(&*f.name),
+                        Some(&wb.add_format().set_align(FormatAlignment::Center)),
+                    )
                     .unwrap();
                 m += 1;
             }
@@ -952,15 +962,8 @@ pub async fn stockout_excel(
 
         // 导出到 Excel
         let file_name = format!("./download/{}.xlsx", "出库明细表");
-        let wb = Workbook::new(&file_name);
+        let wb = Workbook::new(&file_name).unwrap();
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
-
-        let format1 = wb
-            .add_format()
-            .set_align(FormatAlignment::CenterAcross)
-            .set_bold(); //设置格式：居中，加粗
-
-        let format2 = wb.add_format().set_align(FormatAlignment::Center);
 
         // //设置列宽
         // sheet.set_column(0, 0, 8.0, None).unwrap();
@@ -1031,7 +1034,18 @@ pub async fn stockout_excel(
 
         let mut n = 0;
         for f in &fields {
-            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet
+                .write_string(
+                    0,
+                    n,
+                    &f.name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
+                .unwrap();
             sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
@@ -1041,7 +1055,12 @@ pub async fn stockout_excel(
             let mut m = 0u16;
             for f in &fields {
                 sheet
-                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .write_string(
+                        n,
+                        m,
+                        row.get(&*f.name),
+                        Some(&wb.add_format().set_align(FormatAlignment::Center)),
+                    )
                     .unwrap();
                 m += 1;
             }
@@ -1250,15 +1269,8 @@ pub async fn business_excel(
 
         // 导出到 Excel
         let file_name = format!("./download/{}.xlsx", "业务往来明细表");
-        let wb = Workbook::new(&file_name);
+        let wb = Workbook::new(&file_name).unwrap();
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
-
-        let format1 = wb
-            .add_format()
-            .set_align(FormatAlignment::CenterAcross)
-            .set_bold(); //设置格式：居中，加粗
-
-        let format2 = wb.add_format().set_align(FormatAlignment::Center);
 
         let fields: Vec<Fields> = vec![
             Fields {
@@ -1329,7 +1341,18 @@ pub async fn business_excel(
 
         let mut n = 0;
         for f in &fields {
-            sheet.write_string(0, n, &f.name, Some(&format1)).unwrap();
+            sheet
+                .write_string(
+                    0,
+                    n,
+                    &f.name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
+                .unwrap();
             sheet.set_column(n, n, f.width.into(), None).unwrap();
             n += 1;
         }
@@ -1339,7 +1362,12 @@ pub async fn business_excel(
             let mut m = 0u16;
             for f in &fields {
                 sheet
-                    .write_string(n, m, row.get(&*f.name), Some(&format2))
+                    .write_string(
+                        n,
+                        m,
+                        row.get(&*f.name),
+                        Some(&wb.add_format().set_align(FormatAlignment::Center)),
+                    )
                     .unwrap();
                 m += 1;
             }

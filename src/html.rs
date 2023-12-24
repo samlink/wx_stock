@@ -9,7 +9,7 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 
 fn goto_login() -> HttpResponse {
     HttpResponse::Found()
-        .header("location", format!("/{}", "login"))
+        .append_header(("location", format!("/{}", "login")))
         .finish()
 }
 
@@ -36,7 +36,7 @@ pub async fn index(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> Http
 
 ///登录
 #[get("/login")]
-pub fn login(_req: HttpRequest) -> HttpResponse {
+pub async fn login(_req: HttpRequest) -> HttpResponse {
     dotenv().ok();
     let comany = dotenv::var("company").unwrap();
     let html = r2s(|o| login_html(o, comany));
@@ -144,7 +144,7 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
         } else {
             &*dh_num
         };
-        let setup = vec!["材料采购", "供应商", "入库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
+        let setup = vec!["材料采购", "供应商", "入库单号", dh, "customer"]; // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, setup));
@@ -156,7 +156,11 @@ pub async fn buy_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity
 
 ///采购退货
 #[get("/buy_back/{dh}")]
-pub async fn buy_back(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+pub async fn buy_back(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "材料采购".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
@@ -164,7 +168,7 @@ pub async fn buy_back(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identi
         } else {
             &*dh_num
         };
-        let setup = vec!["采购退货", "供应商", "出库单号", dh, "customer"];    // customer 表示有客户(供应商)自动完成
+        let setup = vec!["采购退货", "供应商", "出库单号", dh, "customer"]; // customer 表示有客户(供应商)自动完成
 
         user.show = name_show(&user);
         let html = r2s(|o| buyin(o, user, setup));
@@ -196,7 +200,11 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
 
 ///销售退货
 #[get("/saleback/{dh}")]
-pub async fn saleback(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+pub async fn saleback(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
@@ -261,7 +269,11 @@ pub async fn stock_change_out(
 
 /// 采购入库
 #[get("/material_in/{dh}")]
-pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+pub async fn material_in(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "采购入库".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
@@ -280,7 +292,11 @@ pub async fn material_in(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ide
 
 // 销售出库
 #[get("/material_out/{dh}")]
-pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+pub async fn material_out(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "销售出库".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
@@ -299,7 +315,11 @@ pub async fn material_out(db: web::Data<Pool>, dh_num: web::Path<String>, id: Id
 
 // 运输发货
 #[get("/transport/{dh}")]
-pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+pub async fn transport(
+    db: web::Data<Pool>,
+    dh_num: web::Path<String>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
@@ -318,7 +338,11 @@ pub async fn transport(db: web::Data<Pool>, dh_num: web::Path<String>, id: Ident
 
 ///以下连续的是查询
 #[get("/buy_query")]
-pub async fn buy_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn buy_query(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "采购查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -330,7 +354,11 @@ pub async fn buy_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Ident
 }
 
 #[get("/sale_query")]
-pub async fn sale_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn sale_query(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -342,7 +370,11 @@ pub async fn sale_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Iden
 }
 
 #[get("/trans_query")]
-pub async fn trans_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn trans_query(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "销售查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -354,7 +386,11 @@ pub async fn trans_query(db: web::Data<Pool>, limit: web::Query<Search>, id: Ide
 }
 
 #[get("/change_query_in")]
-pub async fn change_query_in(db: web::Data<Pool>, limt: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn change_query_in(
+    db: web::Data<Pool>,
+    limt: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "入库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -366,7 +402,11 @@ pub async fn change_query_in(db: web::Data<Pool>, limt: web::Query<Search>, id: 
 }
 
 #[get("/change_query_out")]
-pub async fn change_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn change_query_out(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "出库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -378,7 +418,11 @@ pub async fn change_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id
 }
 
 #[get("/stock_query_in")]
-pub async fn stock_query_in(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn stock_query_in(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
@@ -390,7 +434,11 @@ pub async fn stock_query_in(db: web::Data<Pool>, limit: web::Query<Search>, id: 
 }
 
 #[get("/stock_query_out")]
-pub async fn stock_query_out(db: web::Data<Pool>, limit: web::Query<Search>, id: Identity) -> HttpResponse {
+pub async fn stock_query_out(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
     let mut user = get_user(db.clone(), id, "调库查询".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);

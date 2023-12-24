@@ -154,9 +154,9 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
 /// 退出登录
 #[get("/logout")]
-pub fn logout(id: Identity) -> HttpResponse {
+pub async fn logout(id: Identity) -> HttpResponse {
     id.forget();
-    HttpResponse::Found().header("location", "/login").finish()
+    HttpResponse::Found().append_header(("location", "/login")).finish()
 }
 
 ///更改用户密码

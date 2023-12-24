@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
@@ -5,7 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use xlsxwriter::*;
+use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
 pub struct Product {
@@ -44,8 +45,18 @@ pub async fn fetch_product(
                        LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                        OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
                     "#,
-                    f_map["物料号"], na, f_map["规格"], na, f_map["生产厂家"], na, f_map["区域"],
-                    na, f_map["切完"], na, f_map["备注"], na,
+                    f_map["物料号"],
+                    na,
+                    f_map["规格"],
+                    na,
+                    f_map["生产厂家"],
+                    na,
+                    f_map["区域"],
+                    na,
+                    f_map["切完"],
+                    na,
+                    f_map["备注"],
+                    na,
                 );
             }
         }
@@ -68,7 +79,15 @@ pub async fn fetch_product(
             ON products.文本字段1 = foo.物料号
             WHERE products.商品id='{}' {} {} {} AND documents.文本字段10 <>''
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, post_data.id, done, area, conditions, post_data.sort, skip, post_data.rec
+            sql_fields,
+            post_data.sort,
+            post_data.id,
+            done,
+            area,
+            conditions,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
         // println!("{}", sql);
@@ -201,15 +220,8 @@ pub async fn product_out(
         let fields = get_fields(db.clone(), "商品规格").await;
 
         let file_name = format!("./download/{}.xlsx", product.name);
-        let wb = Workbook::new(&file_name);
+        let wb = Workbook::new(&file_name).unwrap();
         let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
-
-        let format1 = wb
-            .add_format()
-            .set_align(FormatAlignment::CenterAcross)
-            .set_bold(); //设置格式：居中，加粗
-
-        let format2 = wb.add_format().set_align(FormatAlignment::CenterAcross);
 
         //设置列宽
         sheet.set_column(0, 0, 8.0, None).unwrap();
@@ -220,7 +232,16 @@ pub async fn product_out(
         let mut n = 0;
         for f in &fields {
             sheet
-                .write_string(0, n, &f.show_name, Some(&format1))
+                .write_string(
+                    0,
+                    n,
+                    &f.show_name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
                 .unwrap();
             sheet
                 .set_column(n, n, (f.show_width * 2.5).into(), None)
@@ -234,7 +255,7 @@ pub async fn product_out(
 
         sql += &format!(
             r#"1 FROM products JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND documents.文本字段10 <> '' ORDER BY 规格型号"#,     //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
+               WHERE 商品id='{}' AND documents.文本字段10 <> '' ORDER BY 规格型号"#, //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
             product.id
         );
 
@@ -247,7 +268,12 @@ pub async fn product_out(
             for f in &fields {
                 if f.data_type == "布尔" {
                     sheet
-                        .write_string(n, m, row.get(&*f.field_name), Some(&format2))
+                        .write_string(
+                            n,
+                            m,
+                            row.get(&*f.field_name),
+                            Some(&wb.add_format().set_align(FormatAlignment::CenterAcross)),
+                        )
                         .unwrap();
                 } else {
                     sheet
@@ -337,8 +363,8 @@ pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> 
                     init += &format!("{},", &*f.field_name);
                 }
 
-                init += r#"商品id, 单号id) VALUES("#;         // 单号id 是与 documents 单据库的“单号”关联的外键，需有值。这里的值是初始建库时，
-                // 手工 insert into 的单号，所有的数据导入，均以此单号为键
+                init += r#"商品id, 单号id) VALUES("#; // 单号id 是与 documents 单据库的“单号”关联的外键，需有值。这里的值是初始建库时，
+                                                      // 手工 insert into 的单号，所有的数据导入，均以此单号为键
                 for j in 0..total_rows {
                     let mut sql = init.clone();
 
@@ -364,7 +390,7 @@ pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> 
                         }
                     }
 
-                    sql += &format!("'{}','{}')", p_id, "KT202312-01");    // 这个单号id 是初始建库时手动 insert into documents 中的，
+                    sql += &format!("'{}','{}')", p_id, "KT202312-01"); // 这个单号id 是初始建库时手动 insert into documents 中的，
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
             }
@@ -441,7 +467,6 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
     if user.name != "" {
         let conn = db.get().await.unwrap();
 
-
         let sql = format!("select 单号id, 类别, 日期, 长度, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
                                 join documents on 单号 = 单号id
                                 where 物料号 = '{}' and 文本字段10 <> '' order by 单号id desc", data);
@@ -485,4 +510,3 @@ pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) 
         HttpResponse::Ok().json(-1)
     }
 }
-

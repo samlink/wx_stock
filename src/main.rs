@@ -1,16 +1,16 @@
 use actix_files as fs;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
-use actix_web::{App, HttpServer};
-use config::ConfigError;
+use actix_web::{cookie::time::Duration, web, web::Data, App, HttpServer};
+use deadpool_postgres::Runtime;
 use dotenv::dotenv;
 use serde::Deserialize;
 
 mod buyin;
-mod material;
 mod customer;
 mod documentquery;
 mod field_set;
 mod html;
+mod material;
 mod product;
 mod service;
 mod statistic;
@@ -24,10 +24,11 @@ struct Config {
 }
 
 impl Config {
-    fn from_env() -> Result<Self, ConfigError> {
-        let mut cfg = config::Config::new();
-        cfg.merge(config::Environment::new().separator("__"))?;
-        cfg.try_into()
+    pub fn from_env() -> Result<Self, config::ConfigError> {
+        let cfg = config::Config::builder()
+            .add_source(config::Environment::default().separator("__"))
+            .build()?;
+        cfg.try_deserialize()
     }
 }
 
@@ -37,17 +38,24 @@ async fn main() -> std::io::Result<()> {
     let port = dotenv::var("port").unwrap();
 
     let config = Config::from_env().unwrap();
-    let pool = config.pg.create_pool(tokio_postgres::NoTls).unwrap();
+    let pool = config
+        .pg
+        .create_pool(Some(Runtime::Tokio1), tokio_postgres::NoTls)
+        .unwrap();
+    // let mut cfg = Config::new();
+    // cfg.dbname = Some("sales".to_string());
+    // cfg.manager = Some(ManagerConfig { recycling_method: RecyclingMethod::Fast });
+    // let pool = config.create_pool(Some(Runtime::Tokio1), NoTls).unwrap();
 
     println!("服务已启动: 127.0.0.1:{}", port);
 
     HttpServer::new(move || {
         App::new()
-            .data(pool.clone())
+            .app_data(Data::new(pool.clone()))
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[6; 32])
                     .name("auth-sales")
-                    .max_age(2592000) //30天
+                    .max_age(Duration::days(30)) //30天
                     .secure(false),
             ))
             .service(html::index)
@@ -78,7 +86,6 @@ async fn main() -> std::io::Result<()> {
             .service(html::business_query)
             .service(html::stockin_items)
             .service(html::stockout_items)
-
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
@@ -98,7 +105,6 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_sumit_shen)
             .service(buyin::make_formal)
             .service(buyin::anti_formal)
-
             .service(material::material_auto)
             .service(material::materialout_auto)
             .service(material::material_auto_out)
@@ -126,29 +132,24 @@ async fn main() -> std::io::Result<()> {
             .service(material::pic_in_save)
             .service(material::pdf_in)
             .service(material::pdf_in_save)
-
             .service(documentquery::fetch_show_fields)
             .service(documentquery::fetch_all_documents)
             .service(documentquery::documents_del)
-
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
             .service(user_set::forget_pass)
             .service(user_set::change_pass)
             .service(user_set::phone_number)
-
             .service(user_manage::pull_users)
             .service(user_manage::edit_user)
             .service(user_manage::del_user)
-
             .service(tree::tree)
             .service(tree::tree_add)
             .service(tree::tree_edit)
             .service(tree::tree_del)
             .service(tree::tree_auto)
             .service(tree::tree_drag)
-
             .service(product::fetch_product)
             .service(product::update_product)
             .service(product::add_product)
@@ -159,12 +160,10 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_in)
             .service(product::product_datain)
             .service(product::product_updatein)
-
             .service(field_set::fetch_fields)
             .service(field_set::fetch_fields2)
             .service(field_set::update_tableset)
             .service(field_set::update_tableset2)
-
             .service(customer::fetch_customer)
             .service(customer::update_customer)
             .service(customer::add_customer)
@@ -174,7 +173,6 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
-
             .service(statistic::get_stockin_items)
             .service(statistic::get_stockout_items)
             .service(statistic::stockin_excel)
@@ -184,7 +182,6 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
-
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
@@ -193,7 +190,7 @@ async fn main() -> std::io::Result<()> {
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "upload"))
     })
-        .bind(format!("127.0.0.1:{}", port))?
-        .run()
-        .await
+    .bind(format!("127.0.0.1:{}", port))?
+    .run()
+    .await
 }
