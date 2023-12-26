@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #parts --------
 terser ./parts/alert.mjs -c -o ../min/parts/alert.mjs
 terser ./parts/autocomplete.mjs -c -o ../min/parts/autocomplete.mjs

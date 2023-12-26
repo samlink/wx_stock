@@ -1,5 +1,5 @@
 import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
+// import { alert_confirm } from '../parts/alert.mjs';
 import * as service from '../parts/service.mjs';
 import {
     SPLITER,
@@ -15,7 +15,7 @@ import { customer_init, out_data } from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
-import { edit_button_disabled, only_worker, sumit_shen } from "../parts/service.mjs";
+// import { edit_button_disabled, only_worker, sumit_shen } from "../parts/service.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
