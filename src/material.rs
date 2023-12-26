@@ -180,7 +180,7 @@ pub async fn material_auto_out(
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE LOWER(products.{}) LIKE '%{}%' AND num='{}' AND 
+                WHERE LOWER(products.{}) LIKE LOWER('%{}%') AND num='{}' AND 
                 products.{} = '{}' and products.{} = '{}' and
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND
                 products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,

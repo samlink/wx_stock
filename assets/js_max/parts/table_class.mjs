@@ -223,7 +223,3 @@ export class MakeTable {
         }
     }
 }
-
-
-
-
