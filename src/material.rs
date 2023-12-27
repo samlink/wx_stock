@@ -1339,7 +1339,7 @@ pub async fn make_ck_complete(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
-            (select 出库完成 from document_items where 单号id='{}');"#,
+            (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
             dh, dh
         );
 

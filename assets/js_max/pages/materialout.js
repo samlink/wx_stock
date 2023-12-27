@@ -613,8 +613,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     document.querySelector('#print').hidden = false;
     Print('#print', {});
     document.querySelector('#print').hidden = true;
-})
-    ;
+});
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {

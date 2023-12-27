@@ -124,6 +124,7 @@ export function build_out_table(data) {
     append_blanks(tbody, num);
 }
 
+// 添加一个编辑行
 export function appand_edit_row() {
     let tbody = input_data.container.querySelector('tbody');
     let trs = tbody.querySelectorAll('tr');
