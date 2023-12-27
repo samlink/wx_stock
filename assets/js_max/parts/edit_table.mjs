@@ -260,6 +260,7 @@ function build_edit_string(show_names, all_width) {
             control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td>`;
         } else if (obj.type == "autocomplete" && obj.editable) {
             let button = obj.no_button ? "" : "<button class='btn btn-info btn-sm product-search-button'> ... </button>";
+
             control += `
             <td width=${obj.width * 100 / all_width} class="editable" >
                 <div class="form-input autocomplete" style="z-index: 900; position: inherit">
@@ -340,7 +341,7 @@ function auto_input_handle(input_row, auto_data) {
         }
 
         Object.assign(auto, data);
-        auto.auto_input.style.width = auto.auto_th.clientWidth - 36 + "px";
+        // auto.auto_input.style.width = auto.auto_th.clientWidth - 36 + "px";
 
         auto.auto_td.addEventListener('click', function () {
             element_position(this, 7.4, 1);
