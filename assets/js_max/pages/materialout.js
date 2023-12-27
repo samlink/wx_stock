@@ -271,7 +271,7 @@ show_names = [
     { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
     {
         name: "物料号",
-        width: 80,
+        width: 100,
         class: "物料号",
         type: "autocomplete",
         editable: true,
@@ -279,7 +279,7 @@ show_names = [
         no_button: true
     },
     { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
-    { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
+    { name: "理论重量", width: 40, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
     {
         name: "　备注",
         width: 100,
