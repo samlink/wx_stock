@@ -82,6 +82,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::business_query)
             .service(html::stockin_items)
             .service(html::stockout_items)
+            
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
             .service(buyin::fetch_inout_customer)
@@ -101,6 +102,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_sumit_shen)
             .service(buyin::make_formal)
             .service(buyin::anti_formal)
+
             .service(material::material_auto)
             .service(material::materialout_auto)
             .service(material::material_auto_out)
@@ -128,24 +130,29 @@ async fn main() -> std::io::Result<()> {
             .service(material::pic_in_save)
             .service(material::pdf_in)
             .service(material::pdf_in_save)
+
             .service(documentquery::fetch_show_fields)
             .service(documentquery::fetch_all_documents)
             .service(documentquery::documents_del)
+
             .service(user_set::login)
             .service(user_set::logon)
             .service(user_set::logout)
             .service(user_set::forget_pass)
             .service(user_set::change_pass)
             .service(user_set::phone_number)
+
             .service(user_manage::pull_users)
             .service(user_manage::edit_user)
             .service(user_manage::del_user)
+
             .service(tree::tree)
             .service(tree::tree_add)
             .service(tree::tree_edit)
             .service(tree::tree_del)
             .service(tree::tree_auto)
             .service(tree::tree_drag)
+
             .service(product::fetch_product)
             .service(product::update_product)
             .service(product::add_product)
@@ -156,10 +163,12 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_in)
             .service(product::product_datain)
             .service(product::product_updatein)
+
             .service(field_set::fetch_fields)
             .service(field_set::fetch_fields2)
             .service(field_set::update_tableset)
             .service(field_set::update_tableset2)
+
             .service(customer::fetch_customer)
             .service(customer::update_customer)
             .service(customer::add_customer)
@@ -169,6 +178,7 @@ async fn main() -> std::io::Result<()> {
             .service(customer::supplier_in)
             .service(customer::customer_addin)
             .service(customer::customer_updatein)
+
             .service(statistic::get_stockin_items)
             .service(statistic::get_stockout_items)
             .service(statistic::stockin_excel)
@@ -178,10 +188,12 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
+            
             .service(service::fetch_blank)
             .service(service::fetch_help)
             .service(service::serve_download)
             .service(service::start_date)
+            
             .service(web::resource("static/{name}").to(html::static_file))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "upload"))

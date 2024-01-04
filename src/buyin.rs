@@ -160,7 +160,12 @@ pub async fn buyin_auto(
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
-                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) LIMIT 10"#,
+                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({})
+                UNION
+                SELECT num as id, split_part(node_name,' ',2) || '<`*_*`>' || split_part(node_name,' ',1) || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' ||
+                ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' 
+                from tree WHERE pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' limit 10
+            "#,
             SPLITER,
             SPLITER,
             sql_fields,
@@ -174,10 +179,12 @@ pub async fn buyin_auto(
             f_map["库存长度"],
             s[0].to_lowercase(),
             s[0].to_lowercase(),
-            sql_where
+            sql_where,
+            s[0].to_lowercase(),
+            s[0].to_lowercase(),
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
