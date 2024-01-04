@@ -184,7 +184,7 @@ pub async fn buyin_auto(
             s[1].to_lowercase(),
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
