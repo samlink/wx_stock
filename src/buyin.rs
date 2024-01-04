@@ -164,7 +164,7 @@ pub async fn buyin_auto(
                 UNION
                 SELECT num as id, split_part(node_name,' ',2) || '<`*_*`>' || split_part(node_name,' ',1) || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' ||
                 ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' 
-                from tree WHERE pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' limit 10
+                from tree WHERE LOWER(pinyin) like '%{}%' and LOWER(node_name) LIKE '%{}%' and num ~ '_' limit 10
             "#,
             SPLITER,
             SPLITER,
@@ -181,7 +181,7 @@ pub async fn buyin_auto(
             s[0].to_lowercase(),
             sql_where,
             s[0].to_lowercase(),
-            s[0].to_lowercase(),
+            s[1].to_lowercase(),
         );
 
         println!("{}", sql);

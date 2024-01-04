@@ -588,7 +588,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
             let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
-            console.log(td)
             trs += `<td>${td}</td>`;
         }
         trs += '</tr>';
