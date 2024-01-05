@@ -1,10 +1,10 @@
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import {regInt, regReal, getHeight, SPLITER, download_file, checkFileType} from '../parts/tools.mjs';
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-import {modal_init, close_modal, leave_alert, modal_out_data} from "../parts/modal.mjs";
+import { modal_init, close_modal, leave_alert, modal_out_data } from "../parts/modal.mjs";
 
 let cus_cate = document.querySelector('#category').textContent;
 
@@ -54,7 +54,7 @@ fetch(`/fetch_fields`, {
             });
 
             let table = document.querySelector('.table-customer');
-            let custom_fields = [{name: '序号', width: 3}]
+            let custom_fields = [{ name: '序号', width: 3 }]
             let data = service.build_table_header(table, custom_fields, table_fields, "", "customers");
             table.querySelector('thead tr').innerHTML = data.th_row;
             // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
@@ -93,7 +93,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 function search_table() {
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, {name: search, page: 1});
+    Object.assign(table_data.post_data, { name: search, page: 1 });
     fetch_table();
 }
 
@@ -136,66 +136,69 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 document.querySelector('#modal-sumit-button').addEventListener('click', function () {
     if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
         let all_input = document.querySelectorAll('.has-value');
-        if (all_input[0].value != "") {
-            let num = 0;
-            for (let input of all_input) {
-                if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
-                    || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
-                    notifier.show('数字字段输入错误', 'danger');
+        let num = 0;
+        for (let input of all_input) {
+            if (input.value.trim() == '' && input.parentNode.querySelector('label').textContent != "备注" &&
+                input.parentNode.querySelector('label').textContent != "行号") {
+                    notifier.show('除了行号和备注外，不能为空', 'danger');
                     return false;
-                }
-                num++;
-            }
-            let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
-
-            let n = 0;
-            for (let input of all_input) {
-                let value;
-                if (table_fields[n].data_type != "布尔") {
-                    value = input.value;
-                } else {
-                    let v = table_fields[n].option_value.split("_");
-                    value = input.checked ? v[0] : v[1];
-                }
-
-                customer += `${value}${SPLITER}`;
-                n++;
             }
 
-            let data = {
-                data: customer,
-                cate: cus_cate,
-            };
-
-            let url = global.eidt_cate == "edit" ? `/update_customer` : `/add_customer`;
-
-            fetch(url, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content == 1) {
-                        global.edit = 0;
-                        modal_out_data.edit = 0;
-                        notifier.show(cus_cate + '修改成功', 'success');
-                        fetch_table();
-                        if (global.eidt_cate == "add") {
-                            for (let input of all_input) {
-                                input.value = "";
-                            }
-                        }
-                        close_modal();
-                    } else {
-                        notifier.show('权限不够，操作失败', 'danger');
-                    }
-                });
-        } else {
-            notifier.show('空值不能提交', 'danger');
+            if (table_fields[num].data_type == "整数" && !regInt.test(input.value)
+                || table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+                notifier.show('数字字段输入错误', 'danger');
+                return false;
+            }
+            num++;
         }
+        let customer = `${global.row_id}${SPLITER}${global.row_id}${SPLITER}`;
+
+        let n = 0;
+        for (let input of all_input) {
+            let value;
+            if (table_fields[n].data_type != "布尔") {
+                value = input.value;
+            } else {
+                let v = table_fields[n].option_value.split("_");
+                value = input.checked ? v[0] : v[1];
+            }
+
+            customer += `${value}${SPLITER}`;
+            n++;
+        }
+
+        let data = {
+            data: customer,
+            cate: cus_cate,
+        };
+
+        let url = global.eidt_cate == "edit" ? `/update_customer` : `/add_customer`;
+
+        fetch(url, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    global.edit = 0;
+                    modal_out_data.edit = 0;
+                    notifier.show(cus_cate + '修改成功', 'success');
+                    fetch_table();
+                    if (global.eidt_cate == "add") {
+                        for (let input of all_input) {
+                            input.value = "";
+                        }
+                    }
+                    close_modal();
+                } else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
+
     } else {
         let url = global.eidt_cate == "批量导入" ? `/customer_addin` : `/customer_updatein`;
         fetch(url, {
@@ -203,7 +206,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({cate: cus_cate}),
+            body: JSON.stringify({ cate: cus_cate }),
         })
             .then(response => response.json())
             .then(content => {
@@ -226,7 +229,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({cate: cus_cate}),
+        body: JSON.stringify({ cate: cus_cate }),
     })
         .then(response => response.json())
         .then(content => {
