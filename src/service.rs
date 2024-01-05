@@ -102,8 +102,8 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
 
     let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
     let local: Vec<&str> = date_string.split("-").collect();
-
-    let date = format!("{}{}{}-", dh_pre, local[0], local[1]); //按月
+    let y = local[0];
+    let date = format!("{}{}{}-", dh_pre, &y[2..4], local[1]); //按月
 
     //获取尾号
     let sql = format!(
@@ -119,7 +119,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         dh_first = row.get("单号");
     }
 
-    let keep = 2usize;
+    let keep = 3usize;       // 单号位数
     let len = dh_first.len();
     let mut num = 1i32;
     if dh_first != "0" {
