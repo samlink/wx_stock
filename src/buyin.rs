@@ -151,8 +151,14 @@ pub async fn buyin_auto(
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
         // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
-        let sql = &format!(
-            r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+        let sql = if search.cate == "采购单据" {
+            format!(
+                r#"SELECT num as id, split_part(node_name,' ',2) || '<`*_*`>' || split_part(node_name,' ',1) ||
+                 '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' ||
+                ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' as label             
+                from tree WHERE LOWER(pinyin) like '%{}%' and LOWER(node_name) LIKE '%{}%' and num ~ '_' 
+                UNION ALL
+                SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || products.{} || '{}' ||
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
                 round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
@@ -161,32 +167,57 @@ pub async fn buyin_auto(
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
                  (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({})
-                UNION
-                SELECT num as id, split_part(node_name,' ',2) || '<`*_*`>' || split_part(node_name,' ',1) || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' ||
-                ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' 
-                from tree WHERE LOWER(pinyin) like '%{}%' and LOWER(node_name) LIKE '%{}%' and num ~ '_' limit 10
+                limit 10
             "#,
-            SPLITER,
-            SPLITER,
-            sql_fields,
-            SPLITER,
-            f_map["售价"],
-            SPLITER,
-            f_map["库存长度"],
-            SPLITER,
-            f_map["理论重量"],
-            cate_s,
-            f_map["库存长度"],
-            s[0].to_lowercase(),
-            s[0].to_lowercase(),
-            sql_where,
-            s[0].to_lowercase(),
-            s[1].to_lowercase(),
-        );
+                s[0].to_lowercase(),
+                s[1].to_lowercase(),
+                SPLITER,
+                SPLITER,
+                sql_fields,
+                SPLITER,
+                f_map["售价"],
+                SPLITER,
+                f_map["库存长度"],
+                SPLITER,
+                f_map["理论重量"],
+                cate_s,
+                f_map["库存长度"],
+                s[0].to_lowercase(),
+                s[0].to_lowercase(),
+                sql_where
+            )
+        } else {
+            format!(
+                r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+                || '{}' || {} || '{}' || products.{} || '{}' ||
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
+                round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
+                JOIN tree ON products.商品id = tree.num
+                LEFT JOIN cut_length() as foo
+                ON products.文本字段1 = foo.物料号
+                WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
+                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
+            "#,
+                SPLITER,
+                SPLITER,
+                sql_fields,
+                SPLITER,
+                f_map["售价"],
+                SPLITER,
+                f_map["库存长度"],
+                SPLITER,
+                f_map["理论重量"],
+                cate_s,
+                f_map["库存长度"],
+                s[0].to_lowercase(),
+                s[0].to_lowercase(),
+                sql_where
+            )
+        };
 
         // println!("{}", sql);
 
-        autocomplete(db, sql).await
+        autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
     }
