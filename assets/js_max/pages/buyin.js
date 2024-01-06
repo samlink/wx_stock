@@ -607,7 +607,7 @@ function error_check() {
         return false;
     }
 
-    if (document.querySelector('#文本字段6').value.trim() == '') {
+    if (document.querySelector('#文本字段6') && document.querySelector('#文本字段6').value.trim() == '') {
         notifier.show('合同编号不能为空', 'danger');
         return false;
     }
