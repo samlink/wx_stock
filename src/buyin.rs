@@ -990,7 +990,7 @@ pub async fn anti_formal(db: web::Data<Pool>, data: String, id: Identity) -> Htt
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await; //所有单据均为 文本字段10, 提交审核为 布尔字段3
         let sql = format!(
-            r#"update documents set {}='', {}=false WHERE 单号='{}'"#,
+            r#"update documents set {}='', {}=false, 已记账=true WHERE 单号='{}'"#,
             f_map["审核"], f_map["提交审核"], data
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();

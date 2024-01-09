@@ -253,7 +253,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             and 单号 in (select documents.{} from documents where documents.{} <>''
             and documents.类别='销售出库' and documents.{} <> '') order by 单号 desc"#,
             f_map2["简称"],
-            limit,
+            limits,
             f_map["发货完成"],
             f_map4["销售单号"],
             f_map4["销售单号"],
@@ -278,9 +278,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let sql = format!(
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
-            where {} documents.类别='材料采购' and documents.{} = false and 
+            where documents.类别='材料采购' and documents.{} = false and 
             documents.文本字段10 != '' order by 单号 desc"#,
-            f_map3["简称"], limit, f_map5["入库完成"]
+            f_map3["简称"], f_map5["入库完成"]
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -335,9 +335,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let sql = format!(
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
-            where {} documents.类别='采购退货' and documents.{} = false
+            where documents.类别='采购退货' and documents.{} = false
             and documents.文本字段10 !='' order by 单号 desc"#,
-            f_map3["简称"], limits, f_map5["入库完成"]
+            f_map3["简称"], f_map5["入库完成"]
         );
 
         // println!("{}",sql);
@@ -351,7 +351,30 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             check.push(item);
         }
 
-        HttpResponse::Ok().json((sale1, sale2, buy, shen, check, pre_shen))
+        //反审单据 ------------------------
+        let mut fan = Vec::new();
+
+        let sql = format!(
+            r#"select 单号, case when customers.类别 = '客户' then customers.文本字段7 else 
+            customers.文本字段1 end as 简称, 经办人 from documents
+            join customers on 客商id = customers.id
+            where {} documents.文本字段10 = '' and documents.布尔字段3 = false and
+            已记账 = true order by 单号 desc"#,
+            limits
+        );
+
+        // println!("{}",sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let dh: &str = row.get("单号");
+            let worker: &str = row.get("经办人");
+            let na: &str = row.get("简称");
+            let item = format!("{} {:>4} {}", dh, na, worker);
+            fan.push(item);
+        }
+
+        HttpResponse::Ok().json((sale1, sale2, buy, shen, check, pre_shen, fan))
     } else {
         HttpResponse::Ok().json(-1)
     }

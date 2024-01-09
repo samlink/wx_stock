@@ -47,7 +47,7 @@
     //width: 18%;
     height: 60px;
     border-radius: 4px;
-    margin-right: 35px;
+    margin-right: 15px;
     cursor: pointer;
 
     i {
@@ -72,7 +72,7 @@
       height: 85%;
       border: 1px solid #d7d7d7;
       border-top: none;
-      margin-right: 35px;
+      margin-right: 15px;
 
       ul {
         margin-top: 0;
@@ -84,7 +84,7 @@
         list-style-type: none;
 
         li {
-          padding: 5px 10px 5px 15px;
+          padding: 5px 5px 5px 10px;
           cursor: pointer;
           &:hover {
             background-color: $table-hover-color;
@@ -122,6 +122,11 @@
 
   #warn-tip2 {
     background-color: #eb72aa;
+    cursor: default;
+  }
+
+  #warn-tip7 {
+    background-color: #8dd7dd;
     cursor: default;
   }
 

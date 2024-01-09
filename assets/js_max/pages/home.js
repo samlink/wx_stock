@@ -123,9 +123,51 @@ fetch(`/home_statis`, {
             }
 
             show_reminders(data6);
+
+            //反审单据
+            let data7 = {
+                content: content[6],
+                lines: fit_lines,
+                reminder: document.querySelector('#show-07 .reminder'),
+                title_holer: document.querySelector('#fan-data'),
+                title: `反审单据 ${content[6].length} 单`,
+                alter_func: function () {
+                    this.reminder.querySelectorAll('li').forEach((li) => {
+                        li.addEventListener('click', () => {
+                            window.location.href = get_locat(li.textContent.split(' ')[0]);
+                        })
+                    });
+                }
+            }
+
+            show_reminders(data7);
         }
     }
     );
+
+function get_locat(dh) {
+    let loc;
+    if (dh.startsWith("XS")) {
+        loc = "/sale/" + dh;
+    } else if (dh.startsWith("XT")) {
+        loc = "/saleback/" + dh;
+    } else if (dh.startsWith("CG")) {
+        loc = "/buy_in/" + dh;
+    } else if (dh.startsWith("CT")) {
+        loc = "/buy_back/" + dh;
+    } else if (dh.startsWith("RK")) {
+        loc = "/material_in/" + dh;
+    } else if (dh.startsWith("CK")) {
+        loc = "/material_out/" + dh;
+    } else if (dh.startsWith("FH")) {
+        loc = "/transport/" + dh;
+    } else if (dh.startsWith("TR")) {
+        loc = "/stock_change_in/" + dh;
+    } else {
+        loc = "/stock_change_out/" + dh;
+    }
+    return loc;
+}
 
 function get_address(cate) {
     let address;

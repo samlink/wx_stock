@@ -32,6 +32,8 @@ pub async fn fetch_all_documents(
     let user = get_user(db.clone(), id, "".to_owned()).await;
 
     if user.name != "" {
+        let mut limits = get_limits(&user).await;
+
         let doc_cate;
         let doc_sql;
 
@@ -40,6 +42,11 @@ pub async fn fetch_all_documents(
         if cate[0] == "采购查询" {
             doc_cate = "采购单据";
             doc_sql = "documents.类别 = '材料采购' or documents.类别 = '采购退货'";
+            if user.duty == "销售" {
+                limits = "".to_owned();
+            } else if user.duty == "库管" {
+                limits = format!("documents.文本字段7 = '{}' AND", user.area);
+            }
         } else if cate[0] == "销售查询" {
             doc_cate = "销售单据";
             doc_sql = "documents.类别 = '商品销售' or documents.类别 = '销售退货'";
@@ -83,8 +90,6 @@ pub async fn fetch_all_documents(
 
         // println!("{},{}",cate[1], query_limit);
 
-        let limits = get_limits(&user).await;
-
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         // let name = post_data.name.to_lowercase();
@@ -115,7 +120,15 @@ pub async fn fetch_all_documents(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
             JOIN customers ON documents.客商id=customers.id
             WHERE {} {} ({}) AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, limits, query_limit, doc_sql, sql_where, post_data.sort, skip, post_data.rec
+            sql_fields,
+            post_data.sort,
+            limits,
+            query_limit,
+            doc_sql,
+            sql_where,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
         // println!("{}", sql);
@@ -129,7 +142,14 @@ pub async fn fetch_all_documents(
             let customer_name: String = row.get("名称");
             let row_str = format!(
                 "{}{}{}{}{}{}{}{}{}",
-                num, SPLITER, dh, SPLITER, cate, SPLITER, customer_name, SPLITER,
+                num,
+                SPLITER,
+                dh,
+                SPLITER,
+                cate,
+                SPLITER,
+                customer_name,
+                SPLITER,
                 simple_string_from_base(row, &fields),
             );
 

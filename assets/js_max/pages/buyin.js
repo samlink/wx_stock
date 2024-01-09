@@ -382,6 +382,14 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function calculate(input_row) {
+    if (input_row.querySelector('.规格')) {
+        input_row.querySelector('.规格').addEventListener('blur', function () {
+            calc_weight(input_row);
+            calc_money(input_row);
+            sum_money();
+        });
+    }
+
     if (input_row.querySelector('.price')) {
         input_row.querySelector('.price').addEventListener('blur', function () {
             calc_money(input_row);
@@ -393,7 +401,7 @@ function calculate(input_row) {
             sum_money();
         });
     }
-
+    
     if (input_row.querySelector('.long')) {
         input_row.querySelector('.long').addEventListener('blur', function () {
             calc_weight(input_row);
