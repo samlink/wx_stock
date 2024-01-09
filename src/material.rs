@@ -1345,6 +1345,16 @@ pub async fn make_ck_complete(
 
         let _ = conn.query(sql.as_str(), &[]).await;
 
+        let sql = format!(
+            r#"update documents set 布尔字段2 = true where 单号 ='{}' and
+                (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
+                (select sum(数量) from pout_items where 单号id in
+                (select 单号 from documents where 文本字段6='{}'))"#,
+            dh, dh, dh
+        );
+
+        let _ = conn.query(sql.as_str(), &[]).await;
+
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

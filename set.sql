@@ -26,8 +26,9 @@ CREATE TABLE public.lu (
 );
 
 备份还原单表
-pg_dump -U postgres sales -t tableset -f set.sql
+pg_dump sales -t tableset -f set.sql
 drop table tableset
 psql sales < set.sql
 
+其他命令
 alter table document_items add column 出库完成 bool default false;
