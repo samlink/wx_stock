@@ -1372,10 +1372,20 @@ pub async fn make_fh_complete(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"update documents set 布尔字段1 = true where 单号='{}' and 布尔字段2=true 
+            r#"update documents set 布尔字段1 = true where 单号='{}' and 布尔字段2 = true 
              and false not in (select 布尔字段1 from documents where 文本字段6 ='{}' and 
              类别 = '销售出库' and 文本字段10 !='')"#,
             dh, dh
+        );
+
+        let _ = conn.query(sql.as_str(), &[]).await;
+
+        let sql = format!(
+            r#"update documents set 布尔字段1 = true where 单号 ='{}' and 布尔字段2 = true and
+                (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
+                (select sum(数量) from document_items where 单号id in
+                (select 单号 from documents where 文本字段6='{}'))"#,
+            dh, dh, dh
         );
 
         let _ = conn.query(sql.as_str(), &[]).await;
