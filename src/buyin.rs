@@ -235,12 +235,13 @@ pub async fn fetch_one_product(
         let f_map = map_fields(db.clone(), "商品规格").await;
 
         let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                            || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} as p from products
+                            || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} as p 
+                            from products
                             JOIN tree ON products.商品id = tree.num
                             JOIN documents on 单号id = 单号
                             WHERE products.{} = '{}' and documents.文本字段10 <> ''",
                           SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER,
-                          f_map["状态"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
+                          f_map["状态"], SPLITER, f_map["执行标准"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -594,7 +595,9 @@ pub async fn fetch_trans_items(
 
         let sql = format!(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, round((单价*重量)::numeric,2)::real as 金额, 备注 FROM document_items
+                规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 
+                case when 商品id <> '4_111' then round((单价*重量)::numeric,2)::real else 
+                round((单价*数量)::numeric,2)::real end as 金额, 备注 FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -807,6 +810,7 @@ pub async fn get_items_trans(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
+        // let da: Vec<&str> = data.split(" ").collect();
         let sql = &format!(
             r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
                 {} || '　' || {} || '　' || {} || '　' || pout_items.长度 || '　' || pout_items.数量 || '　' ||
@@ -815,7 +819,7 @@ pub async fn get_items_trans(
             FROM pout_items
             JOIN products ON 物料号 = 文本字段1
             JOIN tree ON 商品id = num
-            WHERE pout_items.单号id = '{}'"#,
+            WHERE pout_items.单号id = '{}' order by 顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
@@ -827,6 +831,22 @@ pub async fn get_items_trans(
             let item = row.get("item");
             document_items.push(item);
         }
+
+        // 补上锯口费
+        let sql = format!(
+            r#"SELECT '锯口费' || '　' || '--' || '　' || '' || '　' || '' || '　' || '' || '　' || 长度 || '　' || 数量 || '　' ||
+                理重 || '　' || 重量 || '　' || 单价 || '　' || 备注 || '　' || 商品id || '　' || '{}' as item
+                from document_items 
+                where 单号id = (select 文本字段6 销售单号 from documents where 单号= '{}') and 商品id = '4_111'"#,
+            data, data
+        );
+
+        let rows = conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let item = row.get("item");
+            document_items.push(item);
+        }
+
         HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
@@ -914,6 +934,7 @@ pub async fn save_stransport(
                 value[0]
             );
 
+            // 发货完成
             if value.len() > 11 && value[11] != "" {
                 if ckdh != value[11] {
                     ckdh = value[11];

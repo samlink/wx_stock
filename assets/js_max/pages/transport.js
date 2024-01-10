@@ -199,8 +199,18 @@ function build_items(dh) {
                     })
                         .then(response => response.json())
                         .then(content => {
+                            document.querySelectorAll('#trans-table tbody tr').forEach(tr => {
+                                if (tr.querySelector('td:nth-child(2)').textContent.trim() == "锯口费") {
+                                    tr.parentNode.removeChild(tr);                                    
+                                }
+                            });
+
                             for (let c of content) {
                                 let value = c.split('　');
+                                let money = Number(value[9] * value[8]).toFixed(2);
+                                if (value[0] == "锯口费") {
+                                    money = Number(value[9] * value[6]).toFixed(2);
+                                }
                                 show_names[1].value = value[0];
                                 show_names[2].value = value[1];
                                 show_names[3].value = value[2];
@@ -211,7 +221,7 @@ function build_items(dh) {
                                 show_names[8].value = value[7];
                                 show_names[9].value = value[8];
                                 show_names[10].value = value[9];
-                                show_names[11].value = Number(value[9] * value[8]).toFixed(2);
+                                show_names[11].value = money;
                                 show_names[12].value = value[10];
                                 show_names[13].value = value[11];
                                 show_names[14].value = value[12];
