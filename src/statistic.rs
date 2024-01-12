@@ -251,7 +251,10 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.{} = false and documents.文本字段10 != ''
             and 单号 in (select documents.{} from documents where documents.{} <>''
-            and documents.类别='销售出库' and documents.{} <> '') order by 单号 desc"#,
+            and documents.类别='销售出库' and documents.{} <> '') 
+            and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
+            布尔字段3 = true and 文本字段10 = '')
+            order by 单号 desc"#,
             f_map2["简称"],
             limits,
             f_map["发货完成"],
@@ -279,7 +282,10 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
             where documents.类别='材料采购' and documents.{} = false and 
-            documents.文本字段10 != '' order by 单号 desc"#,
+            documents.文本字段10 != '' 
+            and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 
+            布尔字段3 = true and 文本字段10 = '')
+            order by 单号 desc"#,
             f_map3["简称"], f_map5["入库完成"]
         );
 
@@ -298,7 +304,10 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.文本字段10 != '' and
-            documents.{} = false order by 单号 desc"#,
+            documents.{} = false and
+            单号 not in (select 文本字段6 from documents where documents.类别='销售出库' and 
+            布尔字段3 = true and 文本字段10 = '')
+            order by 单号 desc"#,
             f_map2["简称"], limit, f_map["出库完成"],
         );
 
