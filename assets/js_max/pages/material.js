@@ -552,9 +552,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th width="3%">序号</th>
         <th width="5%">物料号</th>
         <th width="5%">材质</th>
-        <th width="5%">规格</th>
-        <th width="8%">状态</th>
-        <th width="7%">炉号</th>
+        <th width="7%">规格</th>
+        <th width="7%">状态</th>
+        <th width="6%">炉号</th>
         <th width="4%">长度</th>
         <th width="3%">支数</th>
         <th width="9%">执行标准</th>
