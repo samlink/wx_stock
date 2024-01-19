@@ -76,11 +76,15 @@ pub async fn fetch_all_documents(
             } else if cate[1] == "wait_trans" {
                 "documents.类别 = '商品销售' and documents.布尔字段1 = false and documents.文本字段10 != ''
                 and 单号 in (select documents.文本字段6 from documents where documents.文本字段6 <>''
-                and documents.类别='销售出库' and documents.文本字段10 != '') and".to_owned()
+                and documents.类别='销售出库' and documents.文本字段10 != '') 
+                and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
+                布尔字段3 = true and 文本字段10 = '') and".to_owned()
             } else if cate[1] == "wait_money" {
                 "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and".to_owned()
             } else if cate[1] == "wait_in" {
-                "documents.类别 = '材料采购' and documents.布尔字段2 = false and documents.文本字段10 != '' and".to_owned()
+                "documents.类别 = '材料采购' and documents.布尔字段2 = false and documents.文本字段10 != '' 
+                and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 
+                布尔字段3 = true and 文本字段10 = '') and".to_owned()
             } else if cate[1] == "wait_buy_back" {
                 "documents.类别 = '采购退货' and documents.布尔字段2 = false and documents.文本字段10 != '' and".to_owned()
             } else {
