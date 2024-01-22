@@ -1,8 +1,8 @@
-import {regDate, regInt, regReal, SPLITER} from '../parts/tools.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from "./notifier.mjs";
-import {alert_confirm} from "./alert.mjs";
+import { regDate, regInt, regReal, SPLITER } from '../parts/tools.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { notifier } from "./notifier.mjs";
+import { alert_confirm } from "./alert.mjs";
 
 export var table_fields;
 
@@ -204,14 +204,14 @@ export function make_formal(data) {
                         if (typeof (data.readonly_fun) == "function") {
                             data.readonly_fun();
                         }
-                        
+
                         if (data.after_shen_fun) {
                             data.after_shen_fun();
                         }
 
                         if (typeof (data.after_func) == "function") {
                             data.after_func(data.xsdh, data.dh);
-                        }                        
+                        }
 
                         notifier.show('审核完成', 'success');
                     } else {
@@ -253,6 +253,10 @@ export function sumit_shen(data) {
                         data.button.textContent = '已提审核';
                         data.button.classList.add('remembered');
                         notifier.show('提交完成', 'success');
+                        setTimeout(() => {
+                            let l = location.toString().lastIndexOf("/");
+                            location = location.toString().substring(0, l + 1) + 'new';
+                        }, 1000);
                     } else {
                         notifier.show('权限不够', 'danger');
                     }
@@ -556,7 +560,7 @@ export function build_product_table(row_num, cb, more) {
                 });
 
                 let table = document.querySelector('.table-product');
-                let header = build_table_header(table, [{name: '序号', width: 3}], table_fields, "", "products" );
+                let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, "", "products");
                 table.querySelector('thead tr').innerHTML = header.th_row;
                 // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -613,7 +617,7 @@ export function build_product_table(row_num, cb, more) {
 
     function search_table() {
         let search = document.querySelector('#search-input').value;
-        Object.assign(table_data.post_data, {name: search, page: 1});
+        Object.assign(table_data.post_data, { name: search, page: 1 });
 
         //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
         if (typeof cb == "function") {
@@ -670,7 +674,7 @@ export function set_date() {
     let date1 = document.querySelector('#search-date1');
     let date2 = document.querySelector('#search-date2');
 
-    var dateTime=new Date();
+    var dateTime = new Date();
     let d1 = dateTime.setDate(dateTime.getDate() - 30);
     date1.value = new Date(d1).Format("yyyy-MM-dd");
     date2.value = new Date().Format("yyyy-MM-dd");
