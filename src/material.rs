@@ -1390,7 +1390,7 @@ pub async fn make_fh_complete(
         let sql = format!(
             r#"update documents set 布尔字段1 = true where 单号 ='{}' and 布尔字段2 = true and
                 (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
-                (select sum(数量) from document_items where 单号id in
+                (select sum(数量) from document_items where 商品id <> '4_111' and 单号id in
                 (select 单号 from documents where 文本字段6='{}' and 类别='运输发货'))"#,
             dh, dh, dh
         );
