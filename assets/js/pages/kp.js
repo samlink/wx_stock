@@ -116,23 +116,7 @@ fetch(`/fetch_inout_fields`, {
     });
 
 function document_top_handle(html, has_date) {
-    if (document_bz == "采购退货") {
-        html = html.replace("到货", "发货");
-        html = html.replace("入库完成</label>", "处理完成</label>");
-    } else if (document_bz == "销售退货") {
-        html = html.replace("交货", "收货");
-        html = html.replace("发货完成</label>", "收货完成</label>");
-    }
-
-    if (document.querySelector('.has-auto')) {
-        document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
-
-        let fields_show = document.querySelector('.fields-show');
-        let has_auto = document.querySelector('.has-auto');
-        let next_auto = document.querySelector('.has-auto+div');
-    } else {
-        document.querySelector('.fields-show').innerHTML = html;
-    }
+    document.querySelector('.fields-show').innerHTML = html;
 
     let date = document.querySelector('#日期');
     if (!has_date) {
@@ -146,22 +130,6 @@ function document_top_handle(html, has_date) {
         // theme: 'molv',
         // theme: '#62468d',
     });
-
-    if (document.querySelector('#文本字段2')) {
-        let da = document.querySelector('#文本字段2');
-        laydate.render({
-            elem: da,
-            showBottom: false,
-        })
-    }
-
-    if (document.querySelector('#文本字段3')) {
-        let da = document.querySelector('#文本字段3');
-        laydate.render({
-            elem: da,
-            showBottom: false,
-        })
-    }
 
     let all_input = document.querySelectorAll('.fields-show input');
     let form = document.querySelector('.fields-show');
