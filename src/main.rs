@@ -80,6 +80,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::stock_query_in)
             .service(html::stock_query_out)
             .service(html::business_query)
+            .service(html::other_query)
             .service(html::stockin_items)
             .service(html::stockout_items)
             
@@ -133,6 +134,7 @@ async fn main() -> std::io::Result<()> {
 
             .service(documentquery::fetch_show_fields)
             .service(documentquery::fetch_all_documents)
+            .service(documentquery::fetch_a_documents)
             .service(documentquery::documents_del)
 
             .service(user_set::login)

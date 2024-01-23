@@ -338,52 +338,56 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             shen.push(item);
         }
 
-        //采购退货未完成 ------------------------
-        let mut check = Vec::new();
+        // 以下是其他待办单据 ------------------------
 
+        // 未提交审核单据 ------------------------
+        let mut others = Vec::new();
         let sql = format!(
-            r#"select 单号, customers.{} 简称, 经办人 from documents
-            join customers on 客商id = customers.id
-            where documents.类别='采购退货' and documents.{} = false
-            and documents.文本字段10 !='' order by 单号 desc"#,
-            f_map3["简称"], f_map5["入库完成"]
+            r#"select count(单号) as 数量 from documents
+            where {} 布尔字段3 = false and 已记账 = false and 类别 !='采购退货'"#,
+            limits
+        );
+
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+        let num: i64 = row.get("数量");
+
+        if num > 0 {
+            others.push(format!("{}　{} 张", "未提交审核单据", num));
+        }
+
+        //采购退货未完成 ------------------------
+        let sql = format!(
+            r#"select count(单号) as 数量 from documents
+            where 类别='采购退货' and {} = false and 已记账 = false"#,
+            f_map5["入库完成"]
         );
 
         // println!("{}",sql);
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        for row in rows {
-            let dh: &str = row.get("单号");
-            let worker: &str = row.get("经办人");
-            let na: &str = row.get("简称");
-            let item = format!("{} {:>4} {}", dh, na, worker);
-            check.push(item);
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+        let num: i64 = row.get("数量");
+
+        if num > 0 {
+            others.push(format!("{}　{} 张", "采购退货未完成", num));
         }
 
         //反审单据 ------------------------
-        let mut fan = Vec::new();
-
         let sql = format!(
-            r#"select 单号, case when customers.类别 = '客户' then customers.文本字段7 else 
-            customers.文本字段1 end as 简称, 经办人 from documents
-            join customers on 客商id = customers.id
-            where {} documents.文本字段10 = '' and documents.布尔字段3 = false and
-            已记账 = true order by 单号 desc"#,
+            r#"select count(单号) as 数量 from documents
+            where {} 文本字段10 = '' and 布尔字段3 = false and 已记账 = true"#,
             limits
         );
 
         // println!("{}",sql);
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        for row in rows {
-            let dh: &str = row.get("单号");
-            let worker: &str = row.get("经办人");
-            let na: &str = row.get("简称");
-            let item = format!("{} {:>4} {}", dh, na, worker);
-            fan.push(item);
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+        let num: i64 = row.get("数量");
+
+        if num > 0 {
+            others.push(format!("{}　{} 张", "反审单据", num));
         }
 
-        HttpResponse::Ok().json((sale1, sale2, buy, shen, check, pre_shen, fan))
+        HttpResponse::Ok().json((sale1, sale2, buy, shen, 1, pre_shen, others))
     } else {
         HttpResponse::Ok().json(-1)
     }

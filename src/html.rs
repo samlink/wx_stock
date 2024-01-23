@@ -465,6 +465,22 @@ pub async fn stock_query_out(
     }
 }
 
+#[get("/other_query")]
+pub async fn other_query(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| query2_html(o, user, "其他待办", &limit.s, "", &limit.s));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 ///业务往来
 #[get("/business_query")]
 pub async fn business_query(db: web::Data<Pool>, id: Identity) -> HttpResponse {

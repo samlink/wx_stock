@@ -180,6 +180,86 @@ pub async fn fetch_all_documents(
     }
 }
 
+///获取其他单据
+/// 
+#[post("/fetch_a_documents")]
+pub async fn fetch_a_documents(
+    db: web::Data<Pool>,
+    post_data: web::Json<TablePager>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+
+    if user.name != "" {
+        let limits = get_limits(&user).await;
+        let mut doc_sql = "";
+
+        if post_data.cate == "未提交审核单据" {
+            doc_sql = "documents.布尔字段3 = false and 已记账 = false and documents.类别 != '采购退货'";
+        } else if post_data.cate == "采购退货未完成" {
+            doc_sql = "documents.类别='采购退货' and documents.布尔字段2 = false and 已记账 = false";
+        } else if post_data.cate == "反审单据" {
+            doc_sql = "documents.文本字段10 = '' and documents.布尔字段3 = false and 已记账 = true";
+        }
+
+        let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let mut sql_where = "".to_owned();
+
+        sql_where += &format!(
+            "单号 LIKE '%{}%' OR 名称 LIKE '%{}%' OR documents.类别 LIKE '%{}%' OR 经办人 like '%{}%'",
+            post_data.name, post_data.name, post_data.name, post_data.name
+        );
+
+        // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
+
+        let sql = format!(
+            r#"SELECT 单号, documents.类别, documents.日期, ROW_NUMBER () OVER (ORDER BY {}) as 序号,
+            经办人, customers.备注 FROM documents 
+            JOIN customers ON documents.客商id=customers.id
+            WHERE {} ({}) AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, limits, doc_sql, sql_where, post_data.sort, skip, post_data.rec
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut doc_rows: Vec<String> = Vec::new();
+        for row in rows {
+            let num: i64 = row.get("序号");
+            let dh: String = row.get("单号");
+            let cate: String = row.get("类别");
+            let date: String = row.get("日期");
+            let worker: String = row.get("经办人");
+            let note: String = row.get("备注");
+            let row_str = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}",
+                num, SPLITER, dh, SPLITER, cate, SPLITER, date, SPLITER, worker, SPLITER, note
+            );
+
+            doc_rows.push(row_str);
+        }
+
+        let count_sql = format!(
+            r#"SELECT count(单号) as 记录数 FROM documents 
+            JOIN customers ON documents.客商id=customers.id 
+            WHERE {} {} AND ({})"#,
+            limits, doc_sql, sql_where
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+        for row in rows {
+            count = row.get("记录数");
+        }
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+        HttpResponse::Ok().json((doc_rows, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Rem {
     id: String,
