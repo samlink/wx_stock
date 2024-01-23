@@ -23,12 +23,8 @@ let dh_div = document.querySelector('#dh');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
-let document_name, edit_data;
-if (document_bz.indexOf("销售") != -1) {
-    document_name = "销售单据";
-} else if (document_bz.indexOf("采购") != -1) {
-    document_name = "采购单据";
-}
+
+const document_name = "销售开票";
 
 //获取单据表头部分的字段（字段设置中的右表内容）
 fetch(`/fetch_inout_fields`, {
@@ -401,7 +397,7 @@ function calculate(input_row) {
             sum_money();
         });
     }
-    
+
     if (input_row.querySelector('.long')) {
         input_row.querySelector('.long').addEventListener('blur', function () {
             calc_weight(input_row);

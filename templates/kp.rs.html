@@ -5,7 +5,7 @@
 @:base_html({
 <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
 
-<div class="buy-in">
+<div class="buy-in material materialout kp">
     <div class="top-title"><span><i class="fa fa-shopping-cart"></i> 采购销售 </span>
         <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
         <p id="help-info" title="帮助信息"><img></p>
@@ -13,25 +13,23 @@
     <div class="buy-content">
         <div class="inout-top has-bak" style="width: 99%;">
             <div class="fields-show">
-                @if setup[4] == "customer" {
-                <div class="form-group has-auto" id="customer-div">
-                    <div class="form-label" style="margin-right: 8px;">
-                        <label id="customer-suplier">@setup[1]</label>
-                    </div>
-                    <div class="form-input autocomplete">
-                        <input class="form-control input-sm" type="text" id="supplier-input"/>
-                    </div>
-                    <button class="btn btn-info btn-sm" id="supplier-serach">
-                        <i class="fa fa-search"></i>
-                    </button>
+            </div>
+            <div class="material-doc">
+                <div class="form-input" hidden>
+                    <input class="form-control input-sm material-value" id="m_id" type="text" hidden
+                           style="width: 70px;">
                 </div>
-                }
+                <div class="form-input show-pic">
+                    <img id="upload-pic" width="60" height="42" src="/assets/img/fp.png" alt="发票图" title="点击放大">
+                    <input type="file" id="pic_upload" accept="image/png, image/jpeg" hidden="hidden"/>
+                </div>
             </div>
             <div class="buy-buttons">
                 <div class="has-dh">№: <span id="dh">@setup[3]</span> <span id="owner"></span></div>
                 <div class="buttons">
-                    <button class="btn btn-info btn-sm button-buy" id="save-button">保存</button>
-                    <button class="btn btn-info btn-sm button-buy" id="remember-button">审核</button>
+                    <button class="btn btn-info btn-sm" id="save-button">保存</button>
+                    <button class="btn btn-info btn-sm" id="pic-button">传图</button>
+                    <button class="btn btn-info btn-sm" id="remember-button">审核</button>
                 </div>
             </div>
         </div>
