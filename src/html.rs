@@ -237,6 +237,26 @@ pub async fn saleback(
     }
 }
 
+///商品销售
+#[get("/kp/{dh}")]
+pub async fn kp(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    if user.name != "" {
+        let dh = if *dh_num == "new" {
+            "新单据"
+        } else {
+            &*dh_num
+        };
+
+        let setup = vec!["销售开票", "客户", "出库及发货单号", dh, ""];
+        user.show = name_show(&user);
+        let html = r2s(|o| kp_html(o, user, setup));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 ///库存调整-入库
 #[get("/stock_change_in/{dh}")]
 pub async fn stock_change_in(

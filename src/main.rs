@@ -67,6 +67,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::buy_back)
             .service(html::sale)
             .service(html::saleback)
+            .service(html::kp)
             .service(html::transport)
             .service(html::material_in)
             .service(html::material_out)

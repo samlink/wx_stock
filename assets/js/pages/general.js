@@ -33,6 +33,9 @@ document.querySelector('#quick-7').onclick = () => {
 document.querySelector('#quick-8').onclick = () => {
     window.location.href = "/stockout_items";
 }
+document.querySelector('#quick-9').onclick = () => {
+    window.location.href = "/kp/new";
+}
 
 // 反审单据
 document.querySelector('#anti-shen').onclick = () => {
