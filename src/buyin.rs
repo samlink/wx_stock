@@ -984,14 +984,14 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
         let f_map2 = map_fields(db.clone(), "客户").await;
 
         let sql = &format!(
-            r#"SELECT 单号 as id, 单号 || '　' || customers.{} || '{}' || customers.{} || '　' || documents.{} ||
-            '　' || documents.{} || '　' || documents.{}  as label FROM documents
+            r#"SELECT 单号 as id, 单号 || '　' || customers.{} || '{}' || 名称 || '　' || documents.{} ||
+            '　' || documents.{} || '　' || documents.{} || '　' || customers.id  as label FROM documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true
+            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
+            名称 != '天津彩虹石油机械有限公司'
             order by 单号 desc"#,
             f_map2["简称"],
             SPLITER,
-            f_map2["名称"],
             f_map["合同编号"],
             f_map["客户PO"],
             f_map["单据金额"],
@@ -1001,6 +1001,93 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
 
         // println!("{}",sql);
         autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///保存开票单据
+#[post("/save_document_kp")]
+pub async fn save_document_kp(
+    db: web::Data<Pool>,
+    data: web::Json<Document>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
+        let mut conn = db.get().await.unwrap();
+        // let conn2 = db.get().await.unwrap();
+        let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
+        let mut doc_sql;
+
+        let fields_cate = &data.rights;
+
+        let f_map = map_fields(db.clone(), fields_cate).await;
+
+        let fields = get_inout_fields(db.clone(), fields_cate).await;
+        let dh_data = doc_data[1].to_owned();
+        let mut dh = doc_data[1].to_owned();
+
+        if dh_data == "新单据" {
+            dh = get_dh(db.clone(), doc_data[0]).await;
+
+            let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
+            for f in &fields {
+                init += &format!("{},", &*f.field_name);
+            }
+
+            init += &format!(
+                "类别,{},{}) VALUES('{}', {},",
+                f_map["经办人"], f_map["区域"], dh, doc_data[2]
+            );
+
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 3);
+            doc_sql += &format!("'{}','{}', '{}')", doc_data[0], user.name, user.area);
+        } else {
+            let init = "UPDATE documents SET ".to_owned();
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 3);
+            doc_sql += &format!(
+                "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
+                doc_data[2], doc_data[0], f_map["经办人"], user.name, f_map["区域"], user.area, dh
+            );
+        }
+
+        // println!("{}", doc_sql);
+
+        let transaction = conn.transaction().await.unwrap();
+        transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
+
+        // 单据明细
+        if dh_data != "新单据" {
+            transaction
+                .execute("DELETE FROM kp_items WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
+        }
+
+        for item in &data.items {
+            let value: Vec<&str> = item.split(SPLITER).collect();
+            let items_sql = format!(
+                r#"INSERT INTO kp_items (单号id, 名称, 规格, 单位, 数量, 单价, 税率, 顺序)
+                     VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
+                dh,
+                value[1],
+                value[2],
+                value[3],
+                value[4],
+                value[5],
+                value[6],
+                value[0],
+            );
+
+            // println!("{}", items_sql);
+
+            transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+        }
+
+        let _result = transaction.commit().await;
+
+        HttpResponse::Ok().json(dh)
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -96,6 +96,8 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         "FH"
     } else if doc_data == "调整入库" {
         "TR"
+    } else if doc_data == "销售开票" {
+        "KP"
     } else {
         "TC"
     };
@@ -119,7 +121,7 @@ pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
         dh_first = row.get("单号");
     }
 
-    let keep = 3usize;       // 单号位数
+    let keep = 3usize; // 单号位数
     let len = dh_first.len();
     let mut num = 1i32;
     if dh_first != "0" {

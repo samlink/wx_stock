@@ -62,6 +62,9 @@ pub async fn fetch_all_documents(
         } else if cate[0] == "调出查询" {
             doc_cate = "库存调出";
             doc_sql = "documents.类别 = '调整出库'";
+        } else if cate[0] == "开票查询" {
+            doc_cate = "销售开票";
+            doc_sql = "documents.类别 = '销售开票'";
         } else {
             doc_cate = "发货单据";
             doc_sql = "documents.类别 = '运输发货'";

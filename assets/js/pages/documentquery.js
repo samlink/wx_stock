@@ -11,6 +11,8 @@ let limit = document.querySelector('#limit').textContent;
 let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
 
+console.log(cate);
+
 let document_cate;
 if (cate == "采购查询") {
     document_cate = "采购单据";
@@ -22,6 +24,8 @@ if (cate == "采购查询") {
     document_cate = "出库单据";
 } else if (cate == "发货查询") {
     document_cate = "发货单据";
+} else if (cate == "开票查询") {
+    document_cate = "销售开票";
 } else if (cate == "调入查询") {
     document_cate = "库存调入";
 } else if (cate == "调出查询") {
@@ -148,6 +152,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
             address = `/material_out/`;
         } else if (cate == "运输发货") {
             address = `/transport/`;
+        } else if (cate == "销售开票") {
+            address = `/kp/`;
         } else if (cate == "调整入库") {
             address = `/stock_change_in/`;
         } else if (cate == "调整出库") {

@@ -111,7 +111,7 @@ function document_top_handle(html, has_date) {
 }
 
 show_names = [
-    { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
+    { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: true, default: 1 },
     {
         name: "名称",
         width: 80,
@@ -122,22 +122,22 @@ show_names = [
         save: "id",      //对于 autocomplete 可选择保存 id 或是 value
         default: ""
     },
-    { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "单位", width: 50, class: "单位", type: "普通输入", editable: true, is_save: true, value: "kg" },
     { name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
     { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, value: "13%" },
-    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: true, default: "", css: 'style="border-right:none"' },
-    {
-        name: "",
-        width: 0,
-        class: "m_id",
-        type: "普通输入",
-        editable: false,
-        is_save: true,
-        css: 'style="width:0%; border-left:none; color:white"',
-    },
+    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "" },
+    // {
+    //     name: "",
+    //     width: 0,
+    //     class: "m_id",
+    //     type: "普通输入",
+    //     editable: false,
+    //     is_save: true,
+    //     css: 'style="width:0%; border-left:none; color:white"',
+    // },
 ]
 
 //计算表格行数，33 为 lineHeight （行高）
@@ -194,6 +194,7 @@ if (dh_div.textContent == "新单据") {
                     document.querySelector('#文本字段6').value = dh;
                     document.querySelector('#文本字段8').value = value[2] != "" ? `${value[1]} / ${value[2]}` : value[1];
                     document.querySelector('#文本字段2').value = value[0];
+                    document.querySelector('#文本字段2').setAttribute('data', value[4]);
                     document.querySelector('#应结金额').value = value[3];
                     fetch_others(dh);
 
@@ -366,56 +367,81 @@ function fill_gg() {
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
-    //错误勘察
-    if (!error_check()) {
-        return false;
-    }
-
-    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
-    let all_values = document.querySelectorAll('.document-value');
-
-    //构建数据字符串
-    let user_name = document.querySelector('#user-name').textContent.split('　')[1];
-    let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${customer_id}${SPLITER}${user_name}${SPLITER}`;
-    save_str += service.build_save_header(all_values, document_table_fields);
-
-    let table_data = [];
-    let all_rows = document.querySelectorAll('.table-items .has-input');
-    for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
-            let save_str = `${row.querySelector('td:nth-child(2) input').getAttribute('data').split(SPLITER)[0]}${SPLITER}`;
-            save_str += service.build_save_items(2, row, show_names);
-            table_data.push(save_str);
+        //错误勘察
+        if (!error_check()) {
+            return false;
         }
-    }
-
-    let data = {
-        rights: document_bz,
-        document: save_str,
-        remember: document.querySelector('#remember-button').textContent,
-        items: table_data,
-    }
-
-    // console.log(data);
-
-    fetch(`/save_document`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-    })
-        .then(response => response.json())
-        .then(content => {
-            if (content != -1) {
-                dh_div.textContent = content;
-                notifier.show('单据保存成功', 'success');
-                edited = false;
-                input_table_outdata.edited = false;
+    
+        let all_values = document.querySelectorAll('.document-value');
+        let custid = document.querySelector('#文本字段2').getAttribute("data");
+        //构建表头存储字符串，将存入单据中
+        let save_str = `${document_bz}${SPLITER}${dh_div.textContent}${SPLITER}${custid}${SPLITER}`;
+    
+        let n = 0;
+        for (let f of document_table_fields) {
+            if (f.data_type == "文本") {
+                let value = f.show_name.indexOf("单号") == -1 ? all_values[n].value : all_values[n].value.split('　')[0];
+                save_str += `${value}${SPLITER}`;
+            } else if (f.data_type == "整数" || f.data_type == "实数") {
+                let value = all_values[n].value ? all_values[n].value : 0;
+                save_str += `${value}${SPLITER}`;
             } else {
-                notifier.show('权限不够，操作失败', 'danger');
+                save_str += `${all_values[n].checked ? "是" : "否"}${SPLITER}`;
             }
-        });
+            n++;
+        }
+    
+        // 构建字符串数组，将存入单据明细中
+        let table_data = [];
+        let all_rows = document.querySelectorAll('.table-items .has-input');
+        for (let row of all_rows) {
+            if (row.querySelector('td:nth-child(2) input').value.trim() != "") {
+                let len = show_names.length;
+                let save_str = ``;
+    
+                for (let i = 0; i < len; i++) {
+                    if (show_names[i].is_save) {
+                        if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                            let value = row.querySelector(`.${show_names[i].class}`).value;                            
+                            if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
+                            save_str += `${value.trim()}${SPLITER}`;
+                        } else {
+                            let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
+                            save_str += `${value.trim()}${SPLITER}`;
+                        }
+                    }
+                }
+                table_data.push(save_str);
+            }
+        }
+    
+        let data = {
+            rights: document_bz,
+            document: save_str,
+            remember: document.querySelector('#remember-button').textContent,
+            items: table_data,
+        }
+    
+        console.log(data);
+    
+        fetch(`/save_document_kp`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    dh_div.textContent = content;
+                    notifier.show('单据保存成功', 'success');
+                    edited = false;
+                    input_table_outdata.edited = false;
+                } else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
 });
 
 function set_readonly() {
@@ -458,13 +484,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 
 //错误检查
 function error_check() {
-    let customer_id = document.querySelector('#supplier-input').getAttribute('data');
-    if (customer_id == null) {
-        notifier.show('客户或供应商不在库中', 'danger');
-        return false;
-    }
-
-    if (document.querySelector('#文本字段6') && document.querySelector('#文本字段6').value.trim() == '') {
+    if (document.querySelector('#文本字段8').value.trim() == '') {
         notifier.show('合同编号不能为空', 'danger');
         return false;
     }
@@ -474,9 +494,14 @@ function error_check() {
         return false;
     }
 
+    if (all_rows.length ==1 && all_rows[0].querySelector('td:nth-child(2) input').value == "") {
+        notifier.show('明细不能为空', 'danger');
+        return false;
+    }
+
     for (let row of all_rows) {
         if (row.querySelector('td:nth-child(2) input').value != "") {
-            let mount = row.querySelector('.mount');
+            let num = row.querySelector('.num');
             if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
                 notifier.show(`单价输入错误`, 'danger');
                 return false;
@@ -484,34 +509,11 @@ function error_check() {
                 row.querySelector('.price').value = 0;
             }
 
-            if (mount.value && !regReal.test(mount.value)) {
-                notifier.show(`重量输入错误`, 'danger');
+            if (num.value && !regReal.test(num.value)) {
+                notifier.show(`数量输入错误`, 'danger');
                 return false;
-            } else if (!mount.value) {
-                mount.value = 0;
-            }
-
-            if (row.querySelector('.long')) {
-                if (row.querySelector('.long').value && !regReal.test(row.querySelector('.long').value)) {
-                    notifier.show(`长度输入错误`, 'danger');
-                    return false;
-                } else if (!row.querySelector('.long').value) {
-                    row.querySelector('.long').value = 0;
-                }
-
-                if (row.querySelector('.num').value && !regReal.test(row.querySelector('.num').value)) {
-                    notifier.show(`数量输入错误`, 'danger');
-                    return false;
-                } else if (!row.querySelector('.num').value) {
-                    row.querySelector('.num').value = 0;
-                }
-
-                if (row.querySelector('.weight').value && !regReal.test(row.querySelector('.weight').value)) {
-                    notifier.show(`实际重量输入错误`, 'danger');
-                    return false;
-                } else if (row.querySelector('.weight').value.trim() == "") {
-                    row.querySelector('.weight').value = 0;
-                }
+            } else if (!num.value) {
+                num.value = 0;
             }
         }
     }

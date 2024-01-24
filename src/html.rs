@@ -485,6 +485,22 @@ pub async fn stock_query_out(
     }
 }
 
+#[get("/kp_query")]
+pub async fn kp_query(
+    db: web::Data<Pool>,
+    limit: web::Query<Search>,
+    id: Identity,
+) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| query_html(o, user, "采购销售", "开票查询", "kp_items", &limit.s));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 #[get("/other_query")]
 pub async fn other_query(
     db: web::Data<Pool>,
