@@ -122,12 +122,9 @@ function document_top_handle(html, has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
     }
 
-    //执行一个laydate实例
     laydate.render({
         elem: date,
         showBottom: false,
-        // theme: 'molv',
-        // theme: '#62468d',
     });
 
     let all_input = document.querySelectorAll('.fields-show input');
@@ -147,10 +144,6 @@ function document_top_handle(html, has_date) {
     });
 }
 
-if (document.querySelector('#supplier-input')) {
-    customer_init();
-}
-
 show_names = [
     { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
     {
@@ -164,12 +157,12 @@ show_names = [
         default: ""
     },
     { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: true, is_save: true, default: "kg" },
+    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: true, is_save: true, value: "kg" },
     { name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, default: "13%" },
-    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, value: "13%" },
+    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: true, default: "", css: 'style="border-right:none"' },
     {
         name: "",
         width: 0,
@@ -198,23 +191,10 @@ let auto_data = [{
     show_th: show_th,
     type: "table",
     cb: fill_gg,
-}, {
-    n: 5,
-    cate: "状态",
-    auto_url: '/get_status_auto',
-    type: "simple",
-    width: 230,
-},
-{
-    n: 6,
-    cate: "执行标准",
-    auto_url: '/get_status_auto',
-    type: "simple",
-    width: 300,  //自定义宽度，默认与 auto input 宽度相同
 }];
 
 if (dh_div.textContent == "新单据") {
-    edit_data = {
+    let edit_data = {
         show_names: show_names,
         lines: table_lines,
         auto_data: auto_data,
@@ -226,7 +206,7 @@ if (dh_div.textContent == "新单据") {
     build_blank_table(edit_data);
     appand_edit_row();
 } else {
-    let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
+    let url = "/fetch_document_items";
     fetch(url, {
         method: 'post',
         headers: {
@@ -239,7 +219,7 @@ if (dh_div.textContent == "新单据") {
     })
         .then(response => response.json())
         .then(content => {
-            edit_data = {
+            let edit_data = {
                 show_names: show_names,
                 rows: content,
                 auto_data: auto_data,
@@ -260,107 +240,64 @@ if (dh_div.textContent == "新单据") {
 }
 
 function calculate(input_row) {
-    if (input_row.querySelector('.规格')) {
-        input_row.querySelector('.规格').addEventListener('blur', function () {
-            calc_weight(input_row);
-            calc_money(input_row);
-            sum_money();
-        });
-    }
+    input_row.querySelector('.price').addEventListener('blur', function () {
+        calc_money(input_row);
+        calc_tax(input_row)
+        sum_money();
+    });
 
-    if (input_row.querySelector('.price')) {
-        input_row.querySelector('.price').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
-        });
+    input_row.querySelector('.num').addEventListener('blur', function () {
+        calc_money(input_row);
+        calc_tax(input_row)
+        sum_money();
+    });
 
-        input_row.querySelector('.mount').addEventListener('blur', function () {
-            calc_money(input_row);
-            sum_money();
-        });
-    }
-
-    if (input_row.querySelector('.long')) {
-        input_row.querySelector('.long').addEventListener('blur', function () {
-            calc_weight(input_row);
-            calc_money(input_row);
-            sum_money();
-        });
-
-        input_row.querySelector('.num').addEventListener('blur', function () {
-            calc_weight(input_row);
-            calc_money(input_row);
-            sum_money();
-        });
-    }
+    input_row.querySelector('.税率').addEventListener('blur', function () {
+        calc_tax(input_row);
+        sum_money();
+    });
 }
 
 //计算行金额
 function calc_money(input_row) {
     let price = input_row.querySelector('.price').value;
-    let mount = input_row.querySelector('.mount').value;
-    if (!mount) {
-        mount = input_row.querySelector('.mount').textContent;
-    }
-    let money = "";
-    if (price && regReal.test(price) && mount && regReal.test(mount)) {
-        if (input_row.querySelector('.材质').textContent.trim() != "--") {
-            money = (price * mount).toFixed(2);
-        } else {
-            money = (price * input_row.querySelector('.num').value).toFixed(2);
-        }
-    }
+    let mount = input_row.querySelector('.num').value;
+    input_row.querySelector('.money').textContent = (price * mount).toFixed(2);
+}
 
-    input_row.querySelector('.money').textContent = money;
+//计算行税额
+function calc_tax(input_row) {
+    let price = input_row.querySelector('.price').value;
+    let mount = input_row.querySelector('.num').value;
+    let tax = Number(input_row.querySelector('.税率').value.replace("%", "")) / 100;
+    input_row.querySelector('.税额').textContent = (price * mount * tax).toFixed(2);
 }
 
 //计算合计金额
 function sum_money() {
     let all_input = document.querySelectorAll('.has-input');
     let sum = 0;
+    let sum_tax = 0;
     for (let i = 0; i < all_input.length; i++) {
         let price = all_input[i].querySelector('.price').value;
-        let mount = all_input[i].querySelector('.mount').value;
-        if (!mount) {
-            mount = all_input[i].querySelector('.mount').textContent;
-        }
+        let mount = all_input[i].querySelector('.num').value;
+        let tax = Number(all_input[i].querySelector('.税率').value.replace("%", "")) / 100;
+
         if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
-            price && regReal.test(price) && mount && regReal.test(mount)) {
-            if (all_input[i].querySelector('.材质').textContent.trim() != "--") {
-                sum += price * mount;
-            } else {
-                sum += price * all_input[i].querySelector('.num').value;
-            }
+            price && regReal.test(price) && mount && regReal.test(mount) && tax && regReal.test(tax)) {
+            sum += price * mount;
+            sum_tax += price * mount * tax;
         }
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元`;
-    if (document.querySelector('#应结金额')) {
-        document.querySelector('#应结金额').value = sum.toFixed(2);
-    }
-}
-
-// 销售时使用的理论重量计算
-function calc_weight(input_row) {
-    let data = {
-        long: input_row.querySelector('.long').value,
-        num: input_row.querySelector('.num').value,
-        name: input_row.querySelector('.auto-input').value,
-        cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').value,
-    }
-
-    if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--") {
-        input_row.querySelector('.mount').value = service.calc_weight(data);
-    } else {
-        input_row.querySelector('.mount').value = 0;
-    }
+    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
+    document.querySelector('#文本字段5').value = sum.toFixed(2);
 }
 
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let n = 3;  //从第 3 列开始填入数据
-    let num = document_name == "销售单据" ? 5 : 4;  //填充数量
+    let num = 1;  //填充数量
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
         // console.log(shown);
@@ -373,18 +310,11 @@ function fill_gg() {
         } else if (show_names[i].type == "下拉列表" && !show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
         }
-        // if (product_table_fields[i - 2].ctr_type == "二值选一") {
-        //     val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
-        // }
 
-        if (document_name == "销售单据") {
-            let row = document.querySelector('.table-items .inputting');
-            calc_weight(row);
-        }
         n++;
     }
 
-    let price_input = document.querySelector(`.inputting .price`);
+    let price_input = document.querySelector(`.inputting .单位`);
     price_input.focus();
 
     appand_edit_row();

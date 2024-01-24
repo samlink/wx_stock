@@ -92,7 +92,7 @@ fetch(`/fetch_inout_fields`, {
 function set_readonly() {
     let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        if (edit.id == "备注") {
+        if (edit.id == "备注" || edit.id == "是否欠款") {
             continue;
         }
         edit.disabled = true;
@@ -112,17 +112,17 @@ function set_readonly() {
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show');
     fields_show.innerHTML = html;
-    let has_auto = document.querySelector('.has-auto');
-    let next_auto = document.querySelector('.has-auto+div');
+    // let has_auto = document.querySelector('.has-auto');
+    // let next_auto = document.querySelector('.has-auto+div');
 
-    let auto_doc = document.querySelector('#文本字段6');
-    auto_doc.parentNode.classList.add("autocomplete");
+    // let auto_doc = document.querySelector('#文本字段6');
+    // auto_doc.parentNode.classList.add("autocomplete");
 
-    let auto_comp = new AutoInput(auto_doc, "商品销售", "/materialout_auto", () => {
-        build_items(auto_doc.getAttribute("data"));
-    });
+    // let auto_comp = new AutoInput(auto_doc, "商品销售", "/materialout_auto", () => {
+    //     build_items(auto_doc.getAttribute("data"));
+    // });
 
-    auto_comp.init();
+    // auto_comp.init();
 
     let date = document.querySelector('#日期');
     // date.parentNode.parentNode.style.cssText = "margin-left: 250px;";

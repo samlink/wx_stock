@@ -136,7 +136,9 @@ export function appand_edit_row() {
 
     //清空数据
     for (let i in input_data.show_names) {
-        input_data.show_names[i].value = "";
+        if (typeof input_data.show_names[i].value == "undefined") {
+            input_data.show_names[i].value = "";           
+        }
     }
 
     let has_input = tbody.querySelectorAll('.has-input');
@@ -207,7 +209,9 @@ export function build_items_table(data) {
 function append_blanks(tbody, num) {
     //清空数据
     for (let i in input_data.show_names) {
-        input_data.show_names[i].value = "";
+        if (typeof input_data.show_names[i].value == "undefined") {
+            input_data.show_names[i].value = "";
+        }
     }
 
     keep_up();

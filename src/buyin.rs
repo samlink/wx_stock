@@ -186,7 +186,7 @@ pub async fn buyin_auto(
                 s[0].to_lowercase(),
                 sql_where
             )
-        } else {
+        } else if search.cate == "销售单据" {
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || products.{} || '{}' ||
@@ -209,6 +209,24 @@ pub async fn buyin_auto(
                 f_map["理论重量"],
                 cate_s,
                 f_map["库存长度"],
+                s[0].to_lowercase(),
+                s[0].to_lowercase(),
+                sql_where
+            )
+        } else {
+            format!(
+                r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
+                || '{}' || {} || '{}' || products.{} AS label FROM products
+                JOIN tree ON products.商品id = tree.num
+                LEFT JOIN cut_length() as foo
+                ON products.文本字段1 = foo.物料号
+                WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
+            "#,
+                SPLITER,
+                SPLITER,
+                f_map["规格"],
+                SPLITER,
+                f_map["状态"],
                 s[0].to_lowercase(),
                 s[0].to_lowercase(),
                 sql_where
