@@ -23,7 +23,6 @@ let dh_div = document.querySelector('#dh');
 
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
-
 const document_name = "销售开票";
 
 //获取单据表头部分的字段（字段设置中的右表内容）
@@ -152,198 +151,113 @@ if (document.querySelector('#supplier-input')) {
     customer_init();
 }
 
-//构建商品规格表字段，字段设置中的右表数据 --------------------------
-fetch(`/fetch_inout_fields`, {
-    method: 'post',
-    headers: {
-        "Content-Type": "application/json",
+show_names = [
+    { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
+    {
+        name: "名称",
+        width: 80,
+        class: "名称",
+        type: "autocomplete",
+        editable: true,
+        is_save: true,
+        save: "id",      //对于 autocomplete 可选择保存 id 或是 value
+        default: ""
     },
-    body: JSON.stringify("商品规格"),
-})
-    .then(response => response.json())
-    .then(content => {
-        show_names = [
-            { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
-            {
-                name: "名称",
-                width: 80,
-                class: "名称",
-                type: "autocomplete",
-                editable: true,
-                is_save: true,
-                save: "id",      //对于 autocomplete 可选择保存 id 或是 value
-                default: ""
-            },
-            { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-        ];
+    { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: true, is_save: true, default: "kg" },
+    { name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, default: "13%" },
+    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: true, is_save: true, default: "" },
+    {
+        name: "",
+        width: 0,
+        class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        css: 'style="width:0%; border-left:none; color:white"',
+    },
+]
 
-        for (let item of content) {
-            show_names.push({
-                name: item.show_name, width: item.show_width * 18, type: item.ctr_type,
-                class: item.show_name, editable: true, is_save: true, default: item.option_value
-            });
-        }
+//计算表格行数，33 为 lineHeight （行高）
+table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
-        if (document_name == "销售单据") {
-            show_names.push({
-                name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-            show_names.push({
-                name: "长度", width: 60, class: "long", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-            show_names.push({
-                name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-            show_names.push({
-                name: "理论重量",
-                width: 60,
-                class: "mount",
-                type: "普通输入",
-                editable: true,
-                is_save: true,
-                default: ""
-            });
-            show_names.push({
-                name: "实际重量",
-                width: 60,
-                class: "weight",
-                type: "普通输入",
-                editable: true,
-                is_save: true,
-                default: ""
-            });
-        } else if (document_name == "采购单据") {
-            // show_names.push({
-            //     name: "执行标准", width: 120, class: "执行标准", type: "autocomplete", editable: true,
-            //     is_save: true, save: "value", no_button: true, default: ""
-            // });
-            show_names.push({
-                name: "单价", width: 60, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-            show_names.push({
-                name: "长度", width: 60, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-            show_names.push({
-                name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: ""
-            });
-        }
+let show_th = [
+    { name: "名称", width: 60 },
+    { name: "材质", width: 80 },
+    { name: "规格", width: 80 },
+    { name: "状态", width: 100 },
+];
 
-        show_names.push({
-            name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: ""
-        });
-        show_names.push({
-            name: "备注",
-            width: 100,
-            class: "note",
-            type: "普通输入",
-            editable: true,
-            is_save: true,
-            default: "",
-            css: 'style="border-right:none"'
-        });
-        show_names.push({
-            name: "",
-            width: 0,
-            class: "m_id",
-            type: "普通输入",
-            editable: false,
-            is_save: true,
-            css: 'style="width:0%; border-left:none; color:white"',
-        });
+let auto_data = [{
+    n: 2,                       //第2个单元格是自动输入
+    cate: document_name,
+    auto_url: `/buyin_auto`,
+    show_th: show_th,
+    type: "table",
+    cb: fill_gg,
+}, {
+    n: 5,
+    cate: "状态",
+    auto_url: '/get_status_auto',
+    type: "simple",
+    width: 230,
+},
+{
+    n: 6,
+    cate: "执行标准",
+    auto_url: '/get_status_auto',
+    type: "simple",
+    width: 300,  //自定义宽度，默认与 auto input 宽度相同
+}];
 
-        // 设置"状态"为自动输入
-        show_names.forEach(item => {
-            if (item.name == "状态" || item.name == "执行标准") {
-                item.type = "autocomplete";
-                item.no_button = true;           //无需 modal 选择按钮
-                item.save = "value";             //保存值, 而非 id
-            }
-        });
+if (dh_div.textContent == "新单据") {
+    edit_data = {
+        show_names: show_names,
+        lines: table_lines,
+        auto_data: auto_data,
+        dh: dh_div.textContent,
+        calc_func: calculate,
+        del_func: sum_money,
+    }
 
-        //计算表格行数，33 为 lineHeight （行高）
-        table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
-        //构造商品规格自动完成
-        let gg_n = document_name == "销售单据" ? 4 : 3;
-
-        let show_th = [
-            { name: "名称", width: 60 },
-            { name: "材质", width: 80 },
-            { name: "规格", width: 80 },
-            { name: "状态", width: 100 },
-            { name: "执行标准", width: 100 },
-            { name: "售价", width: 60 },
-            { name: "库存长度", width: 80 },
-            { name: "库存重量", width: 80 },
-        ];
-
-        let auto_data = [{
-            n: 2,                       //第2个单元格是自动输入
-            cate: document_name,
-            auto_url: `/buyin_auto`,
-            show_th: show_th,
-            type: "table",
-            cb: fill_gg,
-        }, {
-            n: 5,
-            cate: "状态",
-            auto_url: '/get_status_auto',
-            type: "simple",
-            width: 230,
+    build_blank_table(edit_data);
+    appand_edit_row();
+} else {
+    let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
+    fetch(url, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
         },
-        {
-            n: 6,
-            cate: "执行标准",
-            auto_url: '/get_status_auto',
-            type: "simple",
-            width: 300,  //自定义宽度，默认与 auto input 宽度相同
-        }];
-
-        if (dh_div.textContent == "新单据") {
+        body: JSON.stringify({
+            cate: document_name,
+            dh: dh_div.textContent,
+        }),
+    })
+        .then(response => response.json())
+        .then(content => {
             edit_data = {
                 show_names: show_names,
-                lines: table_lines,
+                rows: content,
                 auto_data: auto_data,
+                lines: table_lines,
                 dh: dh_div.textContent,
+                document: document_name,
                 calc_func: calculate,
-                del_func: sum_money,
+                change_func: sum_money,         //新加载或删除变动时运行
             }
 
-            build_blank_table(edit_data);
-            appand_edit_row();
-        } else {
-            let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
-            fetch(url, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    cate: document_name,
-                    dh: dh_div.textContent,
-                }),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    edit_data = {
-                        show_names: show_names,
-                        rows: content,
-                        auto_data: auto_data,
-                        lines: table_lines,
-                        dh: dh_div.textContent,
-                        document: document_name,
-                        calc_func: calculate,
-                        change_func: sum_money,         //新加载或删除变动时运行
-                    }
-
-                    build_items_table(edit_data);
-                    setTimeout(() => {
-                        if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                            appand_edit_row();
-                        }
-                    }, 200);
-                })
-        }
-    });
+            build_items_table(edit_data);
+            setTimeout(() => {
+                if (document.querySelector('#remember-button').textContent.trim() == "审核") {
+                    appand_edit_row();
+                }
+            }, 200);
+        })
+}
 
 function calculate(input_row) {
     if (input_row.querySelector('.规格')) {
@@ -571,7 +485,7 @@ document.querySelector('#remember-button').addEventListener('click', function ()
 
 //共用事件和函数 ---------------------------------------------------------------------
 
-//保存、打印和审核前的错误检查
+//错误检查
 function error_check() {
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
     if (customer_id == null) {
