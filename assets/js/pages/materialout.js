@@ -403,68 +403,7 @@ function weight(input_row) {
 }
 
 // 图片处理 -----------------------------------------------------------------
-
-let fileBtn = document.getElementById('pic_upload');
-// 点击传图
-document.querySelector('#pic-button').addEventListener('click', function (e) {
-    let dh = dh_div.textContent;
-    let that = this;
-    if (dh == "新单据") {
-        notifier.show('请先保存单据', 'danger');
-        return false;
-    }
-    e.preventDefault();
-    fileBtn.click();
-});
-
-//图片上传
-fileBtn.addEventListener('change', () => {
-    document.querySelector('#pic-button').disabled = "true";
-    const fd = new FormData();
-    fd.append('file', fileBtn.files[0]);
-    fetch(`/pic_in`, {
-        method: 'POST',
-        body: fd,
-    })
-        .then(res => res.json())
-        .then(content => {
-            fetch(`/pic_in_save`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(`${dh_div.textContent}${SPLITER}${content.substr(1, content.length - 1)}`),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content == -1) {
-                        notifier.show('权限不够', 'danger');
-                    } else if (content == -2) {
-                        notifier.show('图片保存出错', 'danger');
-                    } else {
-                        document.querySelector('#upload-pic').src = `${content}?${Math.random()}`;
-                        document.querySelector('#pic-button').disabled = "";
-                        notifier.show('图片成功保存', 'success');
-                    }
-                });
-        });
-});
-
-// 放大图片
-document.querySelector('#upload-pic').addEventListener('click', () => {
-    let pic = document.querySelector('#upload-pic').src;
-    let show = pic.split("?")[0].replace("min_", "pic_") + `?${Math.random()}`;
-    let pic_html = `<div class = "form-input show-pic">
-                                <img width = "1190px" src = "${show}" alt = "出库签字图">
-                            </div>`;
-
-    document.querySelector('.modal-body').innerHTML = pic_html;
-    document.querySelector('.modal-title').textContent = "出库签字图";
-    document.querySelector('.modal-dialog').style.cssText = "max-width: 1230px;"
-    document.querySelector('.modal').style.display = "block";
-    document.querySelector('#modal-sumit-button').style.display = "none";
-})
-
+service.handle_pic(dh_div, "/pic_in_save");
 modal_init();
 
 //保存、打印、质检、审核 -------------------------------------------------------------------

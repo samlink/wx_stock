@@ -1544,6 +1544,41 @@ pub async fn pic_in_save(
     }
 }
 
+#[post("/pic_kp_save")]
+pub async fn pic_kp_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let da: Vec<&str> = data.split(SPLITER).collect();
+        if da[1] == "/upload/pics/min.jpg" {
+            let pic = format!("/upload/pics/pic_{}.jpg", da[0]);
+            let min_pic = format!("/upload/pics/min_{}.jpg", da[0]);
+            fs::rename("./upload/pics/coin.jpg", format!(".{}", pic)).unwrap();
+            fs::rename(
+                "./upload/pics/min.jpg",
+                format!("./upload/pics/min_{}.jpg", da[0]),
+            )
+            .unwrap();
+
+            let conn = db.get().await.unwrap();
+            let f_map = map_fields(db.clone(), "销售开票").await;
+            let sql = format!(
+                r#"update documents set {}='{}' WHERE 单号='{}'"#,
+                f_map["图片"], pic, da[0]
+            );
+            let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            HttpResponse::Ok().json(min_pic)
+        } else {
+            HttpResponse::Ok().json(-2)
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 //上传pdf
 #[post("/pdf_in")]
 pub async fn pdf_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {

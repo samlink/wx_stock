@@ -136,9 +136,7 @@ export function appand_edit_row() {
 
     //清空数据
     for (let i in input_data.show_names) {
-        if (typeof input_data.show_names[i].value == "undefined") {
-            input_data.show_names[i].value = "";           
-        }
+        input_data.show_names[i].value = input_data.show_names[i].default ? input_data.show_names[i].default : "";
     }
 
     let has_input = tbody.querySelectorAll('.has-input');
