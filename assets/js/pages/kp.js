@@ -69,40 +69,6 @@ fetch(`/fetch_inout_fields`, {
                         }
                         service.set_shens_owner(set_data);
                     });
-
-                //同时获取相关单据信息, 加载表头内容时
-                fetch(`/fetch_other_documents`, {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(dh_div.textContent),
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        let tr = "";
-                        data.forEach(obj => {
-                            tr += `<tr><td>${obj}</td></tr>`;
-                        });
-
-                        document.querySelector(".table-history tbody").innerHTML = tr;
-                        let trs = document.querySelectorAll(".table-history tbody tr");
-                        for (let tr of trs) {
-                            tr.addEventListener('click', function () {
-                                let url;
-                                let cate = tr.querySelector('td').textContent.split('　')[0];
-                                if (cate.indexOf("出库") != -1) {
-                                    url = "/material_out/";
-                                } else if (cate.indexOf("发货") != -1) {
-                                    url = "/transport/";
-                                } else {
-                                    url = "/material_in/";
-                                }
-                                window.location = url + tr.querySelector('td').textContent.split('　')[1];
-                            })
-                        }
-                    }
-                    );
             } else {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
@@ -205,6 +171,35 @@ if (dh_div.textContent == "新单据") {
 
     build_blank_table(edit_data);
     appand_edit_row();
+
+    fetch("/fetch_sale_docs", {
+        method: 'post',
+    })
+        .then(response => response.json())
+        .then(content => {
+            let tr = "";
+            content.forEach(obj => {
+                let material = obj.label.split(`${SPLITER}`);
+                tr += `<tr><td hidden>${obj.id}</td><td>${material[0]}</td>
+                    <td hidden>${material[1]}</td></tr>`;
+            });
+
+            document.querySelector(".table-docs tbody").innerHTML = tr;
+
+            let lines = document.querySelectorAll(".table-docs tbody tr");
+            for (let l of lines) {
+                l.addEventListener("dblclick", () => {
+                    let value = l.querySelector('td:nth-child(3)').textContent.split('　');
+                    let dh = l.querySelector('td:nth-child(1)').textContent;
+                    document.querySelector('#文本字段6').value = dh;
+                    document.querySelector('#文本字段8').value = value[2] != "" ? `${value[1]} / ${value[2]}` : value[1];
+                    document.querySelector('#文本字段2').value = value[0];
+                    document.querySelector('#应结金额').value = value[3];
+                    fetch_others(dh);
+
+                })
+            }
+        })
 } else {
     let url = "/fetch_document_items";
     fetch(url, {
@@ -239,6 +234,52 @@ if (dh_div.textContent == "新单据") {
         })
 }
 
+// 获取其他相关单据
+function fetch_others(dh) {
+    fetch(`/fetch_other_documents`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    })
+        .then(response => response.json())
+        .then(data => {
+            let tr = "";
+            data.forEach(obj => {
+                tr += `<tr><td>${obj}</td></tr>`;
+            });
+
+            document.querySelector(".table-history tbody").innerHTML = tr;
+            let trs = document.querySelectorAll(".table-history tbody tr");
+            let ck = "DO: ", fh = "FO: ";
+            for (let tr of trs) {
+                let cate = tr.querySelector('td').textContent.split('　');
+                tr.addEventListener('click', function () {
+                    let url;
+                    if (cate[0].indexOf("出库") != -1) {
+                        url = "/material_out/";
+                    } else if (cate[0].indexOf("发货") != -1) {
+                        url = "/transport/";
+                    } else {
+                        url = "/material_in/";
+                    }
+                    window.open(url + tr.querySelector('td').textContent.split('　')[1]);
+                })
+
+                // 生成发票备注信息
+                if (cate[0].indexOf("出库") != -1) {
+                    ck += cate[1] + " / ";
+                } else if (cate[0].indexOf("发货") != -1) {
+                    fh += cate[1] + " / ";
+                }
+            }
+            let note = `<p>CN: ${document.querySelector('#文本字段8').value}</p><p>${ck.replace(/(\s|\/)+$/g, '')}</p><p>${fh.replace(/(\s|\/)+$/g, '')}</p>`;
+            document.querySelector(".table-note tbody").innerHTML = note;
+        });
+}
+
+//计算行总额
 function calculate(input_row) {
     input_row.querySelector('.price').addEventListener('blur', function () {
         calc_money(input_row);
@@ -294,13 +335,13 @@ function sum_money() {
     document.querySelector('#文本字段5').value = sum.toFixed(2);
 }
 
+// 自动填充规格等信息
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let n = 3;  //从第 3 列开始填入数据
     let num = 1;  //填充数量
     for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
         let val = field_values[i];
-        // console.log(shown);
         if ((show_names[i].type == "普通输入" || show_names[i].type == "autocomplete") && show_names[i].editable) {
             document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
         } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {

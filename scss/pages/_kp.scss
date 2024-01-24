@@ -17,4 +17,35 @@
   .documents-show .table-docs {
     margin-right: 5px;
   }
+
+  .right-tables {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+    margin-left: 5px;
+  }
+
+  .table-history {
+    width: 320px;
+    margin-left: 0;
+    flex-grow: 1;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .table-note {
+    height: 200px;
+    width: 320px;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+    th:hover {
+      cursor: default;
+    }
+
+    tbody p {
+      padding-left: 10px;
+    }
+  }
 }

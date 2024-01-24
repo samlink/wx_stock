@@ -975,6 +975,37 @@ pub async fn save_stransport(
     }
 }
 
+// 出库单获得销售单据
+#[post("/fetch_sale_docs")]
+pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        let f_map2 = map_fields(db.clone(), "客户").await;
+
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 || '　' || customers.{} || '{}' || customers.{} || '　' || documents.{} ||
+            '　' || documents.{} || '　' || documents.{}  as label FROM documents
+            join customers on 客商id = customers.id
+            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true
+            order by 单号 desc"#,
+            f_map2["简称"],
+            SPLITER,
+            f_map2["名称"],
+            f_map["合同编号"],
+            f_map["客户PO"],
+            f_map["单据金额"],
+            f_map["是否欠款"],
+            f_map["发货完成"],
+        );
+
+        // println!("{}",sql);
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///提交审核
 #[post("/make_sumit_shen")]
 pub async fn make_sumit_shen(
