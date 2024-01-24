@@ -100,6 +100,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
             .service(buyin::fetch_trans_items)
+            .service(buyin::fetch_kp_items)
             .service(buyin::get_items_trans)
             .service(buyin::get_sale_out)
             .service(buyin::fetch_other_documents)

@@ -1070,14 +1070,7 @@ pub async fn save_document_kp(
             let items_sql = format!(
                 r#"INSERT INTO kp_items (单号id, 名称, 规格, 单位, 数量, 单价, 税率, 顺序)
                      VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
-                dh,
-                value[1],
-                value[2],
-                value[3],
-                value[4],
-                value[5],
-                value[6],
-                value[0],
+                dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0],
             );
 
             // println!("{}", items_sql);
@@ -1088,6 +1081,49 @@ pub async fn save_document_kp(
         let _result = transaction.commit().await;
 
         HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取开票单据明细
+#[post("/fetch_kp_items")]
+pub async fn fetch_kp_items(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select 名称, 规格, 单位, 数量, 单价, 税率
+                FROM kp_items
+                WHERE 单号id='{}' ORDER BY 顺序"#,
+            data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let name: String = row.get("名称");
+            let gg: String = row.get("规格");
+            let dw: String = row.get("单位");
+            let price: f32 = row.get("单价");
+            let num: f32 = row.get("数量");
+            let tax: String = row.get("税率");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, gg, SPLITER, dw, SPLITER, num, SPLITER, price, SPLITER, tax,
+            );
+
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -11,7 +11,6 @@ import {
     enterToTab,
     set_key_move
 } from '../parts/tools.mjs';
-import { customer_init, out_data } from '../parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '../parts/edit_table.mjs';
@@ -129,15 +128,6 @@ show_names = [
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
     { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, value: "13%" },
     { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "" },
-    // {
-    //     name: "",
-    //     width: 0,
-    //     class: "m_id",
-    //     type: "普通输入",
-    //     editable: false,
-    //     is_save: true,
-    //     css: 'style="width:0%; border-left:none; color:white"',
-    // },
 ]
 
 //计算表格行数，33 为 lineHeight （行高）
@@ -202,8 +192,7 @@ if (dh_div.textContent == "新单据") {
             }
         })
 } else {
-    let url = "/fetch_document_items";
-    fetch(url, {
+    fetch('/fetch_kp_items', {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
