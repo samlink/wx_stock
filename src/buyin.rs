@@ -975,7 +975,7 @@ pub async fn save_stransport(
     }
 }
 
-// 出库单获得销售单据
+// 开票单获得销售单据
 #[post("/fetch_sale_docs")]
 pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;

@@ -84,6 +84,9 @@ pub async fn fetch_all_documents(
                 布尔字段3 = true and 文本字段10 = '') and".to_owned()
             } else if cate[1] == "wait_money" {
                 "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and".to_owned()
+            } else if cate[1] == "wait_kp" {
+                "documents.类别='商品销售' AND documents.是否欠款 = true AND documents.布尔字段1 = true AND
+                名称 != '天津彩虹石油机械有限公司' and".to_owned()
             } else if cate[1] == "wait_in" {
                 "documents.类别 = '材料采购' and documents.布尔字段2 = false and documents.文本字段10 != '' 
                 and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 

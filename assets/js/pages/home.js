@@ -118,8 +118,8 @@ fetch(`/home_statis`, {
                 reminder: document.querySelector('#show-05 .reminder'),
                 title_holer: document.querySelector('#warn-data3'),
                 title: `销售待开票 ${content[4].length} 单`,
-                more_href: "/buy_query?s=wait_buy_back",
-                location: "/buy_back/",
+                more_href: "/s_query?s=wait_kp",
+                location: "/sale/",
             }
 
             show_reminders(data5);

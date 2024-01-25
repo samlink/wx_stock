@@ -245,6 +245,27 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             sale1.push(item);
         }
 
+        //销售待开票 ------------------------
+        let sql = format!(
+            r#"select 单号, customers.{} 简称, 经办人 from documents
+            join customers on 客商id = customers.id
+            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
+            名称 != '天津彩虹石油机械有限公司' order by 单号 desc"#,
+            f_map2["简称"], f_map["是否欠款"], f_map["发货完成"]
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut sale3 = Vec::new();
+        for row in rows {
+            let dh: &str = row.get("单号");
+            let worker: &str = row.get("经办人");
+            let na: &str = row.get("简称");
+            let item = format!("{} {:>4} {}", dh, na, worker);
+            sale3.push(item);
+        }
+
         // 销售未发货
         let sql = format!(
             r#"select 单号, customers.{} 简称, 经办人 from documents
@@ -387,7 +408,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             others.push(format!("{}　{} 张", "反审单据", num));
         }
 
-        HttpResponse::Ok().json((sale1, sale2, buy, shen, 1, pre_shen, others))
+        HttpResponse::Ok().json((sale1, sale2, buy, shen, sale3, pre_shen, others))
     } else {
         HttpResponse::Ok().json(-1)
     }
