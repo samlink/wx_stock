@@ -89,7 +89,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 var rights = {
     goods_buy: ['材料采购', '采购查询'],
-    goods_sale: ['商品销售', '销售查询', '跨区查库存'],
+    goods_sale: ['商品销售', '销售查询', '跨区查库存', '财务开票'],
     goods_manage: ['库存状态', '采购入库', '销售出库', '调整库存', '入库查询', '出库查询', '调库查询'],
     customers: ['客户管理', '供应商管理'],
     statics: ['入库明细', '出库明细', '业务往来'],

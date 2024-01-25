@@ -237,10 +237,10 @@ pub async fn saleback(
     }
 }
 
-///商品销售
+///开票
 #[get("/kp/{dh}")]
 pub async fn kp(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "商品销售".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "财务开票".to_owned()).await;
     if user.name != "" {
         let dh = if *dh_num == "new" {
             "新单据"
@@ -491,7 +491,7 @@ pub async fn kp_query(
     limit: web::Query<Search>,
     id: Identity,
 ) -> HttpResponse {
-    let mut user = get_user(db.clone(), id, "".to_owned()).await;
+    let mut user = get_user(db.clone(), id, "财务开票".to_owned()).await;
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| query_html(o, user, "采购销售", "开票查询", "kp_items", &limit.s));
