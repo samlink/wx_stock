@@ -1,7 +1,7 @@
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {getHeight, SPLITER} from '../parts/tools.mjs';
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { getHeight, SPLITER } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
 // let cate = document.querySelector('#category').textContent;
@@ -30,12 +30,12 @@ let init_data = {
 };
 
 let custom_fields = [
-    {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
-    {name: '单号', field: '单号', width: 4},
-    {name: '类别', field: 'documents.类别', width: 4},
-    {name: '日期', field: 'documents.日期', width: 4},
-    {name: '经办人', field: 'documents.经办人', width: 3},
-    {name: '备注', field: 'documents.备注', width: 8},
+    { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
+    { name: '单号', field: '单号', width: 4 },
+    { name: '类别', field: 'documents.类别', width: 4 },
+    { name: '日期', field: 'documents.日期', width: 4 },
+    { name: '经办人', field: 'documents.经办人', width: 3 },
+    { name: '备注', field: 'documents.备注', width: 8 },
 ];
 
 let table = document.querySelector('.table-documents');
@@ -75,7 +75,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 function search_table() {
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, {name: search, page: 1});
+    Object.assign(table_data.post_data, { name: search, page: 1 });
     fetch_table();
 }
 
@@ -104,6 +104,8 @@ document.querySelector('#edit-button').addEventListener('click', function () {
             address = `/stock_change_in/`;
         } else if (cate == "调整出库") {
             address = `/stock_change_out/`;
+        } else if (cate == "销售开票") {
+            address = `/kp/`;
         }
         window.location = address + id;
     } else {
