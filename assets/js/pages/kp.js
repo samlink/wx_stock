@@ -191,7 +191,6 @@ fetch("/fetch_sale_docs", {
                 document.querySelector('#文本字段2').setAttribute('data', value[4]);
                 document.querySelector('#应结金额').value = value[3];
                 fetch_others(dh);
-
             })
         }
     });
@@ -242,7 +241,7 @@ if (dh_div.textContent == "新单据") {
         });
 }
 
-// 图片处理 -----------------------------------------------------------------
+// 图片处理 
 service.handle_pic(dh_div, "/pic_kp_save");
 modal_init();
 
@@ -479,19 +478,19 @@ function set_readonly() {
 document.querySelector('#remember-button').addEventListener('click', function () {
     let formal_data = {
         button: this,
-        dh: document.querySelector('#文本字段6').value,
-        xsdh: document.querySelector("#是否欠款").checked,
+        dh: dh_div.textContent,
+        xsdh: `${document.querySelector('#文本字段6').value}${SPLITER}${document.querySelector("#是否欠款").checked}`,
         document_name: document_name,
         edited: edited || input_table_outdata.edited,
         readonly_fun: set_readonly,
-        after_func: function (dh, xsdh) {
+        after_func: function (xsdh, dh) {
             // 将实际是否欠款写入销售单
             fetch(`/make_xs_kp`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(`${dh}${SPLITER}${xsdh}`),
+                body: JSON.stringify(xsdh),
             });
         }
     }

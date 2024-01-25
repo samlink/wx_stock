@@ -11,8 +11,6 @@ let limit = document.querySelector('#limit').textContent;
 let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
 
-console.log(cate);
-
 let document_cate;
 if (cate == "采购查询") {
     document_cate = "采购单据";

@@ -100,6 +100,8 @@ fetch(`/fetch_inout_fields`, {
                                     url = "/material_out/";
                                 } else if (cate.indexOf("发货") != -1) {
                                     url = "/transport/";
+                                } else if (cate.indexOf("开票") != -1) {
+                                    url = "/kp/";
                                 } else {
                                     url = "/material_in/";
                                 }
@@ -401,7 +403,7 @@ function calculate(input_row) {
             sum_money();
         });
     }
-    
+
     if (input_row.querySelector('.long')) {
         input_row.querySelector('.long').addEventListener('blur', function () {
             calc_weight(input_row);
@@ -546,8 +548,6 @@ document.querySelector('#save-button').addEventListener('click', function () {
         remember: document.querySelector('#remember-button').textContent,
         items: table_data,
     }
-
-    // console.log(data);
 
     fetch(`/save_document`, {
         method: 'post',
