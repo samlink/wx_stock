@@ -258,10 +258,13 @@ function fetch_others(dh) {
         .then(data => {
             let tr = "";
             data.forEach(obj => {
-                tr += `<tr><td>${obj}</td></tr>`;
+                if (obj.indexOf("开票") == -1) {
+                    tr += `<tr><td>${obj}</td></tr>`;
+                }
             });
 
             document.querySelector(".table-history tbody").innerHTML = tr;
+
             let trs = document.querySelectorAll(".table-history tbody tr");
             let ck = "DO: ", fh = "FO: ";
             for (let tr of trs) {
