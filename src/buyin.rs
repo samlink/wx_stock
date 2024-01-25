@@ -1149,6 +1149,25 @@ pub async fn fetch_kp_items(
     }
 }
 
+// 实际重量填入销售单
+#[post("/make_xs_kp")]
+pub async fn make_xs_kp(db: web::Data<Pool>, dh: web::Json<String>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let dh: Vec<&str> = dh.split(SPLITER).collect();
+        let owe: bool = dh[1].parse::<bool>().unwrap();
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"update documents set 是否欠款={} WHERE 单号='{}'"#, owe, dh[0]
+        );
+
+        let _ = conn.execute(sql.as_str(), &[]).await;
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///提交审核
 #[post("/make_sumit_shen")]
 pub async fn make_sumit_shen(

@@ -196,6 +196,8 @@ function get_address(cate) {
         address = `/stock_query_in`;
     } else if (cate == "调整出库") {
         address = `/stock_query_out`;
+    } else if (cate == "销售开票") {
+        address = `/kp_query`;
     }
     return address;
 }

@@ -40,7 +40,7 @@ fetch(`/fetch_inout_fields`, {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
                 // 加载已有单据的表头内容
-                fetch(`/fetch_document`, {
+                fetch(`/fetch_document_ck`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -57,10 +57,10 @@ fetch(`/fetch_inout_fields`, {
                         let values = data.split(SPLITER);
                         let len = values.length;
                         let customer = document.querySelector('#文本字段2');
-                        customer.value = values[len - 3];
+                        customer.value = values[2];
                         customer.setAttribute('data', values[len - 4]);
 
-                        let pic = values[2].replace("pic_", "min_");
+                        let pic = values[values.length - 3].replace("pic_", "min_");
                         if (pic.startsWith("/upload")) {
                             document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
                         }
@@ -235,7 +235,6 @@ if (dh_div.textContent == "新单据") {
             build_items_table(edit_data);
 
             setTimeout(() => {
-                console.log(document.querySelector('#remember-button').textContent.trim());
                 if (document.querySelector('#remember-button').textContent.trim() == "审核") {
                     appand_edit_row();
                 }
@@ -459,15 +458,11 @@ document.querySelector('#save-button').addEventListener('click', function () {
 function set_readonly() {
     let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        if (document_name == "采购单据" && (edit.id == '入库完成' || edit.id == "备注")) {
-            continue;
-        } else if (document_name == "销售单据" && (edit.id == '是否欠款' || edit.id == "文本字段2" || edit.id == "出库完成" ||
-            edit.id == "发货完成" || edit.id == "文本字段5" || edit.id == "文本字段4" || edit.id == "备注")) {
+        if (edit.id == '是否欠款' || edit.id == "备注") {
             continue;
         }
         edit.disabled = true;
     }
-    document.querySelector('#supplier-serach').disabled = true;
 
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
@@ -484,10 +479,21 @@ function set_readonly() {
 document.querySelector('#remember-button').addEventListener('click', function () {
     let formal_data = {
         button: this,
-        dh: dh_div.textContent,
+        dh: document.querySelector('#文本字段6').value,
+        xsdh: document.querySelector("#是否欠款").checked,
         document_name: document_name,
         edited: edited || input_table_outdata.edited,
         readonly_fun: set_readonly,
+        after_func: function (dh, xsdh) {
+            // 将实际是否欠款写入销售单
+            fetch(`/make_xs_kp`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(`${dh}${SPLITER}${xsdh}`),
+            });
+        }
     }
     service.make_formal(formal_data);
 });

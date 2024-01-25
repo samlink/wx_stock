@@ -325,7 +325,7 @@ pub async fn fetch_document_ck(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let fields = get_inout_fields(db.clone(), &data.cate).await;
-        let f_map = map_fields(db.clone(), "出库单据").await;
+        let f_map = map_fields(db.clone(), &data.cate).await;
         let mut sql_fields = "SELECT ".to_owned();
 
         for f in &fields {
@@ -333,7 +333,7 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} documents.{} as 审核, 经办人, documents.{} as 图片, documents.{} as 提交审核 FROM documents
+            r#"{} documents.{} as 审核, 经办人, customers.id, documents.{} as 图片, documents.{} as 提交审核 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["审核"], f_map["图片"], f_map["提交审核"], data.dh
         );
@@ -343,6 +343,7 @@ pub async fn fetch_document_ck(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document = "".to_owned();
         for row in rows {
+            let csid: i32 = row.get("id");
             let sumit_shen: bool = row.get("提交审核");
             let rem: String = row.get("审核");
             let pic: String = row.get("图片");
@@ -353,7 +354,7 @@ pub async fn fetch_document_ck(
                 SPLITER,
                 sumit_shen,
                 SPLITER,
-                1, // 1 是占位置的, 为了共享前端函数
+                csid, // 1 是占位置的, 为了共享前端函数
                 SPLITER,
                 pic,
                 SPLITER,
