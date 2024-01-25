@@ -1,6 +1,8 @@
  --批量修改 tableset 表格
  --备份表:
  pg_dump sales -t tableset -f t.sql
+ --删除表
+ drop table tableset
  --还原表:
  psql sales < t.sql
 
@@ -24,11 +26,6 @@ CREATE TABLE public.lu (
     "炉号" text PRIMARY KEY NOT NULL,
     "质保书" text NOT NULL,
 );
-
-备份还原单表
-pg_dump sales -t tableset -f set.sql
-drop table tableset
-psql sales < set.sql
 
 其他命令
 alter table document_items add column 出库完成 bool default false;

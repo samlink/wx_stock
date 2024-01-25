@@ -33,3 +33,5 @@ terser ./pages/stockoutitems.js -c -o ../min/pages/stockoutitems.js
 terser ./pages/transport.js -c -o ../min/pages/transport.js
 terser ./pages/usermanage.js -c -o ../min/pages/usermanage.js
 terser ./pages/userset.js -c -o ../min/pages/userset.js
+terser ./pages/kp.js -c -o ../min/pages/kp.js
+terser ./pages/query2.js -c -o ../min/pages/query2.js
