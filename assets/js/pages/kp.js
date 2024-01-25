@@ -457,7 +457,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
 function set_readonly() {
     let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {
-        if (edit.id == '是否欠款' || edit.id == "备注") {
+        if (edit.id == "备注") {
             continue;
         }
         edit.disabled = true;
