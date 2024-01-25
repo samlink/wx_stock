@@ -111,14 +111,14 @@ fetch(`/home_statis`, {
 
             show_reminders(data6);
 
-            //销售未开票
+            //销售待开票
             let data5 = {
                 content: content[4],
                 lines: fit_lines,
                 reminder: document.querySelector('#show-05 .reminder'),
                 title_holer: document.querySelector('#warn-data3'),
                 title: `销售待开票 ${content[4].length} 单`,
-                more_href: "/s_query?s=wait_kp",
+                more_href: "/sale_query?s=wait_kp",
                 location: "/sale/",
             }
 
@@ -251,7 +251,7 @@ document.querySelector('#warn-tip').addEventListener('click', function () {
 });
 
 document.querySelector('#use-tip').addEventListener('click', function () {
-    window.location.href = `/buy_query?s=wait_buy_back`;
+    window.location.href = `/sale_query?s=wait_kp`;
 });
 
 document.querySelector('#pre-shen').addEventListener('click', function () {
