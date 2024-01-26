@@ -205,7 +205,7 @@ pub async fn sale(db: web::Data<Pool>, dh_num: web::Path<String>, id: Identity) 
             &*dh_num
         };
 
-        let setup = vec!["商品销售", "客户", "出库及发货单号", dh, "customer"];
+        let setup = vec!["商品销售", "客户", "出库、发货及开票单号", dh, "customer"];
         user.show = name_show(&user);
         let html = r2s(|o| buyin_html(o, user, setup));
         HttpResponse::Ok().content_type("text/html").body(html)
