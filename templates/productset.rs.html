@@ -30,19 +30,20 @@
         </div>
         <div id="product-show">
             <div class="table-top">
-                <div class="product-search">
+                <div class="product-select">
+                    <select class="select-sm document-value">
+                        <option value="现有库存" selected>现有库存</option>
+                        <option value="已切完">已切完</option>
+                    </select>
+                </div>
+                <div>
                     <input type="text" class="form-control search-input" id="search-input" placeholder="联合搜索">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                     <span id="product-name"></span><span id="product-id"></span>
                 </div>
                 <div class="table-tools">
                     <div class="table-edit">
-                        @if user.name == "admin" {
-                        <button class="btn btn-info btn-sm" id="add-button">增加</button>
-                        } else {
                         <button class="btn btn-info btn-sm hide" id="add-button">增加</button>
-                        }
-                        
                         <button class="btn btn-info btn-sm" id="find-button">查阅出库</button>
                         <button class="btn btn-info btn-sm" id="edit-button">编辑物料</button>
                     </div>
