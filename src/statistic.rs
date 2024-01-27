@@ -52,13 +52,14 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额, ROW_NUMBER () OVER (order by {}) as 序号
                 from documents
-                where {} 类别 = '商品销售' and 文本字段10 != '' and {}
+                where {} 类别 = '商品销售' and 文本字段10 != '' and 
+                单号 in (select 文本字段6 from documents where documents.类别='销售出库' and 文本字段10 != '' and {})
                 group by date_cate
                 order by date_cate"#,
             da_cate, da_cate, limits, date_sql
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
