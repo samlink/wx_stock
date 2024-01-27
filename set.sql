@@ -6,14 +6,19 @@
  --还原表:
  psql sales < t.sql
 
- --批量增加 tabeset 数据
- -- 把类似数据保存到一个临时表
+ --批量增加 tableset 数据
+ --把类似数据保存到一个临时表
  select * into tmp from tableset where table_name='采购单据';
  --在临时表中修改后, 再插入到原表
  insert into tableset (table_name,field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,
              show_order,inout_show,inout_order,default_value,all_edit,is_use,inout_width)
  select table_name,field_name,data_type,show_name,show_width,ctr_type,option_value,is_show,
         show_order,inout_show,inout_order,default_value,all_edit,is_use,inout_width from tmp;
+
+--新增 tableset 字段
+COPY public.tableset (id, table_name, field_name, data_type, show_name, show_width, ctr_type, option_value, is_show, show_order, inout_show, inout_order, default_value, all_edit, is_use, inout_width) FROM stdin;
+365	发货单据	文本字段11	文本	文本字段11	4	普通输入		f	29	f	27		t	f	4
+366	发货单据	文本字段12	文本	文本字段12	4	普通输入		f	25	f	23		t	f	4
 
 创建外键索引
 ALTER TABLE pout_items ADD CONSTRAINT fk_sale_idx FOREIGN KEY (销售id) REFERENCES document_items (id) on delete cascade;

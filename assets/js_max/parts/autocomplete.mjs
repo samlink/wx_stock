@@ -33,7 +33,7 @@ export class AutoInput {
             } else if (typeof (this.cate) == "string") {
                 get_url = `${this.url}?s=${val}&cate=${this.cate}`;
             } else {
-                get_url = `${this.url}?s=${val}&cate=${this.cate.textContent}`;
+                get_url = `${this.url}?s=${val}&cate=${this.cate.textContent ? this.cate.textContent : this.cate.value}`;
             }
 
             fetch(get_url)

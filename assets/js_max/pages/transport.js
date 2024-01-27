@@ -99,19 +99,26 @@ function set_readonly() {
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show');
     fields_show.innerHTML = html;
-    let has_auto = document.querySelector('.has-auto');
-    let next_auto = document.querySelector('.has-auto+div');
+    // let has_auto = document.querySelector('.has-auto');
+    // let next_auto = document.querySelector('.has-auto+div');
 
-    // let auto_doc = document.querySelector('#文本字段6');
-    // auto_doc.parentNode.classList.add("autocomplete");
+    let comany = document.querySelector('#文本字段5');
+    let auto_doc = document.querySelector('#文本字段11');
+    auto_doc.parentNode.classList.add("autocomplete");
 
-    // let auto_comp = new AutoInput(auto_doc, "销售出库", "/materialout_auto", () => {
-    //     build_items(auto_doc.getAttribute("data"));
-    // });
+    let auto_comp = new AutoInput(auto_doc, comany, "/get_truck_auto", () => {
+    });
 
-    // auto_comp.init();
+    auto_comp.init();
 
-    // document.querySelector('#文本字段5').parentNode.parentNode.style.cssText = "margin-left: 250px;";
+    let auto_doc2 = document.querySelector('#文本字段12');
+    auto_doc2.parentNode.classList.add("autocomplete");
+
+    let auto_comp2 = new AutoInput(auto_doc2, comany, "/get_truck2_auto", () => {
+    });
+
+    auto_comp2.init();
+
     let date = document.querySelector('#日期');
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");
@@ -201,7 +208,7 @@ function build_items(dh) {
                         .then(content => {
                             document.querySelectorAll('#trans-table tbody tr').forEach(tr => {
                                 if (tr.querySelector('td:nth-child(2)').textContent.trim() == "锯口费") {
-                                    tr.parentNode.removeChild(tr);                                    
+                                    tr.parentNode.removeChild(tr);
                                 }
                             });
 

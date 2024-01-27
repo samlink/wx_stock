@@ -312,6 +312,40 @@ pub async fn get_factory_auto(
     }
 }
 
+#[get("/get_truck_auto")]
+pub async fn get_truck_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let sql = format!(r#"select distinct 文本字段11 label, '1' as id from documents
+                        where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段11) like '%{}%'"#,
+                        search.cate, search.s.to_lowercase());
+        autocomplete(db, &sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[get("/get_truck2_auto")]
+pub async fn get_truck2_auto(
+    db: web::Data<Pool>,
+    search: web::Query<SearchCate>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let sql = format!(r#"select distinct 文本字段12 label, '1' as id from documents
+                        where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段12) like '%{}%'"#,
+                        search.cate, search.s.to_lowercase());
+        autocomplete(db, &sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub struct Document {
     pub rights: String,

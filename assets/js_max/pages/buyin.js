@@ -216,9 +216,10 @@ fetch(`/fetch_inout_fields`, {
         ];
 
         for (let item of content) {
+            let edit = document_name == "销售单据" ? false : true;
             show_names.push({
                 name: item.show_name, width: item.show_width * 18, type: item.ctr_type,
-                class: item.show_name, editable: true, is_save: true, default: item.option_value
+                class: item.show_name, editable: edit, is_save: true, default: item.option_value
             });
         }
 
@@ -251,10 +252,6 @@ fetch(`/fetch_inout_fields`, {
                 default: ""
             });
         } else if (document_name == "采购单据") {
-            // show_names.push({
-            //     name: "执行标准", width: 120, class: "执行标准", type: "autocomplete", editable: true,
-            //     is_save: true, save: "value", no_button: true, default: ""
-            // });
             show_names.push({
                 name: "单价", width: 60, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
             });
@@ -291,7 +288,7 @@ fetch(`/fetch_inout_fields`, {
 
         // 设置"状态"为自动输入
         show_names.forEach(item => {
-            if (item.name == "状态" || item.name == "执行标准") {
+            if (document_name == "采购单据" && (item.name == "状态" || item.name == "执行标准")) {
                 item.type = "autocomplete";
                 item.no_button = true;           //无需 modal 选择按钮
                 item.save = "value";             //保存值, 而非 id
@@ -314,7 +311,14 @@ fetch(`/fetch_inout_fields`, {
             { name: "库存重量", width: 80 },
         ];
 
-        let auto_data = [{
+        let auto_data = document_name == "销售单据" ? [{
+            n: 2,                       //第2个单元格是自动输入
+            cate: document_name,
+            auto_url: `/buyin_auto`,
+            show_th: show_th,
+            type: "table",
+            cb: fill_gg,
+        }] : [{
             n: 2,                       //第2个单元格是自动输入
             cate: document_name,
             auto_url: `/buyin_auto`,
