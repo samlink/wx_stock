@@ -253,13 +253,14 @@ pub async fn fetch_one_product(
         let f_map = map_fields(db.clone(), "商品规格").await;
 
         let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                            || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} as p 
+                            || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}' || 
+                            products.{} || '{}' || products.{} as p 
                             from products
                             JOIN tree ON products.商品id = tree.num
                             JOIN documents on 单号id = 单号
                             WHERE products.{} = '{}' and documents.文本字段10 <> ''",
-                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER,
-                          f_map["状态"], SPLITER, f_map["执行标准"], SPLITER, f_map["售价"], f_map["物料号"], product_id);
+                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, 
+                          f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -320,9 +321,12 @@ pub async fn get_truck_auto(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
-        let sql = format!(r#"select distinct 文本字段11 label, '1' as id from documents
+        let sql = format!(
+            r#"select distinct 文本字段11 label, '1' as id from documents
                         where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段11) like '%{}%'"#,
-                        search.cate, search.s.to_lowercase());
+            search.cate,
+            search.s.to_lowercase()
+        );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -337,9 +341,12 @@ pub async fn get_truck2_auto(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
-        let sql = format!(r#"select distinct 文本字段12 label, '1' as id from documents
+        let sql = format!(
+            r#"select distinct 文本字段12 label, '1' as id from documents
                         where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段12) like '%{}%'"#,
-                        search.cate, search.s.to_lowercase());
+            search.cate,
+            search.s.to_lowercase()
+        );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -1192,7 +1199,8 @@ pub async fn make_xs_kp(db: web::Data<Pool>, dh: web::Json<String>, id: Identity
         let owe: bool = dh[1].parse::<bool>().unwrap();
         let conn = db.get().await.unwrap();
         let sql = format!(
-            r#"update documents set 是否欠款={} WHERE 单号='{}'"#, owe, dh[0]
+            r#"update documents set 是否欠款={} WHERE 单号='{}'"#,
+            owe, dh[0]
         );
 
         let _ = conn.execute(sql.as_str(), &[]).await;

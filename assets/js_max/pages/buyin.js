@@ -283,6 +283,15 @@ fetch(`/fetch_inout_fields`, {
             type: "普通输入",
             editable: false,
             is_save: true,
+            css: 'style="width:0%; border-left:none;border-right:none; color:white"',
+        });
+        show_names.push({
+            name: "",
+            width: 0,
+            class: "m_num",
+            type: "普通输入",
+            editable: false,
+            is_save: false,
             css: 'style="width:0%; border-left:none; color:white"',
         });
 
@@ -387,6 +396,16 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
+// 检查是否超过库存
+function check_sum(input_row) {
+    let long = input_row.querySelector('.long').value;
+    let check = input_row.querySelector(`td:nth-child(${15})`).textContent;
+    let num = input_row.querySelector('.num').value;
+    if (long && regReal.test(long) && num && regReal.test(num) && long * num > Number(check)) {
+        return -1;
+    }
+}
+
 function calculate(input_row) {
     if (input_row.querySelector('.规格')) {
         input_row.querySelector('.规格').addEventListener('blur', function () {
@@ -413,12 +432,18 @@ function calculate(input_row) {
             calc_weight(input_row);
             calc_money(input_row);
             sum_money();
+            if (check_sum(input_row) == -1) {
+                notifier.show('数量超过库存', 'danger');
+            }
         });
 
         input_row.querySelector('.num').addEventListener('blur', function () {
             calc_weight(input_row);
             calc_money(input_row);
             sum_money();
+            if (check_sum(input_row) == -1) {
+                notifier.show('数量超过库存', 'danger');
+            }
         });
     }
 }
@@ -475,7 +500,7 @@ function calc_weight(input_row) {
         num: input_row.querySelector('.num').value,
         name: input_row.querySelector('.auto-input').value,
         cz: input_row.querySelector('.材质').textContent.trim(),
-        gg: input_row.querySelector('.规格').value,
+        gg: input_row.querySelector('.规格').textContent.trim(),
     }
 
     if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--") {
@@ -506,6 +531,9 @@ function fill_gg() {
         // }
 
         if (document_name == "销售单据") {
+            // 写入库存数量，用于验证输入
+            document.querySelector(`.inputting td:nth-child(${15})`).textContent = field_values[7];
+
             let row = document.querySelector('.table-items .inputting');
             calc_weight(row);
         }
@@ -666,6 +694,14 @@ function error_check() {
                     return false;
                 } else if (row.querySelector('.weight').value.trim() == "") {
                     row.querySelector('.weight').value = 0;
+                }
+            }
+
+            if (document_name == "销售单据") {
+                if (check_sum(row) == -1) {
+                    let n = row.querySelector('td:nth-child(1)').textContent;
+                    notifier.show(`第 ${n} 行数量超过库存`, 'danger');
+                    return false;
                 }
             }
         }
