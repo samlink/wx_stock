@@ -2,7 +2,11 @@
 use crate::service::*;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{
+    get, post,
+    web::{self, post},
+    HttpResponse,
+};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
@@ -23,17 +27,25 @@ pub async fn fetch_product(
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let product_sql = if post_data.id == "" {
-            "true".to_owned()
-        } else {
-            format!("products.商品id = '{}'", post_data.id)
+        let f_data = FilterData {
+            id: post_data.id.clone(),
+            name: post_data.name.clone(),
+            cate: post_data.cate.clone(),
+            filter: "".to_owned(),
         };
 
-        let now_sql = if post_data.cate == "现有库存" {
-            " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
-        } else {
-            " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
-        };
+        let (product_sql, conditions, now_sql) = build_sql_search(db.clone(), f_data).await;
+        // let product_sql = if post_data.id == "" {
+        //     "true".to_owned()
+        // } else {
+        //     format!("products.商品id = '{}'", post_data.id)
+        // };
+
+        // let now_sql = if post_data.cate == "现有库存" {
+        //     " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
+        // } else {
+        //     " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
+        // };
 
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;
@@ -46,32 +58,32 @@ pub async fn fetch_product(
         if post_data.cate == "销售单据" {
             done = format!("AND products.{}='否'", f_map["切完"]);
         }
-        // 构建搜索字符串
-        let mut conditions = "".to_owned();
-        if post_data.name != "" {
-            let post = post_data.name.to_lowercase();
-            let name: Vec<&str> = post.split(" ").collect();
-            for na in name {
-                conditions += &format!(
-                    r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
-                       LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                       OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
-                    "#,
-                    f_map["物料号"],
-                    na,
-                    f_map["规格"],
-                    na,
-                    f_map["生产厂家"],
-                    na,
-                    f_map["区域"],
-                    na,
-                    f_map["切完"],
-                    na,
-                    f_map["备注"],
-                    na,
-                );
-            }
-        }
+        // // 构建搜索字符串
+        // let mut conditions = "".to_owned();
+        // if post_data.name != "" {
+        //     let post = post_data.name.to_lowercase();
+        //     let name: Vec<&str> = post.split(" ").collect();
+        //     for na in name {
+        //         conditions += &format!(
+        //             r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
+        //                LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+        //                OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
+        //             "#,
+        //             f_map["物料号"],
+        //             na,
+        //             f_map["规格"],
+        //             na,
+        //             f_map["生产厂家"],
+        //             na,
+        //             f_map["区域"],
+        //             na,
+        //             f_map["切完"],
+        //             na,
+        //             f_map["备注"],
+        //             na,
+        //         );
+        //     }
+        // }
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
@@ -132,18 +144,90 @@ pub async fn fetch_product(
     }
 }
 
+async fn build_sql_search(db: web::Data<Pool>, post_data: FilterData) -> (String, String, String) {
+    let f_map = map_fields(db.clone(), "商品规格").await;
+
+    let product_sql = if post_data.id == "" {
+        "true".to_owned()
+    } else {
+        format!("products.商品id = '{}'", post_data.id)
+    };
+
+    let now_sql = if post_data.cate == "现有库存" {
+        " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
+    } else {
+        " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
+    };
+
+    // 构建搜索字符串
+    let mut conditions = "".to_owned();
+    if post_data.name != "" {
+        let post = post_data.name.to_lowercase();
+        let name: Vec<&str> = post.split(" ").collect();
+        for na in name {
+            conditions += &format!(
+                r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
+                   LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                   OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
+                "#,
+                f_map["物料号"],
+                na,
+                f_map["规格"],
+                na,
+                f_map["生产厂家"],
+                na,
+                f_map["区域"],
+                na,
+                f_map["切完"],
+                na,
+                f_map["备注"],
+                na,
+            );
+        }
+    }
+
+    (product_sql, conditions, now_sql.to_owned())
+}
+
+#[derive(Deserialize)]
+struct FilterData {
+    id: String,
+    filter: String,
+    name: String,
+    cate: String,
+}
+
 ///获取 filter items
 #[post("/fetch_filter_items")]
 pub async fn fetch_filter_items(
     db: web::Data<Pool>,
-    cate: web::Json<String>,
+    post_data: web::Json<FilterData>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let conn = db.get().await.unwrap();
-        let sql = format!(r#"SELECT DISTINCT {} FROM products ORDER BY {}"#, f_map[cate.as_str()], f_map[cate.as_str()]);
+        let f_data = FilterData {
+            id: post_data.id.clone(),
+            name: post_data.name.clone(),
+            cate: post_data.cate.clone(),
+            filter: "".to_owned(),
+        };
+        let (product_sql, conditions, now_sql) = build_sql_search(db.clone(), f_data).await;
+
+        let sql = format!(
+            r#"SELECT DISTINCT {} FROM products 
+            LEFT JOIN cut_length() as foo
+            ON products.文本字段1 = foo.物料号
+            where {} {} {}
+            ORDER BY {}"#,
+            f_map[post_data.filter.as_str()],
+            product_sql,
+            conditions,
+            now_sql,
+            f_map[post_data.filter.as_str()]
+        );
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut items: Vec<&str> = Vec::new();
         for row in rows {

@@ -13,6 +13,7 @@ let global = {
     eidt_cate: "",
     product_id: "",
     product_name: "",
+    filter_conditions: new Map(),
 }
 
 //配置自动完成和树的显示 ---------------------------------------------------
@@ -65,7 +66,7 @@ function make_filter() {
     let ths = table.querySelectorAll('thead th');
 
     // let th = ths.querySelector('th:nth-child(2)');
-    let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号'];
+    let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '区域'];
 
     ths.forEach(th => {
         if (has_filter.indexOf(th.textContent) != -1) {
@@ -84,13 +85,25 @@ function make_filter() {
             filter.style.display = "block";
 
             let na = button.parentNode.textContent.trim();
+            let search = document.querySelector('#search-input').value;
+            let cate = document.querySelector('#p-select').value;
+            let id = document.querySelector('#product-id').textContent.trim();
+
+            document.querySelector('#filter-name').textContent = na;  // 保存留作后用
+
+            let post_data = {
+                id: id,
+                name: search,
+                cate: cate,
+                filter: na
+            };
 
             fetch('/fetch_filter_items', {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(na),
+                body: JSON.stringify(post_data),
             })
                 .then(response => response.json())
                 .then(content => {
@@ -120,7 +133,22 @@ function make_filter() {
 };
 
 document.querySelector('#f-ok').addEventListener('click', () => {
+    let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
+    let filter_name = document.querySelector('#filter-name').textContent
+    let f_sql = "";
+
+    checked.forEach(ch => {
+        if (ch.checked) {
+            f_sql += `${filter_name} = '${ch.parentNode.textContent.trim()}' OR `;
+            // global.filter_conditions.push(ch.parentNode.textContent.trim());
+        }
+    });
+
+    global.filter_conditions.set(filter_name, f_sql);
+
     document.querySelector('.filter-container').style.display = "none";
+
+    console.log(global.filter_conditions);
 });
 
 document.querySelector('#f-cancel').addEventListener('click', () => {
