@@ -44,6 +44,18 @@
         }
     }
 
+    .filter_button {
+        width:25px;
+        height: 25px;
+        float: right;
+        margin-right: 5px;
+        background-color: rgb(229, 248, 253);
+        border: 1px solid $table-border-color;
+        &:hover {
+            background-color: white;
+        }
+    }
+
     .table-tools {
         display: flex;
         align-items: center;

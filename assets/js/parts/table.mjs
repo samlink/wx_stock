@@ -67,7 +67,7 @@ export var table_init = function (data) {
                     let order = table_data.post_data.sort.indexOf('ASC') !== -1 ? 'DESC' : 'ASC';
                     let arrow = table_data.post_data.sort.indexOf('ASC') !== -1 ? '▼' : '▲';
                     let sort = table_data.header_names[this.textContent] + " " + order;
-                    this.textContent = this.textContent + " " + arrow;
+                    // this.textContent = this.textContent + " " + arrow;
 
                     Object.assign(table_data.post_data, { page: 1, sort: sort });
                     table_data.page_input.value = 1;

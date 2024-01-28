@@ -58,7 +58,101 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 //商品规格表格数据 -------------------------------------------------------------------
 
-service.build_product_table(row_num);
+service.build_product_table(row_num, make_filter);
+
+function make_filter() {
+    let table = document.querySelector('.table-container');
+    let ths = table.querySelectorAll('thead th');
+
+    // let th = ths.querySelector('th:nth-child(2)');
+    let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号'];
+
+    ths.forEach(th => {
+        if (has_filter.indexOf(th.textContent) != -1) {
+            th.innerHTML = `${th.textContent} <button class="filter_button"><i class="fa fa-filter"></i></button>`;
+        }
+    });
+
+    document.querySelectorAll('.filter_button').forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.stopPropagation();
+            let filter = document.querySelector('.filter-container');
+            filter.style.top = e.clientY + 20 + "px";
+            filter.style.left = e.clientX - this.parentNode.clientWidth + 20 + "px";
+            document.querySelector('#f-check-all').checked = false;
+
+            filter.style.display = "block";
+
+            let na = button.parentNode.textContent.trim();
+
+            fetch('/fetch_filter_items', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(na),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    let html = "";
+                    let n = 0;
+                    for (let row of content) {
+                        if (row.trim() == "" && n == 0) {
+                            row = "(空白)";
+                            n++;
+                        } else if (row.trim() == "" && n == 1) {
+                            continue;
+                        }
+
+                        html += `
+                                <label class="check-radio">
+                                    <input class="form-check" type="checkbox">
+                                    <span class="checkmark"></span>
+                                    <span class="all-choose">${row}</span>
+                                </label>
+                            `;
+                    }
+
+                    filter.querySelector('.f-choose').innerHTML = html;;
+                });
+        })
+    })
+};
+
+document.querySelector('#f-ok').addEventListener('click', () => {
+    document.querySelector('.filter-container').style.display = "none";
+});
+
+document.querySelector('#f-cancel').addEventListener('click', () => {
+    document.querySelector('.filter-container').style.display = "none";
+});
+
+document.querySelector('#f-check-all').addEventListener('click', () => {
+    let checked = document.querySelector('#f-check-all').checked;
+    document.querySelector('.f-choose').querySelectorAll('.form-check').forEach(input => {
+        if (checked) {
+            input.checked = true;
+        } else {
+            input.checked = false;
+        }
+    })
+});
+
+document.querySelector('.product-set').addEventListener('click', (e) => {
+    let filters = ['filter-container', 'f-title', 'f-choose', 'f-sumit', 'f-items',
+        'checkmark', 'check-radio', 'form-check', 'all-choose', 'f-button'];
+    if (filters.indexOf(e.target.className) == -1) {
+        document.querySelector('.filter-container').style.display = "none";
+    }
+});
+
+// Esc 按键关闭 filter
+document.addEventListener('keydown', (event) => {
+    const keyName = event.key;
+    if (keyName === 'Escape') {
+        document.querySelector('.filter-container').style.display = "none";
+    }
+}, false);
 
 document.querySelector('#p-select').addEventListener('change', () => {
     let post_data = {
@@ -70,7 +164,9 @@ document.querySelector('#p-select').addEventListener('change', () => {
 
     Object.assign(table_data.post_data, post_data);
     fetch_table();
-})
+});
+
+
 
 //增加按键
 document.querySelector('#add-button').addEventListener('click', function () {

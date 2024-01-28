@@ -385,6 +385,7 @@ pub fn build_string_from_base(
         products.push(product);
     }
     products
+    
 }
 
 //将数据库查询结果字段组合成字符串，即是内部辅助函数，也可外部调用
@@ -408,6 +409,7 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
             product += &format!("{}{}", val, SPLITER);
         }
     }
+
     product
 }
 

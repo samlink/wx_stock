@@ -107,6 +107,7 @@ pub async fn fetch_product(
         // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
         let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
@@ -126,6 +127,29 @@ pub async fn fetch_product(
         }
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
         HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取 filter items
+#[post("/fetch_filter_items")]
+pub async fn fetch_filter_items(
+    db: web::Data<Pool>,
+    cate: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let conn = db.get().await.unwrap();
+        let sql = format!(r#"SELECT DISTINCT {} FROM products ORDER BY {}"#, f_map[cate.as_str()], f_map[cate.as_str()]);
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut items: Vec<&str> = Vec::new();
+        for row in rows {
+            items.push(row.get(0));
+        }
+        HttpResponse::Ok().json(items)
     } else {
         HttpResponse::Ok().json(-1)
     }

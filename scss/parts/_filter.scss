@@ -1,0 +1,52 @@
+.filter-container {
+    position: fixed;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 350px;
+    background-color: #f3f3f3;
+
+    .f-title {
+        font-size: 16px;
+        padding-top: 10px;
+        padding-left: 30px;
+        padding-bottom: 10px;
+        margin-bottom: 10px;
+        border-bottom: 1px solid #e8e8e8;
+
+        label:hover {
+            cursor: pointer;
+        }
+    }
+    .f-choose {
+        display: flex;
+        flex-direction: column;
+        height: 230px;
+        background-color: white;
+        margin: 8px;
+        padding: 5px;
+        overflow-y: auto;
+
+        label {
+            // padding: 3px;
+            margin-bottom: 3px;
+            &:hover {
+                background-color: $table-hover-color;
+                cursor: pointer;
+            }
+
+        }
+    }
+    .f-sumit {
+        float: right;
+        margin: 5px 20px 0 20px;
+        button {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }
+
+    #f-ok {
+        margin-left: 20px;
+    }
+}
