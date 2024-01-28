@@ -376,6 +376,12 @@ pub fn build_string_from_base(
 
         product += &simple_string_from_base(row, &fields);
 
+        let p_name: &str = row.get("node_name");
+        product += &format!("{}{}", p_name, SPLITER);
+
+        let p_id: &str = row.get("商品id");
+        product += &format!("{}{}", p_id, SPLITER);
+
         products.push(product);
     }
     products

@@ -492,11 +492,11 @@ function build_input_row(show_names, all_width, num) {
 
                 let input = document.querySelector('#auto_input');
 
-                let auto_com = new AutoInput(input, "", `/tree_auto`, () => {
-                    tree_search(input.value);
-                });
+                // let auto_com = new AutoInput(input, "", `/tree_auto`, () => {
+                //     tree_search(input.value);
+                // });
 
-                auto_com.init();
+                // auto_com.init();
 
                 document.querySelector("#auto_search").addEventListener('click', () => {
                     tree_search(input.value);

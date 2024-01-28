@@ -1,11 +1,11 @@
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {fetch_tree, tree_init, tree_search} from '../parts/tree.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import {regInt, regReal, SPLITER, download_file, checkFileType, open_node} from '../parts/tools.mjs';
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
+import { AutoInput } from '../parts/autocomplete.mjs';
+import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
-import {modal_init, leave_alert, close_modal, modal_out_data} from "../parts/modal.mjs";
+import { modal_init, leave_alert, close_modal, modal_out_data } from "../parts/modal.mjs";
 
 let global = {
     row_id: 0,
@@ -60,6 +60,18 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 service.build_product_table(row_num);
 
+document.querySelector('#p-select').addEventListener('change', () => {
+    let post_data = {
+        id: document.querySelector('#product-id').textContent.trim(),
+        name: document.querySelector('#search-input').value,
+        cate: document.querySelector('#p-select').value,
+        page: 1,
+    };
+
+    Object.assign(table_data.post_data, post_data);
+    fetch_table();
+})
+
 //增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
     global.eidt_cate = "add";
@@ -81,6 +93,11 @@ document.querySelector('#find-button').addEventListener('click', function () {
     global.eidt_cate = "add";
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent.trim() : "";
+    let p_name = chosed ? chosed.querySelector('td:nth-child(18)').textContent.trim() : "";
+
+    if (global.product_name == "") {
+        global.product_name = p_name;
+    }
     if (global.product_name != "" && id != "") {
         fetch('/fetch_pout_items', {
             method: 'post',
@@ -141,7 +158,18 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 
     let chosed = document.querySelector('tbody .focus');
     let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-    if (global.product_name != "" && id != "") {
+    let p_name = chosed ? chosed.querySelector('td:nth-child(18)').textContent.trim() : "";
+    let p_id = chosed ? chosed.querySelector('td:nth-child(19)').textContent.trim() : "";
+
+    if (global.product_name == "") {
+        global.product_name = p_name;
+    }
+
+    if (global.product_id == "") {
+        global.product_id = p_id;
+    }
+
+    if (global.product_name != "" && global.product_id != "" && id != "") {
         global.row_id = id;
         document.querySelector('.modal-body').innerHTML = service.build_edit_form(3, service.table_fields, chosed); //3 是起始位置
         document.querySelector('.modal-title').textContent = global.product_name;
@@ -150,7 +178,7 @@ document.querySelector('#edit-button').addEventListener('click', function () {
         document.querySelector('.modal-body input').focus();
         leave_alert();
     } else {
-        notifier.show('请先选择商品规格', 'danger');
+        notifier.show('请先选择物料', 'danger');
     }
 });
 

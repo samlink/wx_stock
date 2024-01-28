@@ -574,12 +574,8 @@ export function build_product_table(row_num, cb, more) {
 
                 table_init(init_data)
 
-                // let data = {
-                //     url: `/fetch_product`,
-                // }
-
                 let post_data = {
-                    cate: document.querySelector('#p-select').value,
+                    cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "现有库存",
                     page: 1,
                 }
 
@@ -593,7 +589,7 @@ export function build_product_table(row_num, cb, more) {
         let rec = tr.split(SPLITER);
         let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td>`;
         let row_build = build_row_from_string(rec, row, table_fields);
-        let rows = row_build.replace("</tr>", `<td>${rec[rec.length - 2]}</td></tr>`);  //将库存加入
+        let rows = row_build.replace("</tr>", `<td>${rec[rec.length - 3]}</td><td>${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
         return rows;
     }
 

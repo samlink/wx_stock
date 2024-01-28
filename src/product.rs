@@ -6,7 +6,6 @@ use actix_web::{get, post, web, HttpResponse};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use time::now;
 use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
@@ -31,9 +30,9 @@ pub async fn fetch_product(
         };
 
         let now_sql = if post_data.cate == "现有库存" {
-            " AND products.整数字段3 > 0 AND products.文本字段7 <> '是'"
+            " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
         } else {
-            " AND products.整数字段3 <= 0 OR products.文本字段7 = '是'"
+            " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
         };
 
         let skip = (post_data.page - 1) * post_data.rec;
@@ -76,7 +75,7 @@ pub async fn fetch_product(
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let sql_fields = "SELECT products.文本字段1 as id, products.文本字段1, 规格型号, products.文本字段2,
+        let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
                             COALESCE(切分次数,0)::integer as 整数字段2,
                             case when (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
@@ -88,6 +87,7 @@ pub async fn fetch_product(
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             JOIN documents on 单号id = 单号
+            JOIN tree on tree.num = products.商品id
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} {} AND documents.文本字段10 <>''
@@ -104,7 +104,7 @@ pub async fn fetch_product(
             post_data.rec
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let products = build_string_from_base(rows, fields);
@@ -112,6 +112,8 @@ pub async fn fetch_product(
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数 FROM products
             JOIN documents on 单号id = 单号
+            LEFT JOIN cut_length() as foo
+            ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} AND documents.文本字段10 <>''"#,
             product_sql, area, conditions, now_sql
         );
