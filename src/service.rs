@@ -57,6 +57,17 @@ pub struct TablePager {
     pub cate: String,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct TablePagerExt {
+    pub id: String,
+    pub name: String,
+    pub page: i32,
+    pub sort: String,
+    pub rec: i32,
+    pub cate: String,
+    pub filter: String,
+}
+
 //自动完成使用
 #[derive(Deserialize, Serialize)]
 pub struct Message {

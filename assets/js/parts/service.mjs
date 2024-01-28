@@ -536,6 +536,7 @@ export function build_product_table(row_num, cb, more) {
             sort: "products.文本字段1 ASC",
             rec: row_num,
             cate: '',
+            filter: '',
         },
         edit: false,
 

@@ -33,7 +33,7 @@ let tree_data = {
         let post_data = {
             id: id,
             name: '',
-            // sort: "规格型号 ASC",
+            filter: '',
             page: 1,
         };
 
@@ -61,11 +61,11 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 service.build_product_table(row_num, make_filter);
 
+// 建立过滤器, 作为创建表格后的回调函数
 function make_filter() {
     let table = document.querySelector('.table-container');
     let ths = table.querySelectorAll('thead th');
 
-    // let th = ths.querySelector('th:nth-child(2)');
     let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '区域'];
 
     ths.forEach(th => {
@@ -89,13 +89,14 @@ function make_filter() {
             let cate = document.querySelector('#p-select').value;
             let id = document.querySelector('#product-id').textContent.trim();
 
-            document.querySelector('#filter-name').textContent = na;  // 保存留作后用
+            document.querySelector('#filter-name').textContent = na;  // 保存留作点击确定时查询用
 
             let post_data = {
                 id: id,
                 name: search,
                 cate: cate,
-                filter: na
+                filter_name: na,
+                filter: document.querySelector('#filter-sql').textContent,
             };
 
             fetch('/fetch_filter_items', {
@@ -132,6 +133,7 @@ function make_filter() {
     })
 };
 
+// 确定
 document.querySelector('#f-ok').addEventListener('click', () => {
     let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
     let filter_name = document.querySelector('#filter-name').textContent
@@ -140,7 +142,6 @@ document.querySelector('#f-ok').addEventListener('click', () => {
     checked.forEach(ch => {
         if (ch.checked) {
             f_sql += `${filter_name} = '${ch.parentNode.textContent.trim()}' OR `;
-            // global.filter_conditions.push(ch.parentNode.textContent.trim());
         }
     });
 
@@ -148,13 +149,35 @@ document.querySelector('#f-ok').addEventListener('click', () => {
 
     document.querySelector('.filter-container').style.display = "none";
 
-    console.log(global.filter_conditions);
+    let filter = `AND (`;
+    let keys = [];
+
+    // 构建过滤器（查询字符串）
+    for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
+        filter += `${value} false) AND (`;
+        keys.push(key);
+    }
+
+    filter += "true)";
+
+    document.querySelector('#filter-sql').textContent = filter;
+
+    let post_data = {
+        filter: filter,
+        page: 1,
+    };
+
+    Object.assign(table_data.post_data, post_data);
+
+    fetch_table();
 });
 
+// 取消
 document.querySelector('#f-cancel').addEventListener('click', () => {
     document.querySelector('.filter-container').style.display = "none";
 });
 
+// 全选
 document.querySelector('#f-check-all').addEventListener('click', () => {
     let checked = document.querySelector('#f-check-all').checked;
     document.querySelector('.f-choose').querySelectorAll('.form-check').forEach(input => {
@@ -166,7 +189,8 @@ document.querySelector('#f-check-all').addEventListener('click', () => {
     })
 });
 
-document.querySelector('.product-set').addEventListener('click', (e) => {
+// 点击空白区域关闭 filter
+document.querySelector('body').addEventListener('click', (e) => {
     let filters = ['filter-container', 'f-title', 'f-choose', 'f-sumit', 'f-items',
         'checkmark', 'check-radio', 'form-check', 'all-choose', 'f-button'];
     if (filters.indexOf(e.target.className) == -1) {
@@ -182,6 +206,7 @@ document.addEventListener('keydown', (event) => {
     }
 }, false);
 
+// 筛选当前库存
 document.querySelector('#p-select').addEventListener('change', () => {
     let post_data = {
         id: document.querySelector('#product-id').textContent.trim(),
@@ -193,8 +218,6 @@ document.querySelector('#p-select').addEventListener('change', () => {
     Object.assign(table_data.post_data, post_data);
     fetch_table();
 });
-
-
 
 //增加按键
 document.querySelector('#add-button').addEventListener('click', function () {
