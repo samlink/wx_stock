@@ -573,18 +573,19 @@ export function build_product_table(row_num, cb, more) {
                 init_data.header_names["理论重量"] = "库存下限-COALESCE(理重合计,0)";
 
                 table_init(init_data)
-                fetch_table();
 
                 // let data = {
                 //     url: `/fetch_product`,
                 // }
 
                 let post_data = {
+                    cate: document.querySelector('#p-select').value,
                     page: 1,
                 }
 
                 // Object.assign(table_data, data);
                 Object.assign(table_data.post_data, post_data);
+                fetch_table();
             }
         });
 

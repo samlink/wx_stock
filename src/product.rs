@@ -6,6 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use time::now;
 use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
@@ -23,6 +24,18 @@ pub async fn fetch_product(
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
+        let product_sql = if post_data.id == "" {
+            "true".to_owned()
+        } else {
+            format!("products.商品id = '{}'", post_data.id)
+        };
+
+        let now_sql = if post_data.cate == "现有库存" {
+            " AND products.整数字段3 > 0 AND products.文本字段7 <> '是'"
+        } else {
+            " AND products.整数字段3 <= 0 OR products.文本字段7 = '是'"
+        };
+
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;
         // 区域限制
@@ -77,20 +90,21 @@ pub async fn fetch_product(
             JOIN documents on 单号id = 单号
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE products.商品id='{}' {} {} {} AND documents.文本字段10 <>''
+            WHERE {} {} {} {} {} AND documents.文本字段10 <>''
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
-            post_data.id,
+            product_sql,
             done,
             area,
             conditions,
+            now_sql,
             post_data.sort,
             skip,
             post_data.rec
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let products = build_string_from_base(rows, fields);
@@ -98,8 +112,8 @@ pub async fn fetch_product(
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数 FROM products
             JOIN documents on 单号id = 单号
-            WHERE 商品id='{}' {} {} AND documents.文本字段10 <>''"#,
-            post_data.id, area, conditions
+            WHERE {} {} {} {} AND documents.文本字段10 <>''"#,
+            product_sql, area, conditions, now_sql
         );
 
         let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
