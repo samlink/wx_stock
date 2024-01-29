@@ -150,7 +150,7 @@ function make_filter() {
                     }
 
                     for (let ch of filter.querySelectorAll('.form-check')) {
-                        if (now_select.indexOf(ch.parentNode.textContent.trim()) != -1) {
+                        if (now_select.indexOf(`<${ch.parentNode.textContent.trim()}>`) != -1) {
                             ch.checked = true;
                         }
                     }
@@ -172,7 +172,7 @@ document.querySelector('#f-ok').addEventListener('click', () => {
         const ch_name = ch.parentNode.textContent.trim();
         if (ch.checked) {
             f_sql += `${filter_name} = '${ch_name}' OR `;
-            check_now += `${ch_name}, `;   // 与 过滤器原始值 格式一致
+            check_now += `<${ch_name}>, `;   // 与 过滤器原始值 格式一致
         }
     });
 
