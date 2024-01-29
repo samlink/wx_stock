@@ -67,7 +67,7 @@ function make_filter() {
     let table = document.querySelector('.table-container');
     let ths = table.querySelectorAll('thead th');
 
-    let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '区域'];
+    let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
 
     ths.forEach(th => {
         if (has_filter.indexOf(th.textContent) != -1) {

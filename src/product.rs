@@ -31,7 +31,8 @@ pub async fn fetch_product(
             filter_name: "".to_owned(),
         };
 
-        let (product_sql, conditions, now_sql, filter_sql) = build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql, filter_sql) =
+            build_sql_search(db.clone(), f_data).await;
 
         // println!("{}", filter_sql);
 
@@ -90,15 +91,15 @@ pub async fn fetch_product(
             product += &format!("{}{}", num, SPLITER);
             let num: i64 = row.get("序号");
             product += &format!("{}{}", num, SPLITER);
-    
+
             product += &simple_string_from_base(row, &fields);
-    
+
             let p_name: &str = row.get("node_name");
             product += &format!("{}{}", p_name, SPLITER);
-    
+
             let p_id: &str = row.get("商品id");
             product += &format!("{}{}", p_id, SPLITER);
-    
+
             products.push(product);
         }
 
@@ -126,7 +127,10 @@ pub async fn fetch_product(
     }
 }
 
-async fn build_sql_search(db: web::Data<Pool>, post_data: FilterData) -> (String, String, String, String) {
+async fn build_sql_search(
+    db: web::Data<Pool>,
+    post_data: FilterData,
+) -> (String, String, String, String) {
     let f_map = map_fields(db.clone(), "商品规格").await;
 
     let product_sql = if post_data.id == "" {
@@ -177,6 +181,7 @@ async fn build_sql_search(db: web::Data<Pool>, post_data: FilterData) -> (String
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
+            .replace("库存长度", "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2")
             .replace("炉号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
@@ -209,32 +214,53 @@ pub async fn fetch_filter_items(
             id: post_data.id.clone(),
             name: post_data.name.clone(),
             cate: post_data.cate.clone(),
-            filter: post_data.filter.clone(), 
-            filter_name: "".to_owned(),           
+            filter: post_data.filter.clone(),
+            filter_name: "".to_owned(),
         };
-        let (product_sql, conditions, now_sql, filter_sql) = build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql, filter_sql) =
+            build_sql_search(db.clone(), f_data).await;
 
-        let sql = format!(
-            r#"SELECT DISTINCT {} FROM products 
-            LEFT JOIN cut_length() as foo
-            ON products.文本字段1 = foo.物料号
-            where {} {} {} {}
-            ORDER BY {}"#,
-            f_map[post_data.filter_name.as_str()],
-            product_sql,
-            conditions,
-            now_sql,
-            filter_sql,
-            f_map[post_data.filter_name.as_str()]
-        );
+        let mut items: Vec<String> = Vec::new();
 
-        // println!("{}", sql);
+        if post_data.filter_name == "库存长度" {
+            let sql = format!(
+                r#"SELECT DISTINCT (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer
+                    as 库存长度 FROM products 
+                    LEFT JOIN cut_length() as foo
+                    ON products.文本字段1 = foo.物料号
+                    where {} {} {} {}
+                    ORDER BY 库存长度"#,
+                product_sql, conditions, now_sql, filter_sql,
+            );
 
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut items: Vec<&str> = Vec::new();
-        for row in rows {
-            items.push(row.get(0));
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+            for row in rows {
+                let v: i32 = row.get(0);
+                let va = format!("{}", v);
+                items.push(va);
+            }
+        } else {
+            let sql = format!(
+                r#"SELECT DISTINCT {} FROM products 
+                    LEFT JOIN cut_length() as foo
+                    ON products.文本字段1 = foo.物料号
+                    where {} {} {} {}
+                    ORDER BY {}"#,
+                f_map[post_data.filter_name.as_str()],
+                product_sql,
+                conditions,
+                now_sql,
+                filter_sql,
+                f_map[post_data.filter_name.as_str()]
+            );
+
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            for row in rows {
+                items.push(row.get(0));
+            }
         }
+
         HttpResponse::Ok().json(items)
     } else {
         HttpResponse::Ok().json(-1)

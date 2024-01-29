@@ -1,7 +1,7 @@
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {getHeight, SPLITER} from '../parts/tools.mjs';
+import { table_data, table_init, fetch_table } from '../parts/table.mjs';
+import { notifier } from '../parts/notifier.mjs';
+import { alert_confirm } from '../parts/alert.mjs';
+import { getHeight, SPLITER } from '../parts/tools.mjs';
 import * as service from '../parts/service.mjs';
 
 let cate = document.querySelector('#category').textContent;
@@ -60,18 +60,18 @@ fetch(`/fetch_show_fields`, {
         if (content != -1) {
             table_fields = content;
             let custom_fields = [
-                {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
-                {name: '单号', field: '单号', width: 7},
-                {name: '类别', field: 'documents.类别', width: 4},
-                {name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10},
+                { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
+                { name: '单号', field: '单号', width: 7 },
+                { name: '类别', field: 'documents.类别', width: 4 },
+                { name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10 },
             ];
 
             // 对于出入库的表格, 不需要供应商列, 要去除
             if (cate.indexOf("销售") == -1 && cate.indexOf("采购") == -1) {
                 custom_fields = [
-                    {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
-                    {name: '单号', field: '单号', width: 7},
-                    {name: '类别', field: 'documents.类别', width: 4},
+                    { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
+                    { name: '单号', field: '单号', width: 7 },
+                    { name: '类别', field: 'documents.类别', width: 4 },
                 ];
             }
 
@@ -125,7 +125,7 @@ document.querySelector('#serach-button').addEventListener('click', function () {
 
 function search_table() {
     let search = document.querySelector('#search-input').value;
-    Object.assign(table_data.post_data, {name: search, page: 1});
+    Object.assign(table_data.post_data, { name: search, page: 1 });
     fetch_table();
 }
 
@@ -166,16 +166,17 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 //删除按键
 document.querySelector('#del-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+    let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+    let base = document.querySelector('#base').textContent;
 
     let del = {
-        id: id,
+        id: dh,
         rights: "删除单据",
-        base: document.querySelector('#base').textContent,
+        base: base,
     }
 
-    if (id != "") {
-        alert_confirm(`单据 ${id} 删除后无法恢复，确认删除吗？`, {
+    if (dh != "") {
+        alert_confirm(`单据 ${dh} 删除后无法恢复，确认删除吗？`, {
             confirmCallBack: () => {
                 fetch(`/documents_del`, {
                     method: 'post',

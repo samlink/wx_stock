@@ -40,11 +40,9 @@ let custom_fields = [
 
 let table = document.querySelector('.table-documents');
 let data = service.build_table_header(table, custom_fields, "", "", "documents");
-console.log(data);
 table.querySelector('thead tr').innerHTML = data.th_row;
 
 init_data.header_names = data.header_names;
-console.log(init_data);
 table_init(init_data);
 fetch_table();
 
@@ -116,16 +114,29 @@ document.querySelector('#edit-button').addEventListener('click', function () {
 //删除按键
 document.querySelector('#del-button').addEventListener('click', function () {
     let chosed = document.querySelector('tbody .focus');
-    let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+    let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
 
-    let del = {
-        id: id,
-        rights: "删除单据",
-        base: document.querySelector('#base').textContent,
+    let cate = dh.substring(0, 2);
+
+    let base = "";
+    if (cate == "XS" || cate == "XT" || cate == "CG" || cate == "CT" || cate == "FH") {
+        base = "document_items";
+    } else if (cate == "CK" || cate == "TC") {
+        base = "pout_items";
+    } else if (cate == "RK" || cate == "TR") {
+        base = "products";
+    } else if (cate == "KP") {
+        base = "kp_items";
     }
 
-    if (id != "") {
-        alert_confirm(`单据 ${id} 删除后无法恢复，确认删除吗？`, {
+    let del = {
+        id: dh,
+        rights: "删除单据",
+        base: base,
+    }
+
+    if (dh != "") {
+        alert_confirm(`单据 ${dh} 删除后无法恢复，确认删除吗？`, {
             confirmCallBack: () => {
                 fetch(`/documents_del`, {
                     method: 'post',
