@@ -90,6 +90,8 @@ function make_filter() {
             let cate = document.querySelector('#p-select').value;
             let id = document.querySelector('#product-id').textContent.trim();
 
+            document.querySelector('#filter-name').textContent = na;
+
             let filter_sql = "";
             if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
                 filter_sql = global.filter_sqls[1].sql;
@@ -100,8 +102,6 @@ function make_filter() {
             } else if (global.filter_sqls.length > 0 && na != global.filter_sqls[0].name) {
                 filter_sql = global.filter_sqls[0].sql;
             }
-
-            document.querySelector('#filter-name').textContent = na;
 
             let post_data = {
                 id: id,
@@ -139,7 +139,21 @@ function make_filter() {
                             `;
                     }
 
-                    filter.querySelector('.f-choose').innerHTML = html;;
+                    filter.querySelector('.f-choose').innerHTML = html;
+
+                    let now_select = [];
+                    for (let item of global.filter_sqls) {
+                        if (item.name.trim() == na) {
+                            now_select = item.now;
+                            break;
+                        }
+                    }
+
+                    for (let ch of filter.querySelectorAll('.form-check')) {
+                        if (now_select.indexOf(ch.parentNode.textContent.trim()) != -1) {
+                            ch.checked = true;
+                        }
+                    }
                 });
         })
     })
@@ -151,6 +165,8 @@ document.querySelector('#f-ok').addEventListener('click', () => {
     let filter_name = document.querySelector('#filter-name').textContent
     let f_sql = "", check_now = "";
 
+    document.querySelector('.f-choose').innerHTML = "";
+    document.querySelector('.filter-container').style.display = "none";
 
     checked.forEach(ch => {
         const ch_name = ch.parentNode.textContent.trim();
@@ -160,22 +176,28 @@ document.querySelector('#f-ok').addEventListener('click', () => {
         }
     });
 
-    global.filter_conditions.set(filter_name, f_sql);
+    if (check_now == "") {
+        return;
+    }
 
-    document.querySelector('.filter-container').style.display = "none";
+    // 去掉末尾的 OR, 并加括号
+    let f_sql2 = f_sql.slice(0, -4) + ')';
+
+    global.filter_conditions.set(filter_name, f_sql2);
 
     let filter = `AND (`;
     let keys = [];
 
     // 构建过滤器（查询字符串）
     for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
-        filter += `${value} false) AND (`;
+        filter += `${value} AND (`;
         keys.push(key);
     }
 
-    filter += "true)";
+    filter = filter.slice(0, -6);
 
-    if (global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) {
+    if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
+        check_now != "" && check_now.split(',').length != checked.length + 1) {
         let orig = "";   // 过滤器原始值
         checked.forEach(ch => {
             orig += `${ch.parentNode.textContent.trim()}, `;
@@ -189,16 +211,17 @@ document.querySelector('#f-ok').addEventListener('click', () => {
         }
 
         global.filter_sqls.unshift(sql);
-    } else {
-        if (check_now == global.filter_sqls[0].origin) {
+    } else if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
+        if (check_now == global.filter_sqls[0].origin || check_now.split(',').length == checked.length + 1) {
             global.filter_sqls.shift();
             filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
         } else {
             global.filter_sqls[0].sql = filter;
+            global.filter_sqls[0].now = check_now;
         }
     }
 
-    console.log(global.filter_sqls);
+    // console.log(global.filter_sqls);
 
     let post_data = {
         filter: filter,
@@ -209,14 +232,25 @@ document.querySelector('#f-ok').addEventListener('click', () => {
 
     fetch_table();
 
-    document.querySelector('.f-choose').innerHTML = "";
+    //设置颜色提示
+    document.querySelectorAll('.filter_button').forEach(button => {
+        let name = button.parentNode.textContent.trim();
+        let has = false;
+        for (let item of global.filter_sqls) {
+            if (item.name == name) {
+                button.classList.add('red');
+                has = true;
+                break;
+            }
+        }
+        if (!has) {
+            button.classList.remove('red');
+        }
+    });
 });
 
 // 取消
 document.querySelector('#f-cancel').addEventListener('click', () => {
-    let names = document.querySelector('#names').textContent.split(',');
-    names.shift();
-    document.querySelector('#filter-name').textContent = names.join(',');
     document.querySelector('.filter-container').style.display = "none";
 });
 
