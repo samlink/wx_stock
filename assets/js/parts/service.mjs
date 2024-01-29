@@ -584,7 +584,7 @@ export function build_product_table(row_num, cb, more) {
                 Object.assign(table_data.post_data, post_data);
                 fetch_table(() => {
                     if (cb) {
-                        cb();
+                        cb(table);
                     }
                 });
             }

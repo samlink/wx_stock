@@ -470,7 +470,7 @@ function build_input_row(show_names, all_width, num) {
                         document.querySelector('#product-id').textContent = id;
 
                         let post_data = {
-                            cate: input_data.document,
+                            cate: "现有库存",
                             id: id,
                             name: '',
                             page: 1,
