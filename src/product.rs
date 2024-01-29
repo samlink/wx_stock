@@ -33,7 +33,7 @@ pub async fn fetch_product(
 
         let (product_sql, conditions, now_sql, filter_sql) = build_sql_search(db.clone(), f_data).await;
 
-        println!("{}", filter_sql);
+        // println!("{}", filter_sql);
 
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;

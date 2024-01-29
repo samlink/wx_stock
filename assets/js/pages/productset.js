@@ -14,6 +14,7 @@ let global = {
     product_id: "",
     product_name: "",
     filter_conditions: new Map(),
+    filter_sqls: [],
 }
 
 //配置自动完成和树的显示 ---------------------------------------------------
@@ -89,14 +90,25 @@ function make_filter() {
             let cate = document.querySelector('#p-select').value;
             let id = document.querySelector('#product-id').textContent.trim();
 
-            document.querySelector('#filter-name').textContent = na;  // 保存留作点击确定时查询用
+            let filter_sql = "";
+            if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
+                filter_sql = global.filter_sqls[1].sql;
+            } else if (global.filter_sqls.length > 0 && na == global.filter_sqls[0].name) {
+                filter_sql = "";
+            } else if (global.filter_sqls.length == 0) {
+                filter_sql = "";
+            } else if (global.filter_sqls.length > 0 && na != global.filter_sqls[0].name) {
+                filter_sql = global.filter_sqls[0].sql;
+            }
+
+            document.querySelector('#filter-name').textContent = na;
 
             let post_data = {
                 id: id,
                 name: search,
                 cate: cate,
                 filter_name: na,
-                filter: document.querySelector('#filter-sql').textContent,
+                filter: filter_sql,
             };
 
             fetch('/fetch_filter_items', {
@@ -137,11 +149,14 @@ function make_filter() {
 document.querySelector('#f-ok').addEventListener('click', () => {
     let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
     let filter_name = document.querySelector('#filter-name').textContent
-    let f_sql = "";
+    let f_sql = "", check_now = "";
+
 
     checked.forEach(ch => {
+        const ch_name = ch.parentNode.textContent.trim();
         if (ch.checked) {
-            f_sql += `${filter_name} = '${ch.parentNode.textContent.trim()}' OR `;
+            f_sql += `${filter_name} = '${ch_name}' OR `;
+            check_now += `${ch_name}, `;   // 与 过滤器原始值 格式一致
         }
     });
 
@@ -160,7 +175,30 @@ document.querySelector('#f-ok').addEventListener('click', () => {
 
     filter += "true)";
 
-    document.querySelector('#filter-sql').textContent = filter;
+    if (global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) {
+        let orig = "";   // 过滤器原始值
+        checked.forEach(ch => {
+            orig += `${ch.parentNode.textContent.trim()}, `;
+        });
+
+        let sql = {
+            name: filter_name,
+            sql: filter,
+            origin: orig,
+            now: check_now,
+        }
+
+        global.filter_sqls.unshift(sql);
+    } else {
+        if (check_now == global.filter_sqls[0].origin) {
+            global.filter_sqls.shift();
+            filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
+        } else {
+            global.filter_sqls[0].sql = filter;
+        }
+    }
+
+    console.log(global.filter_sqls);
 
     let post_data = {
         filter: filter,
@@ -170,10 +208,15 @@ document.querySelector('#f-ok').addEventListener('click', () => {
     Object.assign(table_data.post_data, post_data);
 
     fetch_table();
+
+    document.querySelector('.f-choose').innerHTML = "";
 });
 
 // 取消
 document.querySelector('#f-cancel').addEventListener('click', () => {
+    let names = document.querySelector('#names').textContent.split(',');
+    names.shift();
+    document.querySelector('#filter-name').textContent = names.join(',');
     document.querySelector('.filter-container').style.display = "none";
 });
 
