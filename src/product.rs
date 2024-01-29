@@ -83,7 +83,26 @@ pub async fn fetch_product(
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-        let products = build_string_from_base(rows, fields);
+        let mut products = Vec::new();
+        for row in rows {
+            let mut product = "".to_owned();
+            let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
+            product += &format!("{}{}", num, SPLITER);
+            let num: i64 = row.get("序号");
+            product += &format!("{}{}", num, SPLITER);
+    
+            product += &simple_string_from_base(row, &fields);
+    
+            let p_name: &str = row.get("node_name");
+            product += &format!("{}{}", p_name, SPLITER);
+    
+            let p_id: &str = row.get("商品id");
+            product += &format!("{}{}", p_id, SPLITER);
+    
+            products.push(product);
+        }
+
+        // let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数 FROM products

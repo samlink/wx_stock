@@ -387,16 +387,9 @@ pub fn build_string_from_base(
 
         product += &simple_string_from_base(row, &fields);
 
-        let p_name: &str = row.get("node_name");
-        product += &format!("{}{}", p_name, SPLITER);
-
-        let p_id: &str = row.get("商品id");
-        product += &format!("{}{}", p_id, SPLITER);
-
         products.push(product);
     }
-    products
-    
+    products    
 }
 
 //将数据库查询结果字段组合成字符串，即是内部辅助函数，也可外部调用
