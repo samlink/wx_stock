@@ -139,11 +139,6 @@ fetch(`/home_statis`, {
                             window.location.href = `/other_query?${query}`;
                         })
                     });
-                    // this.reminder.querySelectorAll('li').forEach((li) => {
-                    //     li.addEventListener('click', () => {
-                    //         window.location.href = get_locat(li.textContent.split(' ')[0]);
-                    //     })
-                    // });
                 }
             }
 
@@ -257,10 +252,6 @@ document.querySelector('#use-tip').addEventListener('click', function () {
 document.querySelector('#pre-shen').addEventListener('click', function () {
     window.location.href = `/sale_query?s=wait_out`;
 });
-
-// setInterval(() => {
-//     location.reload();
-// }, 600000);
 
 function set_chart1(data) {
     fetch(`/fetch_statis`, {

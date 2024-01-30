@@ -1,9 +1,7 @@
-import {table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import {SPLITER, getHeight, download_file} from '../parts/tools.mjs';
-import {set_date} from "../parts/service.mjs";
-
+import {table_init, fetch_table} from '/assets/js/parts/table.mjs';
+import {notifier} from '/assets/js/parts/notifier.mjs';
+import {SPLITER, getHeight, download_file} from '/assets/js/parts/tools.mjs';
+import {set_date} from "/assets/js/parts/service.mjs";
 
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 33);
@@ -71,25 +69,6 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     table_init(init_data);
     fetch_table();
 });
-
-//查看单据
-// document.querySelector('#edit-button').addEventListener('click', function () {
-//     let chosed = document.querySelector('tbody .focus');
-//     let id = chosed ? chosed.querySelector('td:nth-child(3)').textContent : "";
-//     if (id != "") {
-//         let cate = chosed.querySelector('td:nth-child(5)').textContent;
-//         let address = `/sale/`;
-//
-//         if (cate.indexOf("采购") != -1) {
-//             address = `/buy_in/`;
-//         }
-//
-//         window.open(address + id);
-//     } else {
-//         notifier.show('请先选择单据', 'danger');
-//     }
-// });
-
 
 function row_fn(tr) {
     let row = tr.split(SPLITER);

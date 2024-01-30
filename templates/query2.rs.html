@@ -1,5 +1,6 @@
 @use super::base_html;
 @use crate::service::UserData;
+@use super::statics::*;
 @(user: UserData, menu: &str, cate: &str, database:&str, limit: &str)
 
 @:base_html({
@@ -64,5 +65,5 @@
         </div>
     </div>
 </div>
-<script type="module" src="/assets/js/pages/query2.js"></script>
+<script type="module" src="/static/@query2_js.name"></script>
 }, user.show.clone())

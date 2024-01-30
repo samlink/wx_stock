@@ -1,11 +1,10 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { fetch_tree, tree_init, tree_search } from '../parts/tree.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '../parts/tools.mjs';
-import * as service from '../parts/service.mjs';
-import { modal_init, leave_alert, close_modal, modal_out_data } from "../parts/modal.mjs";
+import { table_data, fetch_table } from '/assets/js/parts/table.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import { fetch_tree, tree_init, tree_search } from '/assets/js/parts/tree.mjs';
+import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
+import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '/assets/js/parts/tools.mjs';
+import * as service from '/assets/js/parts/service.mjs';
+import { modal_init, leave_alert, close_modal, modal_out_data } from '/assets/js/parts/modal.mjs';
 
 let global = {
     row_id: 0,
@@ -368,9 +367,6 @@ document.querySelector('#find-button').addEventListener('click', function () {
                 document.querySelector('.modal').style.display = "block";
                 document.querySelector('#modal-sumit-button').style.display = "none";
             });
-
-        // document.querySelector('.modal-body input').focus();
-        // leave_alert();
     } else {
         notifier.show('请先选择商品', 'danger');
     }

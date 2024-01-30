@@ -1,4 +1,5 @@
 @use super::base_html;
+@use super::statics::*;
 @(user: String)
 
 @:base_html({
@@ -14,6 +15,6 @@
         <p>4、 联系电话：13920953285 </p>
     </div>
 </div>
-<script type="module" src="/assets/js/pages/help.js"></script>
+<script type="module" src="/static/@help_js.name"></script>
 
 }, user)

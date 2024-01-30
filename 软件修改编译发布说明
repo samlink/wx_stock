@@ -1,40 +1,26 @@
-1. 查看 assets/js 文件夹
-    如果含有 js_max 和 js 两个文件夹，是发布状态，否则是开发状态。
-    修改软件时需变为开发状态：将 js 文件夹改名为 min, 将 js_max 改名为 js. 其他诸如 html 等无需变动。
+1. 修改 js 文件
+   assets 中 含有 js_max 和 js 两个文件夹，js 是发布的 min 文件，仅有 part 部分。
+   js_max 是源文件夹，所有 js 文件的修改都在此处，如果修改 page 文件夹中的文件，则运行 page.sh 将最小化文件生成到 static 文件夹。
+   如果修改了 part 文件，则运行 part.sh 将最小化文件生成到 /assets/js/part/ 中，并记得将此文件夹上传到服务器相应目录。
+   输送到 static 的 js 文件会随系统一起编译，无需单独发布
 
-2. 开始修改软件
-
-3. 修改完成后，制作最小化 js 文件，运行 js 文件夹中的 min.sh (./min.sh)
-
-4. 将 assets/js 文件夹改为发布状态，即 js 改名为 js_max, min 改名为 js
-
-5. push 到 github 上的 五星石油 分支
-
-6. 如果修改了 html 和 rs 文件, 需要重新编译, 则登录到本地 FreeBSD 的虚拟机, 进入 programs/sales 目录, pull 五星石油分支：
+2. 重新编译
+    则登录到本地 FreeBSD 的虚拟机, 进入 sales 目录, pull 五星石油分支：
     git pull origin 五星石油 
     然后编译: cargo build --release
     编译完成后，进入 target/release 目录，
     sftp sam@8.142.73.42
     put sales
 
-7. 如果仅修改了 sass 和 js, 无需编译, 第 6 步省略。ssh 登录服务器：
-    ssh sam@8.142.73.42
-    进入 programs/sales 目录, pull 五星石油分支：
-    git pull origin 五星石油 
-
-8. 进入运行目录 wxsales, 运行脚本：
-    ./ch.sh
-    
-    脚本内容为：
+3. 服务器端设置
+    cd wxsales
     rm sales
     cp ../sales sales
-    cp -r ~/programs/sales/assets/css/*.css ./assets/css/
-    cp -r ~/programs/sales/assets/js ./assets/
     let a = `pgrep sales`
     kill -9 $a
     ./sales &
 
-    因此, 需保证 home 目录中有最新编译的 sales 文件。
+    需保证 home 目录中有最新编译的 sales 文件。
     至此, 程序发布完成。
 
     软件试用期暂时这样, 正式使用后, 建立自动启动服务 (配置 /etc/rc.conf)

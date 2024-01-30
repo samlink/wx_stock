@@ -1,13 +1,7 @@
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from "../parts/alert.mjs";
+import {notifier} from '/assets/js/parts/notifier.mjs';
+import {alert_confirm} from "/assets/js/parts/alert.mjs";
 
-// let theme_name = "blue";
-// let class_theme = document.querySelector('body').className;
-// let theme_name = class_theme.split('.')[0];
 document.querySelector('#help-info img').setAttribute('src', `/assets/img/blue.png`);
-// document.querySelector('#logo img').setAttribute('src', `/assets/img/logo_${theme_name}.png`);
-// document.styleSheets[0].insertRule(`#tree .item::before{content:url("/assets/img/folder_blue.png")}`, document.styleSheets[0].cssRules.length);
-// document.styleSheets[0].insertRule(`#tree .item-down::before{content:url("/assets/img/folder_blue2.png")}`, document.styleSheets[0].cssRules.length);
 
 document.querySelector('#quick-1').onclick = () => {
     window.location.href = "/buy_in/new";

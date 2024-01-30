@@ -1,7 +1,7 @@
-import {table_data, table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {getHeight} from '../parts/tools.mjs';
+import {table_data, table_init, fetch_table} from '/assets/js/parts/table.mjs';
+import {notifier} from '/assets/js/parts/notifier.mjs';
+import {alert_confirm} from '/assets/js/parts/alert.mjs';
+import {getHeight} from '/assets/js/parts/tools.mjs';
 
 //设置表格行数、高度
 let get_height = getHeight() - 178;

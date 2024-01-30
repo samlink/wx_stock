@@ -1,5 +1,6 @@
 @use super::base_html;
 @use crate::service::UserData;
+@use super::statics::*;
 @(user: UserData)
 
 @:base_html({
@@ -63,5 +64,5 @@
         </form>
     </div>
 </div>
-<script type="module" src="/assets/js/pages/userset.js"></script>
+<script type="module" src="/static/@userset_js.name"></script>
 }, user.show.clone())

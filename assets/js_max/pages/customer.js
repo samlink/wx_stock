@@ -1,10 +1,9 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '../parts/tools.mjs';
-import * as service from '../parts/service.mjs';
-import { modal_init, close_modal, leave_alert, modal_out_data } from "../parts/modal.mjs";
+import { table_data, table_init, fetch_table } from '/assets/js/parts/table.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
+import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '/assets/js/parts/tools.mjs';
+import * as service from '/assets/js/parts/service.mjs';
+import { modal_init, close_modal, leave_alert, modal_out_data } from "/assets/js/parts/modal.mjs";
 
 let cus_cate = document.querySelector('#category').textContent;
 

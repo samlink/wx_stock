@@ -1,5 +1,6 @@
 @use super::base_html;
 @use crate::service::UserData;
+@use super::statics::*;
 @(user: UserData, setup: Vec<&str>)
 
     @:base_html({
@@ -103,5 +104,5 @@
         </div>
     </div>
     <script src="/assets/plugins/laydate/laydate.js"></script>
-    <script type="module" src="/assets/js/pages/kp.js"></script>
+    <script type="module" src="/static/@kp_js.name"></script>
     }, user.show.clone())

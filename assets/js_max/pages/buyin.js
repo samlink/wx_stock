@@ -1,21 +1,15 @@
-import { notifier } from '../parts/notifier.mjs';
-// import { alert_confirm } from '../parts/alert.mjs';
-import * as service from '../parts/service.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
     regInt,
     regReal,
-    regDate,
-    moneyUppercase,
-    goto_tabindex,
-    enterToTab,
     set_key_move
-} from '../parts/tools.mjs';
-import { customer_init, out_data } from '../parts/customer.mjs';
+} from '/assets/js/parts/tools.mjs';
+import { customer_init } from '/assets/js/parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
-} from '../parts/edit_table.mjs';
-// import { edit_button_disabled, only_worker, sumit_shen } from "../parts/service.mjs";
+} from '/assets/js/parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -121,6 +115,7 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
+// 处理表头字段
 function document_top_handle(html, has_date) {
     if (document_bz == "采购退货") {
         html = html.replace("到货", "发货");
@@ -190,7 +185,7 @@ if (document.querySelector('#supplier-input')) {
     customer_init();
 }
 
-//构建商品规格表字段，字段设置中的右表数据 --------------------------
+//构建商品规格表字段 --------------------------
 fetch(`/fetch_inout_fields`, {
     method: 'post',
     headers: {
@@ -406,6 +401,7 @@ function check_sum(input_row) {
     }
 }
 
+// 自动计算
 function calculate(input_row) {
     if (input_row.querySelector('.规格')) {
         input_row.querySelector('.规格').addEventListener('blur', function () {
@@ -510,6 +506,7 @@ function calc_weight(input_row) {
     }
 }
 
+//自动填充
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let n = 3;  //从第 3 列开始填入数据
@@ -607,6 +604,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         });
 });
 
+// 只读设置
 function set_readonly() {
     let all_edit = document.querySelectorAll('.fields-show input');
     for (let edit of all_edit) {

@@ -1,8 +1,7 @@
-import {table_init, fetch_table} from '../parts/table.mjs';
-import {notifier} from '../parts/notifier.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import {SPLITER, getHeight, download_file} from '../parts/tools.mjs';
-import {set_date} from "../parts/service.mjs";
+import {table_init, fetch_table} from '/assets/js/parts/table.mjs';
+import {notifier} from '/assets/js/parts/notifier.mjs';
+import {SPLITER, getHeight, download_file} from '/assets/js/parts/tools.mjs';
+import {set_date} from '/assets/js/parts/service.mjs';
 
 let get_height = getHeight() - 133;
 let row_num = Math.floor(get_height / 33);

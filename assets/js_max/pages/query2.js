@@ -1,17 +1,13 @@
-import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { getHeight, SPLITER } from '../parts/tools.mjs';
-import * as service from '../parts/service.mjs';
+import { table_data, table_init, fetch_table } from '/assets/js/parts/table.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import { alert_confirm } from '/assets/js/parts/alert.mjs';
+import { getHeight, SPLITER } from '/assets/js/parts/tools.mjs';
+import * as service from '/assets/js/parts/service.mjs';
 
-// let cate = document.querySelector('#category').textContent;
 let limit = document.querySelector('#limit').textContent;
-
 
 let get_height = getHeight() - 168;
 let row_num = Math.floor(get_height / 30);
-
-let table_fields;
 
 let init_data = {
     container: '.table-documents',

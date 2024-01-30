@@ -1,4 +1,4 @@
-import { notifier } from '../parts/notifier.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
 
 //设置密码
 document.querySelector('#pass-button').addEventListener('click', function (event) {

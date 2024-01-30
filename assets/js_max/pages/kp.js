@@ -1,22 +1,15 @@
-import { notifier } from '../parts/notifier.mjs';
-// import { alert_confirm } from '../parts/alert.mjs';
-import * as service from '../parts/service.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
-    regInt,
-    regReal,
-    regDate,
-    moneyUppercase,
-    goto_tabindex,
-    enterToTab,
+    regReal,    
     set_key_move
-} from '../parts/tools.mjs';
+} from '/assets/js/parts/tools.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
-} from '../parts/edit_table.mjs';
-import { close_modal, modal_init } from "../parts/modal.mjs";
+} from '/assets/js/parts/edit_table.mjs';
+import { modal_init } from "/assets/js/parts/modal.mjs";
 
-// import { edit_button_disabled, only_worker, sumit_shen } from "../parts/service.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();

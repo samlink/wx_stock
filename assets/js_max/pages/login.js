@@ -1,4 +1,4 @@
-import { notifier } from '../parts/notifier.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
 
 var login_show = document.querySelector('#login-form');
 var logon_show = document.querySelector('#logon-form');

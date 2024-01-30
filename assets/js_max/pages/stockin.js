@@ -1,14 +1,12 @@
-import {notifier} from '../parts/notifier.mjs';
-import {alert_confirm} from '../parts/alert.mjs';
-import {AutoInput} from '../parts/autocomplete.mjs';
-import * as service from '../parts/service.mjs';
-import {SPLITER, regInt, regReal, regDate, moneyUppercase, set_key_move, padZero} from '../parts/tools.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import * as service from '/assets/js/parts/service.mjs';
+import { SPLITER, regInt, regReal, set_key_move, padZero } from '/assets/js/parts/tools.mjs';
 import {
     appand_edit_row,
     build_blank_table,
     build_items_table,
     input_table_outdata
-} from '../parts/edit_table.mjs';
+} from '/assets/js/parts/edit_table.mjs';
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -124,7 +122,7 @@ function document_top_handle(html, has_date) {
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
 show_names = [
-    {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "原物料号",
         width: 60,
@@ -144,8 +142,8 @@ show_names = [
         is_save: false,
         default: ""
     },
-    {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
-    {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "状态",
         width: 80,
@@ -166,7 +164,7 @@ show_names = [
         // no_button: true,
         default: ""
     },
-    {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "生产厂家",
         width: 80,
@@ -187,9 +185,9 @@ show_names = [
         no_button: true,
         default: ""
     },
-    {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: ""},
-    {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
-    {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+    { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
     {
         name: "备注",
         width: 100,
@@ -216,15 +214,15 @@ show_names = [
 table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
 let show_th = [
-    {name: "物料号", width: 60},
-    {name: "名称", width: 60},
-    {name: "材质", width: 80},
-    {name: "规格", width: 80},
-    {name: "状态", width: 100},
-    {name: "执行标准", width: 100},
-    {name: "炉号", width: 100},
-    {name: "生产厂家", width: 100},
-    {name: "库存长度", width: 80},
+    { name: "物料号", width: 60 },
+    { name: "名称", width: 60 },
+    { name: "材质", width: 80 },
+    { name: "规格", width: 80 },
+    { name: "状态", width: 100 },
+    { name: "执行标准", width: 100 },
+    { name: "炉号", width: 100 },
+    { name: "生产厂家", width: 100 },
+    { name: "库存长度", width: 80 },
 ];
 
 let auto_data = [{

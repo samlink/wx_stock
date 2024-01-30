@@ -1,4 +1,5 @@
 @use super::base_html;
+@use super::statics::*;
 @(user: String)
 
 @:base_html({
@@ -94,5 +95,5 @@
 </div>
 
 <script src="/assets/plugins/chart/Chart2.min.js"></script>
-<script type="module" src="/assets/js/pages/home.js"></script>
+<script type="module" src="/static/@home_js.name"></script>
 }, user)

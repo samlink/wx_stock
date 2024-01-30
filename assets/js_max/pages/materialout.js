@@ -1,21 +1,16 @@
-import { notifier } from '../parts/notifier.mjs';
-import { alert_confirm } from '../parts/alert.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
-import * as service from '../parts/service.mjs';
+import { notifier } from '/assets/js/parts/notifier.mjs';
+import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
     regInt,
-    regReal,
-    regDate,
-    moneyUppercase,
-    checkFileType,
+    regReal,    
     append_cells,
     append_blanks, set_key_move
-} from '../parts/tools.mjs';
+} from '/assets/js/parts/tools.mjs';
 import {
     build_blank_table, build_items_table, build_out_table, input_table_outdata
-} from '../parts/edit_table.mjs';
-import { close_modal, modal_init } from "../parts/modal.mjs";
+} from '/assets/js/parts/edit_table.mjs';
+import { close_modal, modal_init } from "/assets/js/parts/modal.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -112,20 +107,7 @@ function set_readonly() {
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show');
     fields_show.innerHTML = html;
-    // let has_auto = document.querySelector('.has-auto');
-    // let next_auto = document.querySelector('.has-auto+div');
-
-    // let auto_doc = document.querySelector('#文本字段6');
-    // auto_doc.parentNode.classList.add("autocomplete");
-
-    // let auto_comp = new AutoInput(auto_doc, "商品销售", "/materialout_auto", () => {
-    //     build_items(auto_doc.getAttribute("data"));
-    // });
-
-    // auto_comp.init();
-
     let date = document.querySelector('#日期');
-    // date.parentNode.parentNode.style.cssText = "margin-left: 250px;";
 
     if (!has_date) {
         date.value = new Date().Format("yyyy-MM-dd");

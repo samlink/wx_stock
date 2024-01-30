@@ -1,5 +1,5 @@
-import {notifier} from '../parts/notifier.mjs';
-import {regReal, getHeight} from '../parts/tools.mjs';
+import {notifier} from '/assets/js/parts/notifier.mjs';
+import {regReal} from '/assets/js/parts/tools.mjs';
 
 let global = {
     drag_id: "",
