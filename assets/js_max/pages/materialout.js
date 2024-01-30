@@ -3,7 +3,7 @@ import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
     regInt,
-    regReal,    
+    regReal,
     append_cells,
     append_blanks, set_key_move
 } from '/assets/js/parts/tools.mjs';
@@ -224,6 +224,7 @@ function build_items(dh) {
                         dh: dh_div.textContent,
                         auto_data: auto_data,
                         document: document_name,
+                        calc_func: weight,
                     }
 
                     build_out_table(data);
@@ -486,8 +487,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th class="center" width="7%">下料长度</th>
         <th class="center" width="3%">支数</th>
         <th class="center" width="7%">总长度</th>
-        <th class="center" width="10%">料号</th>        
+        <th class="center" width="10%">料号</th>     
         <th class="center" width="8%">重量</th>
+        <th class="center" width="8%">理论重量</th>
         <th class="center" width="8%">剩余长度</th>
         <th class="center" width="8%">备注</th>
     </tr>`;
@@ -500,7 +502,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     for (let row of all_rows) {
         trs += '<tr>';
         for (let i = 1; i < 14; i++) {
-            if (i == 11 || i == 12) {
+            if (i == 11) {
                 trs += `<td></td>`;
                 continue;
             }
@@ -518,10 +520,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     // 补空行
     let len = 5 - all_rows.length;
-    trs += append_blanks(len, 12);
+    trs += append_blanks(len, 13);
 
     trs += `<tr class="sum-cell"><td class="center" colspan="2">合计</td>${append_cells(4)}
-            <td>${sum}</td><td>${sum_long}</td>${append_cells(4)}</tr>`;
+            <td>${sum}</td><td>${sum_long}</td>${append_cells(5)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
     document.querySelector('#p-block5').innerHTML = '<p>制单（仓库）：</p>';
