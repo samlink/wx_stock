@@ -502,7 +502,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     for (let row of all_rows) {
         trs += '<tr>';
         for (let i = 1; i < 15; i++) {
-            if (i == 11 || i == 14) {
+            if (i == 11 || i == 13 || i == 14) {
                 trs += `<td></td>`;
                 continue;
             }
