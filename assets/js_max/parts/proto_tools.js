@@ -1,6 +1,6 @@
 
 //去除字符串左右空格
-String.prototype.trim = function (char, type) {
+String.prototype.trimStr = function (char, type) {
     if (char) {
         if (type == 'left') {
             return this.replace(new RegExp('^\\' + char + '+', 'g'), '');

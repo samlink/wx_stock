@@ -14,21 +14,21 @@ var createContainer = function () {
   d.body.appendChild(container);
 };
 
-var show = function (msg, type, timeout = 3000) {
-
+var show = function (msg, type, timeout = 3000, width = 0) {
   var ntfId = 'notifier-' + count;
-
   var container = d.querySelector('.notifier-container'),
     ntf = myCreateElement('div', { class: 'notifier ' + type }),
     ntfBody = myCreateElement('div', { class: 'notifier-body' }),
     ntfClose = myCreateElement('button', { class: 'notifier-close', type: 'button' });
 
-  ntfBody.innerHTML = msg;
-  ntfClose.innerHTML = '&times;';
+  if (width != 0) {
+    container.style.width = width + "px";
+  }
 
+  ntfBody.innerHTML = msg;
+  ntfClose.innerHTML = '×';
   ntf.appendChild(ntfClose);
   ntf.appendChild(ntfBody);
-
   container.appendChild(ntf);
 
   setTimeout(function () {
@@ -40,6 +40,7 @@ var show = function (msg, type, timeout = 3000) {
     setTimeout(function () {
       hide(ntfId);
     }, timeout);
+
   }
 
   ntfClose.addEventListener('click', function () {
