@@ -518,6 +518,10 @@ function build_input_row(show_names, all_width, num) {
         input_data.calc_func(input_row);
     }
 
+    if (typeof (input_data.calc_func2) == "function") {
+        input_data.calc_func2(input_row);
+    }
+
     let max_n = input_row.querySelectorAll('input').length;
 
     input_row.querySelectorAll('input').forEach(input => (

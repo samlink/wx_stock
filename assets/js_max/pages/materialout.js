@@ -224,7 +224,8 @@ function build_items(dh) {
                         dh: dh_div.textContent,
                         auto_data: auto_data,
                         document: document_name,
-                        calc_func: weight,
+                        calc_func: get_weight,
+                        calc_func2: weight,
                     }
 
                     build_out_table(data);
