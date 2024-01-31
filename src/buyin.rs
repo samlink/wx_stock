@@ -1274,3 +1274,40 @@ pub async fn anti_formal(db: web::Data<Pool>, data: String, id: Identity) -> Htt
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/check_ku")]
+pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let da: Vec<&str> = data.split(SPLITER).collect();
+        for d in da {
+            let now_num: Vec<&str> = d.split("：").collect();
+            let field: Vec<&str> = now_num[0].split("##").collect();
+
+            let sql = format!(
+                r#"select sum(整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2) from products
+                                LEFT JOIN cut_length() as foo
+                                ON products.文本字段1 = foo.物料号
+                                where 商品id = '{}' and 规格型号='{}' and 文本字段2 = '{}' 
+                                group by 商品id,规格型号,文本字段2"#,
+                field[0], field[1], field[2]
+            );
+
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            let mut v: f64 = 0f64;
+            for row in rows {
+                v = row.get(0);
+            }
+
+            if now_num[1].parse::<f64>().unwrap() > v {
+                let result = format!("{} {} {}", field[0], field[1], field[2]);
+                return HttpResponse::Ok().json(result);
+            }
+        }
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

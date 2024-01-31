@@ -391,16 +391,6 @@ fetch(`/fetch_inout_fields`, {
         }
     });
 
-// 检查是否超过库存
-function check_sum(input_row) {
-    let long = input_row.querySelector('.long').value;
-    let check = input_row.querySelector(`td:nth-child(${15})`).textContent.trim();
-    let num = input_row.querySelector('.num').value;
-    if (long && regReal.test(long) && num && regReal.test(num) && check != "" && long * num > Number(check)) {
-        return -1;
-    }
-}
-
 // 自动计算
 function calculate(input_row) {
     if (input_row.querySelector('.规格')) {
@@ -428,18 +418,18 @@ function calculate(input_row) {
             calc_weight(input_row);
             calc_money(input_row);
             sum_money();
-            if (check_sum(input_row) == -1) {
-                notifier.show('数量超过库存', 'danger');
-            }
+            // if (check_sum(input_row) == -1) {
+            //     notifier.show('数量超过库存', 'danger');
+            // }
         });
 
         input_row.querySelector('.num').addEventListener('blur', function () {
             calc_weight(input_row);
             calc_money(input_row);
             sum_money();
-            if (check_sum(input_row) == -1) {
-                notifier.show('数量超过库存', 'danger');
-            }
+            // if (check_sum(input_row) == -1) {
+            //     notifier.show('数量超过库存', 'danger');
+            // }
         });
     }
 }
@@ -556,6 +546,54 @@ document.querySelector('#save-button').addEventListener('click', function () {
         return false;
     }
 
+    if (document_name == "销售单据") {
+        let ku = new Map();
+        for (let row of all_rows) {
+            let key = `${row.querySelector('.m_id').value.trim()}##${row.querySelector('.规格').textContent.trim()}##${row.querySelector('.状态').textContent.trim()}`;
+            let num = row.querySelector('.num').value;
+            let long = row.querySelector('.long').value;
+    
+            let now_num = 0;
+            if (long && regReal.test(long) && num && regReal.test(num)) {
+                now_num = long * num;
+            }
+    
+            if (ku.has(key)) {
+                ku.set(key, ku.get(key) + now_num);
+            } else {
+                ku.set(key, now_num);
+            }
+        }
+    
+        let ku_str = "";
+        for (var [key, value] of ku) {
+            ku_str += `${key}：${value}${SPLITER}`;
+        }
+    
+        fetch(`/check_ku`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: ku_str
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content == 1) {
+                    save();
+                } else if (content == -1) {
+                    notifier.show('权限不够', 'danger');
+                } else {
+                    notifier.show(content + ' 数量超过库存', 'danger');                   
+                }
+            });
+    }
+    else {
+        save();
+    }
+});
+
+function save() {
     let customer_id = document.querySelector('#supplier-input').getAttribute('data');
     let all_values = document.querySelectorAll('.document-value');
 
@@ -602,7 +640,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
-});
+}
 
 // 只读设置
 function set_readonly() {
@@ -700,16 +738,9 @@ function error_check() {
                     row.querySelector('.weight').value = 0;
                 }
             }
-
-            if (document_name == "销售单据") {
-                if (check_sum(row) == -1) {
-                    let n = row.querySelector('td:nth-child(1)').textContent;
-                    notifier.show(`第 ${n} 行数量超过库存`, 'danger');
-                    return false;
-                }
-            }
         }
     }
+
     return true;
 }
 
