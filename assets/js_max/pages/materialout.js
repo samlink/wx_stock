@@ -176,8 +176,8 @@ function build_items(dh) {
             let info = content.split(SPLITER);
             document.querySelector("#文本字段5").value = info[0];
             document.querySelector("#文本字段4").value = info[1];
-            document.querySelector("#文本字段4").setAttribute("data", info[2]);            
-            document.querySelector("#备注").value = info[3];
+            document.querySelector("#文本字段4").setAttribute("data", info[2]);
+            // document.querySelector("#备注").value = info[3];
         });
 
     fetch('/get_items_out', {
@@ -503,18 +503,24 @@ document.querySelector('#print-button').addEventListener('click', function () {
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let trs = '';
     for (let row of all_rows) {
-        trs += '<tr>';
-        for (let i = 1; i < 15; i++) {
-            if (i == 11 || i == 14) {
-                trs += `<td></td>`;
-                continue;
-            }
-            if (i == 6) {
+        let printable = [];
+        for (let i = 1; i < 14; i++) {
+            if (i == 6 || i == 11) {
                 continue;
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
             let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
-            trs += `<td>${td}</td>`;
+            printable.push(td);
+        }
+
+        trs += '<tr>';
+        for (let i = 1; i < 14; i++) {
+            if (i == 10 || i == 12) {
+                trs += `<td></td>`;
+                continue;
+            }            
+            let v = printable.shift();
+            trs += `<td>${v}</td>`;
         }
         trs += '</tr>';
         sum += Number(row.querySelector(`td:nth-child(8) input`).value);
