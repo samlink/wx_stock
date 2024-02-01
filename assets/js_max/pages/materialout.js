@@ -484,7 +484,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     var th = `<tr>
         <th class = "center" width = "3%">序号</th>
         <th class="center" width="7%">名称</th>
-        <th class="center" width="8%">材质</th>
+        <th class="center" width="7%">材质</th>
         <th class="center" width="6%">规格</th>
         <th class="center" width="10%">状态</th>
         <th class="center" width="7%">下料长度</th>
@@ -494,7 +494,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th class="center" width="8%">重量</th>
         <th class="center" width="8%">理论重量</th>
         <th class="center" width="8%">剩余长度</th>
-        <th class="center" width="8%">备注</th>
+        <th class="center" width="10%">备注</th>
     </tr>`;
 
     document.querySelector('.print-table thead').innerHTML = th;
