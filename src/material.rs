@@ -412,7 +412,7 @@ pub async fn get_items_out(
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '{}' || 单价 || '{}' || id || '{}' || 出库完成 as item 
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 备注 ||  '{}' || 单价 || '{}' || id || '{}' || 出库完成 as item 
             from document_items
             JOIN tree ON 商品id = tree.num
             WHERE 单号id = '{}' order by 顺序"#,
@@ -444,7 +444,7 @@ pub async fn get_docs_out(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "销售单据").await;
         let sql = &format!(
-            r#"SELECT documents.{} as 合同编号,名称, 客商id from documents
+            r#"SELECT documents.{} as 合同编号,名称, 客商id, documents.备注 from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
             f_map["合同编号"], data
@@ -458,7 +458,8 @@ pub async fn get_docs_out(
             let num: &str = row.get("合同编号");
             let name: &str = row.get("名称");
             let custid: i32 = row.get("客商id");
-            item = format!("{}{}{}{}{}", num, SPLITER, name, SPLITER, custid);
+            let note: &str = row.get("备注");
+            item = format!("{}{}{}{}{}{}{}", num, SPLITER, name, SPLITER, custid, SPLITER, note);
         }
         HttpResponse::Ok().json(item)
     } else {

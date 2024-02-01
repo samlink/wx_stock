@@ -176,7 +176,8 @@ function build_items(dh) {
             let info = content.split(SPLITER);
             document.querySelector("#文本字段5").value = info[0];
             document.querySelector("#文本字段4").value = info[1];
-            document.querySelector("#文本字段4").setAttribute("data", info[2]);
+            document.querySelector("#文本字段4").setAttribute("data", info[2]);            
+            document.querySelector("#备注").value = info[3];
         });
 
     fetch('/get_items_out', {
@@ -214,6 +215,7 @@ function build_items(dh) {
                     show_names[7].value = value[5];
                     show_names[8].value = value[4] * value[5];
                     show_names[9].value = "";
+                    show_names[12].value = value[6];
                     show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
                     show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
                     show_names[15].value = l.querySelector('td:nth-child(4)').textContent;
@@ -503,7 +505,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     for (let row of all_rows) {
         trs += '<tr>';
         for (let i = 1; i < 15; i++) {
-            if (i == 11 || i == 13 || i == 14) {
+            if (i == 11 || i == 14) {
                 trs += `<td></td>`;
                 continue;
             }
