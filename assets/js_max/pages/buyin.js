@@ -99,7 +99,7 @@ fetch(`/fetch_inout_fields`, {
                                 } else {
                                     url = "/material_in/";
                                 }
-                                window.location = url + tr.querySelector('td').textContent.split('　')[1];
+                                window.open(url + tr.querySelector('td').textContent.split('　')[1]);
                             })
                         }
                     }
@@ -112,6 +112,8 @@ fetch(`/fetch_inout_fields`, {
                     document.querySelector('.table-items tbody .名称').focus();
                 }, 200);
             }
+
+            sale_back();
         }
     });
 
@@ -392,36 +394,37 @@ fetch(`/fetch_inout_fields`, {
     });
 
 // 销售退货右表
-if (document_bz == "销售退货") {
-    document.querySelector('.table-note').style.display = "block";
-    document.querySelector('.table-history').style.marginLeft = 0;
-    document.querySelector('.table-history').style.borderBottomLeftRadius = 0;
-    document.querySelector('.table-history').style.borderBottomRightRadius = 0;
+function sale_back() {
+    if (document_bz == "销售退货") {
+        document.querySelector('.table-note').style.display = "block";
+        document.querySelector('.table-history').style.marginLeft = 0;
+        document.querySelector('.table-history').style.borderBottomLeftRadius = 0;
+        document.querySelector('.table-history').style.borderBottomRightRadius = 0;
 
-    let ht = document.querySelector('#文本字段6');
-    ht.addEventListener('blur', function () {
-        if (ht.value == "") {
-            return;
-        }
+        let ht = document.querySelector('#文本字段6');
+        ht.addEventListener('blur', function () {
+            if (ht.value == "") {
+                return;
+            }
 
-        fetch('get_sale_dh', {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: ht.value
-        })
-            .then(response => response.json())
-            .then(data => {
-                document.querySelector(".table-note tbody").innerHTML = `<tr><td>${data}</td></tr>`;
-                let tr = document.querySelector(".table-note tbody tr");
-                tr.addEventListener('click', function () {
-                    window.location = "/sales/" + tr.querySelector('td').textContent.split('　')[1];
-                })
+            fetch('/get_sale_dh', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: ht.value.trim()
             })
-    });
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector(".table-note tbody").innerHTML = `<tr><td>${data}</td></tr>`;
+                    let tr = document.querySelector(".table-note tbody tr");
+                    tr.addEventListener('click', function () {
+                        window.open("/sale/" + tr.querySelector('td').textContent.split('　')[1]);
+                    })
+                })
+        });
+    }
 }
-
 // 自动计算
 function calculate(input_row) {
     if (input_row.querySelector('.规格')) {

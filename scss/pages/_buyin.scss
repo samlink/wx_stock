@@ -323,12 +323,6 @@
     margin-left: 5px;
   }
 
-  .table-history {
-    margin-left: 0;
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
   .table-note {
     height: 200px;
     width: 320px;
@@ -338,6 +332,14 @@
 
     th:hover {
       cursor: default;
+    }
+
+    tr:hover {
+      cursor: pointer;
+    }
+
+    td {
+      border: none;
     }
 
     tbody p {
