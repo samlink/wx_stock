@@ -99,6 +99,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_xs_kp)
             .service(buyin::fetch_document)
             .service(buyin::fetch_document_fh)
+            .service(buyin::get_sale_dh)
             .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
             .service(buyin::fetch_trans_items)

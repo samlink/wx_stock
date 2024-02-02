@@ -890,6 +890,38 @@ pub async fn fetch_other_documents(
     }
 }
 
+//销售退货时，获取相关销售单据
+#[post("/get_sale_dh")]
+pub async fn get_sale_dh(
+    db: web::Data<Pool>,
+    data: String,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select 单号,日期 from documents where 文本字段6 = '{}' and 类别 = '商品销售'"#,
+            data
+        );
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let dh: String = row.get("单号");
+            let date: String = row.get("日期");
+            let item = format!("销售单据　{}　{}", dh, date);
+
+            document_items.push(item);
+        }
+
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/get_sale_out")]
 pub async fn get_sale_out(
     db: web::Data<Pool>,

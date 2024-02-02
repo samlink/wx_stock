@@ -258,10 +258,10 @@
   }
 
   .table-history {
-    width: 300px;
+    width: 320px;
     margin-left: 5px;
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex-grow: 1;
+    height: 100%;
 
     th {
       cursor: default;
@@ -314,5 +314,34 @@
 
   .ku_danger {
     background-color: rgb(248, 248, 199);
+  }
+
+  .right-tables {
+    display: flex;
+    flex-direction: column;
+    margin-right: 10px;
+    margin-left: 5px;
+  }
+
+  .table-history {
+    margin-left: 0;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .table-note {
+    height: 200px;
+    width: 320px;
+    border-top: none;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+
+    th:hover {
+      cursor: default;
+    }
+
+    tbody p {
+      padding-left: 10px;
+    }
   }
 }
