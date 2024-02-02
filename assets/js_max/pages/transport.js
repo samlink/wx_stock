@@ -12,6 +12,8 @@ import {
 import {
     build_blank_table, build_items_table, build_out_table, input_table_outdata
 } from '/assets/js/parts/edit_table.mjs';
+import { close_modal, modal_init } from "/assets/js/parts/modal.mjs";
+
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -20,6 +22,7 @@ let dh_div = document.querySelector('#dh');
 //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
 let document_name = "发货单据";
+let shen_print = "";   //打印审核人
 
 //获取单据表头部分的字段（字段设置中的右表内容）
 fetch(`/fetch_inout_fields`, {
@@ -34,7 +37,7 @@ fetch(`/fetch_inout_fields`, {
         if (content != -1) {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
-                fetch(`/fetch_document`, {
+                fetch(`/fetch_document_fh`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -62,6 +65,12 @@ fetch(`/fetch_inout_fields`, {
                             }
                         }
                         service.set_shens_owner(set_data);
+                        let da = data.split(SPLITER);
+                        let pic = da[da.length - 6].replace("pic_", "min_");
+                        shen_print = da[16];
+                        if (pic.startsWith("/upload")) {
+                            document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
+                        }
                     });
             } else {
                 let html = service.build_inout_form(content);
@@ -83,11 +92,14 @@ function set_readonly() {
         edit.disabled = true;
     }
 
+    document.querySelector('#save-button').disabled = true;
+    document.querySelector('#pic-button').disabled = true;
+
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
             input.disabled = true;
         });
-    }, 100);
+    }, 100); 
 
     service.edit_button_disabled();
 }
@@ -144,8 +156,6 @@ function document_top_handle(html, has_date) {
 
 service.get_materials_docs('/materialout_docs', "商品销售", build_items);
 
-let shen_print;   //审核人打印
-
 // 获取单据列表
 function build_items(dh) {
     fetch('/get_trans_info', {
@@ -163,7 +173,6 @@ function build_items(dh) {
             document.querySelector("#文本字段8").value = info[2];
             document.querySelector("#文本字段9").value = info[3];
             document.querySelector("#文本字段1").value = info[4];
-            shen_print = info[5];
         });
 
     fetch('/get_sale_out', {
@@ -385,6 +394,10 @@ if (dh_div.textContent == "新单据") {
             }
         });
 }
+
+// 图片处理 -----------------------------------------------------------------
+service.handle_pic(dh_div, "/pic_fh_save");
+modal_init();
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 

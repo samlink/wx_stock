@@ -570,6 +570,67 @@ pub async fn fetch_document(
     }
 }
 
+///获取单据字段
+#[post("/fetch_document_fh")]
+pub async fn fetch_document_fh(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let fields = get_inout_fields(db.clone(), &data.cate).await;
+        let f_map = map_fields(db.clone(), &data.cate).await;
+
+        let mut sql_fields = "SELECT ".to_owned();
+
+        for f in &fields {
+            sql_fields += &format!("documents.{},", f.field_name);
+        }
+
+        let sql = format!(
+            r#"{} documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人, documents.{} 图片
+            FROM documents
+            JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
+            sql_fields, f_map["提交审核"], f_map["审核"], f_map["图片"], data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document = "".to_owned();
+        for row in rows {
+            let id: i32 = row.get("客商id");
+            let name: String = row.get("名称");
+            let sumit_shen: bool = row.get("提交审核");
+            let rem: &str = row.get("审核");
+            let pic: &str = row.get("图片");
+            let worker: &str = row.get("经办人");
+            document += &format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                simple_string_from_base(row, &fields),                
+                SPLITER,
+                pic,
+                SPLITER,
+                sumit_shen,
+                SPLITER,
+                id,
+                SPLITER,
+                name,              
+                SPLITER,
+                rem,
+                SPLITER,
+                worker
+            );
+        }
+
+        HttpResponse::Ok().json(document)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取单据明细
 #[post("/fetch_document_items")]
 pub async fn fetch_document_items(

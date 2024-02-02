@@ -459,7 +459,10 @@ pub async fn get_docs_out(
             let name: &str = row.get("名称");
             let custid: i32 = row.get("客商id");
             let note: &str = row.get("备注");
-            item = format!("{}{}{}{}{}{}{}", num, SPLITER, name, SPLITER, custid, SPLITER, note);
+            item = format!(
+                "{}{}{}{}{}{}{}",
+                num, SPLITER, name, SPLITER, custid, SPLITER, note
+            );
         }
         HttpResponse::Ok().json(item)
     } else {
@@ -483,7 +486,12 @@ pub async fn get_trans_info(
             customers.{} 公司地址, documents.{} 审核 from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
-            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], f_map["审核"], data
+            f_map["合同编号"],
+            f_map2["收货人"],
+            f_map2["收货电话"],
+            f_map2["收货地址"],
+            f_map["审核"],
+            data
         );
 
         // println!("{}", sql);
@@ -629,7 +637,7 @@ pub async fn save_material(
         }
 
         let f_map = map_fields(db, "商品规格").await;
-        
+
         let mut rkid = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
@@ -712,7 +720,7 @@ pub async fn save_material(
                 if rkid != value[13] {
                     rkid = value[13];
                     let dh_sql = format!(
-                        r#"update document_items set 出库完成 = true where id::text = '{}'"#,   // 与销售单据共用出库完成
+                        r#"update document_items set 出库完成 = true where id::text = '{}'"#, // 与销售单据共用出库完成
                         rkid
                     );
                     // let _ = conn2.query(dh_sql.as_str(), &[]).await;
@@ -1325,7 +1333,7 @@ pub async fn make_xs_wight(
 //     if user.name != "" {
 //         let conn = db.get().await.unwrap();
 //         let sql = format!(
-//             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
+//             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
 //             (select 出库完成 from document_items where 单号id='{}');"#,
 //             dh, dh
 //         );
@@ -1512,46 +1520,12 @@ pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
     }
 }
 
-#[post("/pic_in_save")]
-pub async fn pic_in_save(
+// 保存图片
+async fn save_pics(
     db: web::Data<Pool>,
     data: web::Json<String>,
     id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
-    if user.name != "" {
-        let da: Vec<&str> = data.split(SPLITER).collect();
-        if da[1] == "/upload/pics/min.jpg" {
-            let pic = format!("/upload/pics/pic_{}.jpg", da[0]);
-            let min_pic = format!("/upload/pics/min_{}.jpg", da[0]);
-            fs::rename("./upload/pics/coin.jpg", format!(".{}", pic)).unwrap();
-            fs::rename(
-                "./upload/pics/min.jpg",
-                format!("./upload/pics/min_{}.jpg", da[0]),
-            )
-            .unwrap();
-
-            let conn = db.get().await.unwrap();
-            let f_map = map_fields(db.clone(), "出库单据").await;
-            let sql = format!(
-                r#"update documents set {}='{}' WHERE 单号='{}'"#,
-                f_map["图片"], pic, da[0]
-            );
-            let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-            HttpResponse::Ok().json(min_pic)
-        } else {
-            HttpResponse::Ok().json(-2)
-        }
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
-#[post("/pic_kp_save")]
-pub async fn pic_kp_save(
-    db: web::Data<Pool>,
-    data: web::Json<String>,
-    id: Identity,
+    cate: &str,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
@@ -1567,7 +1541,7 @@ pub async fn pic_kp_save(
             .unwrap();
 
             let conn = db.get().await.unwrap();
-            let f_map = map_fields(db.clone(), "销售开票").await;
+            let f_map = map_fields(db.clone(), cate).await;
             let sql = format!(
                 r#"update documents set {}='{}' WHERE 单号='{}'"#,
                 f_map["图片"], pic, da[0]
@@ -1580,6 +1554,36 @@ pub async fn pic_kp_save(
     } else {
         HttpResponse::Ok().json(-1)
     }
+}
+
+//保存图片 - 出库单
+#[post("/pic_in_save")]
+pub async fn pic_in_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    save_pics(db, data, id, "出库单据").await
+}
+
+//保存图片 - 销售开票
+#[post("/pic_kp_save")]
+pub async fn pic_kp_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    save_pics(db, data, id, "销售开票").await
+}
+
+//保存图片 - 发货单
+#[post("/pic_fh_save")]
+pub async fn pic_fh_save(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    save_pics(db, data, id, "发货单据").await
 }
 
 //上传pdf

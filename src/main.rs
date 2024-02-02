@@ -98,6 +98,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::save_document_kp)
             .service(buyin::make_xs_kp)
             .service(buyin::fetch_document)
+            .service(buyin::fetch_document_fh)
             .service(buyin::fetch_document_items_sales)
             .service(buyin::fetch_document_items)
             .service(buyin::fetch_trans_items)
@@ -139,6 +140,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::pic_in)
             .service(material::pic_in_save)
             .service(material::pic_kp_save)
+            .service(material::pic_fh_save)
             .service(material::pdf_in)
             .service(material::pdf_in_save)
 

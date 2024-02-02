@@ -15,6 +15,16 @@
         <div class="inout-top has-bak" style="width: 99%;">
             <div class="fields-show">
             </div>
+            <div class="material-doc">
+                <div class="form-input" hidden>
+                    <input class="form-control input-sm material-value" id="m_id" type="text" hidden
+                           style="width: 70px;">
+                </div>
+                <div class="form-input show-pic">
+                    <img id="upload-pic" width="60" height="42" src="/assets/img/sign.jpg" alt="发货签字图" title="点击放大">
+                    <input type="file" id="pic_upload" accept="image/png, image/jpeg" hidden="hidden"/>
+                </div>
+            </div>
             <div class="buy-buttons">
                 <div class="has-dh">№: <span id="dh">@setup[3]</span> <span id="owner"></span></div>
                 <div class="buttons">
@@ -23,6 +33,7 @@
                     <button class="btn btn-info btn-sm" id="print-button" style="margin-right: 10px; width: 60px;">
                         打印
                     </button>
+                    <button class="btn btn-info btn-sm" id="pic-button">传图</button>
                     <button class="btn btn-info btn-sm" id="remember-button" style="min-width: 60px;">审核</button>
                 </div>
             </div>
