@@ -144,6 +144,8 @@ function document_top_handle(html, has_date) {
 
 service.get_materials_docs('/materialout_docs', "商品销售", build_items);
 
+let shen_print;   //审核人打印
+
 // 获取单据列表
 function build_items(dh) {
     fetch('/get_trans_info', {
@@ -161,6 +163,7 @@ function build_items(dh) {
             document.querySelector("#文本字段8").value = info[2];
             document.querySelector("#文本字段9").value = info[3];
             document.querySelector("#文本字段1").value = info[4];
+            shen_print = info[5];
         });
 
     fetch('/get_sale_out', {
@@ -536,10 +539,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     document.querySelector('.print-table tbody').innerHTML = trs;
 
-    document.querySelector('#p-block5').innerHTML = '<p>制单人：</p>';
-    document.querySelector('#p-block6').innerHTML = '<p>财务：</p>';
-    document.querySelector('#p-block7').innerHTML = '<p>提货司机：</p>';
-    document.querySelector('#p-block8').innerHTML = '<p>客户确认：</p>';
+    document.querySelector('#p-block5').innerHTML = `<p>制单人：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
+    document.querySelector('#p-block6').innerHTML = `<p>审核：${shen_print}</p>`;
+    document.querySelector('#p-block7').innerHTML = '<p>装车：</p>';
+    document.querySelector('#p-block8').innerHTML = '<p>提货：</p>';
 
     document.querySelector('#print').hidden = false;
     Print('#print', {});

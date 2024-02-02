@@ -480,10 +480,10 @@ pub async fn get_trans_info(
         let f_map2 = map_fields(db.clone(), "客户").await;
         let sql = &format!(
             r#"SELECT documents.{} as 合同编号, 名称, customers.{} 联系人, customers.{} 电话,
-            customers.{} 公司地址 from documents
+            customers.{} 公司地址, documents.{} 审核 from documents
             JOIN customers ON 客商id = customers.id
             WHERE 单号 = '{}'"#,
-            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], data
+            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], f_map["审核"], data
         );
 
         // println!("{}", sql);
@@ -496,9 +496,10 @@ pub async fn get_trans_info(
             let contact: &str = row.get("联系人");
             let tel: &str = row.get("电话");
             let addr: &str = row.get("公司地址");
+            let shen: &str = row.get("审核");
             item = format!(
-                "{}{}{}{}{}{}{}{}{}",
-                num, SPLITER, name, SPLITER, contact, SPLITER, tel, SPLITER, addr
+                "{}{}{}{}{}{}{}{}{}{}{}",
+                num, SPLITER, name, SPLITER, contact, SPLITER, tel, SPLITER, addr, SPLITER, shen
             );
         }
         HttpResponse::Ok().json(item)

@@ -535,7 +535,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             <td>${sum}</td><td>${sum_long}</td>${append_cells(5)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
-    document.querySelector('#p-block5').innerHTML = '<p>制单（仓库）：</p>';
+    document.querySelector('#p-block5').innerHTML = `<p>制单（仓库）：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
     document.querySelector('#p-block6').innerHTML = '<p>审核（销售）：</p>';
     document.querySelector('#p-block7').innerHTML = '<p>下料员：</p>';
     document.querySelector('#p-block8').innerHTML = '<p>过磅员：</p>';
