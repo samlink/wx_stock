@@ -159,7 +159,8 @@ let auto_data = [{
         let stat = document.querySelector('.table-items .inputting .状态').textContent.trim();
         return `${document.querySelector('.table-items .inputting .m_id').textContent.trim()}　
                 ${document.querySelector('.table-items .inputting .规格').textContent.trim()}　
-                ${stat.replace('+', SPLITER)}`
+                ${stat.replace('+', SPLITER)}　
+                ${document.querySelector('.table-items .inputting .长度').value.trim()}`
     }
 }];
 
@@ -237,10 +238,12 @@ function build_items(dh) {
         });
 }
 
+let ku = new Map();  // 记忆物料库存长度
 function fill_gg() {
     let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
     let lh_input = document.querySelector(`.inputting .炉号`).textContent = field_values[6];
     document.querySelector(`.inputting .重量`).focus();
+    ku.set(field_values[1], Number(field_values[7]));
 }
 
 //构建商品规格表字段，字段设置中的右表数据 --------------------------
@@ -397,7 +400,7 @@ modal_init();
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
     //错误勘察
-    if (!error_check()) {
+    if (!error_check() || !ku_check()) {
         return false;
     }
 
@@ -489,10 +492,10 @@ document.querySelector('#print-button').addEventListener('click', function () {
         <th class="center" width="10%">状态</th>
         <th class="center" width="7%">下料长度</th>
         <th class="center" width="3%">支数</th>
-        <th class="center" width="7%">总长度</th>
+        <th class="center" width="6%">总长度</th>
         <th class="center" width="10%">料号</th>     
         <th class="center" width="8%">重量</th>
-        <th class="center" width="8%">理论重量</th>
+        <th class="center" width="7%">理论重量</th>
         <th class="center" width="8%">剩余长度</th>
         <th class="center" width="10%">备注</th>
     </tr>`;
@@ -518,7 +521,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             if (i == 10 || i == 12) {
                 trs += `<td></td>`;
                 continue;
-            }            
+            }
             let v = printable.shift();
             trs += `<td>${v}</td>`;
         }
@@ -603,6 +606,38 @@ function error_check() {
             } else if (!row.querySelector('.重量').value) {
                 row.querySelector('.重量').value = 0;
             }
+
+            let wl = row.querySelector('.物料号')
+            if (wl.getAttribute("data") != "undefined" && wl.getAttribute("data").split(SPLITER).length == 1) {
+                notifier.show(`${wl.value} 不在库中`, 'danger');
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+function ku_check() {
+    let now_ku = new Map();
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+
+    for (let row of all_rows) {
+        if (row.querySelector('.名称').textContent.trim() != "") {
+            let key = row.querySelector('.物料号').value.trim();
+            let long = row.querySelector('.总长度').textContent.trim();
+
+            if (now_ku.has(key)) {
+                now_ku.set(key, now_ku.get(key) + Number(long));
+            } else {
+                now_ku.set(key, Number(long));
+            }
+        }
+    }
+
+    for (let [key, value] of now_ku) {
+        if (ku.has(key) && value > ku.get(key)) {
+            notifier.show(`${key} 超过库存长度}`, 'danger');
+            return false;
         }
     }
     return true;
@@ -610,7 +645,6 @@ function error_check() {
 
 window.onbeforeunload = function (e) {
     if (edited || input_table_outdata.edited) {
-        var e = window.event || e;
         e.returnValue = ("编辑未保存提醒");
     }
 }

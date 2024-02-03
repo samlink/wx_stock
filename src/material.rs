@@ -189,8 +189,9 @@ pub async fn material_auto_out(
                 ON products.文本字段1 = foo.物料号
                 WHERE LOWER(products.{}) LIKE LOWER('%{}%') AND num='{}' AND 
                 products.{} = '{}' and products.{} = '{}' and
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND
-                products.{} != '是' AND documents.文本字段10 <> '' LIMIT 10"#,
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer + 10 >= {} AND
+                products.{} != '是' AND documents.文本字段10 <> '' 
+                order by products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2"#,
             f_map["物料号"],
             SPLITER,
             SPLITER,
@@ -210,7 +211,9 @@ pub async fn material_auto_out(
             f_map["状态"],
             ss2.trim(),
             f_map["库存长度"],
-            f_map["切完"]
+            ss[3],
+            f_map["切完"],
+            f_map["库存长度"],
         );
 
         // println!("{}", sql);
