@@ -277,16 +277,10 @@ pub async fn update_product(
     let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone(), "商品规格").await;
-
         let product: Vec<&str> = p.data.split(SPLITER).collect();
-        let init = r#"UPDATE products SET "#.to_owned();
-
-        let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
-
-        sql += &format!(
-            r#"商品id='{}' WHERE 文本字段1='{}'"#,
-            product[1], product[0]
+        let sql = format!(
+            r#"UPDATE products SET 库位='{}', 文本字段7='{}', 备注='{}' WHERE 文本字段1='{}'"#,
+            product[3], product[4], product[5], product[0]
         );
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
