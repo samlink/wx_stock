@@ -181,7 +181,10 @@ async fn build_sql_search(
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
-            .replace("库存长度", "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2")
+            .replace(
+                "库存长度",
+                "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2",
+            )
             .replace("炉号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
@@ -352,6 +355,7 @@ pub async fn product_auto(
 pub struct ProductName {
     id: String,
     name: String,
+    done: String,
 }
 
 //导出数据
@@ -396,17 +400,29 @@ pub async fn product_out(
             n += 1;
         }
 
+        let now_sql = if product.done == "现有库存" {
+            " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
+        } else {
+            " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
+        };
+
         let init = r#"SELECT "#.to_owned();
         let mut sql = build_sql_for_excel(init, &fields, "products".to_owned());
 
         sql += &format!(
             r#"1 FROM products JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND documents.文本字段10 <> '' ORDER BY 规格型号"#, //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
-            product.id
+            LEFT JOIN cut_length() as foo
+            ON products.文本字段1 = foo.物料号
+            WHERE 商品id='{}' {} AND documents.文本字段10 <> '' ORDER BY products.文本字段1"#, //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
+            product.id, now_sql
         );
 
+        let new_sql = sql
+            .replace("cast(products.整数字段2 as VARCHAR)", "COALESCE(切分次数,0)::text as 整数字段2")
+            .replace("cast(products.整数字段3 as VARCHAR)", "(products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::text as 整数字段3");
+
         let conn = db.get().await.unwrap();
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let rows = &conn.query(new_sql.as_str(), &[]).await.unwrap();
 
         let mut n = 1u32;
         for row in rows {

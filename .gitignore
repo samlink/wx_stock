@@ -8,3 +8,4 @@
 download/.~lock.*
 *.xml
 /upload/
+/download/*.xlsx

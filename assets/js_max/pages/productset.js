@@ -595,6 +595,7 @@ document.querySelector('#data-out').addEventListener('click', function () {
         let data = {
             id: global.product_id,
             name: global.product_name,
+            done: document.querySelector('#p-select').value,
         };
 
         fetch(`/product_out`, {
