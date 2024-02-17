@@ -487,12 +487,11 @@ document.querySelector('#print-button').addEventListener('click', function () {
     var th = `<tr>
         <th class = "center" width = "3%">序号</th>
         <th class="center" width="7%">名称</th>
-        <th class="center" width="7%">材质</th>
+        <th class="center" width="9%">材质</th>
         <th class="center" width="6%">规格</th>
         <th class="center" width="10%">状态</th>
         <th class="center" width="7%">下料长度</th>
         <th class="center" width="3%">支数</th>
-        <th class="center" width="6%">总长度</th>
         <th class="center" width="10%">料号</th>     
         <th class="center" width="8%">重量</th>
         <th class="center" width="7%">理论重量</th>
@@ -502,13 +501,13 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     document.querySelector('.print-table thead').innerHTML = th;
 
-    let sum = 0, sum_long = 0;
+    let sum = 0;
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let trs = '';
     for (let row of all_rows) {
         let printable = [];
         for (let i = 1; i < 14; i++) {
-            if (i == 6 || i == 11) {
+            if (i == 6 || i == 9 || i == 11) {
                 continue;
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
@@ -518,7 +517,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
         trs += '<tr>';
         for (let i = 1; i < 14; i++) {
-            if (i == 10 || i == 12) {
+            if (i == 9 || i == 11) {
                 trs += `<td></td>`;
                 continue;
             }
@@ -527,7 +526,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
         }
         trs += '</tr>';
         sum += Number(row.querySelector(`td:nth-child(8) input`).value);
-        sum_long += Number(row.querySelector(`td:nth-child(9)`).textContent);
     }
 
     // 补空行
@@ -535,7 +533,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     trs += append_blanks(len, 13);
 
     trs += `<tr class="sum-cell"><td class="center" colspan="2">合计</td>${append_cells(4)}
-            <td>${sum}</td><td>${sum_long}</td>${append_cells(5)}</tr>`;
+            <td>${sum}</td>${append_cells(5)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
     document.querySelector('#p-block5').innerHTML = `<p>制单（仓库）：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;

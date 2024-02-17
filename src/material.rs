@@ -304,7 +304,7 @@ pub async fn material_auto_kt(
             SPLITER,
             f_map["库存长度"],
             f_map["物料号"],
-            search.s,
+            search.s.to_lowercase(),
             f_map["切完"],
             f_map["库存长度"],
         );
