@@ -2,7 +2,7 @@ import { notifier } from '/assets/js/parts/notifier.mjs';
 import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
-    regReal,    
+    regReal,
     set_key_move
 } from '/assets/js/parts/tools.mjs';
 import {
@@ -61,11 +61,7 @@ fetch(`/fetch_inout_fields`, {
                         let set_data = {
                             content: data,
                             readonly_fun: set_readonly,
-                            focus_fun: () => {
-                                setTimeout(() => {
-                                    document.querySelector('.table-items tbody .名称').focus();
-                                }, 200);
-                            }
+                            focus_fun: () => { }
                         }
                         service.set_shens_owner(set_data);
 
@@ -77,9 +73,6 @@ fetch(`/fetch_inout_fields`, {
                 let html = service.build_inout_form(content);
                 document_top_handle(html, false);
                 document.querySelector('#remember-button').textContent = '审核';
-                setTimeout(() => {
-                    document.querySelector('.table-items tbody .名称').focus();
-                }, 200);
             }
         }
     });
@@ -120,39 +113,50 @@ show_names = [
         name: "名称",
         width: 80,
         class: "名称",
-        type: "autocomplete",
-        editable: true,
-        is_save: true,
-        save: "id",      //对于 autocomplete 可选择保存 id 或是 value
+        type: "普通输入",
+        editable: false,
+        is_save: false,
         default: ""
     },
     { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: true, is_save: true, default: "kg" },
-    { name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" },
-    { name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: false, is_save: true, default: "kg" },
+    { name: "数量", width: 50, class: "num", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "单价", width: 50, class: "price", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, default: "13%" },
-    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "" },
+    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: false, is_save: true, default: "13%" },
+    {
+        name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "",
+        css: 'style="border-right:none;"',
+    },
+    {
+        name: "",
+        width: 0,
+        class: "m_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
+        css: 'style="width:0%; border-left:none; color:white"',
+    },
 ]
 
 //计算表格行数，33 为 lineHeight （行高）
 table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
-let show_th = [
-    { name: "名称", width: 60 },
-    { name: "材质", width: 80 },
-    { name: "规格", width: 80 },
-    { name: "状态", width: 100 },
-];
+// let show_th = [
+//     { name: "名称", width: 60 },
+//     { name: "材质", width: 80 },
+//     { name: "规格", width: 80 },
+//     { name: "状态", width: 100 },
+// ];
 
-let auto_data = [{
-    n: 2,                       //第2个单元格是自动输入
-    cate: document_name,
-    auto_url: `/buyin_auto`,
-    show_th: show_th,
-    type: "table",
-    cb: fill_gg,
-}];
+// let auto_data = [{
+//     n: 2,                       //第2个单元格是自动输入
+//     cate: document_name,
+//     auto_url: `/buyin_auto`,
+//     show_th: show_th,
+//     type: "table",
+//     cb: fill_gg,
+// }];
 
 fetch("/fetch_sale_docs", {
     method: 'post',
@@ -183,6 +187,7 @@ fetch("/fetch_sale_docs", {
                 document.querySelector('#文本字段2').value = value[0];
                 document.querySelector('#文本字段2').setAttribute('data', value[4]);
                 document.querySelector('#应结金额').value = value[3];
+                fetch_fh_items(dh);
                 fetch_others(dh);
             })
         }
@@ -192,14 +197,14 @@ if (dh_div.textContent == "新单据") {
     let edit_data = {
         show_names: show_names,
         lines: table_lines,
-        auto_data: auto_data,
+        // auto_data: auto_data,
         dh: dh_div.textContent,
         calc_func: calculate,
         del_func: sum_money,
     }
 
     build_blank_table(edit_data);
-    appand_edit_row();
+    // appand_edit_row();
 } else {
     fetch('/fetch_kp_items', {
         method: 'post',
@@ -216,7 +221,7 @@ if (dh_div.textContent == "新单据") {
             let edit_data = {
                 show_names: show_names,
                 rows: content,
-                auto_data: auto_data,
+                // auto_data: auto_data,
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
@@ -226,17 +231,19 @@ if (dh_div.textContent == "新单据") {
 
             build_items_table(edit_data);
 
-            setTimeout(() => {
-                if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                    appand_edit_row();
-                }
-            }, 200);
+            // setTimeout(() => {
+            //     if (document.querySelector('#remember-button').textContent.trim() == "审核") {
+            //         appand_edit_row();
+            //     }
+            // }, 200);
         });
 }
 
 // 图片处理 
 service.handle_pic(dh_div, "/pic_kp_save");
 modal_init();
+
+
 
 // 获取其他相关单据
 function fetch_others(dh) {
@@ -283,6 +290,32 @@ function fetch_others(dh) {
             }
             let note = `<p>CN: ${document.querySelector('#文本字段8').value}</p><p>${ck.replace(/(\s|\/)+$/g, '')}</p><p>${fh.replace(/(\s|\/)+$/g, '')}</p>`;
             document.querySelector(".table-note tbody").innerHTML = note;
+        });
+}
+
+// 获取明细
+function fetch_fh_items(dh) {
+    fetch(`/fetch_fh_items`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dh),
+    })
+        .then(response => response.json())
+        .then(data => {
+            let edit_data = {
+                show_names: show_names,
+                rows: data,
+                // auto_data: auto_data,
+                lines: table_lines,
+                dh: dh_div.textContent,
+                document: document_name,
+                calc_func: calculate,
+                change_func: sum_money,         //新加载或删除变动时运行
+            }
+
+            build_items_table(edit_data);
         });
 }
 
@@ -340,33 +373,6 @@ function sum_money() {
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
     if (document.querySelector('#文本字段5')) document.querySelector('#文本字段5').value = sum.toFixed(2);
-}
-
-// 自动填充规格等信息
-function fill_gg() {
-    let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
-    let n = 3;  //从第 3 列开始填入数据
-    let num = 1;  //填充数量
-    for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
-        let val = field_values[i];
-        if ((show_names[i].type == "普通输入" || show_names[i].type == "autocomplete") && show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
-        } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
-        } else if (show_names[i].type == "下拉列表" && show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n}) select`).value = val;
-        } else if (show_names[i].type == "下拉列表" && !show_names[i].editable) {
-            document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
-        }
-
-        n++;
-    }
-
-    let price_input = document.querySelector(`.inputting .单位`);
-    price_input.focus();
-
-    appand_edit_row();
-    edited = true;
 }
 
 //保存、打印和审核 -------------------------------------------------------------------
@@ -428,7 +434,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    console.log(data);
+    // console.log(data);
 
     fetch(`/save_document_kp`, {
         method: 'post',

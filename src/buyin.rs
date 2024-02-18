@@ -609,7 +609,7 @@ pub async fn fetch_document_fh(
             let worker: &str = row.get("经办人");
             document += &format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                simple_string_from_base(row, &fields),                
+                simple_string_from_base(row, &fields),
                 SPLITER,
                 pic,
                 SPLITER,
@@ -617,7 +617,7 @@ pub async fn fetch_document_fh(
                 SPLITER,
                 id,
                 SPLITER,
-                name,              
+                name,
                 SPLITER,
                 rem,
                 SPLITER,
@@ -892,11 +892,7 @@ pub async fn fetch_other_documents(
 
 //销售退货时，获取相关销售单据
 #[post("/get_sale_dh")]
-pub async fn get_sale_dh(
-    db: web::Data<Pool>,
-    data: String,
-    id: Identity,
-) -> HttpResponse {
+pub async fn get_sale_dh(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
@@ -1272,6 +1268,50 @@ pub async fn fetch_kp_items(
                 tax,
                 SPLITER,
                 tt
+            );
+
+            document_items.push(item)
+        }
+
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取发货明细，供开票使用
+#[post("/fetch_fh_items")]
+pub async fn fetch_fh_items(
+    db: web::Data<Pool>,
+    data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!(
+            r#"select 顺序 as 序号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ', 1) || '/' || 规格 as 规格, 重量, 单价
+                FROM document_items
+                JOIN tree on document_items.商品id = tree.num
+                WHERE 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='运输发货') ORDER BY 顺序"#,
+            data
+        );
+
+        println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+        for row in rows {
+            let name: String = row.get("名称");
+            let gg: String = row.get("规格");
+            let price: f32 = row.get("单价");
+            let num: f32 = row.get("重量");
+            let money = format!("{:.2}", price * num);
+
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money,
             );
 
             document_items.push(item)
