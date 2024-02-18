@@ -170,7 +170,7 @@ pub async fn fetch_all_documents(
         let count_sql = format!(
             r#"SELECT count(单号) as 记录数 FROM documents 
             JOIN customers ON documents.客商id=customers.id 
-            WHERE {} {} {} AND ({})"#,
+            WHERE {} {} ({}) AND ({})"#,
             limits, query_limit, doc_sql, sql_where
         );
 

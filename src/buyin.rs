@@ -1210,6 +1210,12 @@ pub async fn save_document_kp(
 
         let _result = transaction.commit().await;
 
+        // 保存时修改销售单是否欠款，暂改为审核时修改
+        // let sql = format!(r#"update documents set 是否欠款 = (select 是否欠款 from documents where 单号='{}') 
+        //                     where 单号 = (select 文本字段6 from documents where 单号='{}')"#, dh, dh);
+
+        // let _= conn2.execute(sql.as_str(), &[]).await.unwrap();
+
         HttpResponse::Ok().json(dh)
     } else {
         HttpResponse::Ok().json(-1)
