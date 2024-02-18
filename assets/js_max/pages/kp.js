@@ -115,7 +115,7 @@ show_names = [
         class: "名称",
         type: "普通输入",
         editable: false,
-        is_save: false,
+        is_save: true,
         default: ""
     },
     { name: "规格型号", width: 120, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
@@ -123,19 +123,7 @@ show_names = [
     { name: "单价", width: 50, class: "price", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
     { name: "税率", width: 60, class: "税率", type: "普通输入", editable: false, is_save: true, default: "13%" },
-    {
-        name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "",
-        css: 'style="border-right:none;"',
-    },
-    {
-        name: "",
-        width: 0,
-        class: "m_id",
-        type: "普通输入",
-        editable: false,
-        is_save: true,
-        css: 'style="width:0%; border-left:none; color:white"',
-    },
+    { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "", },
 ]
 
 //计算表格行数，33 为 lineHeight （行高）
@@ -302,8 +290,6 @@ function sum_money() {
         sum_tax += tax * 1;
     }
 
-    console.log(sum, sum_tax);
-
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
     if (document.querySelector('#文本字段5')) document.querySelector('#文本字段5').value = sum.toFixed(2);
 }
@@ -340,24 +326,22 @@ document.querySelector('#save-button').addEventListener('click', function () {
     let table_data = [];
     let all_rows = document.querySelectorAll('.table-items .has-input');
     for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value.trim() != "") {
-            let len = show_names.length;
-            let save_str = ``;
+        let len = show_names.length;
+        let save_str = ``;
 
-            for (let i = 0; i < len; i++) {
-                if (show_names[i].is_save) {
-                    if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
-                        let value = row.querySelector(`.${show_names[i].class}`).value;
-                        if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
-                        save_str += `${value.trim()}${SPLITER}`;
-                    } else {
-                        let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
-                        save_str += `${value.trim()}${SPLITER}`;
-                    }
+        for (let i = 0; i < len; i++) {
+            if (show_names[i].is_save) {
+                if (show_names[i].type == "普通输入" || show_names[i].type == "autocomplete" || show_names[i].type == "下拉列表") {     // 下拉列表和二值选一未测试
+                    let value = row.querySelector(`.${show_names[i].class}`).value;
+                    if (!value) value = row.querySelector(`.${show_names[i].class}`).textContent;
+                    save_str += `${value.trim()}${SPLITER}`;
+                } else {
+                    let value = row.querySelector(`.${show_names[i].class}`).checked ? "是" : "否";
+                    save_str += `${value.trim()}${SPLITER}`;
                 }
             }
-            table_data.push(save_str);
         }
+        table_data.push(save_str);
     }
 
     let data = {
@@ -367,7 +351,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch(`/save_document_kp`, {
         method: 'post',
@@ -446,29 +430,11 @@ function error_check() {
         return false;
     }
 
-    if (all_rows.length == 1 && all_rows[0].querySelector('td:nth-child(2) input').value == "") {
+    if (all_rows.length == 1 && all_rows[0].querySelector('td:nth-child(2)').textContent.trim() == "") {
         notifier.show('明细不能为空', 'danger');
         return false;
     }
 
-    for (let row of all_rows) {
-        if (row.querySelector('td:nth-child(2) input').value != "") {
-            let num = row.querySelector('.num');
-            if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
-                notifier.show(`单价输入错误`, 'danger');
-                return false;
-            } else if (!row.querySelector('.price').value) {
-                row.querySelector('.price').value = 0;
-            }
-
-            if (num.value && !regReal.test(num.value)) {
-                notifier.show(`数量输入错误`, 'danger');
-                return false;
-            } else if (!num.value) {
-                num.value = 0;
-            }
-        }
-    }
     return true;
 }
 

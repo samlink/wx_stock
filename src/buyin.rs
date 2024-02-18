@@ -1198,9 +1198,9 @@ pub async fn save_document_kp(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = format!(
-                r#"INSERT INTO kp_items (单号id, 名称, 规格, 单位, 数量, 单价, 税率, 顺序)
-                     VALUES('{}', '{}', '{}', '{}', {}, {}, '{}', '{}')"#,
-                dh, value[1], value[2], value[3], value[4], value[5], value[6], value[0],
+                r#"INSERT INTO kp_items (单号id, 名称, 规格, 数量, 单价, 税率, 顺序)
+                     VALUES('{}', '{}', '{}', {}, {}, '{}', '{}')"#,
+                dh, value[1], value[2], value[3], value[4], value[5], value[0],
             );
 
             // println!("{}", items_sql);
@@ -1228,7 +1228,7 @@ pub async fn fetch_kp_items(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 名称, 规格, 单位, 数量, 单价, 税率
+            r#"select 名称, 规格, 数量, 单价, 税率
                 FROM kp_items
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -1241,7 +1241,6 @@ pub async fn fetch_kp_items(
         for row in rows {
             let name: String = row.get("名称");
             let gg: String = row.get("规格");
-            let dw: String = row.get("单位");
             let price: f32 = row.get("单价");
             let num: f32 = row.get("数量");
             let tax: String = row.get("税率");
@@ -1252,12 +1251,10 @@ pub async fn fetch_kp_items(
             let tt = format!("{:.2}", price * num * num_tax / 100.0);
 
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,
                 SPLITER,
                 gg,
-                SPLITER,
-                dw,
                 SPLITER,
                 num,
                 SPLITER,
