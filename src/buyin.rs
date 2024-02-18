@@ -1291,14 +1291,15 @@ pub async fn fetch_fh_items(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 顺序 as 序号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ', 1) || '/' || 规格 as 规格, 重量, 单价
+            r#"select 顺序 as 序号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ', 1) || '/' || 规格 as 规格, 
+                case when 商品id <> '4_111' then 重量 else 数量 end as 数量, 单价
                 FROM document_items
                 JOIN tree on document_items.商品id = tree.num
                 WHERE 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='运输发货') ORDER BY 顺序"#,
             data
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
@@ -1306,12 +1307,13 @@ pub async fn fetch_fh_items(
             let name: String = row.get("名称");
             let gg: String = row.get("规格");
             let price: f32 = row.get("单价");
-            let num: f32 = row.get("重量");
+            let num: f32 = row.get("数量");
             let money = format!("{:.2}", price * num);
-
+            let tax = "13%";
+            let tt = format!("{:.2}", price * num * 0.13);
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money,
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money, SPLITER, tax, SPLITER, tt
             );
 
             document_items.push(item)

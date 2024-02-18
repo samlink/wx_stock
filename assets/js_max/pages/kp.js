@@ -118,8 +118,7 @@ show_names = [
         is_save: false,
         default: ""
     },
-    { name: "规格型号", width: 100, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "单位", width: 50, class: "单位", type: "普通输入", editable: false, is_save: true, default: "kg" },
+    { name: "规格型号", width: 120, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "数量", width: 50, class: "num", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "单价", width: 50, class: "price", type: "普通输入", editable: false, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
@@ -141,22 +140,6 @@ show_names = [
 
 //计算表格行数，33 为 lineHeight （行高）
 table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
-
-// let show_th = [
-//     { name: "名称", width: 60 },
-//     { name: "材质", width: 80 },
-//     { name: "规格", width: 80 },
-//     { name: "状态", width: 100 },
-// ];
-
-// let auto_data = [{
-//     n: 2,                       //第2个单元格是自动输入
-//     cate: document_name,
-//     auto_url: `/buyin_auto`,
-//     show_th: show_th,
-//     type: "table",
-//     cb: fill_gg,
-// }];
 
 fetch("/fetch_sale_docs", {
     method: 'post',
@@ -197,14 +180,10 @@ if (dh_div.textContent == "新单据") {
     let edit_data = {
         show_names: show_names,
         lines: table_lines,
-        // auto_data: auto_data,
-        dh: dh_div.textContent,
-        calc_func: calculate,
         del_func: sum_money,
     }
 
     build_blank_table(edit_data);
-    // appand_edit_row();
 } else {
     fetch('/fetch_kp_items', {
         method: 'post',
@@ -221,29 +200,19 @@ if (dh_div.textContent == "新单据") {
             let edit_data = {
                 show_names: show_names,
                 rows: content,
-                // auto_data: auto_data,
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
-                calc_func: calculate,
                 change_func: sum_money,         //新加载或删除变动时运行
             }
 
             build_items_table(edit_data);
-
-            // setTimeout(() => {
-            //     if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-            //         appand_edit_row();
-            //     }
-            // }, 200);
         });
 }
 
 // 图片处理 
 service.handle_pic(dh_div, "/pic_kp_save");
 modal_init();
-
-
 
 // 获取其他相关单据
 function fetch_others(dh) {
@@ -304,6 +273,8 @@ function fetch_fh_items(dh) {
     })
         .then(response => response.json())
         .then(data => {
+            document.querySelector(".table-items tbody").innerHTML = '';
+
             let edit_data = {
                 show_names: show_names,
                 rows: data,
@@ -311,47 +282,11 @@ function fetch_fh_items(dh) {
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
-                calc_func: calculate,
                 change_func: sum_money,         //新加载或删除变动时运行
             }
 
             build_items_table(edit_data);
         });
-}
-
-//计算行总额
-function calculate(input_row) {
-    input_row.querySelector('.price').addEventListener('blur', function () {
-        calc_money(input_row);
-        calc_tax(input_row)
-        sum_money();
-    });
-
-    input_row.querySelector('.num').addEventListener('blur', function () {
-        calc_money(input_row);
-        calc_tax(input_row)
-        sum_money();
-    });
-
-    input_row.querySelector('.税率').addEventListener('blur', function () {
-        calc_tax(input_row);
-        sum_money();
-    });
-}
-
-//计算行金额
-function calc_money(input_row) {
-    let price = input_row.querySelector('.price').value;
-    let mount = input_row.querySelector('.num').value;
-    input_row.querySelector('.money').textContent = (price * mount).toFixed(2);
-}
-
-//计算行税额
-function calc_tax(input_row) {
-    let price = input_row.querySelector('.price').value;
-    let mount = input_row.querySelector('.num').value;
-    let tax = Number(input_row.querySelector('.税率').value.replace("%", "")) / 100;
-    input_row.querySelector('.税额').textContent = (price * mount * tax).toFixed(2);
 }
 
 //计算合计金额
@@ -360,16 +295,14 @@ function sum_money() {
     let sum = 0;
     let sum_tax = 0;
     for (let i = 0; i < all_input.length; i++) {
-        let price = all_input[i].querySelector('.price').value;
-        let mount = all_input[i].querySelector('.num').value;
-        let tax = Number(all_input[i].querySelector('.税率').value.replace("%", "")) / 100;
+        let money = all_input[i].querySelector('.money').textContent.trim();
+        let tax = all_input[i].querySelector('.税额').textContent.trim();
 
-        if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
-            price && regReal.test(price) && mount && regReal.test(mount) && tax && regReal.test(tax)) {
-            sum += price * mount;
-            sum_tax += price * mount * tax;
-        }
+        sum += money * 1;
+        sum_tax += tax * 1;
     }
+
+    console.log(sum, sum_tax);
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
     if (document.querySelector('#文本字段5')) document.querySelector('#文本字段5').value = sum.toFixed(2);
