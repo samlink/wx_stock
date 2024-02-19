@@ -542,7 +542,8 @@ function sum_records() {
     let all_input = document.querySelectorAll('.has-input');
     let num = 0;
     for (let i = 0; i < all_input.length; i++) {
-        if (all_input[i].querySelector('td:nth-child(3)').textContent.trim() != "") {
+        if (all_input[i].querySelector('td:nth-child(3)').textContent.trim() != ""
+            || all_input[i].querySelector('td:nth-child(2) input').value.trim() != "") {
             num++;
         }
     }

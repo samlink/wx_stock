@@ -114,15 +114,15 @@ show_names = [
         width: 80,
         class: "名称",
         type: "普通输入",
-        editable: false,
+        editable: true,
         is_save: true,
         default: ""
     },
-    { name: "规格型号", width: 120, class: "材质", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "数量", width: 50, class: "num", type: "普通输入", editable: false, is_save: true, default: "" },
-    { name: "单价", width: 50, class: "price", type: "普通输入", editable: false, is_save: true, default: "" },
+    { name: "规格型号", width: 120, class: "材质", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: "" },
+    { name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: "" },
     { name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: "" },
-    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: false, is_save: true, default: "13%" },
+    { name: "税率", width: 60, class: "税率", type: "普通输入", editable: true, is_save: true, default: "13%" },
     { name: "税额", width: 80, class: "税额", type: "普通输入", editable: false, is_save: false, default: "", },
 ]
 
@@ -168,6 +168,7 @@ if (dh_div.textContent == "新单据") {
     let edit_data = {
         show_names: show_names,
         lines: table_lines,
+        calc_func: calc,
         del_func: sum_money,
     }
 
@@ -191,6 +192,7 @@ if (dh_div.textContent == "新单据") {
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
+                calc_func: calc,
                 change_func: sum_money,         //新加载或删除变动时运行
             }
 
@@ -270,11 +272,38 @@ function fetch_fh_items(dh) {
                 lines: table_lines,
                 dh: dh_div.textContent,
                 document: document_name,
+                calc_func: calc,
                 change_func: sum_money,         //新加载或删除变动时运行
             }
 
             build_items_table(edit_data);
         });
+}
+
+function calc(row) {
+    row.querySelector('.num').addEventListener('blur', function () {
+        row_calc();
+        sum_money();
+    });
+    row.querySelector('.price').addEventListener('blur', function () {
+        row_calc();
+        sum_money();
+    });
+    row.querySelector('.税率').addEventListener('blur', function () {
+        row_calc();
+        sum_money();
+    });
+}
+
+function row_calc() {
+    let row = document.querySelector('.table-items .inputting');
+    let num = row.querySelector('.num').value;
+    let price = row.querySelector('.price').value;
+    let tax = row.querySelector('.税率').value.replace('%', '');
+
+    let money = num * price;
+    row.querySelector('.money').textContent = money.toFixed(2);
+    row.querySelector('.税额').textContent = (money * tax / 100).toFixed(2);
 }
 
 //计算合计金额
