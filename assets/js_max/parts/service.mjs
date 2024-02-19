@@ -746,11 +746,11 @@ export function handle_pic(dh_div, save_url) {
         let pic = document.querySelector('#upload-pic').src;
         let show = pic.split("?")[0].replace("min_", "pic_") + `?${Math.random()}`;
         let pic_html = `<div class = "form-input show-pic">
-                                <img width = "1190px" src = "${show}" alt = "出库签字图">
+                                <img width = "1190px" src = "${show}" alt = "签字图">
                             </div>`;
 
         document.querySelector('.modal-body').innerHTML = pic_html;
-        document.querySelector('.modal-title').textContent = "出库签字图";
+        document.querySelector('.modal-title').textContent = "签字图";
         document.querySelector('.modal-dialog').style.cssText = "max-width: 1230px;"
         document.querySelector('.modal').style.display = "block";
         document.querySelector('#modal-sumit-button').style.display = "none";
