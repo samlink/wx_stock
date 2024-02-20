@@ -459,7 +459,7 @@ function error_check() {
         return false;
     }
 
-    if (all_rows.length == 1 && all_rows[0].querySelector('td:nth-child(2)').textContent.trim() == "") {
+    if (all_rows.length == 0) {
         notifier.show('明细不能为空', 'danger');
         return false;
     }

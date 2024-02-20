@@ -1211,7 +1211,7 @@ pub async fn save_document_kp(
         let _result = transaction.commit().await;
 
         // 保存时修改销售单是否欠款，暂改为审核时修改
-        // let sql = format!(r#"update documents set 是否欠款 = (select 是否欠款 from documents where 单号='{}') 
+        // let sql = format!(r#"update documents set 是否欠款 = (select 是否欠款 from documents where 单号='{}')
         //                     where 单号 = (select 文本字段6 from documents where 单号='{}')"#, dh, dh);
 
         // let _= conn2.execute(sql.as_str(), &[]).await.unwrap();
@@ -1298,8 +1298,8 @@ pub async fn fetch_fh_items(
                 case when 商品id <> '4_111' then 重量 else 数量 end as 数量, 单价
                 FROM document_items
                 JOIN tree on document_items.商品id = tree.num
-                WHERE 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='运输发货') ORDER BY 顺序"#,
-            data
+                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}') and 类别='运输发货') ORDER BY 顺序"#,
+            data, data
         );
 
         // println!("{}", sql);
@@ -1316,7 +1316,19 @@ pub async fn fetch_fh_items(
             let tt = format!("{:.2}", price * num * 0.13);
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money, SPLITER, tax, SPLITER, tt
+                name,
+                SPLITER,
+                gg,
+                SPLITER,
+                num,
+                SPLITER,
+                price,
+                SPLITER,
+                money,
+                SPLITER,
+                tax,
+                SPLITER,
+                tt
             );
 
             document_items.push(item)
