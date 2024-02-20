@@ -124,7 +124,7 @@ function document_top_handle(html, has_date) {
         html = html.replace("入库完成</label>", "处理完成</label>");
     } else if (document_bz == "销售退货") {
         html = html.replace("交货", "收货");
-        html = html.replace("发货完成</label>", "收货完成</label>");
+        html = html.replace("出库完成</label>", "入库完成</label>");
     }
 
     if (document.querySelector('.has-auto')) {

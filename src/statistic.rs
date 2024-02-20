@@ -387,13 +387,25 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             f_map5["入库完成"]
         );
 
-        // println!("{}",sql);
-
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
         let num: i64 = row.get("数量");
 
         if num > 0 {
             others.push(format!("{}　{} 张", "采购退货未完成", num));
+        }
+
+        //销售退货未完成 ------------------------
+        let sql = format!(
+            r#"select count(单号) as 数量 from documents
+            where 类别='销售退货' and {} = false and 文本字段10 != '' and 已记账 = false"#,
+            f_map5["入库完成"]
+        );
+
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+        let num: i64 = row.get("数量");
+
+        if num > 0 {
+            others.push(format!("{}　{} 张", "销售退货待入库", num));
         }
 
         //反审单据 ------------------------
@@ -402,8 +414,6 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             where {} 文本字段10 = '' and 布尔字段3 = false and 已记账 = true"#,
             limits
         );
-
-        // println!("{}",sql);
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
         let num: i64 = row.get("数量");

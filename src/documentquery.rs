@@ -207,6 +207,8 @@ pub async fn fetch_a_documents(
             doc_sql = "documents.类别='采购退货' and documents.布尔字段2 = false and 已记账 = false";
         } else if post_data.cate == "反审单据" {
             doc_sql = "documents.文本字段10 = '' and documents.布尔字段3 = false and 已记账 = true";
+        } else if post_data.cate == "销售退货待入库" {
+            doc_sql = "documents.类别='销售退货' and documents.文本字段10 != '' and documents.布尔字段2 = false and 已记账 = false";
         }
 
         let conn = db.get().await.unwrap();
