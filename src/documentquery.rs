@@ -99,6 +99,10 @@ pub async fn fetch_all_documents(
             };
         }
 
+        if user.duty == "库管" && cate[1] == "wait_out" {
+            limits = format!("documents.文本字段7 = '{}' AND", user.area);
+        }
+
         // println!("{},{}",cate[1], query_limit);
 
         let conn = db.get().await.unwrap();
@@ -188,7 +192,7 @@ pub async fn fetch_all_documents(
 }
 
 ///获取其他单据
-/// 
+///
 #[post("/fetch_a_documents")]
 pub async fn fetch_a_documents(
     db: web::Data<Pool>,
@@ -198,17 +202,23 @@ pub async fn fetch_a_documents(
     let user = get_user(db.clone(), id, "".to_owned()).await;
 
     if user.name != "" {
-        let limits = get_limits(&user).await;
+        let mut limits = get_limits(&user).await;
         let mut doc_sql = "";
 
         if post_data.cate == "未提交审核单据" {
-            doc_sql = "documents.布尔字段3 = false and 已记账 = false and documents.类别 != '采购退货'";
+            doc_sql =
+                "documents.布尔字段3 = false and 已记账 = false and documents.类别 != '采购退货'";
         } else if post_data.cate == "采购退货未完成" {
-            doc_sql = "documents.类别='采购退货' and documents.布尔字段2 = false and 已记账 = false";
+            doc_sql =
+                "documents.类别='采购退货' and documents.布尔字段2 = false and 已记账 = false";
         } else if post_data.cate == "反审单据" {
             doc_sql = "documents.文本字段10 = '' and documents.布尔字段3 = false and 已记账 = true";
         } else if post_data.cate == "销售退货待入库" {
             doc_sql = "documents.类别='销售退货' and documents.文本字段10 != '' and documents.布尔字段2 = false and 已记账 = false";
+
+            if user.duty == "库管" {
+                limits = format!("documents.文本字段7 = '{}' AND", user.area,); // 文本字段7 为 区域
+            }
         }
 
         let conn = db.get().await.unwrap();

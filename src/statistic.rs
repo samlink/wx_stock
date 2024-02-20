@@ -133,7 +133,7 @@ pub async fn fetch_cost(
         let mut limit1 = "".to_owned();
         let mut limit2 = "".to_owned();
         if user.duty != "总经理" && user.duty != "销售" {
-            limit1 = format!("documents.文本字段6 = '{}' and", user.area);
+            limit1 = format!("documents.文本字段7 = '{}' and", user.area);
             limit2 = format!("products.文本字段6 = '{}' and", user.area);
         }
 
@@ -253,9 +253,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let sql = format!(
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
-            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
+            WHERE {} documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
             名称 != '天津彩虹石油机械有限公司' order by 单号 desc"#,
-            f_map2["简称"], f_map["是否欠款"], f_map["发货完成"]
+            f_map2["简称"], limits, f_map["是否欠款"], f_map["发货完成"]
         );
 
         // println!("{}", sql);
