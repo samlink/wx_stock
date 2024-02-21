@@ -99,7 +99,7 @@ function set_readonly() {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
             input.disabled = true;
         });
-    }, 100); 
+    }, 100);
 
     service.edit_button_disabled();
 }
@@ -523,6 +523,8 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     let sum_money = 0;
     let sum_weight = 0;
+    let sum_li_weight = 0;
+    let sum_zhi = 0;
 
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let trs = '';
@@ -538,14 +540,17 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
         sum_weight += Number(row.querySelector(`td:nth-child(10) input`).value);
         sum_money += Number(row.querySelector(`td:nth-child(12)`).textContent);
+        sum_li_weight += Number(row.querySelector(`td:nth-child(9)`).textContent);
+        let name = row.querySelector('td:nth-child(2)').textContent.trim();
+        sum_zhi += name != "锯口费" ? Number(row.querySelector(`td:nth-child(8) input`).value) : 0;
     }
 
     // 补空行
     let len = 6 - all_rows.length;
     trs += append_blanks(len, 13);
 
-    trs += `<tr><td colspan="2">合计</td>${append_cells(7)}
-                              <td>${sum_weight.toFixed(1)}</td><td></td><td>${sum_money.toFixed(2)}</td><td></td>`;
+    trs += `<tr><td colspan="2">合计</td>${append_cells(5)}<td>${sum_zhi}</td><td>${sum_li_weight.toFixed(1)}</td>
+             <td>${sum_weight.toFixed(1)}</td><td></td><td>${sum_money.toFixed(2)}</td><td></td>`;
 
     trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money.toFixed(2))}</td>`;
     trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
