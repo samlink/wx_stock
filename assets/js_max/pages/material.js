@@ -252,7 +252,7 @@ function build_items(dh) {
                     }
                     document.querySelector('#m_id').value = l.querySelector('td:nth-child(1)').textContent;
                     document.querySelector('#d_id').value = l.querySelector('td:nth-child(3)').textContent;
-                    
+
                     let na = l.querySelector('td:nth-child(2)').textContent.split('　');
                     document.querySelector('#名称').value = na[0];
                     document.querySelector('#材质').value = na[1];
@@ -572,8 +572,9 @@ document.querySelector('#print-button').addEventListener('click', function () {
         for (let i = 3; i < 13; i++) {
             if (i == 7) {
                 let v = row.querySelector(`td:nth-child(${i})`).textContent;
-                trs += `<td>${row.querySelector('td:nth-child(11) input').value}</td>
-                        <td>1</td><td>${v}</td>`;
+                let l = row.querySelector('td:nth-child(11) input').value;
+                l = l == "0" ? "" : l;
+                trs += `<td>${l}</td><td>1</td><td>${v}</td>`;
                 continue;
             }
 
@@ -583,6 +584,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
             let t = row.querySelector(`td:nth-child(${i}) input`);
             let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            td = Number(td) == 0 ? "" : td;
             trs += `<td>${td}</td>`;
         }
 
