@@ -502,6 +502,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     document.querySelector('.print-table thead').innerHTML = th;
 
     let sum = 0;
+    let weight = 0;
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let trs = '';
     for (let row of all_rows) {
@@ -526,6 +527,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         }
         trs += '</tr>';
         sum += Number(row.querySelector(`td:nth-child(8) input`).value);
+        weight += Number(row.querySelector('td:nth-child(12)').textContent.trim())
     }
 
     // 补空行
@@ -533,7 +535,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     trs += append_blanks(len, 13);
 
     trs += `<tr class="sum-cell"><td class="center" colspan="2">合计</td>${append_cells(4)}
-            <td>${sum}</td>${append_cells(5)}</tr>`;
+            <td>${sum}</td>${append_cells(2)}<td>${weight.toFixed(1)}</td>${append_cells(2)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
     document.querySelector('#p-block5').innerHTML = `<p>制单（仓库）：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
