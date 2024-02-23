@@ -581,7 +581,7 @@ function fill_gg() {
 //保存、打印和审核 -------------------------------------------------------------------
 
 document.querySelector('#choose-button').addEventListener('click', function () {
-    service.sales_products(choose_it);
+    service.sales_products("点选商品", choose_it);
 });
 
 let has_chose = new Map();
@@ -619,12 +619,31 @@ function choose_it() {
                 else {
                     has_chose.delete(wu_num);
                 }
-                console.log(has_chose);
+                // console.log(has_chose);
             });
-
         }
     });
 }
+
+// modal 提交按钮
+document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
+    if (document.querySelector('.modal-title').textContent == "点选商品") {
+        e.stopImmediatePropagation();
+        let trs = "";
+        console.log(has_chose);
+        let n = 1;
+        for (let [key, value] of has_chose) {
+            let v = value.split(SPLITER);
+            let na = v[6].split(' ');
+            trs += `<tr><td>${n++}</td><td>${na[1]}</td><td>${na[0]}</td><td>${v[0]}</td><td>${v[1]}</td>
+                    <td>${v[2]}</td><td><input class="form-control input-sm has-value price" type="text" value="${v[3]}">
+                    </td><td>${v[4]}<td>1</td><td>${v[5]}</td><td></td>td>${v[3] * v[5]}</td><td>${key}</td><td>${v[7]}</td></tr>`;
+        }
+        console.log(trs);
+        document.querySelector('.table-items tbody').innerHTML = trs;
+
+    }
+}, false);
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {
@@ -751,6 +770,7 @@ function save() {
             }
         });
 }
+
 
 // 只读设置
 function set_readonly() {

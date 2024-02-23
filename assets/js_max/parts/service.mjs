@@ -527,7 +527,8 @@ export function build_inout_form(table_fields, data) {
 }
 
 // 销售用商品规格表
-export function sales_products(init_func) {
+export function sales_products(modal_title, init_func) {
+    document.querySelector('.modal-title').textContent = modal_title;
     if (!document.querySelector('.product-content')) {
         let width = document.querySelector('body').clientWidth * 0.8;
         let height = document.querySelector('body').clientHeight * 0.8;
@@ -641,7 +642,6 @@ export function sales_products(init_func) {
         let row_num = Math.floor(tbody_height / 30);
         build_product_table(row_num, init_func);
 
-        document.querySelector('.modal-title').textContent = "选择商品";
         document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
         document.querySelector('.modal-content').style.cssText = `height: 100%;`;
     }
