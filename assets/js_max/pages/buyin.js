@@ -24,6 +24,13 @@ if (document_bz.indexOf("销售") != -1) {
     document_name = "采购单据";
 }
 
+if (document_bz == "商品销售") {
+    let buttons = document.querySelectorAll('.buy-buttons .buttons button');
+    buttons.forEach((button) => {
+        button.classList.add('ch-width');
+    });
+}
+
 //获取单据表头部分的字段（字段设置中的右表内容）
 fetch(`/fetch_inout_fields`, {
     method: 'post',
@@ -572,6 +579,52 @@ function fill_gg() {
 }
 
 //保存、打印和审核 -------------------------------------------------------------------
+
+document.querySelector('#choose-button').addEventListener('click', function () {
+    service.sales_products(choose_it);
+});
+
+let has_chose = new Map();
+
+function choose_it() {
+    let p_id = document.querySelector('#product-id').textContent.trim();
+    if (!p_id) {
+        return;
+    }
+
+    let rows = document.querySelectorAll('.table-product tbody tr');
+    rows.forEach(row => {
+        let wu_num = row.querySelector('td:nth-child(2)').textContent.trim();
+        if (wu_num != "") {
+            let check = has_chose.has(wu_num) ? "checked" : "";
+            row.querySelector('td:nth-child(1)').innerHTML = `<label class="check-radio fields-set">
+            <input type="checkbox" class="has-choosed" ${check}><span class="checkmark"></span></label>`;
+
+            row.querySelector('.has-choosed').addEventListener('click', function () {
+                let wu_num = row.querySelector('td:nth-child(2)').textContent.trim();
+                if (this.checked) {
+                    let cols = row.querySelectorAll('td');
+
+                    let 规格 = cols[3].textContent;
+                    let 状态 = cols[4].textContent;
+                    let 标准 = cols[5].textContent;
+                    let 单价 = cols[8].textContent;
+                    let 长度 = cols[11].textContent;
+                    let 理重 = cols[12].textContent;
+                    let 名称 = cols[17].textContent;
+                    let p_id = cols[18].textContent;
+
+                    has_chose.set(wu_num, `${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}${理重}${SPLITER}${名称}${SPLITER}${p_id}`);
+                }
+                else {
+                    has_chose.delete(wu_num);
+                }
+                console.log(has_chose);
+            });
+
+        }
+    });
+}
 
 //保存
 document.querySelector('#save-button').addEventListener('click', function () {

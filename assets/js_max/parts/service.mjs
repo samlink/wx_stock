@@ -1,8 +1,9 @@
-import { regDate, regInt, regReal, SPLITER } from '../parts/tools.mjs';
-import { AutoInput } from '../parts/autocomplete.mjs';
+import { regDate, regInt, regReal, SPLITER, open_node } from '../parts/tools.mjs';
+import { fetch_tree, tree_init, tree_search } from './tree.mjs';
 import { table_data, table_init, fetch_table } from '../parts/table.mjs';
 import { notifier } from "./notifier.mjs";
 import { alert_confirm } from "./alert.mjs";
+import { close_modal, modal_init } from './modal.mjs';
 
 export var table_fields;
 
@@ -523,6 +524,165 @@ export function build_inout_form(table_fields, data) {
     }
 
     return form;
+}
+
+// 销售用商品规格表
+export function sales_products(init_func) {
+    if (!document.querySelector('.product-content')) {
+        let width = document.querySelector('body').clientWidth * 0.8;
+        let height = document.querySelector('body').clientHeight * 0.8;
+        let tbody_height = height - 270;
+
+        let html = `
+            <div class="product-content">
+                <div class="tree-show">
+                    <div class="autocomplete table-top">
+                        <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
+                        <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
+                                width="20px"></button>
+                    </div>
+                    <div class="tree-title">商品分类</div>
+                    <div class="tree-container">
+                        <ul id="tree">
+                        </ul>
+                    </div>
+                </div>
+                <div id="product-show">
+                    <div class="table-top">
+                        <div class="autocomplete product-search">
+                            <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
+                            <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                            <span id="product-name"></span><span id="product-id"></span>
+                        </div>
+                        <div class="table-tools">
+                        </div>
+                    </div>
+        
+                    <div class="table-container table-product">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="table-ctrl">
+                            <div class="tools-button"></div>
+                            <div class="table-button">
+                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                        width="12px"></button>
+                                <p class="seperator"></p>
+                                <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                                <span>页，共</span><span id="pages"></span><span>页</span>
+                                <p class="seperator"></p>
+                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                        width="12px"></button>
+                            </div>
+        
+                            <div class="table-info">
+                                共 <span id="total-records"></span> 条记录
+                            </div>
+        
+                        </div>
+                    </div>
+                </div>
+                <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
+                    <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
+                </div>
+            </div>`;
+
+        document.querySelector('.modal-body').innerHTML = html;
+        document.querySelector('.tree-container').style.height = (height - 240) + "px";
+
+        let tree_data = {
+            node_num: "",
+            leaf_click: (id, name) => {
+
+                document.querySelector('#product-name').textContent = name;
+                document.querySelector('#product-id').textContent = id;
+
+                let post_data = {
+                    cate: "现有库存",
+                    id: id,
+                    name: '',
+                    page: 1,
+                    done: '否',
+                };
+
+                Object.assign(table_data.post_data, post_data);
+
+                // let table = document.querySelector('.table-product');
+
+                fetch_table(init_func);
+            }
+        }
+
+        tree_init(tree_data);
+        fetch_tree(open_node);
+
+        let input = document.querySelector('#auto_input');
+
+        // let auto_com = new AutoInput(input, "", `/tree_auto`, () => {
+        //     tree_search(input.value);
+        // });
+
+        // auto_com.init();
+
+        document.querySelector("#auto_search").addEventListener('click', () => {
+            tree_search(input.value);
+        });
+
+        let row_num = Math.floor(tbody_height / 30);
+        build_product_table(row_num, init_func);
+
+        document.querySelector('.modal-title').textContent = "选择商品";
+        document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
+        document.querySelector('.modal-content').style.cssText = `height: 100%;`;
+    }
+
+    document.querySelector('.modal').style.display = "block";
+}
+
+// // 给行加上双击事件
+// function row_dbclick(table, cb) {
+//     let rows = table.querySelectorAll('body tr');
+//     for (let row of rows) {
+//         row.addEventListener('dblclick', (cb) => {
+//             chose_exit(row, cb);
+//         });
+//     }
+// }
+
+//选择行数据并退出
+export function chose_exit(selected_row, cb) {
+    let id = selected_row.children[1].textContent;
+    if (id) {
+        fetch(`/fetch_one_product`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(id),
+        })
+            .then(response => response.json())
+            .then(content => {
+                let input = document.querySelector('.inputting .auto-input');
+                input.value = content.split(SPLITER)[1];
+                input.setAttribute("data", content);
+                if (typeof cb == "function") {
+                    cb();
+                }
+                close_modal();
+            });
+    } else {
+        notifier.show('请先选择记录', 'danger');
+    }
 }
 
 //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
