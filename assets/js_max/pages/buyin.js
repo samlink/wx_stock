@@ -10,8 +10,9 @@ import { customer_init } from '/assets/js/parts/customer.mjs';
 import {
     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
 } from '/assets/js/parts/edit_table.mjs';
+import { close_modal, modal_init } from '/assets/js/parts/modal.mjs';
 
-let document_table_fields, table_lines, show_names, edited;
+let document_table_fields, table_lines, show_names, edited, auto_data;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
 let dh_div = document.querySelector('#dh');
 
@@ -324,7 +325,7 @@ fetch(`/fetch_inout_fields`, {
             { name: "库存重量", width: 80 },
         ];
 
-        let auto_data = document_name == "销售单据" ? [{
+        auto_data = document_name == "销售单据" ? [{
             n: 2,                       //第2个单元格是自动输入
             cate: document_name,
             auto_url: `/buyin_auto`,
@@ -613,13 +614,13 @@ function choose_it() {
                     let 理重 = cols[12].textContent;
                     let 名称 = cols[17].textContent;
                     let p_id = cols[18].textContent;
+                    let na = 名称.split(' ');
 
-                    has_chose.set(wu_num, `${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}${理重}${SPLITER}${名称}${SPLITER}${p_id}`);
+                    has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${p_id}`);
                 }
                 else {
                     has_chose.delete(wu_num);
                 }
-                // console.log(has_chose);
             });
         }
     });
@@ -629,18 +630,34 @@ function choose_it() {
 document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
     if (document.querySelector('.modal-title').textContent == "点选商品") {
         e.stopImmediatePropagation();
-        let trs = "";
-        console.log(has_chose);
-        let n = 1;
+        let content = [];
         for (let [key, value] of has_chose) {
-            let v = value.split(SPLITER);
-            let na = v[6].split(' ');
-            trs += `<tr><td>${n++}</td><td>${na[1]}</td><td>${na[0]}</td><td>${v[0]}</td><td>${v[1]}</td>
-                    <td>${v[2]}</td><td><input class="form-control input-sm has-value price" type="text" value="${v[3]}">
-                    </td><td>${v[4]}<td>1</td><td>${v[5]}</td><td></td>td>${v[3] * v[5]}</td><td>${key}</td><td>${v[7]}</td></tr>`;
+            content.push(value);
         }
-        console.log(trs);
-        document.querySelector('.table-items tbody').innerHTML = trs;
+        
+        console.log(content);
+
+        let edit_data = {
+            show_names: show_names,
+            rows: content,
+            auto_data: auto_data,
+            lines: table_lines,
+            document: document_name,
+            calc_func: calculate,
+            change_func: sum_money,         //新加载或删除变动时运行
+        }
+
+        document.querySelector('.table-items tbody').innerHTML = '';
+
+        build_items_table(edit_data);
+
+        setTimeout(() => {
+            if (document.querySelector('#remember-button').textContent.trim() == "审核") {
+                appand_edit_row();
+            }
+        }, 200);
+
+        close_modal();
 
     }
 }, false);
@@ -795,6 +812,7 @@ function set_readonly() {
     }, 100);
 
     service.edit_button_disabled();
+    document.querySelector('#choose-button').disabled = true;
 }
 
 //审核单据
