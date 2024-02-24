@@ -801,7 +801,6 @@ function save() {
         });
 }
 
-
 // 只读设置
 function set_readonly() {
     let all_edit = document.querySelectorAll('.fields-show input');
