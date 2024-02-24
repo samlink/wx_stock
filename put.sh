@@ -3,11 +3,11 @@
 ftp_site=39.106.229.26
 username=sam
 passwd=7298
-filename="sales"
+filename=sales
 PS3='Select a destination directory: '
 
-# bash select
-select path in "." "/test" "public_html/myblog/" "backup/images/"
+cd ./target/release
+
 do
 ftp -n $ftp_site<<EOF
 quote USER $username
