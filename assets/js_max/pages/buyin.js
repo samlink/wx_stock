@@ -582,11 +582,13 @@ function fill_gg() {
 //点选、保存、打印和审核 -------------------------------------------------------------------
 
 let has_chose = new Map();
-
-//点选
-document.querySelector('#choose-button').addEventListener('click', function () {
-    service.sales_products("点选商品", choose_it);
-});
+let choose_button = document.querySelector('#choose-button');
+// 点选
+if (choose_button) {
+    choose_button.addEventListener('click', function () {
+        service.sales_products("点选商品", choose_it);
+    });
+}
 
 function choose_it() {
     let p_id = document.querySelector('#product-id').textContent.trim();
@@ -646,7 +648,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             value = values.join(SPLITER);
             content.push(value);
         }
-        
+
         let edit_data = {
             show_names: show_names,
             rows: content,
