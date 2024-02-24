@@ -4,23 +4,27 @@
    如果修改了 part 文件，则运行 part.sh 将最小化文件生成到 /assets/js/part/ 中，并记得将此文件夹上传到服务器相应目录。
    输送到 static 的 js 文件会随系统一起编译，无需单独发布
 
+   修改完成后，提交到 git
+
 2. 重新编译
     则登录到本地 FreeBSD 的虚拟机, 进入 sales 目录, pull 五星石油分支：
     git pull origin 五星石油 
     然后编译: cargo build --release
     编译完成后，进入 target/release 目录，
-    sftp sam@8.142.73.42
+    sftp sam@39.106.229.26	
     put sales
 
 3. 服务器端设置
     cd wxsales
     rm sales
-    cp ../sales sales
+    mv ../sales sales
     let a = `pgrep sales`
     kill -9 $a
     ./sales &
 
+    以上命令写在 wx.sh 中, 直接运行 ./wx.sh 即可
+
     需保证 home 目录中有最新编译的 sales 文件。
     至此, 程序发布完成。
 
-    软件试用期暂时这样, 正式使用后, 建立自动启动服务 (配置 /etc/rc.conf)
+    /etc/rc.conf 已添加自动随系统启动语句
