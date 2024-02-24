@@ -514,6 +514,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
             let td = t != undefined ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            td = td.trim() == "0" ? "" : td;
             printable.push(td);
         }
 
