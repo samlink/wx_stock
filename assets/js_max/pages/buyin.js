@@ -825,7 +825,10 @@ function set_readonly() {
     }, 100);
 
     service.edit_button_disabled();
-    document.querySelector('#choose-button').disabled = true;
+    let choose_button = document.querySelector('#choose-button');
+    if (choose_button) {
+        choose_button.disabled = true;
+    }
 }
 
 //审核单据
