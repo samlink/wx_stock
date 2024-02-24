@@ -528,8 +528,8 @@ export function build_inout_form(table_fields, data) {
 
 // 销售用商品规格表
 export function sales_products(modal_title, init_func) {
-    document.querySelector('.modal-title').textContent = modal_title;
-    if (!document.querySelector('.product-content')) {
+    if (!document.querySelector('.product-content') || modal_title != document.querySelector('.modal-title').textContent.trim()) {
+        document.querySelector('.modal-title').textContent = modal_title;
         let width = document.querySelector('body').clientWidth * 0.8;
         let height = document.querySelector('body').clientHeight * 0.8;
         let tbody_height = height - 270;

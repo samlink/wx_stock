@@ -503,22 +503,23 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     let sum = 0;
     let weight = 0;
+    let weight_s = 0;
     let all_rows = document.querySelectorAll('.table-items .has-input');
     let trs = '';
     for (let row of all_rows) {
         let printable = [];
         for (let i = 1; i < 14; i++) {
-            if (i == 6 || i == 9 || i == 11) {
+            if (i == 6 || i == 9) {
                 continue;
             }
             let t = row.querySelector(`td:nth-child(${i}) input`);
-            let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+            let td = t != undefined ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
             printable.push(td);
         }
 
         trs += '<tr>';
-        for (let i = 1; i < 14; i++) {
-            if (i == 9 || i == 11) {
+        for (let i = 0; i < 13; i++) {
+            if (i == 10) {              // 剩余长度
                 trs += `<td></td>`;
                 continue;
             }
@@ -527,7 +528,8 @@ document.querySelector('#print-button').addEventListener('click', function () {
         }
         trs += '</tr>';
         sum += Number(row.querySelector(`td:nth-child(8) input`).value);
-        weight += Number(row.querySelector('td:nth-child(12)').textContent.trim())
+        weight += Number(row.querySelector('td:nth-child(12)').textContent.trim());
+        weight_s += Number(row.querySelector('.重量').value);
     }
 
     // 补空行
@@ -535,7 +537,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     trs += append_blanks(len, 13);
 
     trs += `<tr class="sum-cell"><td class="center" colspan="2">合计</td>${append_cells(4)}
-            <td>${sum}</td>${append_cells(2)}<td>${weight.toFixed(1)}</td>${append_cells(2)}</tr>`;
+            <td>${sum}</td>${append_cells(1)}<td>${weight_s != 0 ? weight_s.toFixed(1) : ''}</td><td>${weight.toFixed(1)}</td>${append_cells(2)}</tr>`;
 
     document.querySelector('.print-table tbody').innerHTML = trs;
     document.querySelector('#p-block5').innerHTML = `<p>制单（仓库）：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;

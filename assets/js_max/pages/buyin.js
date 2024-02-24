@@ -579,13 +579,14 @@ function fill_gg() {
     edited = true;
 }
 
-//保存、打印和审核 -------------------------------------------------------------------
+//点选、保存、打印和审核 -------------------------------------------------------------------
 
+let has_chose = new Map();
+
+//点选
 document.querySelector('#choose-button').addEventListener('click', function () {
     service.sales_products("点选商品", choose_it);
 });
-
-let has_chose = new Map();
 
 function choose_it() {
     let p_id = document.querySelector('#product-id').textContent.trim();
@@ -631,12 +632,21 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
     if (document.querySelector('.modal-title').textContent == "点选商品") {
         e.stopImmediatePropagation();
         let content = [];
+        let rows = document.querySelectorAll('.table-items tbody tr');
+
         for (let [key, value] of has_chose) {
+            let values = value.split(SPLITER);
+            for (let row of rows) {
+                if (row.querySelector('td:nth-child(3)').textContent.trim() != "" && row.querySelector('.note').value.trim().split(' ')[0] == values[11]) {
+                    values[5] = row.querySelector('.price').value;
+                    values[9] = row.querySelector('.weight').value;
+                    values[10] = row.querySelector('.money').textContent;
+                }
+            }
+            value = values.join(SPLITER);
             content.push(value);
         }
         
-        console.log(content);
-
         let edit_data = {
             show_names: show_names,
             rows: content,
@@ -659,6 +669,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
 
         close_modal();
 
+        document.querySelector('.table-items tbody .price').focus();
     }
 }, false);
 
