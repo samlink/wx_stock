@@ -50,7 +50,7 @@ fetch(`/fetch_inout_fields`, {
                     .then(response => response.json())
                     .then(data => {
                         let html = service.build_inout_form(document_table_fields, data);
-                        document_top_handle(html, true);
+                        document_top_handle(html);
 
                         let dh = document.querySelector("#文本字段6").value;
                         build_items(dh);
@@ -74,7 +74,7 @@ fetch(`/fetch_inout_fields`, {
                     });
             } else {
                 let html = service.build_inout_form(content);
-                document_top_handle(html, false);
+                document_top_handle(html);
                 document.querySelector('#remember-button').textContent = '审核';
                 setTimeout(() => {
                     document.querySelector('#文本字段6').focus();
@@ -93,7 +93,6 @@ function set_readonly() {
     }
 
     document.querySelector('#save-button').disabled = true;
-    document.querySelector('#pic-button').disabled = true;
 
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
@@ -104,7 +103,7 @@ function set_readonly() {
     service.edit_button_disabled();
 }
 
-function document_top_handle(html, has_date) {
+function document_top_handle(html) {
     let fields_show = document.querySelector('.fields-show');
     fields_show.innerHTML = html;
 
@@ -126,9 +125,9 @@ function document_top_handle(html, has_date) {
     auto_comp2.init();
 
     let date = document.querySelector('#日期');
-    if (!has_date) {
-        date.value = new Date().Format("yyyy-MM-dd");
-    }
+    // if (!has_date) {
+    //     date.value = new Date().Format("yyyy-MM-dd");
+    // }
 
     //执行一个laydate实例
     laydate.render({
@@ -144,6 +143,19 @@ function document_top_handle(html, has_date) {
     service.set_sumit_shen();
     //提交审核
     document.querySelector('#sumit-shen').addEventListener('click', function () {
+        let da = document.querySelector('#日期');
+        if (da.value.trim() == "" || !regDate.test(document.querySelector('#日期').value)) {
+            notifier.show('日期输入错误', 'danger');
+            return false;
+        }
+        if (document.querySelector('#文本字段11').value.trim() == "") {
+            notifier.show('请填写提货车牌', 'danger');
+            return false;
+        }
+        if (document.querySelector('#文本字段12').value.trim() == "") {
+            notifier.show('请填写提货车牌', 'danger');
+            return false;
+        }
         let shen_data = {
             button: this,
             dh: dh_div.textContent,
@@ -496,7 +508,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
     p = `<p>发货日期：${document.querySelector('#日期').value}</p><p>${contact}</p>`;
     document.querySelector('#p-block2').innerHTML = p;
 
-    p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value}</p>`;
+    p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
     document.querySelector('#p-block3').innerHTML = p;
 
     p = `<p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>

@@ -234,6 +234,8 @@ export function sumit_shen(data) {
         return false;
     }
 
+    document.querySelector('#save-button').click();
+
     alert_confirm("确认提交审核吗？", {
         confirmText: "确认",
         cancelText: "取消",
@@ -317,7 +319,8 @@ export function only_worker(worker, set_readonly) {
 
 //保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
 export function header_error_check(document_table_fields, all_rows) {
-    if (!regDate.test(document.querySelector('#日期').value)) {
+    let da = document.querySelector('#日期');    
+    if (da && da.value.trim() !="" && !regDate.test(document.querySelector('#日期').value)) {
         notifier.show('日期输入错误', 'danger');
         return false;
     }

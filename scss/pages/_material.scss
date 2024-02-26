@@ -60,7 +60,8 @@
         }
     }
 
-    .table-history, .table-docs {
+    .table-history,
+    .table-docs {
         width: 320px;
 
         tbody {
@@ -105,5 +106,14 @@
         .has-bak {
             background-color: $table-hover-color;
         }
+    }
+
+    .show-pic2 {
+        border: 1px solid #b0b4b7;
+        height: 42px;
+        width: 60px;
+        margin-top: 40px;
+        margin-right: 20px;
+        cursor: pointer;
     }
 }
