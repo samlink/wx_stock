@@ -177,6 +177,7 @@ export function build_items_table(data) {
 
     let tbody = input_data.container.querySelector('tbody');
     let num = 1;
+
     for (let row of input_data.rows) {
         let row_data = row.split(SPLITER);
         for (let i = 1; i < input_data.show_names.length; i++) {
@@ -230,8 +231,9 @@ function build_edit_string(show_names, all_width) {
     for (let obj of show_names) {
         let hidden = obj.css ? obj.css : "";
         if (obj.type == "普通输入" && obj.editable) {
+            let va = obj.value ? obj.value : '';
             control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}>
-            <input class="form-control input-sm has-value ${obj.class}" type="text" idx="${idx++}" value=${obj.value ? obj.value : ''}></td>`;
+            <input class="form-control input-sm has-value ${obj.class}" type="text" idx="${idx++}" value="${va}"></td>`;
         } else if (obj.type == "普通输入" && !obj.editable) {
             control += `<td width=${obj.width * 100 / all_width} class='${obj.class}' ${hidden}>${obj.value ? obj.value : ''} </td>`;
         } else if (obj.type == "二值选一" && obj.editable) {
@@ -271,6 +273,7 @@ function build_edit_string(show_names, all_width) {
             </td>`;
         }
     }
+
     return control;
 }
 

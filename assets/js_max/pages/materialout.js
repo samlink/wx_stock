@@ -519,7 +519,7 @@ document.querySelector('#print-button').addEventListener('click', function () {
         }
 
         trs += '<tr>';
-        for (let i = 0; i < 13; i++) {
+        for (let i = 0; i < 12; i++) {
             if (i == 10) {              // 剩余长度
                 trs += `<td></td>`;
                 continue;

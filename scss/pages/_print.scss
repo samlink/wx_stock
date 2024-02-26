@@ -34,19 +34,24 @@
     }
 
     .print-table {
+        table-layout: fixed;
+        text-overflow: unset;
+
         border: 1.5px solid black;
         border-radius: 0;
 
         th,
         td {
             border: 1px solid black;
+            word-wrap: break-word;
+            white-space: unset !important;
         }
 
         .sum-cell {
             td {
                 border-bottom: none;
             }
-        }        
+        }
     }
     .no-bottom {
         td {

@@ -132,6 +132,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::make_ck_complete)
             .service(material::make_fh_complete)
             .service(material::make_xs_wight)
+            .service(material::fetch_document_rkd)
             .service(material::fetch_document_items_rk)
             .service(material::fetch_document_items_tr)
             .service(material::fetch_document_items_ck)

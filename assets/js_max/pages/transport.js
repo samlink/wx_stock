@@ -3,6 +3,7 @@ import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
 import * as service from '/assets/js/parts/service.mjs';
 import {
     SPLITER,
+    regDate,
     regInt,
     regReal,
     moneyUppercase,
@@ -563,7 +564,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     trs += `<tr><td colspan="2">合计</td>${append_cells(5)}<td>${sum_zhi}</td><td>${sum_li_weight.toFixed(1)}</td>
              <td>${sum_weight.toFixed(1)}</td><td></td><td>${sum_money.toFixed(2)}</td><td></td>`;
-
     trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money.toFixed(2))}</td>`;
     trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
 

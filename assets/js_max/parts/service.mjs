@@ -170,7 +170,7 @@ export function set_sumit_shen() {
 export function make_formal(data) {
     if (data.button.textContent.trim() == "已审核") {
         return false;
-    }
+    } 
 
     if (data.dh == "新单据" || data.edited) {
         notifier.show('请先保存单据', 'danger');

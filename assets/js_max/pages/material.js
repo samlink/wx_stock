@@ -12,6 +12,7 @@ import {
 import {
     build_blank_table, build_items_table, build_out_table, input_table_outdata
 } from '/assets/js/parts/edit_table.mjs';
+import { modal_init } from "/assets/js/parts/modal.mjs";
 
 let document_table_fields, table_lines, show_names, edited;
 let document_bz = document.querySelector('#document-bz').textContent.trim();
@@ -39,7 +40,7 @@ fetch(`/fetch_inout_fields`, {
         if (content != -1) {
             document_table_fields = content;
             if (dh_div.textContent != "新单据") {
-                fetch(`/fetch_document`, {
+                fetch(`/fetch_document_rkd`, {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -54,7 +55,13 @@ fetch(`/fetch_inout_fields`, {
                         let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
                         let dh = document.querySelector("#文本字段6").value;
-                        build_items(dh);
+                        build_items(dh); 
+
+                        let da = data.split(SPLITER);
+                        let pic = da[da.length - 6].replace("pic_", "min_");
+                        if (pic.startsWith("/upload")) {
+                            document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
+                        }
 
                         let set_data = {
                             content: data,
@@ -95,6 +102,7 @@ function set_readonly() {
         edit.disabled = true;
     }
     document.querySelector('#material-add').setAttribute("disabled", true);
+    document.querySelector('#pic-button').setAttribute("disabled", true);
 
     setTimeout(() => {
         document.querySelectorAll('.table-items tbody input').forEach((input) => {
@@ -463,7 +471,9 @@ document.querySelector("#material-add").addEventListener('click', function () {
             edited = 1;
         });
 });
-
+// 图片处理 -----------------------------------------------------------------
+service.handle_pic(dh_div, "/pic_in_save");
+modal_init();
 
 //保存、打印、质检、审核 -------------------------------------------------------------------
 

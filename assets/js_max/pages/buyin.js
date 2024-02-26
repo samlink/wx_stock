@@ -629,7 +629,7 @@ function choose_it() {
     });
 }
 
-// modal 提交按钮
+// modal 提交按钮 点选专用
 document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
     if (document.querySelector('.modal-title').textContent == "点选商品") {
         e.stopImmediatePropagation();
@@ -639,10 +639,12 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
         for (let [key, value] of has_chose) {
             let values = value.split(SPLITER);
             for (let row of rows) {
-                if (row.querySelector('td:nth-child(3)').textContent.trim() != "" && row.querySelector('.note').value.trim().split(' ')[0] == values[11]) {
+                if (row.querySelector('td:nth-child(3)').textContent.trim() != "" && row.querySelector('.note').value.startsWith(values[11])) {//.trim().split(' ')[0] == values[11]) {
                     values[5] = row.querySelector('.price').value;
                     values[9] = row.querySelector('.weight').value;
                     values[10] = row.querySelector('.money').textContent;
+                    values[11] = row.querySelector('.note').value;                    
+                    break;
                 }
             }
             value = values.join(SPLITER);
