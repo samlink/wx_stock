@@ -666,7 +666,8 @@ pub async fn fetch_document_items(
             let price: f32 = row.get("单价");
             let long: i32 = row.get("长度");
             let weight: f32 = row.get("重量");
-            let money: f32 = row.get("金额");
+            let m: f32 = row.get("金额");
+            let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -739,7 +740,8 @@ pub async fn fetch_trans_items(
             let price: f32 = row.get("单价");
             let weight: f32 = row.get("重量");
             let theory: f32 = row.get("理重");
-            let money: f32 = row.get("金额");
+            let m: f32 = row.get("金额");
+            let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
@@ -816,7 +818,8 @@ pub async fn fetch_document_items_sales(
             let num: i32 = row.get("数量");
             let theary: f32 = row.get("理重");
             let weight: f32 = row.get("重量");
-            let money: f32 = row.get("金额");
+            let m: f32 = row.get("金额");
+            let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let item = format!(
