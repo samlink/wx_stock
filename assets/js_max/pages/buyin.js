@@ -498,10 +498,14 @@ function calc_money(input_row) {
 //计算合计金额
 function sum_money() {
     let all_input = document.querySelectorAll('.has-input');
-    let sum = 0;
+    let sum = 0, sum_n = 0, sum_weight = 0, sum_weight_s = 0;
+
     for (let i = 0; i < all_input.length; i++) {
         let price = all_input[i].querySelector('.price').value;
         let mount = all_input[i].querySelector('.mount').value;
+        let n = document_name == "销售单据" ? Number(all_input[i].querySelector('.num').value) : 0;
+        let weight_s = document_name == "销售单据" ? Number(all_input[i].querySelector('.weight').value) : 0;
+
         if (!mount) {
             mount = all_input[i].querySelector('.mount').textContent;
         }
@@ -512,10 +516,16 @@ function sum_money() {
             } else {
                 sum += price * all_input[i].querySelector('.num').value;
             }
+
+            sum_n += n;
+            sum_weight += Number(mount);
+            sum_weight_s += weight_s;
         }
     }
 
-    document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元`;
+    document.querySelector('#sum-money').innerHTML = document_name == "销售单据" ? `数量：${sum_n}，  理论重量：${sum_weight.toFixed(1)} kg，  实际重量：${sum_weight_s.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元` :
+        `重量：${sum_weight.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
+
     if (document.querySelector('#应结金额')) {
         document.querySelector('#应结金额').value = sum.toFixed(2);
     }
@@ -643,7 +653,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                     values[5] = row.querySelector('.price').value;
                     values[9] = row.querySelector('.weight').value;
                     values[10] = row.querySelector('.money').textContent;
-                    values[11] = row.querySelector('.note').value;                    
+                    values[11] = row.querySelector('.note').value;
                     break;
                 }
             }

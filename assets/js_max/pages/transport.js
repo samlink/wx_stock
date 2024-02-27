@@ -258,10 +258,12 @@ function build_items(dh) {
                                     dh: dh_div.textContent,
                                     document: document_name,
                                     calc_func: calculate,
+                                    change_func: sum_money,         //新加载或删除变动时运行
                                 }
 
                                 build_out_table(data);
                             }
+                            sum_money();
                             edited = 1;
                             document.querySelector('#文本字段6').focus();
                         });
@@ -280,6 +282,7 @@ function calculate(input_row) {
         } else {
             input_row.querySelector('.理论重量').textContent = 0;
         }
+        sum_money();
     });
 
     input_row.querySelector('.实际重量').addEventListener('blur', function () {
@@ -290,7 +293,28 @@ function calculate(input_row) {
         } else {
             input_row.querySelector('.总价').textContent = 0;
         }
+        sum_money();
     });
+}
+
+//计算合计金额
+function sum_money() {
+    let all_input = document.querySelectorAll('.has-input');
+    let sum = 0, sum_n = 0, sum_weight = 0, sum_weight_s = 0;
+
+    for (let i = 0; i < all_input.length; i++) {
+        let mount = Number(all_input[i].querySelector('.理论重量').textContent);
+        let money = Number(all_input[i].querySelector('.总价').textContent);
+        let n = Number(all_input[i].querySelector('.数量').value);
+        let weight_s = Number(all_input[i].querySelector('.实际重量').value);
+
+        sum += money;
+        sum_n += n;
+        sum_weight += mount;
+        sum_weight_s += weight_s;
+    }
+
+    document.querySelector('#sum-money').innerHTML = `数量：${sum_n}，  理论重量：${sum_weight.toFixed(1)} kg，  实际重量：${sum_weight_s.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
 }
 
 // 出入库时使用的理论重量计算
@@ -361,7 +385,7 @@ if (dh_div.textContent == "新单据") {
         show_names: show_names,
         lines: table_lines,
         dh: dh_div.textContent,
-        document: document_name,
+        document: document_name,        
     }
 
     build_blank_table(data);
@@ -385,6 +409,7 @@ if (dh_div.textContent == "新单据") {
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: calculate,
+                change_func: sum_money,
             }
 
             build_items_table(data);

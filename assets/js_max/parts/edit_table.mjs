@@ -119,6 +119,7 @@ export function build_out_table(data) {
         tbody.appendChild(input_row);
         num += 1;
     }
+
     append_blanks(tbody, num);
 }
 
@@ -427,6 +428,10 @@ function sum_records() {
             || all_input[i].querySelector('td:nth-child(2) input').value.trim() != "") {
             num++;
         }
+    }
+
+    if (input_data.change_func) {
+        input_data.change_func();
     }
 
     document.querySelector('#total-records').innerHTML = num;
