@@ -57,12 +57,13 @@ pub async fn fetch_product(
                             0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
                             as 整数字段3,
                             case when 库存下限-COALESCE(理重合计,0)<0.1 then 0 else round((库存下限-COALESCE(理重合计,0))::numeric,2)::real end as 库存下限,
-                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,".to_owned();
+                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,COALESCE(质保书,'') as 质保书,".to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
+            LEFT JOIN lu on lu.炉号 = products.文本字段4
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} {} {} AND documents.文本字段10 <>''
@@ -89,6 +90,7 @@ pub async fn fetch_product(
             let mut product = "".to_owned();
             let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
             product += &format!("{}{}", num, SPLITER);
+
             let num: i64 = row.get("序号");
             product += &format!("{}{}", num, SPLITER);
 
@@ -99,6 +101,9 @@ pub async fn fetch_product(
 
             let p_id: &str = row.get("商品id");
             product += &format!("{}{}", p_id, SPLITER);
+
+            let zhi: &str = row.get("质保书");
+            product += &format!("{}{}", zhi, SPLITER);
 
             products.push(product);
         }

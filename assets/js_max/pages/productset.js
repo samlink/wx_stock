@@ -59,7 +59,7 @@ document.querySelector("#auto_search").addEventListener('click', () => {
 
 //商品规格表格数据 -------------------------------------------------------------------
 
-service.build_product_table(row_num, make_filter);
+service.build_product_table(row_num, make_filter, add_lu_link);
 
 // 建立过滤器, 作为创建表格后的回调函数
 function make_filter() {
@@ -157,6 +157,19 @@ function make_filter() {
         })
     })
 };
+
+// 给炉号加入连接
+function add_lu_link() {
+    let table = document.querySelector('.table-product');
+    let rows = table.querySelectorAll('tbody tr');
+    for (let row of rows) {
+        let lu = row.querySelector('.炉号');
+        let link = row.querySelector('.link').textContent.trim();
+        if (link != "") {
+            lu.innerHTML = `<a href="${link}">${lu.textContent.trim()}</a>`;
+        }
+    }
+}
 
 // 确定
 document.querySelector('#f-ok').addEventListener('click', () => {

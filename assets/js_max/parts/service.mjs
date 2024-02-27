@@ -351,12 +351,13 @@ export function header_error_check(document_table_fields, all_rows) {
 export function build_row_from_string(rec, row, table_fields, n) {
     if (!n) n = 2;
     for (let name of table_fields) {
+
         if (name.data_type == "文本") {
-            row += `<td title='${rec[n]}'>${rec[n]}</td>`;
+            row += `<td class="${name.show_name}" title='${rec[n]}'>${rec[n]}</td>`;
         } else if (name.data_type == "整数" || name.data_type == "实数") {
-            row += `<td>${rec[n]}</td>`;
+            row += `<td class="${name.show_name}">${rec[n]}</td>`;
         } else {
-            row += `<td>${rec[n]}</td>`;
+            row += `<td class="${name.show_name}">${rec[n]}</td>`;
         }
         n++;
     }
@@ -749,6 +750,9 @@ export function build_product_table(row_num, cb, more) {
                     if (cb) {
                         cb(table);
                     }
+                    if (more) {
+                        more();
+                    }
                 });
             }
         });
@@ -757,7 +761,9 @@ export function build_product_table(row_num, cb, more) {
         let rec = tr.split(SPLITER);
         let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td>`;
         let row_build = build_row_from_string(rec, row, table_fields);
-        let rows = row_build.replace("</tr>", `<td>${rec[rec.length - 3]}</td><td>${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
+        let rows = row_build.replace("</tr>", `<td class = "名称">${rec[rec.length - 4]}</td>
+                                    <td class = "商品id">${rec[rec.length - 3]}</td><td class = "link">${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
+
         return rows;
     }
 
