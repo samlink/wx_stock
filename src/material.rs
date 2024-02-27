@@ -1386,29 +1386,6 @@ pub async fn make_xs_wight(
     }
 }
 
-// // 确认采购单的入库完成
-// #[post("/make_rk_complete")]
-// pub async fn make_rk_complete(
-//     db: web::Data<Pool>,
-//     dh: web::Json<String>,
-//     id: Identity,
-// ) -> HttpResponse {
-//     let user = get_user(db.clone(), id, "".to_owned()).await;
-//     if user.name != "" {
-//         let conn = db.get().await.unwrap();
-//         let sql = format!(
-//             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
-//             (select 出库完成 from document_items where 单号id='{}');"#,
-//             dh, dh
-//         );
-
-//         let _ = conn.query(sql.as_str(), &[]).await;
-
-//         HttpResponse::Ok().json(1)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
 // 确认销售单的出库完成
 #[post("/make_ck_complete")]
 pub async fn make_ck_complete(
