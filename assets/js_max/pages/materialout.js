@@ -315,6 +315,7 @@ if (dh_div.textContent == "新单据") {
         dh: dh_div.textContent,
         document: document_name,
         calc_func: get_weight,
+        change_func: sum_money,         //新加载或删除变动时运行
     }
 
     build_blank_table(data);
@@ -340,10 +341,29 @@ if (dh_div.textContent == "新单据") {
                 dh: dh_div.textContent,
                 document: document_name,
                 calc_func: get_weight,      // 自动计算的函数, 可带参数
+                change_func: sum_money,         //新加载或删除变动时运行
             }
 
             build_items_table(data);
         });
+}
+
+//计算合计
+function sum_money() {
+    let all_input = document.querySelectorAll('.has-input');
+    let sum_n = 0, sum_weight = 0, sum_weight_s = 0;
+
+    for (let i = 0; i < all_input.length; i++) {
+        let mount = Number(all_input[i].querySelector('.理论重量').textContent);
+        let n = Number(all_input[i].querySelector('.数量').value);
+        let weight_s = Number(all_input[i].querySelector('.重量').value);
+
+        sum_n += n;
+        sum_weight += mount;
+        sum_weight_s += weight_s;
+    }
+
+    document.querySelector('#sum-money').innerHTML = `数量：${sum_n}，  实际重量：${sum_weight_s.toFixed(1)} kg， 理论重量：${sum_weight.toFixed(1)} kg `;
 }
 
 function get_weight(input_row) {
@@ -353,6 +373,7 @@ function get_weight(input_row) {
         if (regInt.test(mount) && regInt.test(long)) {
             input_row.querySelector('.总长度').textContent = mount * long;
             weight(input_row);
+            sum_money();
         } else {
             input_row.querySelector('.总长度').textContent = 0;
         }
@@ -364,13 +385,19 @@ function get_weight(input_row) {
         if (regInt.test(mount) && regInt.test(long)) {
             input_row.querySelector('.总长度').textContent = mount * long;
             weight(input_row);
+            sum_money();
         } else {
             input_row.querySelector('.总长度').textContent = 0;
         }
     });
 
+    input_row.querySelector('.重量').addEventListener('blur', function () {
+        sum_money();
+    });
+
     input_row.querySelector('.auto-input').addEventListener('blur', function () {
         weight(input_row);
+        sum_money();
     })
 }
 

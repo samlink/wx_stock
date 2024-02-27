@@ -116,17 +116,17 @@ function set_readonly() {
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show .table-head');
     fields_show.innerHTML = html;
-    let has_auto = document.querySelector('.has-auto');
-    let next_auto = document.querySelector('.has-auto+div');
+    // let has_auto = document.querySelector('.has-auto');
+    // let next_auto = document.querySelector('.has-auto+div');
 
-    let auto_doc = document.querySelector('#文本字段6');
-    auto_doc.parentNode.classList.add("autocomplete");
+    // let auto_doc = document.querySelector('#文本字段6');
+    // auto_doc.parentNode.classList.add("autocomplete");
 
-    let auto_comp = new AutoInput(auto_doc, "材料采购", "/material_auto", () => {
-        build_items(auto_doc.getAttribute("data"));
-    });
+    // let auto_comp = new AutoInput(auto_doc, "材料采购", "/material_auto", () => {
+    //     build_items(auto_doc.getAttribute("data"));
+    // });
 
-    auto_comp.init();
+    // auto_comp.init();
 
     let date = document.querySelector('#日期');
 
