@@ -570,7 +570,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
     document.querySelector('.print-table thead').innerHTML = th;
 
-    let sum = 0;
     let sum_weight = 0;
 
     let all_rows = document.querySelectorAll('.table-items .has-input');
@@ -600,7 +599,6 @@ document.querySelector('#print-button').addEventListener('click', function () {
 
         trs += '</tr>';
 
-        // sum += Number(row.querySelector(`td:nth-child(10) input`).value);
         sum_weight += Number(row.querySelector(`td:nth-child(12)`).textContent);
     }
 
