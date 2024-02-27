@@ -38,7 +38,9 @@ let tree_data = {
         };
 
         Object.assign(table_data.post_data, post_data);
-        fetch_table();
+        fetch_table(()=> {
+            add_lu_link();
+        });
     }
 }
 
@@ -164,9 +166,9 @@ function add_lu_link() {
     let rows = table.querySelectorAll('tbody tr');
     for (let row of rows) {
         let lu = row.querySelector('.炉号');
-        let link = row.querySelector('.link').textContent.trim();
-        if (link != "") {
-            lu.innerHTML = `<a href="${link}">${lu.textContent.trim()}</a>`;
+        let link = row.querySelector('.link');
+        if (link && link.textContent.trim() != "") {
+            lu.innerHTML = `<a href="${link.textContent.trim()}">${lu.textContent.trim()}</a>`;
         }
     }
 }
@@ -242,7 +244,9 @@ document.querySelector('#f-ok').addEventListener('click', () => {
 
     Object.assign(table_data.post_data, post_data);
 
-    fetch_table();
+    fetch_table(()=> {
+        add_lu_link();
+    });
 
     //设置颜色提示
     document.querySelectorAll('.filter_button').forEach(button => {
@@ -305,7 +309,9 @@ document.querySelector('#p-select').addEventListener('change', () => {
     };
 
     Object.assign(table_data.post_data, post_data);
-    fetch_table();
+    fetch_table(()=> {
+        add_lu_link();
+    });
 });
 
 //增加按键
@@ -565,7 +571,11 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                         global.edit = 0;
                         modal_out_data.edit = 0;
                         notifier.show('商品修改成功', 'success');
-                        fetch_table();
+
+                        fetch_table(()=> {
+                            add_lu_link();
+                        });
+
                         if (global.eidt_cate == "add") {
                             for (let input of all_input) {
                                 input.value = "";
@@ -590,7 +600,9 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     notifier.show('批量操作成功', 'success');
-                    fetch_table();
+                    fetch_table(()=> {
+                        add_lu_link();
+                    });
                     close_modal();
                 } else {
                     notifier.show('权限不够，操作失败', 'danger');

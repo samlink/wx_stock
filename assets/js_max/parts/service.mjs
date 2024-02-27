@@ -170,7 +170,7 @@ export function set_sumit_shen() {
 export function make_formal(data) {
     if (data.button.textContent.trim() == "已审核") {
         return false;
-    } 
+    }
 
     if (data.dh == "新单据" || data.edited) {
         notifier.show('请先保存单据', 'danger');
@@ -319,8 +319,8 @@ export function only_worker(worker, set_readonly) {
 
 //保存前的错误排查, 检查表头的日期和整数、实数、空表的输入错误
 export function header_error_check(document_table_fields, all_rows) {
-    let da = document.querySelector('#日期');    
-    if (da && da.value.trim() !="" && !regDate.test(document.querySelector('#日期').value)) {
+    let da = document.querySelector('#日期');
+    if (da && da.value.trim() != "" && !regDate.test(document.querySelector('#日期').value)) {
         notifier.show('日期输入错误', 'danger');
         return false;
     }
@@ -622,8 +622,6 @@ export function sales_products(modal_title, init_func) {
 
                 Object.assign(table_data.post_data, post_data);
 
-                // let table = document.querySelector('.table-product');
-
                 fetch_table(init_func);
             }
         }
@@ -791,16 +789,19 @@ export function build_product_table(row_num, cb, more) {
         Object.assign(table_data.post_data, { name: search, page: 1 });
 
         //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
-        if (typeof cb == "function") {
-            let table = document.querySelector('.table-product');
-            fetch_table(() => {
+        let table = document.querySelector('.table-product');
+        fetch_table(() => {
+            if (cb) {
                 cb(table);
-            });
-        } else {
-            fetch_table();
-        }
+            }
+            if (more) {
+                more();
+            }
+        });
     }
+
 }
+
 
 //出入库时，获取单据列表
 export function get_materials_docs(url, cate, build_func) {
