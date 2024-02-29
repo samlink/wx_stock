@@ -493,6 +493,18 @@ pub async fn save_document(
             let _ = &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
         }
 
+        // 处理彩虹石油
+        if fields_cate == "销售单据" {
+            let conn2 = db.get().await.unwrap();
+            let owe = if doc_data[2] == "25" { false } else { true };
+            let sql = format!(
+                r#"update documents set 是否欠款 = {} where 单号 = '{}'"#,
+                owe, dh
+            );
+
+            let _ = &conn2.query(sql.as_str(), &[]).await.unwrap();
+        }
+
         HttpResponse::Ok().json(dh)
     } else {
         HttpResponse::Ok().json(-1)
@@ -1214,10 +1226,13 @@ pub async fn save_document_kp(
         let _result = transaction.commit().await;
 
         // 保存时修改销售单是否欠款
-        let sql = format!(r#"update documents set 是否欠款 = (select 是否欠款 from documents where 单号='{}')
-                            where 单号 = (select 文本字段6 from documents where 单号='{}')"#, dh, dh);
+        let sql = format!(
+            r#"update documents set 是否欠款 = (select 是否欠款 from documents where 单号='{}')
+                            where 单号 = (select 文本字段6 from documents where 单号='{}')"#,
+            dh, dh
+        );
 
-        let _= conn2.execute(sql.as_str(), &[]).await.unwrap();
+        let _ = conn2.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(dh)
     } else {
