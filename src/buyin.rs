@@ -677,7 +677,8 @@ pub async fn fetch_document_items(
             let stand: String = row.get("执行标准");
             let price: f32 = row.get("单价");
             let long: i32 = row.get("长度");
-            let weight: f32 = row.get("重量");
+            let wei: f32 = row.get("重量");
+            let weight: String = format!("{:.1}", wei);
             let m: f32 = row.get("金额");
             let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
@@ -828,8 +829,10 @@ pub async fn fetch_document_items_sales(
             let price: f32 = row.get("单价");
             let long: i32 = row.get("长度");
             let num: i32 = row.get("数量");
-            let theary: f32 = row.get("理重");
-            let weight: f32 = row.get("重量");
+            let the: f32 = row.get("理重");
+            let theary: String = format!("{:.1}", the);
+            let wei: f32 = row.get("重量");
+            let weight: String = format!("{:.1}", wei);
             let m: f32 = row.get("金额");
             let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
