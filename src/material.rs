@@ -1268,8 +1268,9 @@ pub async fn fetch_document_items_ck(
                 let weight: f32 = row.get("重量");
                 let theory: f32 = row.get("理重");
                 let note: String = row.get("备注");
+                let m_id: String = row.get("商品id");
                 let item = format!(
-                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                     num,
                     SPLITER,
                     name,
@@ -1287,6 +1288,8 @@ pub async fn fetch_document_items_ck(
                     theory,
                     SPLITER,
                     note,
+                    SPLITER,
+                    m_id,
                     SPLITER
                 );
 

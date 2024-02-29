@@ -137,10 +137,6 @@ function document_top_handle(html, has_date) {
 
     if (document.querySelector('.has-auto')) {
         document.querySelector('.has-auto').insertAdjacentHTML('afterend', html);
-
-        let fields_show = document.querySelector('.fields-show');
-        let has_auto = document.querySelector('.has-auto');
-        let next_auto = document.querySelector('.has-auto+div');
     } else {
         document.querySelector('.fields-show').innerHTML = html;
     }
@@ -695,69 +691,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
     }
 
     if (document_name == "销售单据") {
-        let ku = new Map();
-        let all_rows = document.querySelectorAll('.table-items .has-input');
-
-        for (let row of all_rows) {
-            if (row.querySelector('.名称').value.trim() != "") {
-                let key = `${row.querySelector('.m_id').textContent.trim()}##${row.querySelector('.规格').textContent.trim()}##${row.querySelector('.状态').textContent.trim()}`;
-                let num = row.querySelector('.num').value;
-                let long = row.querySelector('.long').value;
-
-                let now_num = 0;
-                if (long && regReal.test(long) && num && regReal.test(num)) {
-                    now_num = long * num;
-                }
-
-                if (ku.has(key)) {
-                    ku.set(key, ku.get(key) + now_num);
-                } else {
-                    ku.set(key, now_num);
-                }
-            }
-        }
-
-        let ku_str = "";
-        for (var [key, value] of ku) {
-            ku_str += `${key}：${value}${SPLITER}`;
-        }
-
-        ku_str = ku_str.substring(0, ku_str.lastIndexOf(SPLITER));
-
-        fetch(`/check_ku`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: ku_str
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content == 1) {
-                    for (let row of all_rows) {
-                        row.classList.remove('ku_danger');
-                    }
-
-                    save();
-                } else if (content == -1) {
-                    notifier.show('权限不够', 'danger');
-                } else {
-                    for (let row of all_rows) {
-                        row.classList.remove('ku_danger');
-                    }
-                    for (let c of content) {
-                        let ku = c.split('#$');
-                        for (let row of all_rows) {
-                            if (row.querySelector('.m_id').textContent.trim() == ku[0] &&
-                                row.querySelector('.规格').textContent.trim() == ku[1] &&
-                                row.querySelector('.状态').textContent.trim() == ku[2]) {
-                                row.classList.add('ku_danger');
-                            }
-                        }
-                    }
-                    notifier.show('销售数量超过库存', 'danger');
-                }
-            });
+        service.check_ku(save);
     }
     else {
         save();

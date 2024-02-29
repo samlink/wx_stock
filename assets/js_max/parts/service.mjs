@@ -661,6 +661,74 @@ export function sales_products(modal_title, init_func) {
 //     }
 // }
 
+// 检查是否超过库存
+export function check_ku(save) {
+    let ku = new Map();
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+
+    for (let row of all_rows) {
+        if (row.querySelector('.材质').textContent.trim() != "") {
+            let key = `${row.querySelector('.m_id').textContent.trim()}##${row.querySelector('.规格').textContent.trim()}##${row.querySelector('.状态').textContent.trim()}`;
+            let num1 = row.querySelector('.num');
+            let num = num1 ? num1.value : 1;
+            let l = row.querySelector('.long');
+            let long = l ? l.value : row.querySelector('.长度').value;
+
+            let now_num = 0;
+            if (long && regReal.test(long) && num && regReal.test(num)) {
+                now_num = long * num;
+            }
+
+            if (ku.has(key)) {
+                ku.set(key, ku.get(key) + now_num);
+            } else {
+                ku.set(key, now_num);
+            }
+        }
+    }
+
+    let ku_str = "";
+    for (var [key, value] of ku) {
+        ku_str += `${key}：${value}${SPLITER}`;
+    }
+
+    ku_str = ku_str.substring(0, ku_str.lastIndexOf(SPLITER));
+
+    fetch(`/check_ku`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: ku_str
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                for (let row of all_rows) {
+                    row.classList.remove('ku_danger');
+                }
+                save();
+            } else if (content == -1) {
+                notifier.show('权限不够', 'danger');
+            } else {
+                for (let row of all_rows) {
+                    row.classList.remove('ku_danger');
+                }
+                for (let c of content) {
+                    let ku = c.split('#$');
+                    for (let row of all_rows) {
+                        if (row.querySelector('.m_id').textContent.trim() == ku[0] &&
+                            row.querySelector('.规格').textContent.trim() == ku[1] &&
+                            row.querySelector('.状态').textContent.trim() == ku[2]) {
+                            row.classList.add('ku_danger');
+                        }
+                    }
+                }
+                notifier.show('销售数量超过库存', 'danger');
+            }
+        });
+}
+
 //选择行数据并退出
 export function chose_exit(selected_row, cb) {
     let id = selected_row.children[1].textContent;

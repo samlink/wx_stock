@@ -262,6 +262,8 @@ function fill_gg() {
         n++;
     }
 
+    document.querySelector(`.inputting td:last-child`).textContent = field_values[0];
+
     let focus_input = document.querySelector(`.inputting .长度`);
     focus_input.focus();
 
@@ -278,6 +280,10 @@ document.querySelector('#save-button').addEventListener('click', function () {
         return false;
     }
 
+    service.check_ku(save);    
+});
+
+function save() {
     let all_values = document.querySelectorAll('.document-value');
 
     //构建表头存储字符串，将存入单据中
@@ -336,7 +342,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
-});
+}
 
 //审核单据
 document.querySelector('#remember-button').addEventListener('click', function () {
