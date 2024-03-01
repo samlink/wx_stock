@@ -1136,7 +1136,8 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
             '　' || documents.{} || '　' || documents.{} || '　' || customers.id  as label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
-            名称 != '天津彩虹石油机械有限公司'
+            单号 not in (select 文本字段6 from documents where documents.类别='销售开票' AND 
+            布尔字段3 = true) AND 名称 != '天津彩虹石油机械有限公司'
             order by 单号 desc"#,
             f_map2["简称"],
             SPLITER,
