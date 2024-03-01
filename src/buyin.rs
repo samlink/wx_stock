@@ -1320,11 +1320,11 @@ pub async fn fetch_fh_items(
                 case when 商品id <> '4_111' then 重量 else 数量 end as 数量, 单价
                 FROM document_items
                 JOIN tree on document_items.商品id = tree.num
-                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}') and 类别='运输发货') ORDER BY 顺序"#,
+                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}') and 类别='运输发货' and 文本字段10 != '') ORDER BY 顺序"#,
             data, data
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
