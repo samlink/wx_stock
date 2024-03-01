@@ -1332,9 +1332,10 @@ pub async fn fetch_fh_items(
             let gg: String = row.get("规格");
             let price: f32 = row.get("单价");
             let num: f32 = row.get("数量");
-            let money = format!("{:.2}", price * num);
+            let m = price * num;
+            let money = format!("{:.2}", m);
             let tax = "13%";
-            let tt = format!("{:.2}", price * num * 0.13);
+            let tt = format!("{:.2}", m - m / 1.13);
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,

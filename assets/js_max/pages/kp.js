@@ -303,7 +303,7 @@ function row_calc() {
 
     let money = num * price;
     row.querySelector('.money').textContent = money.toFixed(2);
-    row.querySelector('.税额').textContent = (money * tax / 100).toFixed(2);
+    row.querySelector('.税额').textContent = (money - money / (1 + tax / 100)).toFixed(2);
 }
 
 //计算合计金额
