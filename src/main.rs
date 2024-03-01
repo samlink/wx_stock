@@ -115,6 +115,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::make_formal)
             .service(buyin::anti_formal)
             .service(buyin::check_ku)
+            .service(buyin::check_ku2)
 
             .service(material::material_auto)
             .service(material::materialout_auto)

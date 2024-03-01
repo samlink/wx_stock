@@ -1489,3 +1489,42 @@ pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpRe
         HttpResponse::Ok().json(-1)
     }
 }
+
+#[post("/check_ku2")]
+pub async fn check_ku2(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let mut result = Vec::new();
+        let da: Vec<&str> = data.split(SPLITER).collect();
+        for d in da {
+            let field: Vec<&str> = d.split("##").collect();
+
+            let sql = format!(
+                r#"select (整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::real as 库存 from products
+                                LEFT JOIN cut_length() as foo
+                                ON products.文本字段1 = foo.物料号
+                                where 文本字段1 = '{}'"#,
+                field[0]
+            );
+
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            let mut v: f32 = 0f32;
+            for row in rows {
+                v = row.get("库存");
+            }
+
+            if field[1].parse::<f32>().unwrap() > v {
+                result.push(field[0]);
+            }
+        }
+
+        if result.len() == 0 {
+            HttpResponse::Ok().json(1)
+        } else {
+            HttpResponse::Ok().json(result)
+        }
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}

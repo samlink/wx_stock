@@ -280,8 +280,52 @@ document.querySelector('#save-button').addEventListener('click', function () {
         return false;
     }
 
-    service.check_ku(save);    
+    check_ku2(save);    
 });
+
+function check_ku2(save) {
+    let all_rows = document.querySelectorAll('.table-items .has-input');
+    let ku_str = "";
+    for (let row of all_rows) {
+        if (row.querySelector('.材质').textContent.trim() != "") {
+            let key = `${row.querySelector('.物料号').value.trim()}##${row.querySelector('.长度').value.trim()}${SPLITER}`;
+            ku_str += key;
+        }
+    }
+
+    ku_str = ku_str.substring(0, ku_str.lastIndexOf(SPLITER));
+
+    fetch(`/check_ku2`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: ku_str
+    })
+        .then(response => response.json())
+        .then(content => {
+            if (content == 1) {
+                for (let row of all_rows) {
+                    row.classList.remove('ku_danger');
+                }
+                save();
+            } else if (content == -1) {
+                notifier.show('权限不够', 'danger');
+            } else {
+                for (let row of all_rows) {
+                    row.classList.remove('ku_danger');
+                }
+                for (let c of content) {
+                    for (let row of all_rows) {
+                        if (row.querySelector('.物料号').value.trim() == c) {
+                            row.classList.add('ku_danger');
+                        }
+                    }
+                }
+                notifier.show('数量超过库存', 'danger');
+            }
+        });
+}
 
 function save() {
     let all_values = document.querySelectorAll('.document-value');
