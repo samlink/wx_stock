@@ -1324,7 +1324,7 @@ pub async fn fetch_fh_items(
             data, data
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
