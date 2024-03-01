@@ -425,6 +425,21 @@ document.querySelector('#edit-button').addEventListener('click', function () {
             "is_use": false
         },
         {
+            "id": 131,
+            "num": 5,
+            "field_name": "文本字段2",
+            "data_type": "文本",
+            "show_name": "状态",
+            "show_width": 4,
+            "ctr_type": "普通输入",
+            "option_value": "",
+            "default_value": "",
+            "is_show": true,
+            "show_order": 4,
+            "all_edit": true,
+            "is_use": true
+        },
+        {
             "id": 133,
             "num": 14,
             "field_name": "库位",
