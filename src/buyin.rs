@@ -1271,11 +1271,11 @@ pub async fn fetch_kp_items(
             let price: f32 = row.get("单价");
             let num: f32 = row.get("数量");
             let tax: String = row.get("税率");
-
+            let m = price * num;
             let tax2 = tax.replace("%", "");
             let num_tax = tax2.parse::<f32>().unwrap();
-            let money = format!("{:.2}", price * num);
-            let tt = format!("{:.2}", price * num * num_tax / 100.0);
+            let money = format!("{:.2}", m);
+            let tt = format!("{:.2}", m - m / (1.0 + num_tax / 100.0));
 
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
