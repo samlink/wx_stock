@@ -55,7 +55,7 @@ pub async fn fetch_statis(
             from documents join (select 单号, 应结金额 as 单据金额 from documents where 单号 in 
             (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 != '' and {}))
             as t on t.单号 = documents.文本字段6
-            where {} 类别 = '销售出库' and 文本字段10 != '' and {}            
+            where {} 类别 = '运输发货' and 文本字段10 != '' and {}            
             group by date_cate
             order by date_cate
             "#,
