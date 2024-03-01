@@ -385,7 +385,7 @@ if (dh_div.textContent == "新单据") {
         show_names: show_names,
         lines: table_lines,
         dh: dh_div.textContent,
-        document: document_name,        
+        document: document_name,
     }
 
     build_blank_table(data);
@@ -515,6 +515,20 @@ document.querySelector('#save-button').addEventListener('click', function () {
                 notifier.show('权限不够，操作失败', 'danger');
             }
         });
+
+    let sum_money = document.querySelector('#sum-money').textContent;
+    let sum = Number(sum_money.split(' 金额合计：')[1].replace("元", ""));
+    let dh = document.querySelector('#文本字段6').value;
+    let da = `${dh}${SPLITER}${sum}`;
+
+    // 更新单据金额
+    fetch(`/save_sale_money`, {
+        method: 'post',
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: da,
+    });
 });
 
 //打印

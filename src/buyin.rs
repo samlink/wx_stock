@@ -1448,6 +1448,25 @@ pub async fn anti_formal(db: web::Data<Pool>, data: String, id: Identity) -> Htt
     }
 }
 
+// 保存销售单的应结金额
+#[post("/save_sale_money")]
+pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let da = data.split(SPLITER).collect::<Vec<&str>>();
+        let sql = format!(
+            r#"update documents set 应结金额={} WHERE 单号='{}'"#,
+            da[1], da[0]
+        );
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/check_ku")]
 pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;

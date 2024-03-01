@@ -157,7 +157,7 @@ fetch("/fetch_sale_docs", {
                 document.querySelector('#文本字段8').value = value[2] != "" ? `${value[1]} / ${value[2]}` : value[1];
                 document.querySelector('#文本字段2').value = value[0];
                 document.querySelector('#文本字段2').setAttribute('data', value[4]);
-                document.querySelector('#应结金额').value = value[3];
+                // document.querySelector('#应结金额').value = value[3];
                 fetch_fh_items(dh);
                 fetch_others(dh);
             })
@@ -320,6 +320,7 @@ function sum_money() {
     }
 
     document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
+    document.querySelector('#应结金额').value = sum.toFixed(2);
     if (document.querySelector('#文本字段5')) document.querySelector('#文本字段5').value = sum.toFixed(2);
 }
 
