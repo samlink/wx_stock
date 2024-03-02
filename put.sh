@@ -6,8 +6,6 @@ filename=sales
 cd ./target/release
 
 sftp $username@$site<<EOF
-quote PASS $passwd
-binary
 put $filename
 quit
 EOF
