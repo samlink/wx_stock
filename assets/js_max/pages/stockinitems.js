@@ -26,7 +26,7 @@ let init_data = {
     post_data: {
         id: "",
         name: '',
-        sort: "单号 DESC",
+        sort: "日期 DESC, 单号 DESC",
         rec: row_num,
     },
     edit: false,
