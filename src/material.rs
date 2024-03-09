@@ -1552,7 +1552,7 @@ pub async fn fetch_check_stock(
 //上传图片
 #[post("/pic_in")]
 pub async fn pic_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "销售出库".to_owned()).await;
+    let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let path = "./upload/pics/coin.jpg".to_owned();
         let path2 = "./upload/pics/".to_owned();
