@@ -1482,7 +1482,7 @@ pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpRe
                 r#"select sum(整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::real from products
                                 LEFT JOIN cut_length() as foo
                                 ON products.文本字段1 = foo.物料号
-                                where 商品id = '{}' and 规格型号='{}' and 文本字段2 = '{}' 
+                                where 商品id = '{}' and trim(BOTH FROM 规格型号) = '{}' and trim(BOTH FROM 文本字段2) = '{}' 
                                 group by 商品id,规格型号,文本字段2"#,
                 field[0], field[1], field[2]
             );
