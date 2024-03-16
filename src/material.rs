@@ -917,7 +917,6 @@ pub async fn save_material_ck(
                 .unwrap();
         }
 
-        let mut ckid = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "出库单据" {
@@ -943,21 +942,30 @@ pub async fn save_material_ck(
                 )
             };
 
-            if value.len() > 8 && value[8] != "" {
-                if ckid != value[8] {
-                    ckid = value[8];
-                    let dh_sql = format!(
-                        r#"update document_items set 出库完成 = true where id::text = '{}'"#,
-                        ckid
-                    );
-                    // let _ = conn2.query(dh_sql.as_str(), &[]).await;
-                    transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
-                }
-            }
-
-            // println!("{}", items_sql);
-
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+        }
+
+        // 更新出库状态
+        if fields_cate == "出库单据" {
+            let sale_dh = doc_data[3];
+
+            let mut dh_sql = format!(
+                r#"update document_items set 出库状态='已', 出库完成 = true from 
+                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库') group by xsid) foo
+                where document_items.id::text = foo.xsid and document_items.数量 = foo.sum"#,
+                sale_dh
+            );
+
+            transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
+
+            dh_sql = format!(
+                r#"update document_items set 出库状态='分', 出库完成 = false from 
+                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库') group by xsid) foo
+                where document_items.id::text = foo.xsid and document_items.数量 > foo.sum"#,
+                sale_dh
+            );
+
+            transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
         }
 
         let _result = transaction.commit().await;
@@ -1509,7 +1517,7 @@ pub async fn make_ck_complete(
     if user.name != "" {
         let conn = db.get().await.unwrap();
         // let sql = format!(
-        //     r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
+        //     r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
         //     (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
         //     dh, dh
         // );
