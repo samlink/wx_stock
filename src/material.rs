@@ -1303,7 +1303,7 @@ pub async fn fetch_document_items_ck(
         let sql = format!(
             r#"select COALESCE(split_part(node_name,' ', 2),'') as 名称, COALESCE(split_part(node_name,' ', 1), '') as 材质,
                 COALESCE({},'') as 规格, COALESCE({}, '') as 状态, COALESCE({}, '') as 炉号, 长度, 数量, (长度*数量)::integer as 总长度,
-                物料号, 重量, 理重, pout_items.备注, COALESCE(商品id, '') 商品id, 单价 FROM pout_items
+                物料号, 重量, 理重, pout_items.备注, COALESCE(商品id, '') 商品id, 单价, xsid FROM pout_items
                 left JOIN products ON 文本字段1=物料号
                 left JOIN tree ON 商品id=tree.num
                 WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
@@ -1330,8 +1330,9 @@ pub async fn fetch_document_items_ck(
                 let note: String = row.get("备注");
                 let m_id: String = row.get("商品id");
                 let s_id: f32 = row.get("单价");
+                let d_id: String = row.get("xsid");
                 let item = format!(
-                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                     name,
                     SPLITER,
                     cz,
@@ -1358,7 +1359,9 @@ pub async fn fetch_document_items_ck(
                     SPLITER,
                     m_id,
                     SPLITER,
-                    s_id
+                    s_id,
+                    SPLITER,
+                    d_id
                 );
 
                 document_items.push(item);
@@ -1505,13 +1508,13 @@ pub async fn make_ck_complete(
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let sql = format!(
-            r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
-            (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
-            dh, dh
-        );
+        // let sql = format!(
+        //     r#"update documents set 布尔字段2 = true where 单号='{}' and false not in 
+        //     (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
+        //     dh, dh
+        // );
 
-        let _ = conn.query(sql.as_str(), &[]).await;
+        // let _ = conn.query(sql.as_str(), &[]).await;
 
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号 ='{}' and

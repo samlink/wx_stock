@@ -511,7 +511,7 @@ document.querySelector('#save-button').addEventListener('click', function () {
         items: table_data,
     }
 
-    // console.log(data);
+    console.log(data);
 
     fetch(`/save_material_ck`, {
         method: 'post',
