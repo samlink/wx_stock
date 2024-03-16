@@ -521,7 +521,7 @@ pub async fn get_items_out(
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 备注 ||  '{}' || 单价 || '{}' || id || '{}' || 出库完成 as item 
+                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 备注 ||  '{}' || 单价 || '{}' || id || '{}' || 出库状态 as item 
             from document_items
             JOIN tree ON 商品id = tree.num
             WHERE 单号id = '{}' order by 顺序"#,
@@ -1516,13 +1516,13 @@ pub async fn make_ck_complete(
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        // let sql = format!(
-        //     r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
-        //     (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
-        //     dh, dh
-        // );
+        let sql = format!(
+            r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
+            (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
+            dh, dh
+        );
 
-        // let _ = conn.query(sql.as_str(), &[]).await;
+        let _ = conn.query(sql.as_str(), &[]).await;
 
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号 ='{}' and

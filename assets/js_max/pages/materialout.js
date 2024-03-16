@@ -223,7 +223,15 @@ function build_items(dh) {
             let tr = "";
             content.forEach(obj => {
                 let material = obj.split(`${SPLITER}`);
-                let done = material[4] == "true" ? "class='red'" : "";
+                let done = "";
+                
+                if (material[4] == "已") {
+                    done = "class='red'";
+                }
+                else if(material[4] == "分"){
+                    done = "class='yellow'";
+                }
+
                 tr += `<tr ${done}><td hidden>${material[0]}</td><td>${material[1]}</td>
                     <td hidden>${material[2]}</td><td hidden>${material[3]}</td></tr>`;
             });
