@@ -8,6 +8,20 @@
         margin-left: 0;
     }
 
+
+
+    .table-docs {
+        width: 220px;
+        margin-left: 0;
+        flex-grow: 1;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+
+        tbody {
+            height: calc(100vh - 630px);
+        }
+    }
+
     .table-history {
         width: 220px;
     }

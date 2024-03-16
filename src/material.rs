@@ -86,8 +86,7 @@ pub async fn materialout_docs(
             join customers on 客商id = customers.id            
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
             (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') and
-            单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
-            布尔字段3 = true and 文本字段10 = '')
+            单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 = '')
             order by 单号 desc
             "#,
             f_map2["简称"],
@@ -101,6 +100,47 @@ pub async fn materialout_docs(
         );
 
         // println!("{}", sql);
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 发货单已保存未提交单据
+#[post("/materialout_saved_docs")]
+pub async fn materialout_saved_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        let f_map2 = map_fields(db.clone(), "客户").await;
+        let f_map3 = map_fields(db.clone(), "出库单据").await;
+
+        let limit = get_limits(&user).await;
+        let sql = &format!(
+            r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
+            join customers on 客商id = customers.id            
+            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') and
+            单号 in (select 文本字段6 from documents where documents.类别='运输发货' and 
+            布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}')
+            order by 单号 desc
+            "#,
+            f_map2["简称"],
+            limit,
+            search,
+            f_map["审核"],
+            f_map["发货完成"],
+            f_map3["销售单号"],
+            f_map3["销售单号"],
+            f_map3["审核"],
+            user.name
+        );
+
+        println!("{}", sql);
         autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)

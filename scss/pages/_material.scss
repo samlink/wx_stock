@@ -60,6 +60,28 @@
         }
     }
 
+    .left-tables {
+        display: flex;
+        flex-direction: column;
+        overflow-y: hidden;
+    }
+
+    .table-save {
+        height: 280px;
+        width: 220px;
+        border-top: none;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+
+        th:hover {
+            cursor: default;
+        }
+
+        tbody p {
+            padding-left: 10px;
+        }
+    }
+
     .table-history,
     .table-docs {
         width: 320px;

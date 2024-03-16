@@ -271,8 +271,45 @@ function build_items(dh) {
             }
 
         });
-
 }
+
+// 获取已保存单据
+fetch('/materialout_saved_docs', {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("商品销售"),
+})
+    .then(response => response.json())
+    .then(content => {
+        let tr = "";
+        content.forEach(obj => {
+            tr += `<tr><td>${obj.label}</td></tr>`;
+        });
+
+        document.querySelector(".table-save tbody").innerHTML = tr;
+
+        let lines = document.querySelectorAll(".table-save tbody tr");
+        for (let l of lines) {
+            l.addEventListener("dblclick", () => {
+                if (document.querySelector('#remember-button').textContent == "已审核" ||
+                    document.querySelector('#save-button').disabled == true) {
+                    return false;
+                }
+                let dh = l.querySelector('td:nth-child(1)').textContent.split('　')[0];
+                window.location.href = "/transport/" + dh;
+
+                // document.querySelector('#文本字段6').value = dh;
+                // build_func(dh);
+                // lines.forEach(l => {
+                //     l.classList.remove('has-bak')
+                // })
+                // l.classList.add('has-bak');
+                // document.querySelector('#文本字段6').focus();
+            });
+        }
+    });
 
 function calculate(input_row) {
     input_row.querySelector('.数量').addEventListener('blur', function () {
