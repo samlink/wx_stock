@@ -668,7 +668,8 @@ function error_check() {
             }
 
             let wl = row.querySelector('.物料号')
-            if (wl.getAttribute("data") != "undefined" && wl.getAttribute("data").split(SPLITER).length == 1) {
+            if (wl.getAttribute("data") != "undefined" && 
+                wl.getAttribute("data").split(SPLITER).length == 1 && dh_div.textContent == "新单据") {
                 notifier.show(`${wl.value} 不在库中`, 'danger');
                 return false;
             }
