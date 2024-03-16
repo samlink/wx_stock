@@ -166,11 +166,42 @@ pub async fn materialin_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> '' 
-            and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 
-            布尔字段3 = true and 文本字段10 = '')
+            and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 文本字段10 = '')
             order by 单号 desc"#,
             f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
         );
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 入库单保存未提交
+#[post("/materialin_saved_docs")]
+pub async fn materialin_saved_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "采购入库".to_owned()).await;
+    if user.name != "" {
+        let f_map = map_fields(db.clone(), "采购单据").await;
+        let f_map2 = map_fields(db.clone(), "供应商").await;
+
+        let sql = &format!(
+            r#"SELECT 入库单号 as id, 单号 || '　' || customers.{} AS label FROM documents
+            join customers on 客商id = customers.id
+            join 
+            (select 单号 入库单号, 文本字段6 from documents where documents.类别='采购入库' and 
+            布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}') as 入库单
+            on 入库单.文本字段6 = documents.单号
+            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''            
+            order by 单号 desc"#,
+            f_map2["简称"], user.name, search, f_map["入库完成"], f_map["审核"]
+        );
+
+        // println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
@@ -195,10 +226,42 @@ pub async fn materialsale_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and
-            单号 not in (select 文本字段6 from documents where documents.类别='销售出库' and 
-            布尔字段3 = true and 文本字段10 = '')
+            单号 not in (select 文本字段6 from documents where documents.类别='销售出库' and 文本字段10 = '')
             order by 单号 desc"#,
             f_map3["简称"], search, f_map["审核"], f_map["出库完成"],
+        );
+
+        // println!("{}",sql);
+
+        autocomplete(db, sql).await
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 出库单获得销售单据
+#[post("/materialsale_saved_docs")]
+pub async fn materialsale_saved_docs(
+    db: web::Data<Pool>,
+    search: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "销售出库".to_owned()).await;
+    if user.name != "" {
+        let f_map = map_fields(db.clone(), "销售单据").await;
+        // let f_map2 = map_fields(db.clone(), "出库单据").await;
+        let f_map3 = map_fields(db.clone(), "客户").await;
+
+        let sql = &format!(
+            r#"SELECT 出库单号 as id, 单号 || '　' || customers.{} AS label FROM documents
+            join customers on 客商id = customers.id
+            join 
+            (select 单号 出库单号, 文本字段6 from documents where documents.类别='销售出库' and 
+            布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}') as 出库单
+            on 出库单.文本字段6 = documents.单号
+            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false
+            order by 单号 desc"#,
+            f_map3["简称"], user.name, search, f_map["审核"], f_map["出库完成"],
         );
 
         // println!("{}",sql);

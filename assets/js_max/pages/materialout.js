@@ -139,6 +139,36 @@ function document_top_handle(html, has_date) {
 
 service.get_materials_docs("/materialsale_docs", "商品销售", build_items);
 
+// 已保存的单据
+fetch('/materialsale_saved_docs', {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("商品销售"),
+})
+    .then(response => response.json())
+    .then(content => {
+        let tr = "";
+        content.forEach(obj => {
+            tr += `<tr><td>${obj.label}</td><td hidden>${obj.id}</td></tr>`;
+        });
+
+        document.querySelector(".table-save tbody").innerHTML = tr;
+
+        let lines = document.querySelectorAll(".table-save tbody tr");
+        for (let l of lines) {
+            l.addEventListener("dblclick", () => {
+                if (document.querySelector('#remember-button').textContent == "已审核" ||
+                    document.querySelector('#save-button').disabled == true) {
+                    return false;
+                }
+                let dh = l.querySelector('td:nth-child(2)').textContent.trim();
+                window.location.href = "/material_out/" + dh;
+            });
+        }
+    });
+
 let show_th = [
     { name: "物料号", width: 100 },
     { name: "名称", width: 60 },

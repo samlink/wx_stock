@@ -116,17 +116,6 @@ function set_readonly() {
 function document_top_handle(html, has_date) {
     let fields_show = document.querySelector('.fields-show .table-head');
     fields_show.innerHTML = html;
-    // let has_auto = document.querySelector('.has-auto');
-    // let next_auto = document.querySelector('.has-auto+div');
-
-    // let auto_doc = document.querySelector('#文本字段6');
-    // auto_doc.parentNode.classList.add("autocomplete");
-
-    // let auto_comp = new AutoInput(auto_doc, "材料采购", "/material_auto", () => {
-    //     build_items(auto_doc.getAttribute("data"));
-    // });
-
-    // auto_comp.init();
 
     let date = document.querySelector('#日期');
 
@@ -167,6 +156,35 @@ function document_top_handle(html, has_date) {
 }
 
 service.get_materials_docs("/materialin_docs", "材料采购", build_items);
+
+fetch('/materialin_saved_docs', {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("材料采购"),
+})
+    .then(response => response.json())
+    .then(content => {
+        let tr = "";
+        content.forEach(obj => {
+            tr += `<tr><td>${obj.label}</td><td hidden>${obj.id}</td></tr>`;
+        });
+
+        document.querySelector(".table-save tbody").innerHTML = tr;
+
+        let lines = document.querySelectorAll(".table-save tbody tr");
+        for (let l of lines) {
+            l.addEventListener("dblclick", () => {
+                if (document.querySelector('#remember-button').textContent == "已审核" ||
+                    document.querySelector('#save-button').disabled == true) {
+                    return false;
+                }
+                let dh = l.querySelector('td:nth-child(2)').textContent.trim();
+                window.location.href = "/material_in/" + dh;
+            });
+        }
+    });
 
 // 点击上传炉号质保书
 let lu_upload = document.querySelector('#lu_upload');

@@ -3,96 +3,109 @@
 @use super::statics::*;
 @(user: UserData, setup: Vec<&str>)
 
-@:base_html({
-<link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
+    @:base_html({
+    <link rel="stylesheet" href="/assets/plugins/laydate/theme/default/laydate.css">
 
-<div class="buy-in material materialout">
-    <div class="top-title"><span><i class="fa fa-retweet"></i> 仓储管理 </span>
-        <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
-        <p id="help-info" title="帮助信息"><img></p>
-    </div>
-    <div class="buy-content">
-        <div class="inout-top has-bak" style="width: 99%;">
-            <div class="fields-show">
-            </div>
-            <div class="material-doc">
-                <div class="form-input" hidden>
-                    <input class="form-control input-sm material-value" id="m_id" type="text" hidden
-                           style="width: 70px;">
-                </div>
-                <div class="form-input show-pic">
-                    <img id="upload-pic" width="60" height="42" src="/assets/img/sign.jpg" alt="出库签字图" title="点击放大">
-                    <input type="file" id="pic_upload" accept="image/png, image/jpeg" hidden="hidden"/>
-                </div>
-            </div>
-            <div class="buy-buttons">
-                <div class="has-dh">№: <span id="dh">@setup[3]</span> <span id="owner"></span></div>
-                <div class="buttons">
-                    <button class="btn btn-info btn-sm" id="save-button">保存</button>
-                    <button class="btn btn-info btn-sm" id="print-button">打印</button>
-                    <button class="btn btn-info btn-sm" id="pic-button">传图</button>
-                    <button class="btn btn-info btn-sm" id="remember-button">审核</button>
-                </div>
-            </div>
+    <div class="buy-in material materialout">
+        <div class="top-title"><span><i class="fa fa-retweet"></i> 仓储管理 </span>
+            <span class="t1" id="document-bz"><i class="fa fa-angle-double-right"></i> @setup[0] </span>
+            <p id="help-info" title="帮助信息"><img></p>
         </div>
-        <div class="buy-items has-bak">
-            <div class="documents-show">
-                <div class="table-container table-docs">
+        <div class="buy-content">
+            <div class="inout-top has-bak" style="width: 99%;">
+                <div class="fields-show">
+                </div>
+                <div class="material-doc">
+                    <div class="form-input" hidden>
+                        <input class="form-control input-sm material-value" id="m_id" type="text" hidden
+                            style="width: 70px;">
+                    </div>
+                    <div class="form-input show-pic">
+                        <img id="upload-pic" width="60" height="42" src="/assets/img/sign.jpg" alt="出库签字图" title="点击放大">
+                        <input type="file" id="pic_upload" accept="image/png, image/jpeg" hidden="hidden" />
+                    </div>
+                </div>
+                <div class="buy-buttons">
+                    <div class="has-dh">№: <span id="dh">@setup[3]</span> <span id="owner"></span></div>
+                    <div class="buttons">
+                        <button class="btn btn-info btn-sm" id="save-button">保存</button>
+                        <button class="btn btn-info btn-sm" id="print-button">打印</button>
+                        <button class="btn btn-info btn-sm" id="pic-button">传图</button>
+                        <button class="btn btn-info btn-sm" id="remember-button">审核</button>
+                    </div>
+                </div>
+            </div>
+            <div class="buy-items has-bak">
+                <div class="documents-show">
+                    <div class="left-tables">
+                        <div class="table-container table-docs">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>待出库单据</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="table-container table-save">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>已保存未提交</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="table-container table-history">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>@setup[2]</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="table-container table-items not-scroll-left">
                     <table>
                         <thead>
-                        <tr>
-                            <th>待出库单据</th>
-                        </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-                </div>
-                <div class="table-container table-history">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>@setup[2]</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            <div class="table-container table-items not-scroll-left">
-                <table>
-                    <thead>
-                    </thead>
-                    <tbody>
-                    </tbody>
-                </table>
-                <div class="table-ctrl">
-                    <div class="table-button">
-                        <button class="btn btn-info btn-sm" id="row-insert" title="插入"><i
-                                class="fa fa-plus-square"></i></button>
-                        <button class="btn btn-info btn-sm" id="row-del" title="删除"><i
-                                class="fa fa-trash"></i></button>
-                        <button class="btn btn-info btn-sm" id="row-up" title="上移"><i
-                                class="fa fa-arrow-up"></i></button>
-                        <button class="btn btn-info btn-sm" id="row-down" title="下移"><i
-                                class="fa fa-arrow-down"></i></button>
-                    </div>
+                    <div class="table-ctrl">
+                        <div class="table-button">
+                            <button class="btn btn-info btn-sm" id="row-insert" title="插入"><i
+                                    class="fa fa-plus-square"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-del" title="删除"><i
+                                    class="fa fa-trash"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-up" title="上移"><i
+                                    class="fa fa-arrow-up"></i></button>
+                            <button class="btn btn-info btn-sm" id="row-down" title="下移"><i
+                                    class="fa fa-arrow-down"></i></button>
+                        </div>
 
-                    <div class="table-tips" id="sum-money">
+                        <div class="table-tips" id="sum-money">
 
-                    </div>
+                        </div>
 
-                    <div class="table-info">
-                        共 <span id="total-records"></span> 条记录
+                        <div class="table-info">
+                            共 <span id="total-records"></span> 条记录
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="/assets/plugins/laydate/laydate.js"></script>
-<script src="/assets/plugins/print/print.js"></script>
-<script type="module" src="/static/@materialout_js.name"></script>
-}, user.show.clone())
+    <script src="/assets/plugins/laydate/laydate.js"></script>
+    <script src="/assets/plugins/print/print.js"></script>
+    <script type="module" src="/static/@materialout_js.name"></script>
+    }, user.show.clone())
