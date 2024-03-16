@@ -164,6 +164,36 @@ fetch("/fetch_sale_docs", {
         }
     });
 
+fetch('/fetch_sale_saved_docs', {
+    method: 'post',
+    headers: {
+        "Content-Type": "application/json",
+    },
+    body: JSON.stringify("销售开票"),
+})
+    .then(response => response.json())
+    .then(content => {
+        let tr = "";
+        content.forEach(obj => {
+            tr += `<tr><td>${obj.label.split(`${SPLITER}`)[0]}</td><td hidden>${obj.id}</td></tr>`;
+        });
+
+        document.querySelector(".table-save tbody").innerHTML = tr;
+
+        let lines = document.querySelectorAll(".table-save tbody tr");
+        for (let l of lines) {
+            l.addEventListener("dblclick", () => {
+                if (document.querySelector('#remember-button').textContent == "已审核" ||
+                    document.querySelector('#save-button').disabled == true) {
+                    return false;
+                }
+                let dh = l.querySelector('td:nth-child(2)').textContent.trim();
+                window.location.href = "/kp/" + dh;
+
+            });
+        }
+    });
+
 if (dh_div.textContent == "新单据") {
     let edit_data = {
         show_names: show_names,

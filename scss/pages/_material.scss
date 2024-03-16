@@ -121,8 +121,11 @@
         }
 
         .table-docs {
-            width: 220px;
+            width: 220px;            
             margin-right: 10px;
+            flex-grow: 1;
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
             td {
                 text-align: center;
             }

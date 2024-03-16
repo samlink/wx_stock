@@ -285,7 +285,7 @@ fetch('/materialout_saved_docs', {
     .then(content => {
         let tr = "";
         content.forEach(obj => {
-            tr += `<tr><td>${obj.label}</td></tr>`;
+            tr += `<tr><td>${obj.label}</td><td hidden>${obj.id}</td></tr>`;
         });
 
         document.querySelector(".table-save tbody").innerHTML = tr;
@@ -297,16 +297,9 @@ fetch('/materialout_saved_docs', {
                     document.querySelector('#save-button').disabled == true) {
                     return false;
                 }
-                let dh = l.querySelector('td:nth-child(1)').textContent.split('　')[0];
+                let dh = l.querySelector('td:nth-child(2)').textContent.trim();
                 window.location.href = "/transport/" + dh;
 
-                // document.querySelector('#文本字段6').value = dh;
-                // build_func(dh);
-                // lines.forEach(l => {
-                //     l.classList.remove('has-bak')
-                // })
-                // l.classList.add('has-bak');
-                // document.querySelector('#文本字段6').focus();
             });
         }
     });

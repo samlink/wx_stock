@@ -111,6 +111,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::get_sale_out)
             .service(buyin::fetch_other_documents)
             .service(buyin::fetch_sale_docs)
+            .service(buyin::fetch_sale_saved_docs)
             .service(buyin::save_sale_money)
             .service(buyin::make_sumit_shen)
             .service(buyin::make_formal)

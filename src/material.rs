@@ -121,15 +121,18 @@ pub async fn materialout_saved_docs(
 
         let limit = get_limits(&user).await;
         let sql = &format!(
-            r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
-            join customers on 客商id = customers.id            
+            r#"SELECT 运输单号 as id, 单号 || '　' || customers.{} AS label FROM documents
+            join customers on 客商id = customers.id
+            join 
+            (select 单号 运输单号, 文本字段6 from documents where documents.类别='运输发货' and 
+            布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}') as 运输单
+            on 运输单.文本字段6 = documents.单号
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') and
-            单号 in (select 文本字段6 from documents where documents.类别='运输发货' and 
-            布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}')
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')
             order by 单号 desc
             "#,
             f_map2["简称"],
+            user.name,
             limit,
             search,
             f_map["审核"],
@@ -137,7 +140,7 @@ pub async fn materialout_saved_docs(
             f_map3["销售单号"],
             f_map3["销售单号"],
             f_map3["审核"],
-            user.name
+            // user.name
         );
 
         // println!("{}", sql);

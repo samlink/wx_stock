@@ -18,6 +18,12 @@
     margin-right: 5px;
   }
 
+  .table-docs {
+    tbody {
+      height: calc(100vh - 630px);
+    }
+  }
+
   .right-tables {
     display: flex;
     flex-direction: column;
