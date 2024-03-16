@@ -77,6 +77,14 @@
             cursor: default;
         }
 
+        tr:hover {
+            cursor: pointer;
+        }
+
+        td {
+            border: none;
+        }
+
         tbody p {
             padding-left: 10px;
         }

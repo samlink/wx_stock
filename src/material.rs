@@ -123,7 +123,7 @@ pub async fn materialout_saved_docs(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id            
-            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
+            WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
             (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') and
             单号 in (select 文本字段6 from documents where documents.类别='运输发货' and 
             布尔字段3 = false and 文本字段10 = '' and 经办人 = '{}')
@@ -140,7 +140,7 @@ pub async fn materialout_saved_docs(
             user.name
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
         autocomplete(db, sql).await
     } else {
         HttpResponse::Ok().json(-1)
