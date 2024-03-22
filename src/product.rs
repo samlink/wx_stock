@@ -199,7 +199,7 @@ async fn build_sql_search(
 }
 
 #[derive(Deserialize)]
-struct FilterData {
+pub struct FilterData {
     id: String,
     filter_name: String,
     name: String,
@@ -424,7 +424,8 @@ pub async fn product_out(
 
         let new_sql = sql
             .replace("cast(products.整数字段2 as VARCHAR)", "COALESCE(切分次数,0)::text as 整数字段2")
-            .replace("cast(products.整数字段3 as VARCHAR)", "(products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::text as 整数字段3");
+            .replace("cast(products.整数字段3 as VARCHAR)", "(products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::text as 整数字段3")
+            .replace("cast(products.库存下限 as VARCHAR)", "case when 库存下限-COALESCE(理重合计,0)<0.1 then '0' else round((库存下限-COALESCE(理重合计,0))::numeric,2)::text end as 库存下限");
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(new_sql.as_str(), &[]).await.unwrap();
