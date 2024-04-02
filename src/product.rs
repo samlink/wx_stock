@@ -63,7 +63,7 @@ pub async fn fetch_product(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
-            LEFT JOIN lu on lu.炉号 = products.文本字段4
+            LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} {} {} AND documents.文本字段10 <>''

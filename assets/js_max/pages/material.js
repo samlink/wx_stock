@@ -55,7 +55,7 @@ fetch(`/fetch_inout_fields`, {
                         let html = service.build_inout_form(document_table_fields, data);
                         document_top_handle(html, true);
                         let dh = document.querySelector("#文本字段6").value;
-                        build_items(dh); 
+                        build_items(dh);
 
                         let da = data.split(SPLITER);
                         let pic = da[da.length - 6].replace("pic_", "min_");
@@ -202,7 +202,7 @@ document.querySelector('#lu_button').addEventListener('click', (e) => {
 //上传 pdf 文件
 lu_upload.addEventListener('change', () => {
     let lu_btn = document.querySelector('#lu_button');
-    let lh = document.querySelector('#炉号').value.trim();
+    // let lh = document.querySelector('#炉号').value.trim();
     lu_btn.disabled = true;
     const fd = new FormData();
     fd.append('file', lu_upload.files[0]);
@@ -217,33 +217,13 @@ lu_upload.addEventListener('change', () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(lh)
+                // body: JSON.stringify(lh)
             })
                 .then(response => response.json())
                 .then(content => {
-                    if (content == -2) {
-                        alert_confirm("炉号质保书已存在, 是否替换？", {
-                            confirmText: "确认",
-                            cancelText: "取消",
-                            confirmCallBack: () => {
-                                fetch(`/pdf_in_save`, {
-                                    method: 'post',
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(lh + ' ' + "yyy"),
-                                })
-                                    .then(response => response.json())
-                                    .then(content => {
-                                        lu_btn.classList.add('remembered');
-                                        notifier.show('质保书成功保存', 'success');
-                                    });
-                            }
-                        });
-                    } else {
-                        lu_btn.classList.add('remembered');
-                        notifier.show('质保书成功保存', 'success');
-                    }
+                    document.querySelector('#lu_id').textContent = content;
+                    lu_btn.classList.add('remembered');
+                    notifier.show('质保书成功保存', 'success');
                     lu_btn.disabled = "";
                 });
         });
@@ -353,6 +333,14 @@ show_names = [
         type: "普通输入",
         editable: false,
         is_save: true,
+        css: 'style="width:0%; border-left:none; border-right:none; color:white"',
+    }, {
+        name: "",
+        width: 0,
+        class: "lu_id",
+        type: "普通输入",
+        editable: false,
+        is_save: true,
         css: 'style="width:0%; border-left:none; color:white"',
     },
 ];
@@ -433,7 +421,7 @@ function sum_weight() {
     }
 }
 
-// 将材料数据填入表格
+// 加入表单
 document.querySelector("#material-add").addEventListener('click', function () {
     if (!document.querySelector('#名称').value) {
         notifier.show('采购条目输入有错误', 'danger');
@@ -472,6 +460,7 @@ document.querySelector("#material-add").addEventListener('click', function () {
             show_names[12].value = 'checked';
             show_names[14].value = document.querySelector('#m_id').value;
             show_names[15].value = document.querySelector('#d_id').value;
+            show_names[16].value = document.querySelector('#lu_id').textContent;
 
             let data = {
                 show_names: show_names,

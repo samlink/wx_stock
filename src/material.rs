@@ -6,6 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use uuid::Uuid;
 use time::now;
 
 //自动完成
@@ -686,10 +687,8 @@ pub async fn save_material(
     data: web::Json<Document>,
     id: Identity,
 ) -> HttpResponse {
-    // let user = get_user(db.clone(), id.clone(), data.rights.clone()).await;
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
     if user.name != "" {
-        // let rem: Vec<&str> = data.remember.split(SPLITER).collect();
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
@@ -753,8 +752,8 @@ pub async fn save_material(
 
             let items_sql = if fields_cate != "库存调入" {
                 format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, {}, {})
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', {})"#,
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, {}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', {})"#,
                     f_map["规格"],
                     f_map["状态"],
                     f_map["炉号"],
@@ -768,6 +767,7 @@ pub async fn save_material(
                     f_map["区域"],
                     f_map["合格"],
                     f_map["备注"],
+                    f_map["质检书"],
                     f_map["顺序"],
                     dh,
                     value[12],
@@ -784,6 +784,7 @@ pub async fn save_material(
                     user.area,
                     value[10],
                     value[11],
+                    value[14],
                     value[0]
                 )
             } else {
@@ -1219,7 +1220,7 @@ pub async fn fetch_document_items_rk(
         let sql = format!(
             r#"select split_part(node_name,' ', 2) as 名称, split_part(node_name,' ', 1) as 材质,
                 {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 库位, {} as 物料号, {} as 入库长度,
-                {} as 理论重量, {} 合格, {} as 备注, 商品id FROM products
+                {} as 理论重量, {} 合格, {} as 备注, 商品id, {} as 质检书 FROM products
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY {}"#,
             f_map["规格"],
@@ -1233,6 +1234,7 @@ pub async fn fetch_document_items_rk(
             f_map["理论重量"],
             f_map["合格"],
             f_map["备注"],
+            f_map["质检书"],
             data.dh,
             f_map["顺序"]
         );
@@ -1256,9 +1258,10 @@ pub async fn fetch_document_items_rk(
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let ok: String = row.get("合格");
+            let lu_id: String = row.get("质检书");
             let pass = if ok == "是" { "checked" } else { "" };
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,
                 SPLITER,
                 cz,
@@ -1285,7 +1288,11 @@ pub async fn fetch_document_items_rk(
                 SPLITER,
                 note,
                 SPLITER,
-                m_id
+                m_id,
+                SPLITER,
+                "0",        //用作 d_id 填充补位
+                SPLITER,
+                lu_id
             );
 
             document_items.push(item)
@@ -1763,24 +1770,24 @@ pub async fn pdf_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
 #[post("/pdf_in_save")]
 pub async fn pdf_in_save(
     db: web::Data<Pool>,
-    data: web::Json<String>,
+    // data: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let sql = format!("delete from lu where 炉号 = '{}'", data);
-        let _result = &conn.execute(sql.as_str(), &[]).await.unwrap();
-
-        let pdf = format!("/upload/pdf/{}.pdf", data);
+        // let sql = format!("delete from lu where 炉号 = '{}'", data);
+        // let _result = &conn.execute(sql.as_str(), &[]).await.unwrap();
+        let lu_id = Uuid::new_v4();
+        let pdf = format!("/upload/pdf/{}.pdf", lu_id);
         fs::rename("./upload/pdf/lu.pdf", format!(".{}", pdf)).unwrap();
 
         let sql = format!(
             r#"insert into lu (炉号, 质保书) values ('{}', '{}')"#,
-            data, pdf
+            lu_id, pdf
         );
         let _result = &conn.execute(sql.as_str(), &[]).await.unwrap_or(0);
-        HttpResponse::Ok().json(pdf)
+        HttpResponse::Ok().json(lu_id.to_string())
     } else {
         HttpResponse::Ok().json(-1)
     }
