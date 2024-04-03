@@ -255,7 +255,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             WHERE {} documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
             单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 
-            布尔字段3 = true) AND 名称 != '天津彩虹石油机械有限公司' order by 单号 desc"#,
+            布尔字段3 = true) AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' order by 单号 desc"#,
             f_map2["简称"], limits, f_map["是否欠款"], f_map["发货完成"]
         );
 

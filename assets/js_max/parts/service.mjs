@@ -870,7 +870,6 @@ export function build_product_table(row_num, cb, more) {
 
 }
 
-
 //出入库时，获取单据列表
 export function get_materials_docs(url, cate, build_func) {
     fetch(url, {
@@ -882,6 +881,9 @@ export function get_materials_docs(url, cate, build_func) {
     })
         .then(response => response.json())
         .then(content => {
+            let title = document.querySelector(".table-docs thead th");
+            title.innerHTML = title.textContent + " " + content.length + " 单";
+
             let tr = "";
             content.forEach(obj => {
                 tr += `<tr><td>${obj.label}</td></tr>`;

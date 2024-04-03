@@ -134,6 +134,9 @@ fetch("/fetch_sale_docs", {
 })
     .then(response => response.json())
     .then(content => {
+        let title = document.querySelector(".table-docs thead th");
+        title.innerHTML = title.textContent + " " + content.length + " 单";
+
         let tr = "";
         content.forEach(obj => {
             let material = obj.label.split(`${SPLITER}`);
@@ -173,6 +176,9 @@ fetch('/fetch_sale_saved_docs', {
 })
     .then(response => response.json())
     .then(content => {
+        let title = document.querySelector(".table-save thead th");
+        title.innerHTML = title.textContent + " " + content.length + " 单";
+
         let tr = "";
         content.forEach(obj => {
             tr += `<tr><td>${obj.label.split(`${SPLITER}`)[0]}</td><td hidden>${obj.id}</td></tr>`;
@@ -183,10 +189,10 @@ fetch('/fetch_sale_saved_docs', {
         let lines = document.querySelectorAll(".table-save tbody tr");
         for (let l of lines) {
             l.addEventListener("dblclick", () => {
-                if (document.querySelector('#remember-button').textContent == "已审核" ||
-                    document.querySelector('#save-button').disabled == true) {
-                    return false;
-                }
+                // if (document.querySelector('#remember-button').textContent == "已审核" ||
+                //     document.querySelector('#save-button').disabled == true) {
+                //     return false;
+                // }
                 let dh = l.querySelector('td:nth-child(2)').textContent.trim();
                 window.location.href = "/kp/" + dh;
 

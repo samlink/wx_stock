@@ -166,6 +166,9 @@ fetch('/materialin_saved_docs', {
 })
     .then(response => response.json())
     .then(content => {
+        let title = document.querySelector(".table-save thead th");
+        title.innerHTML = title.textContent + " " + content.length + " 单";
+
         let tr = "";
         content.forEach(obj => {
             tr += `<tr><td>${obj.label}</td><td hidden>${obj.id}</td></tr>`;
@@ -176,10 +179,10 @@ fetch('/materialin_saved_docs', {
         let lines = document.querySelectorAll(".table-save tbody tr");
         for (let l of lines) {
             l.addEventListener("dblclick", () => {
-                if (document.querySelector('#remember-button').textContent == "已审核" ||
-                    document.querySelector('#save-button').disabled == true) {
-                    return false;
-                }
+                // if (document.querySelector('#remember-button').textContent == "已审核" ||
+                //     document.querySelector('#save-button').disabled == true) {
+                //     return false;
+                // }
                 let dh = l.querySelector('td:nth-child(2)').textContent.trim();
                 window.location.href = "/material_in/" + dh;
             });
