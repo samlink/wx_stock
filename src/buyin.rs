@@ -1155,7 +1155,7 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
     }
 }
 
-// 开票单获得已保存销售单据
+// 开票单已保存未提交
 #[post("/fetch_sale_saved_docs")]
 pub async fn fetch_sale_saved_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
@@ -1164,13 +1164,15 @@ pub async fn fetch_sale_saved_docs(db: web::Data<Pool>, id: Identity) -> HttpRes
         let f_map2 = map_fields(db.clone(), "客户").await;
 
         let sql = &format!(
-            r#"SELECT 开票单号 as id, 单号 || '　' || customers.{} || '　' || t.经办人  || '{}' || 名称 || '　' || documents.{} ||
+            r#"SELECT 开票单号 as id, 单号 || '　' || customers.{} || '　' || 开票单.经办人  || '{}' || 名称 || '　' || documents.{} ||
             '　' || documents.{} || '　' || documents.{} || '　' || customers.id as label FROM documents
             join customers on 客商id = customers.id
             join 
-            (select 单号 开票单号, 文本字段6, 经办人 from documents where documents.类别='销售开票' AND 文本字段10 = '') as t
-            on t.文本字段6 = documents.单号
-            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true 
+            (select 单号 开票单号, 文本字段6, 经办人 from documents where documents.类别='销售开票' and 
+            布尔字段3 = false and 文本字段10 = '') as 开票单
+            on 开票单.文本字段6 = documents.单号
+            WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
+            单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true) 
             AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室'
             order by 单号 desc"#,
             f_map2["简称"],
