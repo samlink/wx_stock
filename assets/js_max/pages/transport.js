@@ -444,22 +444,29 @@ if (dh_div.textContent == "新单据") {
 
             build_items_table(data);
 
-            // let lus = document.querySelectorAll('.table-items .炉号')
-            // for (let lu of lus) {
-            //     fetch("/fetch_lu", {
-            //         method: 'post',
-            //         headers: {
-            //             "Content-Type": "application/json",
-            //         },
-            //         body: JSON.stringify(lu.textContent.trim()),
-            //     })
-            //         .then(response => response.json())
-            //         .then(content => {
-            //             if (content != "" && content != -1) {
-            //                 lu.innerHTML = `<a href="${content}" title="点击下载质保书">${lu.textContent.trim()}</a>`
-            //             }
-            //         })
-            // }
+            let trs = document.querySelectorAll('.table-items .has-input');
+
+            for (let tr of trs) {
+                if (tr.querySelector(".炉号")) {
+                    let lu = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
+                    fetch("/fetch_lu", {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(lu),
+                    })
+                        .then(response => response.json())
+                        .then(content => {
+                            if (content != "" && content != -1) {
+                                tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                            }
+                        })
+                }
+                else {
+                    continue;
+                }
+            }
         });
 }
 

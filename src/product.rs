@@ -661,20 +661,20 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
     }
 }
 
-// ///获取炉号质保书
-// #[post("/fetch_lu")]
-// pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) -> HttpResponse {
-//     let user = get_user(db.clone(), id, "".to_owned()).await;
-//     if user.name != "" {
-//         let conn = db.get().await.unwrap();
-//         let sql = format!(r#"select 质保书 from lu where 炉号='{}'"#, lh);
-//         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-//         let mut bao = "";
-//         for row in rows {
-//             bao = row.get("质保书");
-//         }
-//         HttpResponse::Ok().json(bao)
-//     } else {
-//         HttpResponse::Ok().json(-1)
-//     }
-// }
+///获取炉号质保书
+#[post("/fetch_lu")]
+pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lh);
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut bao = "";
+        for row in rows {
+            bao = row.get("质保书");
+        }
+        HttpResponse::Ok().json(bao)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
