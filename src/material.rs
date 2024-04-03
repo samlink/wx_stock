@@ -6,7 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use uuid::Uuid;
+// use uuid::Uuid;
 use time::now;
 
 //自动完成
@@ -1770,7 +1770,7 @@ pub async fn pdf_in(db: web::Data<Pool>, payload: Multipart, id: Identity) -> Ht
 #[post("/pdf_in_save")]
 pub async fn pdf_in_save(
     db: web::Data<Pool>,
-    // data: web::Json<String>,
+    data: web::Json<String>,
     id: Identity,
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
@@ -1778,16 +1778,16 @@ pub async fn pdf_in_save(
         let conn = db.get().await.unwrap();
         // let sql = format!("delete from lu where 炉号 = '{}'", data);
         // let _result = &conn.execute(sql.as_str(), &[]).await.unwrap();
-        let lu_id = Uuid::new_v4();
-        let pdf = format!("/upload/pdf/{}.pdf", lu_id);
+        // let lu_id = Uuid::new_v4();
+        let pdf = format!("/upload/pdf/{}.pdf", data);
         fs::rename("./upload/pdf/lu.pdf", format!(".{}", pdf)).unwrap();
 
         let sql = format!(
             r#"insert into lu (炉号, 质保书) values ('{}', '{}')"#,
-            lu_id, pdf
+            data, pdf
         );
         let _result = &conn.execute(sql.as_str(), &[]).await.unwrap_or(0);
-        HttpResponse::Ok().json(lu_id.to_string())
+        HttpResponse::Ok().json(data)
     } else {
         HttpResponse::Ok().json(-1)
     }

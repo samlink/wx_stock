@@ -202,7 +202,7 @@ document.querySelector('#lu_button').addEventListener('click', (e) => {
 //上传 pdf 文件
 lu_upload.addEventListener('change', () => {
     let lu_btn = document.querySelector('#lu_button');
-    // let lh = document.querySelector('#炉号').value.trim();
+    let lh = `${document.querySelector('#材质').value.trim()}_${document.querySelector('#规格').value.trim()}_${document.querySelector('#炉号').value.trim()}__${document.querySelector('#生产厂家').value.trim()}`;
     lu_btn.disabled = true;
     const fd = new FormData();
     fd.append('file', lu_upload.files[0]);
@@ -217,7 +217,7 @@ lu_upload.addEventListener('change', () => {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                // body: JSON.stringify(lh)
+                body: JSON.stringify(lh)
             })
                 .then(response => response.json())
                 .then(content => {
