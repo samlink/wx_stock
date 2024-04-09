@@ -38,7 +38,7 @@ let tree_data = {
         };
 
         Object.assign(table_data.post_data, post_data);
-        fetch_table(()=> {
+        fetch_table(() => {
             add_lu_link();
         });
     }
@@ -162,13 +162,39 @@ function make_filter() {
 
 // 给炉号加入连接
 function add_lu_link() {
-    let table = document.querySelector('.table-product');
-    let rows = table.querySelectorAll('tbody tr');
-    for (let row of rows) {
-        let lu = row.querySelector('.炉号');
-        let link = row.querySelector('.link');
-        if (link && link.textContent.trim() != "") {
-            lu.innerHTML = `<a href="${link.textContent.trim()}">${lu.textContent.trim()}</a>`;
+    // let table = document.querySelector('.table-product');
+    // let rows = table.querySelectorAll('tbody tr');
+    // for (let row of rows) {
+    //     let lu = row.querySelector('.炉号');
+    //     let link = row.querySelector('.link');
+    //     if (link && link.textContent.trim() != "") {
+    //         lu.innerHTML = `<a href="${link.textContent.trim()}">${lu.textContent.trim()}</a>`;
+    //     }
+    // }
+
+    let trs = document.querySelectorAll('.table-product tbody tr');
+
+    // let trs = document.querySelectorAll('.table-items .has-input');
+
+    for (let tr of trs) {
+        if (tr.querySelector(".炉号")) {
+            let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
+            fetch("/fetch_lu", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(lu),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != "" && content != -1) {
+                        tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                    }
+                })
+        }
+        else {
+            continue;
         }
     }
 }
@@ -244,7 +270,7 @@ document.querySelector('#f-ok').addEventListener('click', () => {
 
     Object.assign(table_data.post_data, post_data);
 
-    fetch_table(()=> {
+    fetch_table(() => {
         add_lu_link();
     });
 
@@ -309,7 +335,7 @@ document.querySelector('#p-select').addEventListener('change', () => {
     };
 
     Object.assign(table_data.post_data, post_data);
-    fetch_table(()=> {
+    fetch_table(() => {
         add_lu_link();
     });
 });
@@ -587,7 +613,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
                         modal_out_data.edit = 0;
                         notifier.show('商品修改成功', 'success');
 
-                        fetch_table(()=> {
+                        fetch_table(() => {
                             add_lu_link();
                         });
 
@@ -615,7 +641,7 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             .then(content => {
                 if (content == 1) {
                     notifier.show('批量操作成功', 'success');
-                    fetch_table(()=> {
+                    fetch_table(() => {
                         add_lu_link();
                     });
                     close_modal();
