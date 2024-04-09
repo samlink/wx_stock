@@ -232,8 +232,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let sql = format!(
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
-            where {} documents.类别='商品销售' and 是否欠款=true and 
-            documents.文本字段10 != '' order by 单号 desc"#,
+            where {} documents.类别='商品销售' and 是否欠款=true and             
+            documents.文本字段10 != '' and 名称 != '实验室' 
+            order by 单号 desc"#,
             f_map2["简称"], limits
         );
 
