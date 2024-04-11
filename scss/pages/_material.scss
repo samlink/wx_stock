@@ -85,8 +85,11 @@
             border: none;
         }
 
-        tbody p {
-            padding-left: 10px;
+        tbody {
+            height: 230px !important;
+            p {
+                padding-left: 10px;
+            }
         }
     }
 
