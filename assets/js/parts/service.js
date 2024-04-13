@@ -627,8 +627,8 @@ var service = function () {
                 }
             }
 
-            tree_init(tree_data);
-            fetch_tree(open_node);
+            tool_tree.tree_init(tree_data);
+            tool_tree.fetch_tree(open_node);
 
             let input = document.querySelector('#auto_input');
 
@@ -639,7 +639,7 @@ var service = function () {
             // auto_com.init();
 
             document.querySelector("#auto_search").addEventListener('click', () => {
-                tree_search(input.value);
+                tool_tree.tree_search(input.value);
             });
 
             let row_num = Math.floor(tbody_height / 30);
