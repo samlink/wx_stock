@@ -1,30 +1,14 @@
 1. 修改 js 文件
-   assets 中 含有 js_max 和 js 两个文件夹，js 是发布的 min 文件，仅有 part 部分。
-   js_max 是源文件夹，所有 js 文件的修改都在此处，如果修改 page 文件夹中的文件，则运行 page.sh 将最小化文件生成到 static 文件夹。
-   如果修改了 part 文件，则运行 part.sh 将最小化文件生成到 /assets/js/part/ 中，并记得将此文件夹上传到服务器相应目录。
-   输送到 static 的 js 文件会随系统一起编译，无需单独发布
-
+   修改 js 文件夹中的文件，然后运行 min.sh 文件。将所有文件生成到 static 文件夹。
    修改完成后，提交到 git
 
 2. 重新编译
     则登录到本地 FreeBSD 的虚拟机, 进入 sales 目录, pull 五星石油分支：
-    git pull origin 五星石油 
+    git pull origin wx2
     然后编译: cargo build --release
-    编译完成后，进入 target/release 目录，
-    sftp sam@39.106.229.26	
-    put sales
-
+    编译完成后，运行 sh put.sh 上传到服务器
+    
 3. 服务器端设置
-    cd wxsales
-    rm sales
-    mv ../sales sales
-    let a = `pgrep sales`
-    kill -9 $a
-    ./sales &
-
-    以上命令写在 wx.sh 中, 直接运行 ./wx.sh 即可
-
-    需保证 home 目录中有最新编译的 sales 文件。
-    至此, 程序发布完成。
+    保证 home 目录中有最新编译的 sales 文件，然后运行 ./wx.sh 即可完成发布  
 
     /etc/rc.conf 已添加自动随系统启动语句

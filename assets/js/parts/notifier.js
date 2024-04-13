@@ -51,7 +51,6 @@
           setTimeout(function () {
               hide(ntfId);
           }, timeout);
-
       }
 
       ntfClose.addEventListener('click', function () {
@@ -77,6 +76,7 @@
   };
 
   createContainer();
+  
   return {
       show: show,
       hide: hide
