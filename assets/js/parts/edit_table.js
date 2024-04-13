@@ -6,8 +6,6 @@
 // import { close_modal, modal_init } from './modal.mjs';
 
 let edit_table = function () {
-
-
     let all_width;
 
     var input_data = {

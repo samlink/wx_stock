@@ -1,13 +1,8 @@
-import {table_init, fetch_table} from '/assets/js/parts/table.mjs';
-import {notifier} from '/assets/js/parts/notifier.mjs';
-import {SPLITER, getHeight, download_file} from '/assets/js/parts/tools.mjs';
-import {set_date} from "/assets/js/parts/service.mjs";
-
 let get_height = getHeight() - 138;
 let row_num = Math.floor(get_height / 33);
 
 //执行日期实例------------------------------------------------
-set_date();
+service.set_date();
 
 //填充表格空行-------------------------------------------------
 let blank_rows = "";
@@ -53,9 +48,9 @@ let init_data = {
     row_fn: row_fn,
     blank_row_fn: blank_row_fn,
 };
-
-table_init(init_data);
-fetch_table();
+ 
+tool_table.table_init(init_data);
+tool_table.fetch_table();
 
 //点击搜索按钮
 document.querySelector('#serach-button').addEventListener('click', function () {
@@ -66,8 +61,8 @@ document.querySelector('#serach-button').addEventListener('click', function () {
     init_data.post_data.name = fields;
     init_data.post_data.cate = `${date1}${SPLITER}${date2}`;
 
-    table_init(init_data);
-    fetch_table();
+    tool_table.table_init(init_data);
+    tool_table.fetch_table();
 });
 
 function row_fn(tr) {
