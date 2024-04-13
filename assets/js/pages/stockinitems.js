@@ -13,16 +13,20 @@ let page_stockinitems = function () {
     let date2 = document.querySelector('#search-date2').value;
 
     //填充表格空行-------------------------------------------------
-    let blank_rows = "";
-    for (let i = 0; i < row_num; i++) {
-        blank_rows += blank_row_fn();
-    }
+    // let blank_rows = "";
+    // for (let i = 0; i < row_num; i++) {
+    //     blank_rows += blank_row_fn();
+    // }
 
-    document.querySelector('.table-container tbody').innerHTML = blank_rows;
+    // console.log(blank_rows);
+
+    // document.querySelector('.table-container table tbody').innerHTML = blank_rows;
+    // document.getElementById("tbody-stockin").innerHTML = blank_rows;
+    // document.querySelector('.table-container tbody').innerHTML = '<tr><td>alsdfjkl;asfjklas</td></tr>';
 
     //表格搜索----------------------------------------------------
     let init_data = {
-        container: '.table-container',
+        container: '#table-stockin',
         url: `/get_stockin_items`,
         post_data: {
             id: "",

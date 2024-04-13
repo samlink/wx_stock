@@ -6,19 +6,19 @@ let page_businessquery = function () {
     service.set_date();
 
     //填充表格空行-------------------------------------------------
-    let blank_rows = "";
-    for (let i = 0; i < row_num; i++) {
-        blank_rows += blank_row_fn();
-    }
+    // let blank_rows = "";
+    // for (let i = 0; i < row_num; i++) {
+    //     blank_rows += blank_row_fn();
+    // }
 
-    document.querySelector('.table-container tbody').innerHTML = blank_rows;
+    // document.querySelector('.table-container tbody').innerHTML = blank_rows;
 
     let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
 
     //表格搜索----------------------------------------------------
     let init_data = {
-        container: '.table-container',
+        container: '#table-business',
         url: `/fetch_business`,
         post_data: {
             id: "",

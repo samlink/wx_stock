@@ -12,16 +12,16 @@ let page_stockoutitems = function () {
     let date2 = document.querySelector('#search-date2').value;
 
     //填充表格空行-------------------------------------------------
-    let blank_rows = "";
-    for (let i = 0; i < row_num; i++) {
-        blank_rows += blank_row_fn();
-    }
+    // let blank_rows = "";
+    // for (let i = 0; i < row_num; i++) {
+    //     blank_rows += blank_row_fn();
+    // }
 
-    document.querySelector('.table-container tbody').innerHTML = blank_rows;
+    // document.querySelector('.table-container tbody').innerHTML = blank_rows;
 
     //表格搜索----------------------------------------------------
     let init_data = {
-        container: '.table-container',
+        container: '#table-stockout',
         url: `/get_stockout_items`,
         post_data: {
             id: "",
