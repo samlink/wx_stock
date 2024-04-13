@@ -6,9 +6,10 @@
 // import { close_modal, modal_init } from './modal.mjs';
 
 let edit_table = function () {
-    let all_width;
+    if (!document.querySelector('.table-history')) return;
 
-    var input_data = {
+    let all_width;
+    input_data = {
         container: document.querySelector('.table-items'),
         width: document.querySelector('.content').clientWidth - document.querySelector('.table-history').clientWidth - 15,
         show_names: "",

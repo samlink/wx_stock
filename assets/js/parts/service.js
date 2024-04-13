@@ -621,9 +621,9 @@ var service = function () {
                         done: '否',
                     };
 
-                    Object.assign(table_data.post_data, post_data);
+                    Object.assign(tool_table.table_data.post_data, post_data);
 
-                    fetch_table(init_func);
+                    tool_table.fetch_table(init_func);
                 }
             }
 
@@ -794,7 +794,7 @@ var service = function () {
                     init_data.header_names["切分"] = "COALESCE(切分次数,0)";
                     init_data.header_names["理论重量"] = "库存下限-COALESCE(理重合计,0)";
 
-                    table_init(init_data)
+                    tool_table.table_init(init_data)
 
                     let post_data = {
                         cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "现有库存",
@@ -802,8 +802,8 @@ var service = function () {
                     }
 
                     // Object.assign(table_data, data);
-                    Object.assign(table_data.post_data, post_data);
-                    fetch_table(() => {
+                    Object.assign(tool_table.table_data.post_data, post_data);
+                    tool_table.fetch_table(() => {
                         if (cb) {
                             cb(table);
                         }
@@ -835,11 +835,11 @@ var service = function () {
 
         function search_table() {
             let search = document.querySelector('#search-input').value;
-            Object.assign(table_data.post_data, { name: search, page: 1 });
+            Object.assign(tool_table.table_data.post_data, { name: search, page: 1 });
 
             //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
             let table = document.querySelector('.table-product');
-            fetch_table(() => {
+            tool_table.fetch_table(() => {
                 if (cb) {
                     cb(table);
                 }

@@ -167,12 +167,6 @@
         <button class="btn btn-info" id="quick-8"><i class="fa fa-dedent"></i>出表</button>
     </div>
 
-    <script src="/static/@tools_service_js.name"></script>
-
-    <div class="content">
-        @:content()
-    </div>
-
     <div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
         <div class="roar-alert-mask"></div>
         <div class="roar-alert-message-body" role="alert" aria-relevant="all">
@@ -245,11 +239,14 @@
         <div class="print-note" style="font-size: 14;"></div>
     </div>
 
+    <div class="content">
+        @:content()
+    </div>
+
     <footer>
         <p><span id="my-company">天津炬瓴科技有限公司</span> &#169; @now().strftime("%Y").unwrap().to_string()
             授权 五星(天津)石油装备有限公司 使用 </p>
     </footer>
-    <script src="/static/@general_js.name"></script>
 </body>
 
 </html>

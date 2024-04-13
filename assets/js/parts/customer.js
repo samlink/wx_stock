@@ -5,7 +5,7 @@
 // import {close_modal, modal_init} from './modal.mjs';
 // import {notifier} from '../parts/notifier.mjs';
 
-var customer_init = function () {
+var tool_customer = function () {
     var customer_data = {
         input: document.querySelector('#supplier-input'),
         button: document.querySelector('#supplier-serach'),
@@ -110,8 +110,8 @@ var customer_init = function () {
                             blank_row_fn: customer_blank_row,
                         };
 
-                        table_init(init_data);
-                        fetch_table(() => {
+                        tool_table.table_init(init_data);
+                        tool_table.fetch_table(() => {
                             row_dbclick(table);
                         });
                     });
@@ -170,7 +170,7 @@ var customer_init = function () {
         let table = document.querySelector('.table-customer');
         let search = document.querySelector('#search-input').value;
         Object.assign(table_data.post_data, { name: search, page: 1 });
-        fetch_table(() => {
+        tool_table.fetch_table(() => {
             row_dbclick(table);
         });
     }
@@ -190,5 +190,7 @@ var customer_init = function () {
         }
     }
 
-    return customer_init;
+    return {
+        customer_init: customer_init
+    }
 }();
