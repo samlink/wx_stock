@@ -1,8 +1,8 @@
-import {alert_confirm} from "./alert.mjs";
+// import {alert_confirm} from "./alert.mjs";
 
-export var modal_out_data = {edit: 0};
+var modal_out_data = {edit: 0};
 
-export function modal_init() {
+function modal_init() {
     //关闭按键
     document.querySelector('#modal-close-button').addEventListener('click', function () {
         document.querySelector('#modal-sumit-button').style.display = "inline-block";
@@ -14,7 +14,7 @@ export function modal_init() {
     });
 }
 
-export function close_modal() {
+function close_modal() {
     if (modal_out_data.edit == 1) {
         alert_confirm('编辑还未保存，确认退出吗？', {
             confirmCallBack: () => {
@@ -30,7 +30,7 @@ export function close_modal() {
 }
 
 //编辑离开提醒事件
-export function leave_alert() {
+function leave_alert() {
     let all_input = document.querySelectorAll('.modal input');
     for (let input of all_input) {
         input.addEventListener('input', () => {

@@ -1,4 +1,4 @@
-export class MakeTable {
+class MakeTable {
     constructor(table_data, cb) {
         this.table_data = table_data;
         this.cb_function = cb;

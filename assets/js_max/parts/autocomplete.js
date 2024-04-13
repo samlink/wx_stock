@@ -1,6 +1,6 @@
-import { SPLITER, getLeft, getTop } from '../parts/tools.mjs';
+// import { SPLITER, getLeft, getTop } from '../parts/tools.mjs';
 
-export class AutoInput {
+class AutoInput {
     constructor(input, cate, url, cb, width) {
         this.input = input;
         this.cate = cate;
@@ -137,7 +137,7 @@ export class AutoInput {
 ///thead 是对象数组，其格式：[{ name: "名称", width: 140 }，……];
 ///cb 是回调函数
 ///cf 是前置函数, 应返回一个联合查询字符串
-export function auto_table(input, cate, url, thead, cb, cf) {
+function auto_table(input, cate, url, thead, cb, cf) {
     var currentFocus;
     input.addEventListener("input", function (e) {
         var a, b, i;
