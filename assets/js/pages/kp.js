@@ -100,7 +100,7 @@ let page_kp = function () {
                 button: this,
                 dh: dh_div.textContent,
                 document_name: document_name,
-                edited: edited || input_table_outdata.edited,
+                edited: edited || input_table_outdata().edited,
             }
             service.sumit_shen(shen_data);
         });
@@ -431,7 +431,7 @@ let page_kp = function () {
                     dh_div.textContent = content;
                     notifier.show('单据保存成功', 'success');
                     edited = false;
-                    input_table_outdata.edited = false;
+                    input_table_outdata().edited = false;
                 } else {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
@@ -465,7 +465,7 @@ let page_kp = function () {
             dh: dh_div.textContent,
             xsdh: `${document.querySelector('#文本字段6').value}${SPLITER}${document.querySelector("#是否欠款").checked}`,
             document_name: document_name,
-            edited: edited || input_table_outdata.edited,
+            edited: edited || input_table_outdata().edited,
             readonly_fun: set_readonly,
             after_func: function (xsdh, dh) {
                 // 将实际是否欠款写入销售单
@@ -504,7 +504,7 @@ let page_kp = function () {
     }
 
     window.onbeforeunload = function (e) {
-        if (edited || input_table_outdata.edited) {
+        if (edited || input_table_outdata().edited) {
             var e = window.event || e;
             e.returnValue = ("编辑未保存提醒");
         }

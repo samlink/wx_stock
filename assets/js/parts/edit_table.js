@@ -501,8 +501,12 @@ let edit_table = function () {
 
     modal_init();
 
+    let get_data = function() {
+        return input_table_outdata;
+    }
+
     return {
-        input_table_outdata: input_table_outdata,
+        input_table_outdata: get_data,
         build_blank_table: build_blank_table,
         build_out_table: build_out_table,
         appand_edit_row: appand_edit_row,

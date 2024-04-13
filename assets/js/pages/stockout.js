@@ -114,7 +114,7 @@ let page_stockout = function () {
                 button: this,
                 dh: dh_div.textContent,
                 document_name: document_name,
-                edited: edited || edit_table.input_table_outdata.edited,
+                edited: edited || edit_table.input_table_outdata().edited,
             }
             service.sumit_shen(shen_data);
         });
@@ -381,7 +381,7 @@ let page_stockout = function () {
                     dh_div.textContent = content;
                     notifier.show('单据保存成功', 'success');
                     edited = false;
-                    edit_table.input_table_outdata.edited = false;
+                    edit_table.input_table_outdata().edited = false;
                 } else {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
@@ -394,7 +394,7 @@ let page_stockout = function () {
             button: this,
             dh: dh_div.textContent,
             document_name: document_name,
-            edited: edited || edit_table.input_table_outdata.edited,
+            edited: edited || edit_table.input_table_outdata().edited,
             readonly_fun: set_readonly,
         }
         service.make_formal(formal_data);
@@ -431,7 +431,7 @@ let page_stockout = function () {
     }
 
     window.onbeforeunload = function (e) {
-        if (edited || edit_table.input_table_outdata.edited) {
+        if (edited || edit_table.input_table_outdata().edited) {
             var e = window.event || e;
             e.returnValue = ("编辑未保存提醒");
         }
