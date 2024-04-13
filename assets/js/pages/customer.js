@@ -93,7 +93,7 @@ let page_customer = function () {
 
     function search_table() {
         let search = document.querySelector('#search-input').value;
-        Object.assign(tool_table.table_data.post_data, { name: search, page: 1 });
+        Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
         fetch_table();
     }
 

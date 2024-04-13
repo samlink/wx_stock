@@ -37,7 +37,7 @@ let page_productset = function () {
                 page: 1,
             };
 
-            Object.assign(tool_table.table_data.post_data, post_data);
+            Object.assign(tool_table.table_data().post_data, post_data);
             tool_table.fetch_table(() => {
                 add_lu_link();
             });
@@ -268,7 +268,7 @@ let page_productset = function () {
             page: 1,
         };
 
-        Object.assign(tool_table.table_data.post_data, post_data);
+        Object.assign(tool_table.table_data().post_data, post_data);
 
         tool_table.fetch_table(() => {
             add_lu_link();
@@ -334,7 +334,7 @@ let page_productset = function () {
             page: 1,
         };
 
-        Object.assign(tool_table.table_data.post_data, post_data);
+        Object.assign(tool_table.table_data().post_data, post_data);
         tool_table.fetch_table(() => {
             add_lu_link();
         });

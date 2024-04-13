@@ -447,7 +447,7 @@ let page_stockin = function () {
     }
 
     window.onbeforeunload = function (e) {
-        if (edited || edit_table.edit_table.input_table_outdata.edited) {
+        if (edited || edit_table.input_table_outdata.edited) {
             var e = window.event || e;
             e.returnValue = ("编辑未保存提醒");
         }

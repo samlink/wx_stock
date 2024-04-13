@@ -78,9 +78,9 @@ let page_usermanage = function () {
 
     //搜索用户
     document.querySelector('#serach-button').addEventListener('click', function () {
-        if (!tool_table.table_data.edit) {
+        if (!tool_table.table_data().edit) {
             let search = document.querySelector('#search-input').value;
-            Object.assign(tool_table.table_data.post_data, { name: search });
+            Object.assign(tool_table.table_data().post_data, { name: search });
             tool_table.fetch_table();
         }
     });
@@ -172,7 +172,7 @@ let page_usermanage = function () {
                 check.disabled = false;
             }
 
-            tool_table.table_data.edit = true;
+            tool_table.table_data().edit = true;
 
             confirm_save = focus.children[6].textContent;
             select_save = focus.children[2].textContent;
@@ -213,7 +213,7 @@ let page_usermanage = function () {
             check.disabled = true;
         }
 
-        tool_table.table_data.edit = false;
+        tool_table.table_data().edit = false;
 
         focus.children[2].innerHTML = select_save;
 
@@ -294,7 +294,7 @@ let page_usermanage = function () {
                             .then(response => response.json())
                             .then(content => {
                                 if (content == 1) {
-                                    tool_table.fetch_table(tool_table.table_data.post_data);
+                                    tool_table.fetch_table(tool_table.table_data().post_data);
                                     notifier.show('用户删除完成', 'success');
                                 } else {
                                     notifier.show('权限不够，操作失败', 'danger');

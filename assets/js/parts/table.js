@@ -241,8 +241,13 @@ var tool_table = function () {
             };
         }
     }
+
+    let get_data = function () {
+        return table_data;
+    }
+
     return {
-        table_data: table_data,
+        table_data: get_data,
         table_init: table_init,
         fetch_table: fetch_table,
     };
