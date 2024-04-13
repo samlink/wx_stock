@@ -237,7 +237,6 @@ var tool_table = function () {
                     //防止触发排序
                     resize = true;
                 }
-
             };
         }
     }

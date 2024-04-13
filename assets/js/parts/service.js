@@ -976,8 +976,13 @@ var service = function () {
             document.querySelector('#modal-sumit-button').style.display = "none";
         })
     }
+
+    let get_data = function() {
+        return table_fields;
+    }
+
     return {
-        table_fields: table_fields,
+        table_fields: get_data,
         build_table_header: build_table_header,
         calc_weight: calc_weight,
         build_save_header: build_save_header,

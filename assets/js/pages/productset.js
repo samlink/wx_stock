@@ -63,10 +63,36 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, add_lu_link);
 
+    // 给炉号加入连接
+    function add_lu_link() {
+        let trs = document.querySelectorAll('.table-product tbody tr');
+
+        for (let tr of trs) {
+            if (tr.querySelector(".炉号")) {
+                let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
+                fetch("/fetch_lu", {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(lu),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content != "" && content != -1) {
+                            tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                        }
+                    })
+            }
+            else {
+                continue;
+            }
+        }
+    }
+
     // 建立过滤器, 作为创建表格后的回调函数
     function make_filter() {
-        let table = document.querySelector('.table-container');
-        let ths = table.querySelectorAll('thead th');
+        const ths = document.querySelectorAll('.table-container thead th');
 
         let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
 
@@ -159,45 +185,6 @@ let page_productset = function () {
             })
         })
     };
-
-    // 给炉号加入连接
-    function add_lu_link() {
-        // let table = document.querySelector('.table-product');
-        // let rows = table.querySelectorAll('tbody tr');
-        // for (let row of rows) {
-        //     let lu = row.querySelector('.炉号');
-        //     let link = row.querySelector('.link');
-        //     if (link && link.textContent.trim() != "") {
-        //         lu.innerHTML = `<a href="${link.textContent.trim()}">${lu.textContent.trim()}</a>`;
-        //     }
-        // }
-
-        let trs = document.querySelectorAll('.table-product tbody tr');
-
-        // let trs = document.querySelectorAll('.table-items .has-input');
-
-        for (let tr of trs) {
-            if (tr.querySelector(".炉号")) {
-                let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
-                fetch("/fetch_lu", {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(lu),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != "" && content != -1) {
-                            tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
-                        }
-                    })
-            }
-            else {
-                continue;
-            }
-        }
-    }
 
     // 确定
     document.querySelector('#f-ok').addEventListener('click', () => {
@@ -345,7 +332,7 @@ let page_productset = function () {
         global.eidt_cate = "add";
 
         if (global.product_name != "") {
-            document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields);
+            document.querySelector('.modal-body').innerHTML = service.build_add_form(service.table_fields());
             document.querySelector('.modal-title').textContent = global.product_name;
             document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;"
             document.querySelector('.modal').style.display = "block";
@@ -566,8 +553,8 @@ let page_productset = function () {
             if (all_input[0].value != "") {
                 let num = 0;
                 for (let input of all_input) {
-                    if (service.table_fields[num].data_type == "整数" && !regInt.test(input.value)
-                        || service.table_fields[num].data_type == "实数" && !regReal.test(input.value)) {
+                    if (service.table_fields()[num].data_type == "整数" && !regInt.test(input.value)
+                        || service.table_fields()[num].data_type == "实数" && !regReal.test(input.value)) {
                         notifier.show('数字字段输入错误', 'danger');
                         return false;
                     }
@@ -585,7 +572,7 @@ let page_productset = function () {
                         value = input.checked;
                     }
 
-                    if (service.table_fields[num].data_type == "整数" || service.table_fields[num].data_type == "实数") {
+                    if (service.table_fields()[num].data_type == "整数" || service.table_fields()[num].data_type == "实数") {
                         value = Number(value);
                     }
 
