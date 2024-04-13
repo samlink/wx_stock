@@ -18,7 +18,7 @@ let page_kp = function () {
 
     const document_name = "销售开票";
 
-    //获取单据表头部分的字段（字段设置中的右表内容）
+    //获取单据表头部分的字段（字段设置中的右表内容）, 加载表格 items
     fetch(`/fetch_inout_fields`, {
         method: 'post',
         headers: {
@@ -67,11 +67,45 @@ let page_kp = function () {
                             let dh = document.querySelector('#文本字段6').value;
                             fetch_others(dh);
 
+                            fetch('/fetch_kp_items', {
+                                method: 'post',
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify({
+                                    cate: document_name,
+                                    dh: dh_div.textContent,
+                                }),
+                            })
+                                .then(response => response.json())
+                                .then(content => {
+                                    let edit_data = {
+                                        show_names: show_names,
+                                        rows: content,
+                                        lines: table_lines,
+                                        dh: dh_div.textContent,
+                                        document: document_name,
+                                        calc_func: calc,
+                                        change_func: sum_money,         //新加载或删除变动时运行
+                                    }
+                    
+                                    edit_table.build_items_table(edit_data);
+                                });
+
                         });
                 } else {
                     let html = service.build_inout_form(content);
                     document_top_handle(html, false);
                     document.querySelector('#remember-button').textContent = '审核';
+
+                    let edit_data = {
+                        show_names: show_names,
+                        lines: table_lines,
+                        calc_func: calc,
+                        del_func: sum_money,
+                    }
+            
+                    edit_table.build_blank_table(edit_data);
                 }
             }
         });
@@ -199,42 +233,6 @@ let page_kp = function () {
             }
         });
 
-    if (dh_div.textContent == "新单据") {
-        let edit_data = {
-            show_names: show_names,
-            lines: table_lines,
-            calc_func: calc,
-            del_func: sum_money,
-        }
-
-        edit_table.build_blank_table(edit_data);
-    } else {
-        fetch('/fetch_kp_items', {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                cate: document_name,
-                dh: dh_div.textContent,
-            }),
-        })
-            .then(response => response.json())
-            .then(content => {
-                let edit_data = {
-                    show_names: show_names,
-                    rows: content,
-                    lines: table_lines,
-                    dh: dh_div.textContent,
-                    document: document_name,
-                    calc_func: calc,
-                    change_func: sum_money,         //新加载或删除变动时运行
-                }
-
-                edit_table.build_items_table(edit_data);
-            });
-    }
-
     // 图片处理 
     service.handle_pic(dh_div, "/pic_kp_save");
     modal_init();
@@ -355,7 +353,7 @@ let page_kp = function () {
         }
 
         document.querySelector('#sum-money').innerHTML = `金额合计：${sum.toFixed(2)} 元  　 　 税额合计：${sum_tax.toFixed(2)} 元`;
-        document.querySelector('#应结金额').value = sum.toFixed(2);
+        document.getElementById('应结金额').value = sum.toFixed(2);
         if (document.querySelector('#文本字段5')) document.querySelector('#文本字段5').value = sum.toFixed(2);
     }
 
