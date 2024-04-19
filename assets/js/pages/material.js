@@ -1,19 +1,3 @@
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import { alert_confirm } from '/assets/js/parts/alert.mjs';
-// import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-// import {
-//     SPLITER,
-//     regInt,
-//     append_blanks,
-//     set_key_move,
-//     padZero
-// } from '/assets/js/parts/tools.mjs';
-// import {
-//     build_blank_table, build_items_table, build_out_table, edit_table.input_table_outdata
-// } from '/assets/js/parts/edit_table.mjs';
-// import { modal_init } from "/assets/js/parts/modal.mjs";
-
 let page_material = function () {
 
     let document_table_fields, table_lines, show_names, edited;

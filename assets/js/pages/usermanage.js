@@ -1,7 +1,3 @@
-// import {tool_table.table_data, table_init, fetch_table} from '/assets/js/parts/table.mjs';
-// import {notifier} from '/assets/js/parts/notifier.mjs';
-// import {alert_confirm} from '/assets/js/parts/alert.mjs';
-// import {getHeight} from '/assets/js/parts/tools.mjs';
 let page_usermanage = function () {
     //设置表格行数、高度
     let get_height = getHeight() - 178;

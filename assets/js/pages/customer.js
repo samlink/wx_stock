@@ -1,10 +1,3 @@
-// import { table_data, table_init, fetch_table } from '/assets/js/parts/table.mjs';
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
-// import { regInt, regReal, getHeight, SPLITER, download_file, checkFileType } from '/assets/js/parts/tools.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-// import { modal_init, close_modal, leave_alert, modal_out_data } from "/assets/js/parts/modal.mjs";
-
 let page_customer = function () {
     let cus_cate = document.querySelector('#category').textContent;
 
@@ -93,7 +86,7 @@ let page_customer = function () {
     function search_table() {
         let search = document.querySelector('#search-input').value;
         Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
-        fetch_table();
+        tool_table.fetch_table();
     }
 
     //增加按键
@@ -186,7 +179,7 @@ let page_customer = function () {
                         global.edit = 0;
                         modal_out_data.edit = 0;
                         notifier.show(cus_cate + '修改成功', 'success');
-                        fetch_table();
+                        tool_table.fetch_table();
                         if (global.eidt_cate == "add") {
                             for (let input of all_input) {
                                 input.value = "";
@@ -211,7 +204,7 @@ let page_customer = function () {
                 .then(content => {
                     if (content == 1) {
                         notifier.show('批量操作成功', 'success');
-                        fetch_table();
+                        tool_table.fetch_table();
                         close_modal();
                     } else {
                         notifier.show('权限不够，操作失败', 'danger');

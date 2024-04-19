@@ -1,6 +1,3 @@
-// import {notifier} from '/assets/js/parts/notifier.mjs';
-// import {alert_confirm} from "/assets/js/parts/alert.mjs";
-
 let page_general = function () {
 
     document.querySelector('#help-info img').setAttribute('src', `/assets/img/blue.png`);

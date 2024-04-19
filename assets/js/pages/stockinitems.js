@@ -1,8 +1,3 @@
-// import {table_init, fetch_table} from '/assets/js/parts/table.mjs';
-// import {notifier} from '/assets/js/parts/notifier.mjs';
-// import {SPLITER, getHeight, download_file} from '/assets/js/parts/tools.mjs';
-// import {set_date} from '/assets/js/parts/service.mjs';
-
 let page_stockinitems = function () {
     let get_height = getHeight() - 133;
     let row_num = Math.floor(get_height / 33);
@@ -11,18 +6,6 @@ let page_stockinitems = function () {
     service.set_date();
     let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
-
-    //填充表格空行-------------------------------------------------
-    // let blank_rows = "";
-    // for (let i = 0; i < row_num; i++) {
-    //     blank_rows += blank_row_fn();
-    // }
-
-    // console.log(blank_rows);
-
-    // document.querySelector('.table-container table tbody').innerHTML = blank_rows;
-    // document.getElementById("tbody-stockin").innerHTML = blank_rows;
-    // document.querySelector('.table-container tbody').innerHTML = '<tr><td>alsdfjkl;asfjklas</td></tr>';
 
     //表格搜索----------------------------------------------------
     let init_data = {

@@ -1,10 +1,3 @@
-// import { table_data, fetch_table } from '/assets/js/parts/table.mjs';
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import { fetch_tree, tree_init, tree_search } from '/assets/js/parts/tree.mjs';
-// import { AutoInput } from '/assets/js/parts/autocomplete.mjs';
-// import { regInt, regReal, SPLITER, download_file, checkFileType, open_node } from '/assets/js/parts/tools.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-// import { modal_init, leave_alert, close_modal, modal_out_data } from '/assets/js/parts/modal.mjs';
 let page_productset = function () {
     let global = {
         row_id: 0,

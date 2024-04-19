@@ -1,4 +1,3 @@
-// import { notifier } from '/assets/js/parts/notifier.mjs';
 let page_userset = function () {
     //设置密码
     document.querySelector('#pass-button').addEventListener('click', function (event) {

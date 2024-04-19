@@ -1,17 +1,3 @@
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-// import {
-//     SPLITER,
-//     regInt,
-//     regReal,
-//     set_key_move
-// } from '/assets/js/parts/tools.mjs';
-// import { customer_init } from '/assets/js/parts/customer.mjs';
-// import {
-//     edit_table.appand_edit_row, build_blank_table, build_items_table, input_table_outdata
-// } from '/assets/js/parts/edit_table.mjs';
-// import { close_modal, modal_init } from '/assets/js/parts/modal.mjs';
-
 let page_buyin = function () {
     let document_table_fields, table_lines, show_names, edited, auto_data;
     let document_bz = document.querySelector('#document-bz').textContent.trim();

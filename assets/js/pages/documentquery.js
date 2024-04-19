@@ -1,9 +1,3 @@
-// import { table_data, table_init, fetch_table } from '/assets/js/parts/table.mjs';
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import { alert_confirm } from '/assets/js/parts/alert.mjs';
-// import { getHeight, SPLITER } from '/assets/js/parts/tools.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-
 let page_documentquery = function () {
     let cate = document.querySelector('#category').textContent;
     let limit = document.querySelector('#limit').textContent;

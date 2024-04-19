@@ -1,14 +1,3 @@
-// import { notifier } from '/assets/js/parts/notifier.mjs';
-// import * as service from '/assets/js/parts/service.mjs';
-// import {
-//     SPLITER,
-//     regReal,
-//     set_key_move
-// } from '/assets/js/parts/tools.mjs';
-// import {
-//     appand_edit_row, build_blank_table, build_items_table, input_table_outdata
-// } from '/assets/js/parts/edit_table.mjs';
-// import { modal_init } from "/assets/js/parts/modal.mjs";
 let page_kp = function () {
     let document_table_fields, table_lines, show_names, edited;
     let document_bz = document.querySelector('#document-bz').textContent.trim();

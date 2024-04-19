@@ -1,6 +1,3 @@
-// import {notifier} from '/assets/js/parts/notifier.mjs';
-// import {regReal} from '/assets/js/parts/tools.mjs';
-
 let page_fieldset = function () {
     let global = {
         drag_id: "",
