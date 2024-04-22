@@ -213,6 +213,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
             .service(statistic::home_statis)
+            .service(statistic::get_waitshen)
             
             .service(service::fetch_blank)
             .service(service::fetch_help)

@@ -1,7 +1,7 @@
 #![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::Deserialize;
 use time::Duration;
@@ -428,6 +428,24 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     } else {
         HttpResponse::Ok().json(-1)
     }
+}
+
+#[get("/get_waitshen/{time}")]
+pub async fn get_waitshen(db: web::Data<Pool>, time: web::Path<String>) -> String {
+    let conn = db.get().await.unwrap();
+
+    let sql = format!(
+        r#"select count(单号) 数量 from documents where 布尔字段3 = true and 文本字段10 = '' and 开单时间 > '{}'"#,
+        *time
+    );
+
+    let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+    let mut num = 0i64;
+    for row in rows {
+        num = row.get("数量");
+    }
+
+    return num.to_string();
 }
 
 //入库明细
