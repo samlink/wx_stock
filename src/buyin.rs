@@ -730,8 +730,8 @@ pub async fn fetch_trans_items(
         let sql = format!(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 
-                case when 商品id <> '4_111' then round((单价*重量)::numeric,2)::real else 
-                round((单价*数量)::numeric,2)::real end as 金额, 备注 FROM document_items
+                case when 商品id <> '4_111' then (单价*重量)::real else 
+                (单价*数量)::real end as 金额, 备注 FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
