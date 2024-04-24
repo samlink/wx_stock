@@ -1432,7 +1432,7 @@ pub async fn make_sumit_shen(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), &data.cate).await;
         let sql = format!(
-            r#"update documents set {}=true WHERE 单号='{}'"#,
+            r#"update documents set {}=true, 提交时间=localtimestamp WHERE 单号='{}'"#,
             f_map["提交审核"], data.dh
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();

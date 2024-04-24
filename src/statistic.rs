@@ -435,7 +435,7 @@ pub async fn get_waitshen(db: web::Data<Pool>, time: web::Path<String>) -> Strin
     let conn = db.get().await.unwrap();
 
     let sql = format!(
-        r#"select count(单号) 数量 from documents where 布尔字段3 = true and 文本字段10 = '' and 开单时间 > '{}'"#,
+        r#"select count(单号) 数量 from documents where 布尔字段3 = true and 文本字段10 = '' and 提交时间 > '{}'"#,
         *time
     );
 
