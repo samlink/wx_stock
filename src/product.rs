@@ -57,7 +57,7 @@ pub async fn fetch_product(
                             0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
                             as 整数字段3,
                             case when 库存下限-COALESCE(理重合计,0)<0.1 then 0 else round((库存下限-COALESCE(理重合计,0))::numeric,2)::real end as 库存下限,
-                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,COALESCE(质保书,'') as 质保书,".to_owned();
+                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products

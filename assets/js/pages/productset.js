@@ -56,11 +56,12 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, add_lu_link);
 
-    // 给炉号加入连接
+    // 给炉号加入连接, 同时给入库单号加入连接
     function add_lu_link() {
         let trs = document.querySelectorAll('.table-product tbody tr');
 
         for (let tr of trs) {
+            // 炉号连接            
             if (tr.querySelector(".炉号")) {
                 let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
                 fetch("/fetch_lu", {
@@ -73,12 +74,19 @@ let page_productset = function () {
                     .then(response => response.json())
                     .then(content => {
                         if (content != "" && content != -1) {
-                            tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                            tr.querySelector('.炉号').innerHTML = `<a href="/material_in/${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
                         }
                     })
             }
             else {
                 continue;
+            }
+
+            // 入库单号连接
+            let rk = tr.querySelector('.入库单号');
+            if (rk && rk.textContent.trim() != "KT202312-01") {
+                let url = rk.textContent.trim().startsWith("RK") ? "/material_in/" : "/stock_change_in/";
+                rk.innerHTML = `<a href="${url}${rk.textContent.trim()}" title="点击查阅单据">${rk.textContent.trim()}</a>`;
             }
         }
     }
