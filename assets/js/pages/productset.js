@@ -349,11 +349,12 @@ let page_productset = function () {
         global.eidt_cate = "add";
         let chosed = document.querySelector('tbody .focus');
         let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent.trim() : "";
-        let p_name = chosed ? chosed.querySelector('td:nth-child(18)').textContent.trim() : "";
+        let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
 
         if (global.product_name == "") {
             global.product_name = p_name;
         }
+
         if (global.product_name != "" && id != "") {
             fetch('/fetch_pout_items', {
                 method: 'post',
@@ -411,8 +412,8 @@ let page_productset = function () {
 
         let chosed = document.querySelector('tbody .focus');
         let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-        let p_name = chosed ? chosed.querySelector('td:nth-child(18)').textContent.trim() : "";
-        let p_id = chosed ? chosed.querySelector('td:nth-child(19)').textContent.trim() : "";
+        let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
+        let p_id = chosed ? chosed.querySelector('.商品id').textContent.trim() : "";
 
         if (global.product_name == "") {
             global.product_name = p_name;
@@ -454,6 +455,21 @@ let page_productset = function () {
                 "is_use": true
             },
             {
+                "id": 114,
+                "num": 10,                  // 对应表格字段顺号
+                "field_name": "整数字段1",
+                "data_type": "整数",
+                "show_name": "入库长度",
+                "show_width": 4,
+                "ctr_type": "普通输入",
+                "option_value": "",
+                "default_value": "",
+                "is_show": true,
+                "show_order": 4,
+                "all_edit": true,
+                "is_use": true
+            },
+            {
                 "id": 133,
                 "num": 14,
                 "field_name": "库位",
@@ -470,7 +486,7 @@ let page_productset = function () {
             },
             {
                 "id": 120,
-                "num": 16,
+                "num": 17,
                 "field_name": "文本字段7",
                 "data_type": "文本",
                 "show_name": "切完",
@@ -485,7 +501,7 @@ let page_productset = function () {
             },
             {
                 "id": 110,
-                "num": 17,
+                "num": 18,
                 "field_name": "备注",
                 "data_type": "文本",
                 "show_name": "备注",
