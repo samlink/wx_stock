@@ -608,8 +608,8 @@ let page_buyin = function () {
                         let 单价 = cols[8].textContent;
                         let 长度 = cols[11].textContent;
                         let 理重 = cols[12].textContent;
-                        let 名称 = cols[17].textContent;
-                        let p_id = cols[18].textContent;
+                        let 名称 = row.querySelector('.名称').textContent;
+                        let p_id = row.querySelector('.商品id').textContent;
                         let na = 名称.split(' ');
 
                         has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${p_id}`);
