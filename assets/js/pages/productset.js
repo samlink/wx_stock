@@ -407,161 +407,163 @@ let page_productset = function () {
     });
 
     //编辑按键
-    document.querySelector('#edit-button').addEventListener('click', function () {
-        global.eidt_cate = "edit";
+    if (document.querySelector('#edit-button')) {
+        document.querySelector('#edit-button').addEventListener('click', function () {
+            global.eidt_cate = "edit";
 
-        let chosed = document.querySelector('tbody .focus');
-        let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-        let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
-        let p_id = chosed ? chosed.querySelector('.商品id').textContent.trim() : "";
+            let chosed = document.querySelector('tbody .focus');
+            let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+            let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
+            let p_id = chosed ? chosed.querySelector('.商品id').textContent.trim() : "";
 
-        if (global.product_name == "") {
-            global.product_name = p_name;
-        }
+            if (global.product_name == "") {
+                global.product_name = p_name;
+            }
 
-        if (global.product_id == "") {
-            global.product_id = p_id;
-        }
+            if (global.product_id == "") {
+                global.product_id = p_id;
+            }
 
-        if (global.product_name != "" && global.product_id != "" && id != "") {
-            let fields = [{
-                "id": 105,
-                "num": 2,
-                "field_name": "文本字段1",
-                "data_type": "文本",
-                "show_name": "物料号",
-                "show_width": 5,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 1,
-                "all_edit": true,
-                "is_use": false
-            },
-            {
-                "id": 131,
-                "num": 5,
-                "field_name": "文本字段2",
-                "data_type": "文本",
-                "show_name": "状态",
-                "show_width": 4,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 4,
-                "all_edit": true,
-                "is_use": true
-            },
-            {
-                "id": 114,
-                "num": 10,                  // 对应表格字段顺号
-                "field_name": "整数字段1",
-                "data_type": "整数",
-                "show_name": "入库长度",
-                "show_width": 4,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 4,
-                "all_edit": true,
-                "is_use": true
-            },
-            {
-                "id": 133,
-                "num": 14,
-                "field_name": "库位",
-                "data_type": "文本",
-                "show_name": "库位",
-                "show_width": 4,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 12,
-                "all_edit": true,
-                "is_use": true
-            },
-            {
-                "id": 120,
-                "num": 17,
-                "field_name": "文本字段7",
-                "data_type": "文本",
-                "show_name": "切完",
-                "show_width": 3,
-                "ctr_type": "下拉列表",
-                "option_value": "否_是",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 14,
-                "all_edit": true,
-                "is_use": true
-            },
-            {
-                "id": 110,
-                "num": 18,
-                "field_name": "备注",
-                "data_type": "文本",
-                "show_name": "备注",
-                "show_width": 5,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 15,
-                "all_edit": true,
-                "is_use": true
-            }];
+            if (global.product_name != "" && global.product_id != "" && id != "") {
+                let fields = [{
+                    "id": 105,
+                    "num": 2,
+                    "field_name": "文本字段1",
+                    "data_type": "文本",
+                    "show_name": "物料号",
+                    "show_width": 5,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 1,
+                    "all_edit": true,
+                    "is_use": false
+                },
+                {
+                    "id": 131,
+                    "num": 5,
+                    "field_name": "文本字段2",
+                    "data_type": "文本",
+                    "show_name": "状态",
+                    "show_width": 4,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 4,
+                    "all_edit": true,
+                    "is_use": true
+                },
+                {
+                    "id": 114,
+                    "num": 10,                  // 对应表格字段顺号
+                    "field_name": "整数字段1",
+                    "data_type": "整数",
+                    "show_name": "入库长度",
+                    "show_width": 4,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 4,
+                    "all_edit": true,
+                    "is_use": true
+                },
+                {
+                    "id": 133,
+                    "num": 14,
+                    "field_name": "库位",
+                    "data_type": "文本",
+                    "show_name": "库位",
+                    "show_width": 4,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 12,
+                    "all_edit": true,
+                    "is_use": true
+                },
+                {
+                    "id": 120,
+                    "num": 17,
+                    "field_name": "文本字段7",
+                    "data_type": "文本",
+                    "show_name": "切完",
+                    "show_width": 3,
+                    "ctr_type": "下拉列表",
+                    "option_value": "否_是",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 14,
+                    "all_edit": true,
+                    "is_use": true
+                },
+                {
+                    "id": 110,
+                    "num": 18,
+                    "field_name": "备注",
+                    "data_type": "文本",
+                    "show_name": "备注",
+                    "show_width": 5,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 15,
+                    "all_edit": true,
+                    "is_use": true
+                }];
 
-            let form = "<form>";
-            for (let name of fields) {
-                let control;
-                let dis = !name.is_use ? "disabled" : "";
-                if (name.ctr_type == "普通输入") {
-                    let value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
-                    control = `<div class="form-group">
+                let form = "<form>";
+                for (let name of fields) {
+                    let control;
+                    let dis = !name.is_use ? "disabled" : "";
+                    if (name.ctr_type == "普通输入") {
+                        let value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
+                        control = `<div class="form-group">
                             <div class="form-label">
                                 <label>${name.show_name}</label>
                             </div>
                             <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
                         </div>`;
-                } else {
-                    let show_value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
-                    control = `<div class="form-group">
+                    } else {
+                        let show_value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
+                        control = `<div class="form-group">
                             <div class="form-label">                                    
                                 <label>${name.show_name}</label>
                             </div>
                             <select class='select-sm has-value'>`;
 
-                    let options = name.option_value.split('_');
-                    for (let value of options) {
-                        if (value == show_value) {
-                            control += `<option value="${value}" selected>${value}</option>`;
-                        } else {
-                            control += `<option value="${value}">${value}</option>`;
+                        let options = name.option_value.split('_');
+                        for (let value of options) {
+                            if (value == show_value) {
+                                control += `<option value="${value}" selected>${value}</option>`;
+                            } else {
+                                control += `<option value="${value}">${value}</option>`;
+                            }
                         }
+
+                        control += "</select></div>";
                     }
 
-                    control += "</select></div>";
+                    form += control;
                 }
+                form += "</form>";
 
-                form += control;
+                global.row_id = id;
+                document.querySelector('.modal-body').innerHTML = form;
+                document.querySelector('.modal-title').textContent = global.product_name;
+                document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
+                document.querySelector('.modal').style.display = "block";
+                document.querySelector('.modal-body input').focus();
+                leave_alert();
+            } else {
+                notifier.show('请先选择物料', 'danger');
             }
-            form += "</form>";
-
-            global.row_id = id;
-            document.querySelector('.modal-body').innerHTML = form;
-            document.querySelector('.modal-title').textContent = global.product_name;
-            document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
-            document.querySelector('.modal').style.display = "block";
-            document.querySelector('.modal-body input').focus();
-            leave_alert();
-        } else {
-            notifier.show('请先选择物料', 'danger');
-        }
-    });
+        });
+    }
 
     //提交按键
     document.querySelector('#modal-sumit-button').addEventListener('click', function () {
