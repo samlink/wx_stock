@@ -74,7 +74,7 @@ let page_productset = function () {
                     .then(response => response.json())
                     .then(content => {
                         if (content != "" && content != -1) {
-                            tr.querySelector('.炉号').innerHTML = `<a href="/material_in/${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                            tr.querySelector('.炉号').innerHTML = `<a href="/material_in${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
                         }
                     })
             }
