@@ -188,7 +188,6 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_updatein)
             .service(product::fetch_filter_items)
 
-
             .service(field_set::fetch_fields)
             .service(field_set::fetch_fields2)
             .service(field_set::update_tableset)
