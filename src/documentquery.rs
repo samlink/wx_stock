@@ -354,8 +354,8 @@ pub async fn trans_excel(
             r#"select 日期 发货日期, 单号, 文本字段6 as 销售单号, 文本字段3 as 合同号, 应结金额::text 单据金额, 实数字段1::text 实际重量, 
                 文本字段5 客户, 文本字段8 as 收货人, 文本字段9 as 收货电话, 文本字段11 as 提货车牌, 文本字段12 as 司机电话, 
                 经办人, 备注, ROW_NUMBER () OVER (ORDER BY 日期 DESC)::text as 序号 from documents
-            where {} documents.文本字段10 != '' and documents.类别='运输发货' {}
-            ORDER BY documents.日期 DESC"#,
+            where {} 文本字段10 != '' and 类别='运输发货' {}
+            ORDER BY 日期 DESC"#,
             query_field, query_date
         );
 
