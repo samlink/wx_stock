@@ -193,4 +193,37 @@ let page_documentquery = function () {
             notifier.show('请先选择单据', 'danger');
         }
     });
+
+    // 导出数据
+    let data_out = document.querySelector('#data-out');
+
+    if (data_out) {
+        data_out.addEventListener('click', () => {
+            let dateTime = new Date();
+            let da = dateTime.setMonth(dateTime.getMonth() - 3);
+            let da1 = new Date(da).Format("yyyy-MM-dd");
+            let da2 = new Date().Format("yyyy-MM-dd");
+
+            let name = document.querySelector('#search-input').value;
+            let data = `${da1}${SPLITER}${da2}${SPLITER}${name}`;
+            
+            fetch(`/trans_excel`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        download_file(`/download/发货单表.xlsx`);
+                        notifier.show('成功导出至 Excel 文件', 'success');
+                    } else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
+        });
+    }
+
 }();

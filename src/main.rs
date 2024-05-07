@@ -157,6 +157,7 @@ async fn main() -> std::io::Result<()> {
             .service(documentquery::fetch_all_documents)
             .service(documentquery::fetch_a_documents)
             .service(documentquery::documents_del)
+            .service(documentquery::trans_excel)
 
             .service(user_set::login)
             .service(user_set::logon)

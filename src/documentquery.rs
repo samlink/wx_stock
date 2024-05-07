@@ -333,8 +333,8 @@ pub async fn trans_excel(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.文本字段6) LIKE '%{}%' OR LOWER(documents.文本字段3) LIKE '%{}%' OR
-                LOWER(documents.日期) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                r#"(LOWER(单号) LIKE '%{}%' OR LOWER(文本字段6) LIKE '%{}%' OR LOWER(文本字段3) LIKE '%{}%' OR
+                LOWER(日期) LIKE '%{}%' OR LOWER(文本字段5) LIKE '%{}%' OR LOWER(备注) LIKE '%{}%') AND"#,
                 name, name, name, name, name, name
             )
         } else {
@@ -351,11 +351,10 @@ pub async fn trans_excel(
         };
 
         let sql = format!(
-            r#"select 日期 发货日期, 单号, documents.文本字段6 as 销售单号, documents.文本字段3 as 合同号, 应结金额::text 单据金额, 实数字段1::text 实际重量, 
-                customers.名称 客户, 文本字段8 as 收货人, 文本字段9 as 收货电话, 文本字段11 as 提货车牌, 文本字段12 as 司机电话, 经办人, documents.备注,
-                ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from documents
-            join customers on documents.客商id = customers.id
-            where {} documents.文本字段10 != '' and customers.类别='客户' and documents.类别='运输发货' {}
+            r#"select 日期 发货日期, 单号, 文本字段6 as 销售单号, 文本字段3 as 合同号, 应结金额::text 单据金额, 实数字段1::text 实际重量, 
+                文本字段5 客户, 文本字段8 as 收货人, 文本字段9 as 收货电话, 文本字段11 as 提货车牌, 文本字段12 as 司机电话, 
+                经办人, 备注, ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from documents
+            where {} documents.文本字段10 != '' and documents.类别='运输发货' {}
             ORDER BY documents.日期 DESC"#,
             query_field, query_date
         );
@@ -387,11 +386,11 @@ pub async fn trans_excel(
                 width: 20,
             },
             Fields {
-                name: "实际重量",
+                name: "单据金额",
                 width: 12,
             },
             Fields {
-                name: "单据金额",
+                name: "实际重量",
                 width: 12,
             },
             Fields {
@@ -400,7 +399,7 @@ pub async fn trans_excel(
             },
             Fields {
                 name: "客户",
-                width: 25,
+                width: 30,
             },
             Fields {
                 name: "收货人",
