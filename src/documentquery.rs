@@ -355,7 +355,7 @@ pub async fn trans_excel(
                 文本字段5 客户, 文本字段8 as 收货人, 文本字段9 as 收货电话, 文本字段11 as 提货车牌, 文本字段12 as 司机电话, 
                 经办人, 备注, ROW_NUMBER () OVER (ORDER BY 日期 DESC)::text as 序号 from documents
             where {} 文本字段10 != '' and 类别='运输发货' {}
-            ORDER BY 日期 DESC"#,
+            ORDER BY 日期 DESC, 单号 DESC"#,
             query_field, query_date
         );
 
@@ -386,11 +386,11 @@ pub async fn trans_excel(
                 width: 20,
             },
             Fields {
-                name: "单据金额",
+                name: "实际重量",
                 width: 12,
             },
             Fields {
-                name: "实际重量",
+                name: "单据金额",
                 width: 12,
             },
             Fields {

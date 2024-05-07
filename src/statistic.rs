@@ -1229,7 +1229,8 @@ pub async fn fetch_business(
             let f31: String = row.get("客户名称");
             let f4: String = row.get("合同编号");
             let f5: String = row.get("类别");
-            let f6: f64 = row.get("应结金额");
+            let f6_1: f64 = row.get("应结金额");
+            let f6: String = format!("{:.2}", f6_1);
             let f7: String = row.get("名称");
             let f8: String = row.get("材质");
             let f9: String = row.get("规格");
