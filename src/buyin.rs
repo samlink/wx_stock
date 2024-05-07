@@ -1492,9 +1492,17 @@ pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) ->
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let da = data.split(SPLITER).collect::<Vec<&str>>();
+        // 为销售单添加 单据金额
         let sql = format!(
             r#"update documents set 应结金额={} WHERE 单号='{}'"#,
-            da[1], da[0]
+            da[2], da[0]
+        );
+        let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 为发货单添加 单据金额和实际重量
+        let sql = format!(
+            r#"update documents set 应结金额={}, 实数字段1={} WHERE 单号='{}'"#,
+            da[2], da[3], da[1]
         );
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 

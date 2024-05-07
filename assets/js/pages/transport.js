@@ -526,6 +526,7 @@ let page_transport = function () {
             .then(response => response.json())
             .then(content => {
                 if (content != -1) {
+                    save_money_weight(content);   // content 是返回的发货单号
                     dh_div.textContent = content;
                     notifier.show('单据保存成功', 'success');
                     edited = false;
@@ -534,11 +535,17 @@ let page_transport = function () {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
             });
+    });
 
+    // 保存重量和金额
+    function save_money_weight(trans_dh) {
         let sum_money = document.querySelector('#sum-money').textContent;
-        let sum = Number(sum_money.split(' 金额合计：')[1].replace("元", ""));
-        let dh = document.querySelector('#文本字段6').value;
-        let da = `${dh}${SPLITER}${sum}`;
+        let sum_a = sum_money.match(/\d+(\.\d+)?/g);
+        let weight = sum_a[2];
+        let sum = sum_a[3];
+        let dh = document.querySelector('#文本字段6').value;    // 销售单号
+
+        let da = `${dh}${SPLITER}${trans_dh}${SPLITER}${sum}${SPLITER}${weight}`;
 
         // 更新单据金额
         fetch(`/save_sale_money`, {
@@ -548,7 +555,7 @@ let page_transport = function () {
             },
             body: da,
         });
-    });
+    }
 
     //打印
     document.querySelector('#print-button').addEventListener('click', function () {
