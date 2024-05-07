@@ -343,8 +343,8 @@ pub async fn trans_excel(
 
         let query_date = if data[0] != "" && data[1] != "" {
             format!(
-                r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#,
-                data[0], data[1]
+                r#" AND 日期::date>='{}'::date"#,
+                data[0]
             )
         } else {
             "".to_owned()
