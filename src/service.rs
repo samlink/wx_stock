@@ -404,7 +404,7 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
             let num: i32 = row.get(&*f.field_name);
             product += &format!("{}{}", num, SPLITER);
         } else if f.data_type == "实数" {
-            let num: f32 = row.get(&*f.field_name);
+            let num: f64 = row.get(&*f.field_name);
             product += &format!("{}{}", num, SPLITER);
         } else {
             let op: Vec<&str> = f.option_value.split("_").collect();

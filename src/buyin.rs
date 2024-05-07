@@ -1497,6 +1497,9 @@ pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) ->
             r#"update documents set 应结金额={} WHERE 单号='{}'"#,
             da[2], da[0]
         );
+        
+        println!("{}", sql);
+
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         // 为发货单添加 单据金额和实际重量
