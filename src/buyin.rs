@@ -1498,8 +1498,6 @@ pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) ->
             da[2], da[0]
         );
         
-        println!("{}", sql);
-
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         // 为发货单添加 单据金额和实际重量

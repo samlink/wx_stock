@@ -3,7 +3,7 @@ use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-// use time::now;
+use xlsxwriter::{prelude::FormatAlignment, Workbook};
 
 ///获取单据显示字段
 #[post("/fetch_show_fields")]
@@ -306,6 +306,164 @@ pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identit
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+struct Fields {
+    name: &'static str,
+    width: i32,
+}
+
+//发货单导出到 excel
+#[post("/trans_excel")]
+pub async fn trans_excel(
+    db: web::Data<Pool>,
+    post_data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let data: Vec<&str> = post_data.split(SPLITER).collect();
+        let name = data[2].trim().to_lowercase();
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.文本字段6) LIKE '%{}%' OR LOWER(documents.文本字段3) LIKE '%{}%' OR
+                LOWER(documents.日期) LIKE '%{}%' OR LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, name, name
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#" AND 日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select 日期 发货日期, 单号, documents.文本字段6 as 销售单号, documents.文本字段3 as 合同号, 应结金额::text 单据金额, 实数字段1::text 实际重量, 
+                customers.名称 客户, 文本字段8 as 收货人, 文本字段9 as 收货电话, 文本字段11 as 提货车牌, 文本字段12 as 司机电话, 经办人, documents.备注,
+                ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from documents
+            join customers on documents.客商id = customers.id
+            where {} documents.文本字段10 != '' and customers.类别='客户' and documents.类别='运输发货' {}
+            ORDER BY documents.日期 DESC"#,
+            query_field, query_date
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 导出到 Excel
+        let file_name = format!("./download/{}.xlsx", "发货单表");
+        let wb = Workbook::new(&file_name).unwrap();
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        let fields: Vec<Fields> = vec![
+            Fields {
+                name: "序号",
+                width: 6,
+            },
+            Fields {
+                name: "单号",
+                width: 15,
+            },
+            Fields {
+                name: "销售单号",
+                width: 15,
+            },
+            Fields {
+                name: "合同号",
+                width: 20,
+            },
+            Fields {
+                name: "实际重量",
+                width: 12,
+            },
+            Fields {
+                name: "单据金额",
+                width: 12,
+            },
+            Fields {
+                name: "发货日期",
+                width: 15,
+            },
+            Fields {
+                name: "客户",
+                width: 25,
+            },
+            Fields {
+                name: "收货人",
+                width: 12,
+            },
+            Fields {
+                name: "收货电话",
+                width: 15,
+            },
+            Fields {
+                name: "提货车牌",
+                width: 15,
+            },
+            Fields {
+                name: "司机电话",
+                width: 15,
+            },
+            Fields {
+                name: "经办人",
+                width: 10,
+            },
+            Fields {
+                name: "备注",
+                width: 15,
+            },
+        ];
+
+        let mut n = 0;
+        for f in &fields {
+            sheet
+                .write_string(
+                    0,
+                    n,
+                    &f.name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
+                .unwrap();
+            sheet.set_column(n, n, f.width.into(), None).unwrap();
+            n += 1;
+        }
+
+        let mut n = 1u32;
+        for row in rows {
+            let mut m = 0u16;
+            for f in &fields {
+                sheet
+                    .write_string(
+                        n,
+                        m,
+                        row.get(&*f.name),
+                        Some(&wb.add_format().set_align(FormatAlignment::Center)),
+                    )
+                    .unwrap();
+                m += 1;
+            }
+            n += 1;
+        }
+
+        wb.close().unwrap();
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

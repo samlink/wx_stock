@@ -25,7 +25,7 @@ pub async fn fetch_statis(
         let conn = db.get().await.unwrap();
         let mut num: Vec<i64> = Vec::new();
         let mut date_lables: Vec<String> = Vec::new();
-        let mut sale_data: Vec<f32> = Vec::new();
+        let mut sale_data: Vec<f64> = Vec::new();
         let limits = get_limits(&user).await;
 
         let da_cate: String;
@@ -68,7 +68,7 @@ pub async fn fetch_statis(
 
         for row in rows {
             let date: String = row.get("date_cate");
-            let sale: f32 = row.get("销售额");
+            let sale: f64 = row.get("销售额");
             let n: i64 = row.get("序号");
             num.push(n);
             date_lables.push(date);
@@ -76,7 +76,7 @@ pub async fn fetch_statis(
         }
 
         let mut date_lables2: Vec<String> = Vec::new();
-        let mut sale_data2: Vec<f32> = Vec::new();
+        let mut sale_data2: Vec<f64> = Vec::new();
 
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额
@@ -91,7 +91,7 @@ pub async fn fetch_statis(
 
         for row in rows {
             let date: String = row.get("date_cate");
-            let sale: f32 = row.get("销售额");
+            let sale: f64 = row.get("销售额");
             date_lables2.push(date);
             sale_data2.push(sale);
         }
@@ -1228,7 +1228,7 @@ pub async fn fetch_business(
             let f31: String = row.get("客户名称");
             let f4: String = row.get("合同编号");
             let f5: String = row.get("类别");
-            let f6: f32 = row.get("应结金额");
+            let f6: f64 = row.get("应结金额");
             let f7: String = row.get("名称");
             let f8: String = row.get("材质");
             let f9: String = row.get("规格");
