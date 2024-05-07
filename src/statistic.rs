@@ -172,7 +172,7 @@ pub async fn fetch_cost(
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-            let mut stocks = 0f32;
+            let mut stocks = 0f64;
 
             for row in rows {
                 stocks = row.get("库存重量");
@@ -551,7 +551,8 @@ pub async fn get_stockin_items(
             let f11: i32 = row.get("入库长度");
             let f12: &str = row.get("执行标准");
             let f13: &str = row.get("生产厂家");
-            let f14: f32 = row.get("理论重量");
+            let f14_1: f64 = row.get("理论重量");
+            let f14: String = format!("{:.1}", f14_1); 
             let f15: &str = row.get("备注");
 
             let product = format!(

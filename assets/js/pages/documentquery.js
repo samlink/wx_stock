@@ -158,45 +158,47 @@ let page_documentquery = function () {
     });
 
     //删除按键
-    document.querySelector('#del-button').addEventListener('click', function () {
-        let chosed = document.querySelector('tbody .focus');
-        let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-        let base = document.querySelector('#base').textContent;
+    let del_btn = document.querySelector('#del-button');
+    if (del_btn) {
+        del_btn.addEventListener('click', function () {
+            let chosed = document.querySelector('tbody .focus');
+            let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+            let base = document.querySelector('#base').textContent;
 
-        let del = {
-            id: dh,
-            rights: "删除单据",
-            base: base,
-        }
+            let del = {
+                id: dh,
+                rights: "删除单据",
+                base: base,
+            }
 
-        if (dh != "") {
-            alert_confirm(`单据 ${dh} 删除后无法恢复，确认删除吗？`, {
-                confirmCallBack: () => {
-                    fetch(`/documents_del`, {
-                        method: 'post',
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(del),
-                    })
-                        .then(response => response.json())
-                        .then(content => {
-                            if (content != -1) {
-                                search_table();
-                            } else {
-                                notifier.show('权限不够，操作失败', 'danger');
-                            }
-                        });
-                }
-            });
-        } else {
-            notifier.show('请先选择单据', 'danger');
-        }
-    });
+            if (dh != "") {
+                alert_confirm(`单据 ${dh} 删除后无法恢复，确认删除吗？`, {
+                    confirmCallBack: () => {
+                        fetch(`/documents_del`, {
+                            method: 'post',
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(del),
+                        })
+                            .then(response => response.json())
+                            .then(content => {
+                                if (content != -1) {
+                                    search_table();
+                                } else {
+                                    notifier.show('权限不够，操作失败', 'danger');
+                                }
+                            });
+                    }
+                });
+            } else {
+                notifier.show('请先选择单据', 'danger');
+            }
+        });
+    }
 
     // 导出数据
     let data_out = document.querySelector('#data-out');
-
     if (data_out) {
         data_out.addEventListener('click', () => {
             let dateTime = new Date();
@@ -206,7 +208,7 @@ let page_documentquery = function () {
 
             let name = document.querySelector('#search-input').value;
             let data = `${da1}${SPLITER}${da2}${SPLITER}${name}`;
-            
+
             fetch(`/trans_excel`, {
                 method: 'post',
                 headers: {
