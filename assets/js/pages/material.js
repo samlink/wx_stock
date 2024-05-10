@@ -43,6 +43,13 @@ let page_material = function () {
                             let dh = document.querySelector("#文本字段6").value;
                             build_items(dh);
 
+                            let real_1 = document.querySelector('#实数字段1');
+                            real_1.value = Number(real_1.value).toFixed(1);
+                            real_1 = document.querySelector('#实数字段2');
+                            real_1.value = Number(real_1.value).toFixed(1);
+                            real_1 = document.querySelector('#实数字段3');
+                            real_1.value = Number(real_1.value).toFixed(1);
+
                             let da = data.split(SPLITER);
                             let pic = da[da.length - 6].replace("pic_", "min_");
                             if (pic.startsWith("/upload")) {

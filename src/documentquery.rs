@@ -1,3 +1,4 @@
+#![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
