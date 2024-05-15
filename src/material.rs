@@ -86,7 +86,7 @@ pub async fn materialout_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id            
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '') and
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '' and {} = false) and
             单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 = '')
             order by 单号 desc
             "#,
@@ -97,7 +97,8 @@ pub async fn materialout_docs(
             f_map["发货完成"],
             f_map3["销售单号"],
             f_map3["销售单号"],
-            f_map3["审核"]
+            f_map3["审核"],
+            f_map3["发货完成"]
         );
 
         // println!("{}", sql);

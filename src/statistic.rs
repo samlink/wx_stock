@@ -278,7 +278,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.{} = false and documents.文本字段10 != ''
             and 单号 in (select documents.{} from documents where documents.{} <>''
-            and documents.类别='销售出库' and documents.{} <> '') 
+            and documents.类别='销售出库' and documents.{} <> '' and {} = false) 
             and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
             布尔字段3 = true and 文本字段10 = '')
             order by 单号 desc"#,
@@ -287,7 +287,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             f_map["发货完成"],
             f_map4["销售单号"],
             f_map4["销售单号"],
-            f_map4["审核"]
+            f_map4["审核"],
+            f_map4["发货完成"]
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
