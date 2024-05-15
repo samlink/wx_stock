@@ -281,6 +281,12 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             and documents.类别='销售出库' and documents.{} <> '' and {} = false) 
             and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
             布尔字段3 = true and 文本字段10 = '')
+            or 单号 in 
+                (select 单号 from documents join
+                    (select 文本字段6 from documents where documents.类别='运输发货' and
+                        布尔字段3 = false and 文本字段10 = '') as foo
+                    on foo.文本字段6 = 单号
+                where 类别 = '商品销售' and 布尔字段1 = false)
             order by 单号 desc"#,
             f_map2["简称"],
             limits,
@@ -290,6 +296,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             f_map4["审核"],
             f_map4["发货完成"]
         );
+
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut sale2 = Vec::new();

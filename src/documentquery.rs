@@ -83,7 +83,13 @@ pub async fn fetch_all_documents(
                 and 单号 in (select documents.文本字段6 from documents where documents.文本字段6 <>''
                 and documents.类别='销售出库' and documents.文本字段10 != '' and 布尔字段1 = false) 
                 and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
-                布尔字段3 = true and 文本字段10 = '') and".to_owned()
+                布尔字段3 = true and 文本字段10 = '') 
+                or 单号 in 
+                (select 单号 from documents join
+                    (select 文本字段6 from documents where documents.类别='运输发货' and
+                        布尔字段3 = false and 文本字段10 = '') as foo
+                    on foo.文本字段6 = 单号
+                where 类别 = '商品销售' and 布尔字段1 = false) and".to_owned()
             } else if cate[1] == "wait_money" {
                 "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and 名称 != '实验室' and".to_owned()
             } else if cate[1] == "wait_kp" {

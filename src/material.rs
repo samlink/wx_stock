@@ -134,7 +134,6 @@ pub async fn materialout_saved_docs(
             order by 单号 desc
             "#,
             f_map2["简称"],
-            // user.name,
             limit,
             search,
             f_map["审核"],
@@ -142,7 +141,6 @@ pub async fn materialout_saved_docs(
             f_map3["销售单号"],
             f_map3["销售单号"],
             f_map3["审核"],
-            // user.name
         );
 
         // println!("{}", sql);
