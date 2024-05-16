@@ -1162,7 +1162,8 @@ pub async fn fetch_document_items_tr(
             let kw: String = row.get("库位");
             let num: String = row.get("物料号");
             let long: i32 = row.get("入库长度");
-            let theary: f32 = row.get("理论重量");
+            let theary_1: f64 = row.get("理论重量");
+            let theary: String = format!("{:.1}",theary_1);
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let item = format!(
