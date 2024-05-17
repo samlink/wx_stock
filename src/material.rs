@@ -950,6 +950,13 @@ pub async fn save_material_ck(
             let sale_dh = doc_data[3];
 
             let mut dh_sql = format!(
+                r#"update document_items set 出库状态='未', 出库完成 = false where 单号id = '{}'"#,
+                sale_dh
+            );
+
+            transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
+
+            dh_sql = format!(
                 r#"update document_items set 出库状态='已', 出库完成 = true from 
                 (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库') group by xsid) foo
                 where document_items.id::text = foo.xsid and document_items.数量 = foo.sum"#,
