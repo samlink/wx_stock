@@ -52,7 +52,7 @@ pub async fn fetch_product(
 
         let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
-                            COALESCE(切分次数,0)::integer as 整数字段2,
+                            COALESCE(出库次数,0)::integer as 整数字段2,
                             case when (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
                             0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
                             as 整数字段3,
