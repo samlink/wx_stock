@@ -6,6 +6,8 @@ let page_documentquery = function () {
     let row_num = Math.floor(get_height / 30);
 
     let document_cate;
+    let sort="开单时间 DESC";
+
     if (cate == "采购查询") {
         document_cate = "采购单据";
     } else if (cate == "销售查询") {
@@ -16,6 +18,7 @@ let page_documentquery = function () {
         document_cate = "出库单据";
     } else if (cate == "发货查询") {
         document_cate = "发货单据";
+        sort = "日期 DESC, 开单时间 DESC";
     } else if (cate == "开票查询") {
         document_cate = "销售开票";
     } else if (cate == "调入查询") {
@@ -32,7 +35,7 @@ let page_documentquery = function () {
         post_data: {
             id: "",
             name: '',
-            sort: "开单时间 DESC",
+            sort: sort,
             rec: row_num,
             cate: cate + ' ' + limit,
         },
@@ -151,7 +154,7 @@ let page_documentquery = function () {
             } else if (cate == "调整出库") {
                 address = `/stock_change_out/`;
             }
-            window.location = address + id;
+            window.open(address + id);
         } else {
             notifier.show('请先选择单据', 'danger');
         }

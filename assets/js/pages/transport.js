@@ -110,15 +110,8 @@ let page_transport = function () {
         auto_comp2.init();
 
         let date = document.querySelector('#日期');
-        // if (!has_date) {
-        //     date.value = new Date().Format("yyyy-MM-dd");
-        // }
-
-        //执行一个laydate实例
-        laydate.render({
-            elem: date,
-            showBottom: false,
-        });
+        date.closest(".form-group").style.display = "none";
+        date.value = new Date().Format("yyyy-MM-dd");
 
         // 回车和方向键的移动控制
         let all_input = document.querySelectorAll('.fields-show input');
