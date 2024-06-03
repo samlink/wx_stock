@@ -32,6 +32,7 @@ let page_productset = function () {
 
             Object.assign(tool_table.table_data().post_data, post_data);
             tool_table.fetch_table(() => {
+                make_filter();
                 add_lu_link();
             });
         }
@@ -184,8 +185,10 @@ let page_productset = function () {
                         }
                     });
             })
-        })
-    };
+        });
+
+        make_red();
+    }
 
     // 确定
     document.querySelector('#f-ok').addEventListener('click', () => {
@@ -259,10 +262,15 @@ let page_productset = function () {
         Object.assign(tool_table.table_data().post_data, post_data);
 
         tool_table.fetch_table(() => {
+            make_filter();
             add_lu_link();
         });
 
-        //设置颜色提示
+        make_red();
+    });
+
+    //设置过滤按钮颜色
+    function make_red() {
         document.querySelectorAll('.filter_button').forEach(button => {
             let name = button.parentNode.textContent.trim();
             let has = false;
@@ -277,7 +285,7 @@ let page_productset = function () {
                 button.classList.remove('red');
             }
         });
-    });
+    }
 
     // 取消
     document.querySelector('#f-cancel').addEventListener('click', () => {
@@ -324,6 +332,7 @@ let page_productset = function () {
 
         Object.assign(tool_table.table_data().post_data, post_data);
         tool_table.fetch_table(() => {
+            make_filter();
             add_lu_link();
         });
     });
@@ -620,6 +629,7 @@ let page_productset = function () {
                             notifier.show('商品修改成功', 'success');
 
                             tool_table.fetch_table(() => {
+                                make_filter();
                                 add_lu_link();
                             });
 
@@ -648,6 +658,7 @@ let page_productset = function () {
                     if (content == 1) {
                         notifier.show('批量操作成功', 'success');
                         tool_table.fetch_table(() => {
+                            make_filter();
                             add_lu_link();
                         });
                         close_modal();
