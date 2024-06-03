@@ -142,6 +142,14 @@ let page_transport = function () {
             }
             service.sumit_shen(shen_data);
         });
+
+        // 选择结算和打印
+        let select_print = document.createElement("select");
+        select_print.id = "my-select";
+        select_print.options.add(new Option("结算单", "结算单"));
+        select_print.options.add(new Option("发货单", "发货单"));
+        fields_show.appendChild(select_print);
+        alert('dd')
     }
 
     service.get_materials_docs('/materialout_docs', "商品销售", build_items);
@@ -555,6 +563,11 @@ let page_transport = function () {
     document.querySelector('#print-button').addEventListener('click', async function () {
         //错误勘察
         if (!error_check()) {
+            return false;
+        }
+
+        if (document.querySelector('#remember-button').textContent == "审核") {
+            notifier.show('审核后才能打印', 'danger');
             return false;
         }
 
