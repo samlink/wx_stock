@@ -573,7 +573,7 @@ let page_material = function () {
 
         document.querySelector('.print-table thead').innerHTML = th;
 
-        let sum_weight = 0;
+        let sum_weight = 0, sum_long = 0;
 
         let all_rows = document.querySelectorAll('.table-items .has-input');
         let trs = '';
@@ -603,13 +603,14 @@ let page_material = function () {
             trs += '</tr>';
 
             sum_weight += Number(row.querySelector(`td:nth-child(12)`).textContent);
+            sum_long += Number(row.querySelector(`td:nth-child(11) input`).value);
         }
 
         // 补空行
         let len = 9 - all_rows.length;
         trs += append_blanks(len, 11);
 
-        trs += `<tr style="height: 50px"><td colspan="7"></td><td>${all_rows.length}</td>
+        trs += `<tr style="height: 50px"><td colspan="6"></td><td>${sum_long}</td><td>${all_rows.length}</td>
             <td style="white-space: normal">来料重量：<br> ${document.querySelector('#实数字段1').value}</td>
             <td>实际重量：<br> ${document.querySelector('#实数字段2').value}</td><td>理论重量：<br> ${sum_weight.toFixed(1)}</td>`;
 
