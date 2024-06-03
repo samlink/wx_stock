@@ -7,6 +7,7 @@ let page_transport = function () {
 
     let document_name = "发货单据";
     let shen_print = "";   //打印审核人
+    // let customer_po = "";  //用于打印的全局变量
 
     //获取单据表头部分的字段（字段设置中的右表内容）
     fetch(`/fetch_inout_fields`, {
@@ -558,11 +559,20 @@ let page_transport = function () {
     }
 
     //打印
-    document.querySelector('#print-button').addEventListener('click', function () {
+    document.querySelector('#print-button').addEventListener('click', async function () {
         //错误勘察
         if (!error_check()) {
             return false;
         }
+
+        // 获取客户PO
+        let cus_po = await (await fetch("/get_customer_po", {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: document.querySelector('#文本字段6').value.trim(),
+        })).json();
 
         document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-销售发货单";
 
@@ -577,23 +587,22 @@ let page_transport = function () {
         p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
         document.querySelector('#p-block3').innerHTML = p;
 
-        p = `<p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>
-         <p>销售员：${document.querySelector('#owner').textContent.split(']')[0].replace('[', '')}</p>`;
+        p = `<p>客户PO：${cus_po}</p><p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>`;
         document.querySelector('#p-block4').innerHTML = p;
 
         var th = `<tr>
         <th width="3%">序号</th>
         <th width="7%">商品名称</th>
         <th width="8%">材质</th>
-        <th width="6%">规格</th>
+        <th width="6%">规格<br>(mm)</th>
         <th width="10%">状态</th>
         <th width="10%">炉号</th>
-        <th width="5%">长度</th>
+        <th width="5%">长度 (mm)</th>
         <th width="3%">支数</th>
-        <th width="6%">理论重量</th>
-        <th width="7%">实际重量</th>
-        <th width="5%">单价<br>(元/kg)</th>
-        <th width="8%">总价</th>
+        <th width="6%">理论重量<br>(KG)</th>
+        <th width="7%">实际重量<br>(KG)</th>
+        <th width="5%">单价<br>(元/KG)</th>
+        <th width="8%">总价<br>(元)</th>
         <th width="8%">备注</th>
     </tr>`;
 

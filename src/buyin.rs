@@ -1182,7 +1182,7 @@ pub async fn fetch_sale_saved_docs(db: web::Data<Pool>, id: Identity) -> HttpRes
             f_map["单据金额"],
             // user.name,
             f_map["是否欠款"],
-            f_map["发货完成"],            
+            f_map["发货完成"],
         );
 
         // println!("{}",sql);
@@ -1497,7 +1497,7 @@ pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) ->
             r#"update documents set 应结金额={} WHERE 单号='{}'"#,
             da[2], da[0]
         );
-        
+
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         // 为发货单添加 单据金额和实际重量
@@ -1508,6 +1508,26 @@ pub async fn save_sale_money(db: web::Data<Pool>, data: String, id: Identity) ->
         let _rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 获取客户PO
+#[post("/get_customer_po")]
+pub async fn get_customer_po(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(r#"select 文本字段8 from documents WHERE 单号='{}'"#, data);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut po: String = "".to_owned();
+        for row in rows {
+            po = row.get(0);
+        }
+
+        HttpResponse::Ok().json(po)
     } else {
         HttpResponse::Ok().json(-1)
     }
