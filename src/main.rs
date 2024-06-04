@@ -85,6 +85,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::other_query)
             .service(html::stockin_items)
             .service(html::stockout_items)
+            .service(html::trans_items)
             
             .service(buyin::fetch_inout_fields)
             .service(buyin::fetch_supplier)
@@ -207,6 +208,7 @@ async fn main() -> std::io::Result<()> {
 
             .service(statistic::get_stockin_items)
             .service(statistic::get_stockout_items)
+            .service(statistic::get_trans_items)
             .service(statistic::stockin_excel)
             .service(statistic::stockout_excel)
             .service(statistic::business_excel)

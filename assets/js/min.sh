@@ -18,6 +18,7 @@ terser ./pages/stockin.js -c -o ../../static/stockin.js
 terser ./pages/stockinitems.js -c -o ../../static/stockinitems.js
 terser ./pages/stockout.js -c -o ../../static/stockout.js
 terser ./pages/stockoutitems.js -c -o ../../static/stockoutitems.js
+terser ./pages/transitems.js -c -o ../../static/transitems.js
 terser ./pages/transport.js -c -o ../../static/transport.js
 terser ./pages/usermanage.js -c -o ../../static/usermanage.js
 terser ./pages/userset.js -c -o ../../static/userset.js

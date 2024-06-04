@@ -1,7 +1,7 @@
 use crate::service::{get_user, r2s, Search, UserData};
 use actix_identity::Identity;
-use actix_web::{get, web, web::Path, HttpRequest, HttpResponse};
 use actix_web::http::header::ContentType;
+use actix_web::{get, web, web::Path, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
 // use serde::Deserialize;
@@ -550,6 +550,19 @@ pub async fn stockout_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     if user.name != "" {
         user.show = name_show(&user);
         let html = r2s(|o| stockoutitems_html(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
+///发货明细
+#[get("/trans_items")]
+pub async fn trans_items(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        user.show = name_show(&user);
+        let html = r2s(|o| transitems_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

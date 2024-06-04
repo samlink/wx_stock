@@ -561,7 +561,7 @@ pub async fn get_stockin_items(
             let f12: &str = row.get("执行标准");
             let f13: &str = row.get("生产厂家");
             let f14_1: f64 = row.get("理论重量");
-            let f14: String = format!("{:.1}", f14_1); 
+            let f14: String = format!("{:.1}", f14_1);
             let f15: &str = row.get("备注");
 
             let product = format!(
@@ -772,6 +772,138 @@ pub async fn get_stockout_items(
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {}{} and documents.文本字段10 != ''"#,
+            limit, query_date, query_field
+        );
+
+        let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+
+        for row in rows {
+            count = row.get("记录数");
+        }
+
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+
+        HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+//发货明细
+#[post("/get_trans_items")]
+pub async fn get_trans_items(
+    db: web::Data<Pool>,
+    post_data: web::Json<TablePager>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.trim().to_lowercase();
+        let cate = post_data.cate.to_lowercase();
+        let data: Vec<&str> = cate.split(SPLITER).collect();
+        let limit = get_limits(&user).await;
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(
+                r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#,
+                name,
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select d.日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
+            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价, 长度, 数量, 重量, 
+            case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额, ROW_NUMBER () OVER (ORDER BY {}) as 序号
+            from document_items di 
+            join documents d on d.单号 = di.单号id 
+            join tree t on t.num = di.商品id
+            where {} {} {} and d.类别 = '运输发货' and d.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, limit, query_date, query_field, post_data.sort, skip, post_data.rec
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut products = Vec::new();
+        for row in rows {
+            let f1: i64 = row.get("序号");
+            let f2: &str = row.get("日期");
+            let f3: &str = row.get("客户名称");
+            let f4: &str = row.get("合同号");
+            let f5: &str = row.get("发货单号");
+            let f6: &str = row.get("销售单号");
+            let f7: &str = row.get("名称");
+            let f8: &str = row.get("材质");
+            let f9: &str = row.get("规格");
+            let f10: &str = row.get("状态");
+            let f11: &str = row.get("炉号");
+            let f12: f32 = row.get("单价");
+            let f13: i32 = row.get("长度");
+            let f14: i32 = row.get("数量");
+            let f15: f32 = row.get("重量");
+            let f16_1: f64 = row.get("金额");
+            let f16: String = format!("{:.2}", f16_1);
+
+            let product = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                f1,
+                SPLITER,
+                f2,
+                SPLITER,
+                f3,
+                SPLITER,
+                f4,
+                SPLITER,
+                f5,
+                SPLITER,
+                f6,
+                SPLITER,
+                f7,
+                SPLITER,
+                f8,
+                SPLITER,
+                f9,
+                SPLITER,
+                f10,
+                SPLITER,
+                f11,
+                SPLITER,
+                f12,
+                SPLITER,
+                f13,
+                SPLITER,
+                f14,
+                SPLITER,
+                f15,
+                SPLITER,
+                f16,
+            );
+
+            products.push(product);
+        }
+
+        let count_sql = format!(
+            r#"select count(*) as 记录数
+            from document_items di 
+            join documents d on d.单号 = di.单号id 
+            where {} {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
             limit, query_date, query_field
         );
 

@@ -53,7 +53,8 @@ let page_stockoutitems = function () {
 
         init_data.post_data.name = fields;
         init_data.post_data.cate = `${date1}${SPLITER}${date2}`;
-
+        init_data.post_data.page = 1;
+        
         // table_init(init_data);
         tool_table.fetch_table();
     });
