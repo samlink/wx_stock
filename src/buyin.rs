@@ -254,13 +254,13 @@ pub async fn fetch_one_product(
 
         let sql = format!("SELECT num || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                             || '{}' || products.{} || '{}' || products.{} || '{}' || products.{} || '{}' || 
-                            products.{} || '{}' || products.{} as p 
+                            products.{} || '{}' || products.{} || '{}' || products.{} as p
                             from products
                             JOIN tree ON products.商品id = tree.num
                             JOIN documents on 单号id = 单号
                             WHERE products.{} = '{}' and documents.文本字段10 <> ''",
                           SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, 
-                          f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], f_map["物料号"], product_id);
+                          f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();

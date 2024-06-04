@@ -254,6 +254,13 @@ let page_buyin = function () {
             show_names.push({
                 name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: ""
             });
+
+            if (document_name == "销售单据") {
+                show_names.push({
+                    name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: ""
+                })
+            }
+
             show_names.push({
                 name: "备注",
                 width: 100,
@@ -534,6 +541,9 @@ let page_buyin = function () {
     //自动填充
     function fill_gg() {
         let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
+
+        console.log(field_values);
+        
         let n = 3;  //从第 3 列开始填入数据
         let num = document_name == "销售单据" ? 5 : 4;  //填充数量
         for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
@@ -554,8 +564,9 @@ let page_buyin = function () {
 
             if (document_name == "销售单据") {
                 // 写入库存数量，用于验证输入
-                document.querySelector(`.inputting td:nth-child(${15})`).textContent = field_values[7];
-                document.querySelector(`.inputting td:nth-child(${14})`).textContent = field_values[0];
+                document.querySelector(`.inputting td:nth-child(${13})`).textContent = field_values[8];
+                document.querySelector(`.inputting td:nth-child(${16})`).textContent = field_values[7];
+                document.querySelector(`.inputting td:nth-child(${15})`).textContent = field_values[0];
                 let row = document.querySelector('.table-items .inputting');
                 calc_weight(row);
             }
@@ -612,7 +623,7 @@ let page_buyin = function () {
                         let p_id = row.querySelector('.商品id').textContent;
                         let na = 名称.split(' ');
 
-                        has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${p_id}`);
+                        has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${""}${SPLITER}${p_id}`);
                     }
                     else {
                         has_chose.delete(wu_num);
