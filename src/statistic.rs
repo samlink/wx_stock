@@ -809,10 +809,7 @@ pub async fn get_trans_items(
 
         let query_field = if name != "" {
             //注意前导空格
-            format!(
-                r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#,
-                name,
-            )
+            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name,)
         } else {
             "".to_owned()
         };
@@ -829,7 +826,7 @@ pub async fn get_trans_items(
         let sql = format!(
             r#"select d.日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
             split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价, 长度, 数量, 重量, 
-            case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额, ROW_NUMBER () OVER (ORDER BY {}) as 序号
+            case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额, ROW_NUMBER () OVER (ORDER BY {}) as 序号, di.备注
             from document_items di 
             join documents d on d.单号 = di.单号id 
             join tree t on t.num = di.商品id
@@ -860,9 +857,10 @@ pub async fn get_trans_items(
             let f15: f32 = row.get("重量");
             let f16_1: f64 = row.get("金额");
             let f16: String = format!("{:.2}", f16_1);
+            let f17: &str = row.get("备注");
 
             let product = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 f1,
                 SPLITER,
                 f2,
@@ -894,6 +892,8 @@ pub async fn get_trans_items(
                 f15,
                 SPLITER,
                 f16,
+                SPLITER,
+                f17,
             );
 
             products.push(product);
