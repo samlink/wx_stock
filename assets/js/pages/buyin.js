@@ -255,7 +255,7 @@ let page_buyin = function () {
             }
 
             show_names.push({
-                name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: false, default: ""
+                name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: true, default: ""
             });
 
             if (document_name == "销售单据") {
@@ -659,14 +659,16 @@ let page_buyin = function () {
                 for (let row of rows) {
                     let wu = row.querySelector('.物料号');
                     if (wu && wu.textContent.trim() == values[12]) {                       
+                        values[5] = row.querySelector('.类型').value;
                         values[6] = row.querySelector('.price').value;
                         values[10] = row.querySelector('.weight').value;
                         values[11] = row.querySelector('.money').textContent;
                         break;
                     }
                 }
+
                 value = values.join(SPLITER);
-                content.push(value);
+                content.push(value);             
             }
 
             let edit_data = {
@@ -749,24 +751,24 @@ let page_buyin = function () {
 
         console.log(data);
 
-        // fetch(`/save_document`, {
-        //     method: 'post',
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     body: JSON.stringify(data),
-        // })
-        //     .then(response => response.json())
-        //     .then(content => {
-        //         if (content != -1) {
-        //             dh_div.textContent = content;
-        //             notifier.show('单据保存成功', 'success');
-        //             edited = false;
-        //             edit_table.input_table_outdata().edited = false;
-        //         } else {
-        //             notifier.show('权限不够，操作失败', 'danger');
-        //         }
-        //     });
+        fetch(`/save_document`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    dh_div.textContent = content;
+                    notifier.show('单据保存成功', 'success');
+                    edited = false;
+                    edit_table.input_table_outdata().edited = false;
+                } else {
+                    notifier.show('权限不够，操作失败', 'danger');
+                }
+            });
     }
 
     // 只读设置

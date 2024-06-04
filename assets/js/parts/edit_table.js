@@ -147,7 +147,7 @@ let edit_table = function () {
         num += 1;
 
         append_blanks(tbody, num);
-        
+
         return input_row;
     }
 
@@ -255,7 +255,7 @@ let edit_table = function () {
                 control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value ${obj.class}'>`;
                 let options = obj.default.split('_');
                 for (let value of options) {
-                    let select = value == obj.value ? 'select' : '';
+                    let select = value == obj.value ? 'selected' : '';
                     control += `<option value="${value}" ${select}>${value}</option>`;
                 }
                 control += "</select></td>";

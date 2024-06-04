@@ -436,8 +436,8 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 物料号, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 金额, 物料号, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
                     dh,
                     value[0],
                     value[1],
@@ -451,6 +451,7 @@ pub async fn save_document(
                     value[9],
                     value[10],
                     value[11],
+                    value[12],
                     n
                 )
             } else {
@@ -807,9 +808,7 @@ pub async fn fetch_document_items_sales(
 
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 物料号,
-                case when 重量=0 and 理重=0 then round((单价*数量)::numeric,2)::real
-                else round((单价*理重)::numeric,2)::real end as 金额, 备注, 商品id
+                规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 物料号, 金额, 备注, 商品id
                 FROM document_items
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
