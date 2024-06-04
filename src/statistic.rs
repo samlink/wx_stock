@@ -1349,7 +1349,7 @@ pub async fn trans_item_excel(
             query_date, query_field 
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
