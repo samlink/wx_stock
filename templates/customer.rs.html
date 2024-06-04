@@ -16,6 +16,14 @@
                 <div class="autocomplete customer-search">
                     <input type="text" class="form-control search-input" id="search-input" placeholder="@cate搜索">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                    @if cate == "客户" {
+                    <select class="select-sm" id="cate-select">
+                        <option value="全部" selected>全部</option>
+                        <option value="制造厂">制造厂</option>
+                        <option value="贸易商">贸易商</option>
+                        <option value="出口商">出口商</option>
+                    </select>
+                    }
                 </div>
                 <div class="table-tools">
                     <div class="table-edit">

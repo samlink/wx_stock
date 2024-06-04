@@ -145,12 +145,19 @@ let page_transport = function () {
 
         // 选择结算和打印
         let select_print = document.createElement("select");
-        select_print.id = "my-select";
+        select_print.id = "select-print";
+        select_print.classList.add("select-sm");
+        select_print.style.width = "80px";
+        select_print.style.marginLeft = "50px";
         select_print.options.add(new Option("结算单", "结算单"));
         select_print.options.add(new Option("发货单", "发货单"));
         fields_show.appendChild(select_print);
-        alert('dd')
+
+        select_print.addEventListener('change', function () {
+            document.querySelector("#print-button").textContent = this.value == "结算单" ? "导出" : "打印";
+        });
     }
+
 
     service.get_materials_docs('/materialout_docs', "商品销售", build_items);
 
@@ -566,7 +573,9 @@ let page_transport = function () {
             return false;
         }
 
-        if (document.querySelector('#remember-button').textContent == "审核") {
+        let select_print = document.querySelector('#select-print').value;
+
+        if (select_print == "发货单" && document.querySelector('#remember-button').textContent == "审核") {
             notifier.show('审核后才能打印', 'danger');
             return false;
         }
@@ -580,21 +589,44 @@ let page_transport = function () {
             body: document.querySelector('#文本字段6').value.trim(),
         })).json();
 
-        document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-销售发货单";
+        if (select_print == "发货单") {
+            document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-销售发货单";
 
-        let p = `<p style="padding:0">客户名称：${document.querySelector('#文本字段5').value}</p>
+            let p = `<p style="padding:0">客户名称：${document.querySelector('#文本字段5').value}</p>
                         <p>客户地址：${document.querySelector('#文本字段1').value}</p>`;
-        document.querySelector('#p-block1').innerHTML = p;
+            document.querySelector('#p-block1').innerHTML = p;
 
-        let contact = `收货人/电话：${document.querySelector('#文本字段8').value} ${document.querySelector('#文本字段9').value}`;
-        p = `<p>发货日期：${document.querySelector('#日期').value}</p><p>${contact}</p>`;
-        document.querySelector('#p-block2').innerHTML = p;
+            let contact = `收货人/电话：${document.querySelector('#文本字段8').value} ${document.querySelector('#文本字段9').value}`;
+            p = `<p>发货日期：${document.querySelector('#日期').value}</p><p>${contact}</p>`;
+            document.querySelector('#p-block2').innerHTML = p;
 
-        p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
-        document.querySelector('#p-block3').innerHTML = p;
+            p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
+            document.querySelector('#p-block3').innerHTML = p;
 
-        p = `<p>客户PO：${cus_po}</p><p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>`;
-        document.querySelector('#p-block4').innerHTML = p;
+            p = `<p>客户PO：${cus_po}</p><p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>`;
+            document.querySelector('#p-block4').innerHTML = p;
+        }
+        else {
+            document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-结算单";
+
+            let p = `<p style="padding:0">客户：${document.querySelector('#文本字段5').value}</p>`;
+            document.querySelector('#p-block1').innerHTML = p;
+
+            p = `<p>合同号：${document.querySelector('#文本字段3').value}</p>`;
+            document.querySelector('#p-block2').innerHTML = p;
+
+            p = `<p>日期：${document.querySelector('#日期').value}</p>`;
+            document.querySelector('#p-block4').innerHTML = p;
+
+            if (cus_po.trim() != "") {
+                p = `<p>客户PO：${cus_po}</p>`;
+            }
+            else {
+                p = "";
+            }
+
+            document.querySelector('#p-block3').innerHTML = p;
+        }
 
         var th = `<tr>
         <th width="3%">序号</th>
@@ -649,10 +681,12 @@ let page_transport = function () {
 
         document.querySelector('.print-table tbody').innerHTML = trs;
 
-        document.querySelector('#p-block5').innerHTML = `<p>制单人：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
-        document.querySelector('#p-block6').innerHTML = `<p>审核：${shen_print}</p>`;
-        document.querySelector('#p-block7').innerHTML = '<p>装车：</p>';
-        document.querySelector('#p-block8').innerHTML = '<p>提货：</p>';
+        if (select_print == "发货单") {
+            document.querySelector('#p-block5').innerHTML = `<p>制单人：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
+            document.querySelector('#p-block6').innerHTML = `<p>审核：${shen_print}</p>`;
+            document.querySelector('#p-block7').innerHTML = '<p>装车：</p>';
+            document.querySelector('#p-block8').innerHTML = '<p>提货：</p>';
+        }
 
         document.querySelector('#print').hidden = false;
         Print('#print', {});

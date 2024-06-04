@@ -83,6 +83,13 @@ let page_customer = function () {
         search_table();
     });
 
+    if (document.querySelector('#cate-select')) {
+        document.querySelector('#cate-select').addEventListener('change', function () {
+            Object.assign(tool_table.table_data().post_data, { cate: cus_cate + "#" + this.value, name: '', page: 1 });
+            tool_table.fetch_table();
+        });
+    }
+
     function search_table() {
         let search = document.querySelector('#search-input').value;
         Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });

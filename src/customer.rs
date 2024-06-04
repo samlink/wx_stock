@@ -26,8 +26,15 @@ pub async fn fetch_customer(
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.to_lowercase();
+        let cate: Vec<&str> = post_data.cate.split('#').collect();
 
-        let fields = get_fields(db.clone(), &post_data.cate).await;
+        let cate_sql = if cate.len() > 1 && cate[1] != "全部" {
+            format!("AND 文本字段10 = '{}'", cate[1])
+        } else {
+            "".to_owned()
+        };
+
+        let fields = get_fields(db.clone(), &cate[0]).await;
 
         let mut sql_fields = "SELECT id::text,".to_owned();
 
@@ -37,8 +44,8 @@ pub async fn fetch_customer(
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM customers WHERE 
-            类别='{}' AND LOWER(名称) LIKE '%{}%' ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields, post_data.sort, post_data.cate, name, post_data.sort, skip, post_data.rec
+            类别='{}' AND LOWER(名称) LIKE '%{}%' {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            sql_fields, post_data.sort, cate[0], name, cate_sql, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -48,8 +55,8 @@ pub async fn fetch_customer(
         let products = build_string_from_base(rows, fields);
 
         let count_sql = format!(
-            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%'"#,
-            post_data.cate, name
+            r#"SELECT count(id) as 记录数 FROM customers WHERE 类别='{}' AND LOWER(名称) LIKE '%{}%' {}"#,
+            cate[0], name, cate_sql
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

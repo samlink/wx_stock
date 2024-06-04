@@ -2,6 +2,19 @@
     height: 95%;
     padding-top: 10px;
 
+    .customer-search {
+        width:400px;
+    }
+
+    #serach-button {
+        width: 60px;
+    }
+
+    #cate-select {
+        width: 90px;
+        margin-left: 30px;
+    }
+
     .table-customer {
         overflow-x: auto;
     }
