@@ -396,11 +396,11 @@ let page_buyin = function () {
             }
         });
 
+    // 类型变化事件
     function type_change(row) {
-        row.querySelector('.类型').addEventListener('change', function() {
+        row.querySelector('.类型').addEventListener('change', function () {
             calc_money(row);
         });
-
     }
 
     // 销售退货右表
@@ -435,7 +435,7 @@ let page_buyin = function () {
             });
         }
     }
-   
+
     // 自动计算
     function calculate(input_row) {
         if (input_row.querySelector('.规格')) {
@@ -484,7 +484,7 @@ let page_buyin = function () {
         let price = input_row.querySelector('.price').value;
         let mount = input_row.querySelector('.mount').value;
         let num = input_row.querySelector('.num').value;
-    
+
         if (!mount) {
             mount = input_row.querySelector('.mount').textContent;
         }
@@ -657,11 +657,11 @@ let page_buyin = function () {
             for (let [key, value] of has_chose) {
                 let values = value.split(SPLITER);
                 for (let row of rows) {
-                    if (row.querySelector('td:nth-child(3)').textContent.trim() != "" && row.querySelector('.note').value.startsWith(values[11])) {//.trim().split(' ')[0] == values[11]) {
-                        values[5] = row.querySelector('.price').value;
-                        values[9] = row.querySelector('.weight').value;
-                        values[10] = row.querySelector('.money').textContent;
-                        values[11] = row.querySelector('.note').value;
+                    let wu = row.querySelector('.物料号');
+                    if (wu && wu.textContent.trim() == values[12]) {                       
+                        values[6] = row.querySelector('.price').value;
+                        values[10] = row.querySelector('.weight').value;
+                        values[11] = row.querySelector('.money').textContent;
                         break;
                     }
                 }
@@ -685,7 +685,15 @@ let page_buyin = function () {
 
             setTimeout(() => {
                 if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                    edit_table.appand_edit_row();
+                    rows = document.querySelectorAll('.table-items tbody tr');
+                    for (let r of rows) {
+                        if (r.querySelector('.物料号')) {
+                            type_change(r);
+                        }
+                    }
+
+                    let row = edit_table.appand_edit_row();
+                    type_change(row);
                 }
             }, 200);
 
@@ -724,7 +732,7 @@ let page_buyin = function () {
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(2) input').value != "") {
                 let save_str = document_name == "销售单据" ?
-                    `${row.querySelector('td:nth-child(15)').textContent.trim()}${SPLITER}` :
+                    `${row.querySelector('td:nth-child(16)').textContent.trim()}${SPLITER}` :
                     `${row.querySelector('td:nth-child(12)').textContent.trim()}${SPLITER}`;
 
                 save_str += service.build_save_items(2, row, show_names);
@@ -739,26 +747,26 @@ let page_buyin = function () {
             items: table_data,
         }
 
-        // console.log(data);
+        console.log(data);
 
-        fetch(`/save_document`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    dh_div.textContent = content;
-                    notifier.show('单据保存成功', 'success');
-                    edited = false;
-                    edit_table.input_table_outdata().edited = false;
-                } else {
-                    notifier.show('权限不够，操作失败', 'danger');
-                }
-            });
+        // fetch(`/save_document`, {
+        //     method: 'post',
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        //     body: JSON.stringify(data),
+        // })
+        //     .then(response => response.json())
+        //     .then(content => {
+        //         if (content != -1) {
+        //             dh_div.textContent = content;
+        //             notifier.show('单据保存成功', 'success');
+        //             edited = false;
+        //             edit_table.input_table_outdata().edited = false;
+        //         } else {
+        //             notifier.show('权限不够，操作失败', 'danger');
+        //         }
+        //     });
     }
 
     // 只读设置

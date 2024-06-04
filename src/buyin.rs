@@ -436,8 +436,8 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 物料号, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 物料号, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', '{}', {})"#,
                     dh,
                     value[0],
                     value[1],
@@ -450,6 +450,7 @@ pub async fn save_document(
                     value[8],
                     value[9],
                     value[10],
+                    value[11],
                     n
                 )
             } else {
