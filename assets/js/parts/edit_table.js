@@ -147,6 +147,8 @@ let edit_table = function () {
         num += 1;
 
         append_blanks(tbody, num);
+        
+        return input_row;
     }
 
     //建立表头及一个空行
@@ -250,7 +252,7 @@ let edit_table = function () {
             } else if (obj.type == "二值选一" && !obj.editable) {
                 control += `<td width=${obj.width * 100 / all_width}>${obj.value ? obj.value : ''} ${hidden}</td>`;
             } else if (obj.type == "下拉列表" && obj.editable) {
-                control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value'>`;
+                control += `<td width=${obj.width * 100 / all_width} class="editable" ${hidden}><select class='select-sm has-value ${obj.class}'>`;
                 let options = obj.default.split('_');
                 for (let value of options) {
                     let select = value == obj.value ? 'select' : '';
@@ -501,7 +503,7 @@ let edit_table = function () {
 
     modal_init();
 
-    let get_data = function() {
+    let get_data = function () {
         return input_table_outdata;
     }
 

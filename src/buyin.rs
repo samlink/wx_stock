@@ -190,13 +190,12 @@ pub async fn buyin_auto(
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || {} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
-                round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
+                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' || products.文本字段1 AS label FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN cut_length() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
-                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
+                 (products.文本字段1 like '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
             "#,
                 SPLITER,
                 SPLITER,
@@ -206,7 +205,6 @@ pub async fn buyin_auto(
                 SPLITER,
                 f_map["库存长度"],
                 SPLITER,
-                f_map["理论重量"],
                 cate_s,
                 f_map["库存长度"],
                 s[0].to_lowercase(),
@@ -438,8 +436,8 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', {})"#,
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 物料号, 备注, 顺序) 
+                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}', '{}', {})"#,
                     dh,
                     value[0],
                     value[1],
@@ -451,6 +449,7 @@ pub async fn save_document(
                     value[7],
                     value[8],
                     value[9],
+                    value[10],
                     n
                 )
             } else {
@@ -807,7 +806,7 @@ pub async fn fetch_document_items_sales(
 
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量,
+                规格, 状态, 执行标准, 单价, 长度, 数量, 理重, 重量, 物料号,
                 case when 重量=0 and 理重=0 then round((单价*数量)::numeric,2)::real
                 else round((单价*理重)::numeric,2)::real end as 金额, 备注, 商品id
                 FROM document_items
@@ -837,8 +836,9 @@ pub async fn fetch_document_items_sales(
             let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
+            let wu: String = row.get("物料号");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,
                 SPLITER,
                 cz,
@@ -860,6 +860,8 @@ pub async fn fetch_document_items_sales(
                 weight,
                 SPLITER,
                 money,
+                SPLITER,
+                wu,
                 SPLITER,
                 note,
                 SPLITER,

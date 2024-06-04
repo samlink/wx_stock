@@ -213,6 +213,9 @@ let page_buyin = function () {
 
             if (document_name == "销售单据") {
                 show_names.push({
+                    name: "类型", width: 50, class: "类型", type: "下拉列表", editable: true, is_save: true, default: "按重量_按件数"
+                });
+                show_names.push({
                     name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
                 });
                 show_names.push({
@@ -312,7 +315,7 @@ let page_buyin = function () {
                 { name: "执行标准", width: 100 },
                 { name: "售价", width: 60 },
                 { name: "库存长度", width: 80 },
-                { name: "库存重量", width: 80 },
+                { name: "物料号", width: 60 },
             ];
 
             auto_data = document_name == "销售单据" ? [{
@@ -355,7 +358,8 @@ let page_buyin = function () {
                 }
 
                 edit_table.build_blank_table(edit_data);
-                edit_table.appand_edit_row();
+                let row = edit_table.appand_edit_row();
+                type_change(row);
             } else {
                 let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
                 fetch(url, {
@@ -384,12 +388,20 @@ let page_buyin = function () {
                         edit_table.build_items_table(edit_data);
                         setTimeout(() => {
                             if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                                edit_table.appand_edit_row();
+                                let row = edit_table.appand_edit_row();
+                                type_change(row);
                             }
                         }, 200);
                     })
             }
         });
+
+    function type_change(row) {
+        row.querySelector('.类型').addEventListener('change', function() {
+            calc_money(row);
+        });
+
+    }
 
     // 销售退货右表
     function sale_back() {
@@ -423,6 +435,7 @@ let page_buyin = function () {
             });
         }
     }
+   
     // 自动计算
     function calculate(input_row) {
         if (input_row.querySelector('.规格')) {
@@ -470,15 +483,17 @@ let page_buyin = function () {
     function calc_money(input_row) {
         let price = input_row.querySelector('.price').value;
         let mount = input_row.querySelector('.mount').value;
+        let num = input_row.querySelector('.num').value;
+    
         if (!mount) {
             mount = input_row.querySelector('.mount').textContent;
         }
         let money = "";
         if (price && regReal.test(price) && mount && regReal.test(mount)) {
-            if (input_row.querySelector('.材质').textContent.trim() != "--") {
+            if (input_row.querySelector('.类型').value == "按重量") {
                 money = (price * mount).toFixed(2);
             } else {
-                money = (price * input_row.querySelector('.num').value).toFixed(2);
+                money = (price * num).toFixed(2);
             }
         }
 
@@ -542,10 +557,8 @@ let page_buyin = function () {
     function fill_gg() {
         let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
 
-        console.log(field_values);
-        
         let n = 3;  //从第 3 列开始填入数据
-        let num = document_name == "销售单据" ? 5 : 4;  //填充数量
+        let num = 4;  //填充数量，销售与采购相同
         for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
             let val = field_values[i];
             // console.log(shown);
@@ -563,10 +576,9 @@ let page_buyin = function () {
             // }
 
             if (document_name == "销售单据") {
-                // 写入库存数量，用于验证输入
-                document.querySelector(`.inputting td:nth-child(${13})`).textContent = field_values[8];
-                document.querySelector(`.inputting td:nth-child(${16})`).textContent = field_values[7];
-                document.querySelector(`.inputting td:nth-child(${15})`).textContent = field_values[0];
+                document.querySelector(`.inputting td:nth-child(${14})`).textContent = field_values[8];
+                document.querySelector(`.inputting td:nth-child(${17})`).textContent = field_values[7];
+                document.querySelector(`.inputting td:nth-child(${16})`).textContent = field_values[0];
                 let row = document.querySelector('.table-items .inputting');
                 calc_weight(row);
             }
@@ -579,7 +591,8 @@ let page_buyin = function () {
         let price_input = document.querySelector(`.inputting .price`);
         price_input.focus();
 
-        edit_table.appand_edit_row();
+        let row = edit_table.appand_edit_row();
+        type_change(row);
         edited = true;
     }
 
@@ -587,6 +600,7 @@ let page_buyin = function () {
 
     let has_chose = new Map();
     let choose_button = document.querySelector('#choose-button');
+
     // 点选
     if (choose_button) {
         choose_button.addEventListener('click', function () {
@@ -623,7 +637,7 @@ let page_buyin = function () {
                         let p_id = row.querySelector('.商品id').textContent;
                         let na = 名称.split(' ');
 
-                        has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${""}${SPLITER}${p_id}`);
+                        has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${"按重量"}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${""}${SPLITER}${p_id}`);
                     }
                     else {
                         has_chose.delete(wu_num);
@@ -710,7 +724,7 @@ let page_buyin = function () {
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(2) input').value != "") {
                 let save_str = document_name == "销售单据" ?
-                    `${row.querySelector('td:nth-child(14)').textContent.trim()}${SPLITER}` :
+                    `${row.querySelector('td:nth-child(15)').textContent.trim()}${SPLITER}` :
                     `${row.querySelector('td:nth-child(12)').textContent.trim()}${SPLITER}`;
 
                 save_str += service.build_save_items(2, row, show_names);
@@ -724,6 +738,8 @@ let page_buyin = function () {
             remember: document.querySelector('#remember-button').textContent,
             items: table_data,
         }
+
+        // console.log(data);
 
         fetch(`/save_document`, {
             method: 'post',
