@@ -104,7 +104,7 @@ let page_stockoutitems = function () {
         let da2 = document.querySelector('#search-date2').value;
         let name = document.querySelector('#search-fields').value;
         let data = `${da1}${SPLITER}${da2}${SPLITER}${name}`;
-        fetch(`/stockout_excel`, {
+        fetch(`/trans_item_excel`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
@@ -114,7 +114,7 @@ let page_stockoutitems = function () {
             .then(response => response.json())
             .then(content => {
                 if (content != -1) {
-                    download_file(`/download/出库明细表.xlsx`);
+                    download_file(`/download/发货明细表.xlsx`);
                     notifier.show('成功导出至 Excel 文件', 'success');
                 } else {
                     notifier.show('权限不够，操作失败', 'danger');

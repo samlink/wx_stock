@@ -1307,6 +1307,174 @@ pub async fn stockout_excel(
     }
 }
 
+//发货明细导出到 excel
+#[post("/trans_item_excel")]
+pub async fn trans_item_excel(
+    db: web::Data<Pool>,
+    post_data: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let data: Vec<&str> = post_data.split(SPLITER).collect();
+        let name = data[2].trim().to_lowercase();
+
+        let query_field = if name != "" {
+            //注意前导空格
+            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name,)
+        } else {
+            "".to_owned()
+        };
+
+        let query_date = if data[0] != "" && data[1] != "" {
+            format!(
+                r#"日期::date>='{}'::date AND 日期::date<='{}'::date"#,
+                data[0], data[1]
+            )
+        } else {
+            "".to_owned()
+        };
+
+        let sql = format!(
+            r#"select d.日期 发货日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
+            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价::text, 长度::text, 
+            数量::text, 重量::text, case when di.商品id<>'4_111' then (round((单价*重量)::numeric,2))::text 
+            else (round((单价*数量)::numeric,2))::text end as 金额, 
+            di.备注, ROW_NUMBER () OVER (ORDER BY d.日期 DESC, di.单号id DESC, 顺序)::text as 序号
+            from document_items di 
+            join documents d on d.单号 = di.单号id 
+            join tree t on t.num = di.商品id
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
+            query_date, query_field 
+        );
+
+        println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        // 导出到 Excel
+        let file_name = format!("./download/{}.xlsx", "发货明细表");
+        let wb = Workbook::new(&file_name).unwrap();
+        let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+        // //设置列宽
+        // sheet.set_column(0, 0, 8.0, None).unwrap();
+        // sheet.set_column(1, 1, 12.0, None).unwrap();
+
+        let fields: Vec<Fields> = vec![
+            Fields {
+                name: "序号",
+                width: 6,
+            },
+            Fields {
+                name: "发货日期",
+                width: 12,
+            },
+            Fields {
+                name: "客户名称",
+                width: 25,
+            },
+            Fields {
+                name: "合同号",
+                width: 15,
+            },
+            Fields {
+                name: "销售单号",
+                width: 15,
+            },
+            Fields {
+                name: "发货单号",
+                width: 15,
+            },
+            Fields {
+                name: "名称",
+                width: 12,
+            },
+            Fields {
+                name: "材质",
+                width: 12,
+            },
+            Fields {
+                name: "规格",
+                width: 12,
+            },
+            Fields {
+                name: "状态",
+                width: 18,
+            },
+            Fields {
+                name: "炉号",
+                width: 15,
+            },
+            Fields {
+                name: "单价",
+                width: 10,
+            },
+            Fields {
+                name: "长度",
+                width: 10,
+            },
+            Fields {
+                name: "数量",
+                width: 10,
+            },
+            Fields {
+                name: "重量",
+                width: 10,
+            },
+            Fields {
+                name: "金额",
+                width: 15,
+            },
+            Fields {
+                name: "备注",
+                width: 15,
+            },
+        ];
+
+        let mut n = 0;
+        for f in &fields {
+            sheet
+                .write_string(
+                    0,
+                    n,
+                    &f.name,
+                    Some(
+                        &wb.add_format()
+                            .set_align(FormatAlignment::CenterAcross)
+                            .set_bold(),
+                    ),
+                )
+                .unwrap();
+            sheet.set_column(n, n, f.width.into(), None).unwrap();
+            n += 1;
+        }
+
+        let mut n = 1u32;
+        for row in rows {
+            let mut m = 0u16;
+            for f in &fields {
+                sheet
+                    .write_string(
+                        n,
+                        m,
+                        row.get(&*f.name),
+                        Some(&wb.add_format().set_align(FormatAlignment::Center)),
+                    )
+                    .unwrap();
+                m += 1;
+            }
+            n += 1;
+        }
+
+        wb.close().unwrap();
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///业务往来
 #[post("/fetch_business")]
 pub async fn fetch_business(

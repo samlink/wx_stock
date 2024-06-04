@@ -212,6 +212,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::stockin_excel)
             .service(statistic::stockout_excel)
             .service(statistic::business_excel)
+            .service(statistic::trans_item_excel)
             .service(statistic::fetch_business)
             .service(statistic::fetch_statis)
             .service(statistic::fetch_cost)
