@@ -409,10 +409,12 @@ let page_buyin = function () {
 
     // 类型变化事件
     function type_change(row) {
-        row.querySelector('.类型').addEventListener('change', function () {
-            calc_money(row);
-            sum_money();
-        });
+        if (row.querySelector('.类型')) {
+            row.querySelector('.类型').addEventListener('change', function () {
+                calc_money(row);
+                sum_money();
+            });
+        }
     }
 
     // 销售退货右表
@@ -507,6 +509,9 @@ let page_buyin = function () {
                 } else {
                     money = (price * input_row.querySelector('.num').value).toFixed(2);
                 }
+            }
+            else {
+                money = (price * mount).toFixed(2);
             }
         }
 
