@@ -81,7 +81,7 @@ pub async fn fetch_product(
             post_data.rec
         );
 
-        // println!("{}\n", sql);
+        println!("{}\n", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -144,7 +144,7 @@ async fn build_sql_search(
         format!("products.商品id = '{}'", post_data.id)
     };
 
-    let now_sql = if post_data.cate == "现有库存" {
+    let now_sql = if post_data.cate == "正常销售" {
         " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >= 10 AND products.文本字段7 <> '是'"
     } else {
         " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer < 10 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
