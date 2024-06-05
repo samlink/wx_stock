@@ -825,6 +825,7 @@ pub async fn fetch_document_items_sales(
             let gg: String = row.get("规格");
             let status: String = row.get("状态");
             let stand: String = row.get("执行标准");
+            let ty: String = row.get("类型");
             let price: f32 = row.get("单价");
             let long: i32 = row.get("长度");
             let num: i32 = row.get("数量");
@@ -838,7 +839,7 @@ pub async fn fetch_document_items_sales(
             let m_id: String = row.get("商品id");
             let wu: String = row.get("物料号");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,
                 SPLITER,
                 cz,
@@ -848,6 +849,8 @@ pub async fn fetch_document_items_sales(
                 status,
                 SPLITER,
                 stand,
+                SPLITER,
+                ty,
                 SPLITER,
                 price,
                 SPLITER,

@@ -359,7 +359,9 @@ let page_buyin = function () {
 
                 edit_table.build_blank_table(edit_data);
                 let row = edit_table.appand_edit_row();
-                type_change(row);
+                if (document_name == "销售单据") {
+                    type_change(row);
+                }
             } else {
                 let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
                 fetch(url, {
@@ -386,11 +388,20 @@ let page_buyin = function () {
                         }
 
                         edit_table.build_items_table(edit_data);
+
                         setTimeout(() => {
                             if (document.querySelector('#remember-button').textContent.trim() == "审核") {
                                 let row = edit_table.appand_edit_row();
-                                type_change(row);
+                                if (document_name == "销售单据") {
+                                    type_change(row);
+                                }
                             }
+
+                            let rows = document.querySelectorAll('.table-items tbody tr');
+                            rows.forEach(row => {
+                                type_change(row);
+                            });
+
                         }, 200);
                     })
             }
@@ -400,6 +411,7 @@ let page_buyin = function () {
     function type_change(row) {
         row.querySelector('.类型').addEventListener('change', function () {
             calc_money(row);
+            sum_money();
         });
     }
 
@@ -483,17 +495,18 @@ let page_buyin = function () {
     function calc_money(input_row) {
         let price = input_row.querySelector('.price').value;
         let mount = input_row.querySelector('.mount').value;
-        let num = input_row.querySelector('.num').value;
 
         if (!mount) {
             mount = input_row.querySelector('.mount').textContent;
         }
         let money = "";
         if (price && regReal.test(price) && mount && regReal.test(mount)) {
-            if (input_row.querySelector('.类型').value == "按重量") {
-                money = (price * mount).toFixed(2);
-            } else {
-                money = (price * num).toFixed(2);
+            if (document_name == "销售单据") {
+                if (input_row.querySelector('.类型').value == "按重量") {
+                    money = (price * mount).toFixed(2);
+                } else {
+                    money = (price * input_row.querySelector('.num').value).toFixed(2);
+                }
             }
         }
 
@@ -508,18 +521,24 @@ let page_buyin = function () {
         for (let i = 0; i < all_input.length; i++) {
             let price = all_input[i].querySelector('.price').value;
             let mount = all_input[i].querySelector('.mount').value;
-            let n = document_name == "销售单据" ? Number(all_input[i].querySelector('.num').value) : 0;
-            let weight_s = document_name == "销售单据" ? Number(all_input[i].querySelector('.weight').value) : 0;
-
             if (!mount) {
                 mount = all_input[i].querySelector('.mount').textContent;
             }
+
+            let n = document_name == "销售单据" ? Number(all_input[i].querySelector('.num').value) : 0;
+            let weight_s = document_name == "销售单据" ? Number(all_input[i].querySelector('.weight').value) : 0;
+
             if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
                 price && regReal.test(price) && mount && regReal.test(mount)) {
-                if (all_input[i].querySelector('.材质').textContent.trim() != "--") {
+                if (document_name == "销售单据") {
+                    if (all_input[i].querySelector('.类型').value == "按重量") {
+                        sum += price * mount;
+                    } else {
+                        sum += price * all_input[i].querySelector('.num').value;
+                    }
+                }
+                else {
                     sum += price * mount;
-                } else {
-                    sum += price * all_input[i].querySelector('.num').value;
                 }
 
                 sum_n += n;
@@ -592,7 +611,9 @@ let page_buyin = function () {
         price_input.focus();
 
         let row = edit_table.appand_edit_row();
-        type_change(row);
+        if (document_name == "销售单据") {
+            type_change(row);
+        }
         edited = true;
     }
 
@@ -658,7 +679,7 @@ let page_buyin = function () {
                 let values = value.split(SPLITER);
                 for (let row of rows) {
                     let wu = row.querySelector('.物料号');
-                    if (wu && wu.textContent.trim() == values[12]) {                       
+                    if (wu && wu.textContent.trim() == values[12]) {
                         values[5] = row.querySelector('.类型').value;
                         values[6] = row.querySelector('.price').value;
                         values[10] = row.querySelector('.weight').value;
@@ -668,7 +689,7 @@ let page_buyin = function () {
                 }
 
                 value = values.join(SPLITER);
-                content.push(value);             
+                content.push(value);
             }
 
             let edit_data = {
@@ -748,8 +769,6 @@ let page_buyin = function () {
             remember: document.querySelector('#remember-button').textContent,
             items: table_data,
         }
-
-        console.log(data);
 
         fetch(`/save_document`, {
             method: 'post',
