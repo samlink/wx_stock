@@ -790,9 +790,9 @@ var service = function () {
                     init_data.header_names["编号"] = "id";
 
                     // 自动计算得出的字段, 需用相关的计算公式进行排序, 不可直接使用原字段
-                    init_data.header_names["库存长度"] = "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2";
-                    init_data.header_names["切分"] = "COALESCE(切分次数,0)";
-                    init_data.header_names["理论重量"] = "库存下限-COALESCE(理重合计,0)";
+                    init_data.header_names["库存长度"] = "库存长度";
+                    init_data.header_names["切分"] = "切分次数";
+                    init_data.header_names["理论重量"] = "理论重量";
 
                     tool_table.table_init(init_data);
 

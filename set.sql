@@ -16,9 +16,10 @@
         show_order,inout_show,inout_order,default_value,all_edit,is_use,inout_width from tmp;
 
 --新增 tableset 字段
-COPY public.tableset (id, table_name, field_name, data_type, show_name, show_width, ctr_type, option_value, is_show, show_order, inout_show, inout_order, default_value, all_edit, is_use, inout_width) FROM stdin;
-365	发货单据	文本字段11	文本	文本字段11	4	普通输入		f	29	f	27		t	f	4
-366	发货单据	文本字段12	文本	文本字段12	4	普通输入		f	25	f	23		t	f	4
+insert into public.tableset
+(id, table_name, field_name, data_type, show_name, show_width, ctr_type, option_value, is_show, show_order, inout_show, inout_order, default_value, all_edit, is_use, inout_width)
+values 
+(368,'商品规格','库存状态','文本','库存类别',4,'普通输入','',false,29,false,27,'',true,false,4);
 
 创建外键索引
 ALTER TABLE pout_items ADD CONSTRAINT fk_sale_idx FOREIGN KEY (销售id) REFERENCES document_items (id) on delete cascade;

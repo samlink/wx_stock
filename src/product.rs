@@ -51,22 +51,18 @@ pub async fn fetch_product(
         let fields = get_fields(db.clone(), "商品规格").await;
 
         let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
-                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
-                            COALESCE(出库次数,0)::integer as 整数字段2,
-                            case when (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
-                            0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
-                            as 整数字段3,
-                            case when 库存下限-COALESCE(理重合计,0)<0.1 then 0 else round((库存下限-COALESCE(理重合计,0))::numeric,2)::float8 end as 库存下限,
-                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
+                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, 切分次数 整数字段2, 
+                            库存长度 整数字段3, 理论重量 库存下限, products.文本字段8,库位,products.文本字段6,库存类别 库存状态,products.备注,
+                            COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
-            LEFT JOIN cut_length() as foo
+            LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} {} AND documents.文本字段10 <>''
+            WHERE {} {} {} {} {} {} 
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
@@ -113,9 +109,9 @@ pub async fn fetch_product(
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数 FROM products
             JOIN documents on 单号id = 单号
-            LEFT JOIN cut_length() as foo
+            LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} AND documents.文本字段10 <>''"#,
+            WHERE {} {} {} {} {}"#,
             product_sql, area, conditions, now_sql, filter_sql
         );
 
@@ -145,7 +141,7 @@ async fn build_sql_search(
     };
 
     let now_sql = if post_data.cate == "正常销售" {
-        " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >= 10 AND products.文本字段7 <> '是'"
+        " AND 库存状态='' and 库存长度 > 10"
     } else {
         " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer < 10 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
     };
