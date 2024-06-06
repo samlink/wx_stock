@@ -6,6 +6,7 @@ use actix_web::{get, post, web, HttpResponse};
 use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
@@ -688,6 +689,72 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
         }
 
         HttpResponse::Ok().json(date)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取全部属性
+#[post("/fetch_all_info")]
+pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+        let sql = format!("
+            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号, p.文本字段5 生产厂家, 切分次数::text 切分,
+                库存长度::text 库存长度, 理论重量::text 库存重量, p.整数字段1::text 入库长度, 单号id 入库单号, d.日期 入库日期, d.类别 入库方式,
+                case when 单号id like 'TR%' then d.文本字段1 else '' end 原因, p.库位,
+                case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态, p.文本字段6 区域, p.备注
+            FROM products p
+            JOIN tree ON p.商品id = tree.num
+            JOIN documents d ON d.单号 = p.单号id
+            LEFT JOIN length_weight() as foo
+            ON p.文本字段1 = foo.物料号
+            WHERE p.文本字段1 = '{}'", data);
+
+        // println!("{}", sql);
+
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+        let wu: &str = row.get("物料号");
+        let gg: &str = row.get("规格");
+        let zt: &str = row.get("状态");
+        let bz: &str = row.get("执行标准");
+        let lh: &str = row.get("炉号");
+        let sc: &str = row.get("生产厂家");
+        let qf: &str = row.get("切分");
+        let kc: &str = row.get("库存长度");
+        let zl: &str = row.get("库存重量");
+        let cd: &str = row.get("入库长度");
+        let dh: &str = row.get("入库单号");
+        let rq: &str = row.get("入库日期");
+        let fs: &str = row.get("入库方式");
+        let lb: &str = row.get("库存状态");
+        let qy: &str = row.get("区域");
+        let bz: &str = row.get("备注");
+
+
+        let wu_num = json!({
+                "物料号": wu,
+                "规格":gg,
+                状态
+                执行标准
+                炉号
+                生产厂家
+                切分
+                库存长度
+                库存重量
+                入库长度
+                入库单号
+                入库日期
+                入库方式
+                库存状态
+                区域
+                备注
+
+        });
+
+        HttpResponse::Ok().json(wu_num)
     } else {
         HttpResponse::Ok().json(-1)
     }
