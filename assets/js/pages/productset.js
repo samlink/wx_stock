@@ -373,12 +373,15 @@ let page_productset = function () {
         let chosed = document.querySelector('tbody .focus');
         let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent.trim() : "";
         let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
+        let sale_lock = chosed ? chosed.querySelector('.库存类别').textContent.trim() : "";
 
         if (global.product_name == "") {
             global.product_name = p_name;
         }
 
         if (global.product_name != "" && id != "") {
+            id = sale_lock != "锁定"? id : id + "#" + sale_lock;
+
             fetch('/fetch_pout_items', {
                 method: 'post',
                 headers: {
@@ -392,8 +395,8 @@ let page_productset = function () {
                     <div class="table-container table-pout">
                         <table>
                             <thead>
-                                <tr><th width="6%">序号</th><th width="10%">出库类别</th><th width="15%">日期</th><th width="15%">单号</th>
-                                <th width="8%">长度</th><th width="8%">数量</th><th width="8%">总长度</th><th width="10%">实际重量</th><th width="13%">备注</th></tr>
+                                <tr><th width="6%">序号</th><th width="10%">单据类别</th><th width="15%">日期</th><th width="15%">单号</th>
+                                <th width="8%">切分数量</th><th width="8%">总长度</th><th width="10%">实际重量</th><th width="13%">备注</th></tr>
                             </thead>
                             <tbody>
                             </tbody>
@@ -405,11 +408,11 @@ let page_productset = function () {
                     for (let row of content) {
                         let hr = row.cate == "销售出库" ? "/material_out/" : "/stock_change_out/";
                         tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="${hr}${row.dh}" target="_blank">${row.dh}</a></td>
-                            <td>${row.long}</td><td>${row.num}</td><td>${row.all_long}</td><td>${row.weight}</td><td>${row.note}</td></tr>`;
+                            <td>${row.num}</td><td>${row.all_long}</td><td>${row.weight}</td><td>${row.note}</td></tr>`;
                     }
 
                     for (let i = 0; i < 15 - n + 1; i++) {
-                        tds += `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
+                        tds += `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
                     }
 
                     let gg = chosed.querySelector('td:nth-child(4)').textContent;
