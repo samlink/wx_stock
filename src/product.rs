@@ -34,8 +34,6 @@ pub async fn fetch_product(
         let (product_sql, conditions, now_sql, filter_sql) =
             build_sql_search(db.clone(), f_data).await;
 
-        // println!("{}", filter_sql);
-
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;
         // 区域限制
@@ -52,7 +50,8 @@ pub async fn fetch_product(
 
         let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, 切分次数 整数字段2, 
-                            库存长度 整数字段3, 理论重量 库存下限, products.文本字段8,库位,products.文本字段6,库存类别 库存状态,products.备注,
+                            库存长度 整数字段3, 理论重量 库存下限, products.文本字段8,库位,products.文本字段6,
+                            case when 库存类别='' then 库存状态 else 库存类别 end 库存状态,products.备注,
                             COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
         let sql = format!(
@@ -85,7 +84,7 @@ pub async fn fetch_product(
         let mut products = Vec::new();
         for row in rows {
             let mut product = "".to_owned();
-            let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
+            let num: &str = row.get("id");               //字段顺序已与前端配合一致，后台不可自行更改
             product += &format!("{}{}", num, SPLITER);
 
             let num: i64 = row.get("序号");
@@ -112,7 +111,7 @@ pub async fn fetch_product(
             JOIN documents on 单号id = 单号
             LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} {}"#,            
+            WHERE {} {} {} {} {} {}"#,
             product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
 
@@ -143,8 +142,14 @@ async fn build_sql_search(
 
     let now_sql = if post_data.cate == "正常销售" {
         " AND 库存状态='' and 库存长度 > 10"
+    } else if post_data.cate == "已切完" {
+        " AND (库存状态='已切完' OR 库存状态 = '' and 库存长度 <= 10)"
+    } else if post_data.cate == "自用库" {
+        " AND 库存状态='自用'"
+    } else if post_data.cate == "不合格品" {
+        " AND 库存状态='不合格'"
     } else {
-        " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer < 10 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
+        " AND 库存状态='' and 库存长度 > 10"
     };
 
     // 构建搜索字符串
@@ -183,10 +188,10 @@ async fn build_sql_search(
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
-            .replace(
-                "库存长度",
-                "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2",
-            )
+            // .replace(
+            //     "库存长度",
+            //     "库存长度",
+            // )
             .replace("炉号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
