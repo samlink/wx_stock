@@ -14,6 +14,7 @@ use std::io::{self, Write};
 use time::now;
 
 pub static SPLITER: &str = "<`*_*`>";
+pub static NOT_DEL_SQL: &str =" and 作废 = false";
 
 //自动完成搜索字符串
 #[derive(Deserialize)]

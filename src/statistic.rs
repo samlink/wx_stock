@@ -798,14 +798,14 @@ pub async fn get_trans_items(
     post_data: web::Json<TablePager>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "".to_owned()).await;
+    let user = get_user(db.clone(), id, "出库明细".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let skip = (post_data.page - 1) * post_data.rec;
         let name = post_data.name.trim().to_lowercase();
         let cate = post_data.cate.to_lowercase();
         let data: Vec<&str> = cate.split(SPLITER).collect();
-        let limit = get_limits(&user).await;
+        // let limit = get_limits(&user).await;
 
         let query_field = if name != "" {
             //注意前导空格
@@ -830,8 +830,8 @@ pub async fn get_trans_items(
             from document_items di 
             join documents d on d.单号 = di.单号id 
             join tree t on t.num = di.商品id
-            where {} {} {} and d.类别 = '运输发货' and d.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, limit, query_date, query_field, post_data.sort, skip, post_data.rec
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, query_date, query_field, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -903,8 +903,8 @@ pub async fn get_trans_items(
             r#"select count(*) as 记录数
             from document_items di 
             join documents d on d.单号 = di.单号id 
-            where {} {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
-            limit, query_date, query_field
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
+            query_date, query_field
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();

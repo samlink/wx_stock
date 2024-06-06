@@ -62,7 +62,7 @@ pub async fn fetch_product(
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} {} 
+            WHERE {} {} {} {} {} {} {} 
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
@@ -72,6 +72,7 @@ pub async fn fetch_product(
             conditions,
             now_sql,
             filter_sql,
+            NOT_DEL_SQL,
             post_data.sort,
             skip,
             post_data.rec
@@ -111,8 +112,8 @@ pub async fn fetch_product(
             JOIN documents on 单号id = 单号
             LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {}"#,
-            product_sql, area, conditions, now_sql, filter_sql
+            WHERE {} {} {} {} {} {}"#,            
+            product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
