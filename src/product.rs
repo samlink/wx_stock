@@ -243,9 +243,8 @@ pub async fn fetch_filter_items(
 
         if post_data.filter_name == "库存长度" {
             let sql = format!(
-                r#"SELECT DISTINCT (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer
-                    as 库存长度 FROM products 
-                    LEFT JOIN cut_length() as foo
+                r#"SELECT DISTINCT 库存长度 FROM products 
+                    LEFT JOIN length_weight() as foo
                     ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
@@ -262,7 +261,7 @@ pub async fn fetch_filter_items(
         } else {
             let sql = format!(
                 r#"SELECT DISTINCT {} FROM products 
-                    LEFT JOIN cut_length() as foo
+                    LEFT JOIN length_weight() as foo
                     ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY {}"#,

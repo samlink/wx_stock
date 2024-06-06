@@ -95,10 +95,15 @@ let page_productset = function () {
     // 建立过滤器, 作为创建表格后的回调函数
     function make_filter() {
         const ths = document.querySelectorAll('.table-container thead th');
+        for (let th of ths) {
+            if (th.querySelector('.filter_button')) {
+                return false;
+            }
+        }
 
         let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
 
-        ths.forEach(th => {
+        ths.forEach(th => {            
             if (has_filter.indexOf(th.textContent) != -1) {
                 th.innerHTML = `${th.textContent} <button class="filter_button"><i class="fa fa-filter"></i></button>`;
             }

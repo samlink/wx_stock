@@ -763,7 +763,6 @@ var service = function () {
 
             blank_cells: 16,
             row_fn: table_row,
-            // blank_row_fn: blank_row,
         };
 
         fetch(`/fetch_fields`, {
@@ -788,7 +787,9 @@ var service = function () {
                     // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
                     init_data.header_names = header.header_names;
-                    init_data.header_names["编号"] = "id";
+                    // init_data.header_names["编号"] = "id";
+                    init_data.header_names["名称"] = "split_part(node_name,' ',2)";
+                    init_data.header_names["材质"] = "split_part(node_name,' ',1)";
 
                     // 自动计算得出的字段, 需用相关的计算公式进行排序, 不可直接使用原字段
                     init_data.header_names["库存长度"] = "库存长度";
