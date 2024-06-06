@@ -671,7 +671,7 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
                         order by 单号id desc", da[0], NOT_DEL_SQL, da[0], NOT_DEL_SQL)
         };
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut date = Vec::new();

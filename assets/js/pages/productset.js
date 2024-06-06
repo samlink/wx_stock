@@ -75,6 +75,11 @@ let page_productset = function () {
                 let url = rk.textContent.trim().startsWith("RK") ? "/material_in/" : "/stock_change_in/";
                 rk.innerHTML = `<a href="${url}${rk.textContent.trim()}" title="点击查阅单据">${rk.textContent.trim()}</a>`;
             }
+
+            // 设置锁定行颜色
+            if (document.querySelector('#p-select').value != "销售锁定" && tr.querySelector('.库存类别').textContent.trim() == '锁定') {
+                tr.classList.add('red');
+            }
         })
 
         if (lus_arr.length > 0) {
@@ -380,7 +385,7 @@ let page_productset = function () {
         }
 
         if (global.product_name != "" && id != "") {
-            id = sale_lock != "锁定"? id : id + "#" + sale_lock;
+            id = sale_lock != "锁定" ? id : id + "#" + sale_lock;
 
             fetch('/fetch_pout_items', {
                 method: 'post',
@@ -405,9 +410,15 @@ let page_productset = function () {
 
                     let tds = "";
                     let n = 1;
+
+                    let addr = {
+                        "销售出库": "/material_out/",
+                        "调整出库": "/stock_change_out/",
+                        "商品销售": "/sale/"
+                    }
+
                     for (let row of content) {
-                        let hr = row.cate == "销售出库" ? "/material_out/" : "/stock_change_out/";
-                        tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="${hr}${row.dh}" target="_blank">${row.dh}</a></td>
+                        tds += `<tr><td>${n++}</td><td>${row.cate}</td><td>${row.date}</td><td><a href="${addr[row.cate]}${row.dh}" target="_blank">${row.dh}</a></td>
                             <td>${row.num}</td><td>${row.all_long}</td><td>${row.weight}</td><td>${row.note}</td></tr>`;
                     }
 
@@ -415,14 +426,13 @@ let page_productset = function () {
                         tds += `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
                     }
 
-                    let gg = chosed.querySelector('td:nth-child(4)').textContent;
-                    let status = chosed.querySelector('td:nth-child(5)').textContent;
-                    let long = chosed.querySelector('td:nth-child(10)').textContent;
-                    let now_long = chosed.querySelector('td:nth-child(12)').textContent;
+                    let gg = chosed.querySelector('.规格').textContent;
+                    let status = chosed.querySelector('.状态').textContent;
+                    let now_long = chosed.querySelector('.库存长度').textContent;
 
                     document.querySelector('.modal-body').innerHTML = html;
                     document.querySelector('.modal-body .table-pout tbody').innerHTML = tds;
-                    document.querySelector('.modal-title').textContent = `${id}：${global.product_name}　${gg}　${status}，入库长度：${long}　现有长度：${now_long}`;
+                    document.querySelector('.modal-title').textContent = `${id}：${global.product_name}　${gg}　${status}，库存长度：${now_long}`;
                     document.querySelector('.modal-dialog').style.cssText = "max-width: 800px;";
                     document.querySelector('.modal').style.display = "block";
                     document.querySelector('#modal-sumit-button').style.display = "none";
