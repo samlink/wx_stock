@@ -295,18 +295,16 @@ pub async fn update_product(
     let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let product: Vec<&str> = p.data.split(SPLITER).collect();
+        let mut product: Vec<&str> = p.data.split(SPLITER).collect();
+        product[5] = if product[5] == "正常销售" {
+            ""
+        } else {
+            product[5]
+        };
 
         let sql = format!(
-            r#"UPDATE products SET 文本字段2='{}', 整数字段1={}, 库位='{}', 文本字段7='{}', 备注='{}' WHERE 文本字段1='{}'"#,
-            product[3], product[4], product[5], product[6], product[7], product[0]
-        );
-
-        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
-
-        let sql = format!(
-            r#"UPDATE products SET 库存下限 = 库存下限*(整数字段1::real/整数字段3::real), 整数字段3 = {} WHERE 文本字段1='{}'"#,
-            product[4], product[0]
+            r#"UPDATE products SET 文本字段2='{}', 文本字段4='{}', 库存状态='{}', 备注='{}' WHERE 文本字段1='{}'"#,
+            product[3], product[4], product[5], product[6], product[0]
         );
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();

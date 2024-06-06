@@ -472,7 +472,7 @@ let page_productset = function () {
                     "option_value": "",
                     "default_value": "",
                     "is_show": true,
-                    "show_order": 1,
+                    "show_order": 2,
                     "all_edit": true,
                     "is_use": false
                 },
@@ -487,58 +487,36 @@ let page_productset = function () {
                     "option_value": "",
                     "default_value": "",
                     "is_show": true,
-                    "show_order": 4,
+                    "show_order": 7,
                     "all_edit": true,
                     "is_use": true
                 },
                 {
-                    "id": 114,
-                    "num": 10,                  // 对应表格字段顺号
-                    "field_name": "整数字段1",
-                    "data_type": "整数",
-                    "show_name": "入库长度",
-                    "show_width": 4,
-                    "ctr_type": "普通输入",
-                    "option_value": "",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 4,
-                    "all_edit": true,
-                    "is_use": true
-                },
-                {
-                    "id": 133,
-                    "num": 14,
-                    "field_name": "库位",
+                    "num": 10,
+                    "field_name": "文本字段4",
                     "data_type": "文本",
-                    "show_name": "库位",
-                    "show_width": 4,
+                    "show_name": "炉号",
                     "ctr_type": "普通输入",
-                    "option_value": "",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 12,
-                    "all_edit": true,
-                    "is_use": true
+                    "show_order": 10,
+                    "is_use": true                    
                 },
                 {
                     "id": 120,
                     "num": 17,
-                    "field_name": "文本字段7",
+                    "field_name": "库存状态",
                     "data_type": "文本",
-                    "show_name": "切完",
+                    "show_name": "库存类别",
                     "show_width": 3,
                     "ctr_type": "下拉列表",
-                    "option_value": "否_是",
+                    "option_value": "正常销售_自用_不合格_已切完",
                     "default_value": "",
                     "is_show": true,
-                    "show_order": 14,
-                    "all_edit": true,
+                    "show_order": 16,
                     "is_use": true
                 },
                 {
                     "id": 110,
-                    "num": 18,
+                    "num": 16,
                     "field_name": "备注",
                     "data_type": "文本",
                     "show_name": "备注",
@@ -547,7 +525,7 @@ let page_productset = function () {
                     "option_value": "",
                     "default_value": "",
                     "is_show": true,
-                    "show_order": 15,
+                    "show_order": 17,
                     "all_edit": true,
                     "is_use": true
                 }];
@@ -557,7 +535,7 @@ let page_productset = function () {
                     let control;
                     let dis = !name.is_use ? "disabled" : "";
                     if (name.ctr_type == "普通输入") {
-                        let value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
+                        let value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
                         control = `<div class="form-group">
                             <div class="form-label">
                                 <label>${name.show_name}</label>
@@ -565,7 +543,7 @@ let page_productset = function () {
                             <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
                         </div>`;
                     } else {
-                        let show_value = chosed.querySelector(`td:nth-child(${name.num})`).textContent;
+                        let show_value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
                         control = `<div class="form-group">
                             <div class="form-label">                                    
                                 <label>${name.show_name}</label>
