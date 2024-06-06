@@ -61,26 +61,12 @@ let page_productset = function () {
     function add_lu_link() {
         let trs = document.querySelectorAll('.table-product tbody tr');
 
-        for (let tr of trs) {
-            // 炉号连接            
-            if (tr.querySelector(".炉号")) {
-                let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
-                fetch("/fetch_lu", {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(lu),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        if (content != "" && content != -1) {
-                            tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
-                        }
-                    })
-            }
-            else {
-                continue;
+        let lus_arr = [];
+        trs.forEach(tr => {
+            let lu = tr.querySelector('.炉号').textContent.trim();
+            if (lu != "") {
+                let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu}`;
+                lus_arr.push(da);
             }
 
             // 入库单号连接
@@ -89,6 +75,30 @@ let page_productset = function () {
                 let url = rk.textContent.trim().startsWith("RK") ? "/material_in/" : "/stock_change_in/";
                 rk.innerHTML = `<a href="${url}${rk.textContent.trim()}" title="点击查阅单据">${rk.textContent.trim()}</a>`;
             }
+        })
+
+        if (lus_arr.length > 0) {
+            fetch("/fetch_lu", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(lus_arr),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    console.log(content);
+                    for (let tr of trs) {
+                        for (let cont of content) {
+                            let lu = tr.querySelector('.炉号').textContent.trim();
+                            let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu}`;
+                            if (cont.indexOf(da) != -1) {
+                                tr.querySelector('.炉号').innerHTML = `<a href="${cont}" title="点击下载质保书">${lu}</a>`;
+                                break;
+                            }
+                        }
+                    }
+                })
         }
     }
 
@@ -103,7 +113,7 @@ let page_productset = function () {
 
         let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
 
-        ths.forEach(th => {            
+        ths.forEach(th => {
             if (has_filter.indexOf(th.textContent) != -1) {
                 th.innerHTML = `${th.textContent} <button class="filter_button"><i class="fa fa-filter"></i></button>`;
             }

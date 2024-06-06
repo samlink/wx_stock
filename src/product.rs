@@ -85,7 +85,7 @@ pub async fn fetch_product(
             post_data.rec
         );
 
-        println!("{}\n", sql);
+        // println!("{}\n", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -681,17 +681,24 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
 
 ///获取炉号质保书
 #[post("/fetch_lu")]
-pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) -> HttpResponse {
+pub async fn fetch_lu(
+    db: web::Data<Pool>,
+    lh: web::Json<Vec<String>>,
+    id: Identity,
+) -> HttpResponse {
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lh);
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut bao = "";
-        for row in rows {
-            bao = row.get("质保书");
+        let mut lu_arr = Vec::new();
+        for lu in lh.iter() {
+            let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lu);
+            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+            for row in rows {
+                let value: String = row.get("质保书");
+                lu_arr.push(value);
+            }
         }
-        HttpResponse::Ok().json(bao)
+        HttpResponse::Ok().json(lu_arr)
     } else {
         HttpResponse::Ok().json(-1)
     }
