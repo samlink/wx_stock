@@ -87,7 +87,6 @@ let page_productset = function () {
             })
                 .then(response => response.json())
                 .then(content => {
-                    console.log(content);
                     for (let tr of trs) {
                         for (let cont of content) {
                             let lu = tr.querySelector('.炉号').textContent.trim();
