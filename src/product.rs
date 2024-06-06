@@ -34,6 +34,12 @@ pub async fn fetch_product(
         let (product_sql, conditions, now_sql, filter_sql) =
             build_sql_search(db.clone(), f_data).await;
 
+        let lock_join_sql = if now_sql == "" {
+            "join sale_records() sale on products.文本字段1 = sale.物料号"
+        } else {
+            ""
+        };
+
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;
         // 区域限制
@@ -49,13 +55,14 @@ pub async fn fetch_product(
         let fields = get_fields(db.clone(), "商品规格").await;
 
         let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
-                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, 切分次数 整数字段2, 
-                            库存长度 整数字段3, 理论重量 库存下限, products.文本字段8,库位,products.文本字段6,
-                            case when 库存类别='' then 库存状态 else 库存类别 end 库存状态,products.备注,
+                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2, 
+                            COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,库位,products.文本字段6,
+                            case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
                             COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
+            {}
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
@@ -65,6 +72,7 @@ pub async fn fetch_product(
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
+            lock_join_sql,
             product_sql,
             done,
             area,
@@ -84,7 +92,7 @@ pub async fn fetch_product(
         let mut products = Vec::new();
         for row in rows {
             let mut product = "".to_owned();
-            let num: &str = row.get("id");               //字段顺序已与前端配合一致，后台不可自行更改
+            let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
             product += &format!("{}{}", num, SPLITER);
 
             let num: i64 = row.get("序号");
@@ -108,11 +116,12 @@ pub async fn fetch_product(
 
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数 FROM products
+            {}
             JOIN documents on 单号id = 单号
             LEFT JOIN length_weight() as foo
             ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} {} {}"#,
-            product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
+            lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
@@ -149,7 +158,7 @@ async fn build_sql_search(
     } else if post_data.cate == "不合格品" {
         " AND 库存状态='不合格'"
     } else {
-        " AND 库存状态='' and 库存长度 > 10"
+        ""
     };
 
     // 构建搜索字符串

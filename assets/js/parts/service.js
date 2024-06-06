@@ -761,8 +761,9 @@ var service = function () {
             },
             edit: false,
 
+            blank_cells: 16,
             row_fn: table_row,
-            blank_row_fn: blank_row,
+            // blank_row_fn: blank_row,
         };
 
         fetch(`/fetch_fields`, {
@@ -782,7 +783,7 @@ var service = function () {
                     });
 
                     let table = document.querySelector('.table-product');
-                    let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, "", "products");
+                    let header = build_table_header(table, [{ name: '序号', width: 3 }, { name: '名称', width: 4 }, { name: '材质', width: 6 }], table_fields, "", "products");
                     table.querySelector('thead tr').innerHTML = header.th_row;
                     // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -815,7 +816,8 @@ var service = function () {
 
         function table_row(tr) {
             let rec = tr.split(SPLITER);
-            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td>`;
+            let name = rec[rec.length - 4].split(' ');
+            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='name'>${name[1]}</td><td class='材质'>${name[0]}</td>`;
             let row_build = build_row_from_string(rec, row, table_fields);
             let rows = row_build.replace("</tr>", `<td class = "名称">${rec[rec.length - 4]}</td>
                                     <td class = "商品id">${rec[rec.length - 3]}</td><td class = "link">${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
@@ -823,10 +825,10 @@ var service = function () {
             return rows;
         }
 
-        function blank_row() {
-            let row = "<tr><td></td><td></td>";
-            return build_blank_from_fields(row, table_fields);
-        }
+        // function blank_row() {
+        //     let row = "<tr><td></td><td></td>";
+        //     return build_blank_from_fields(row, table_fields);
+        // }
 
         document.querySelector('#serach-button').addEventListener('click', function () {
             search_table();
@@ -977,7 +979,7 @@ var service = function () {
         })
     }
 
-    let get_data = function() {
+    let get_data = function () {
         return table_fields;
     }
 

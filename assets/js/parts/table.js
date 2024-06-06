@@ -96,8 +96,17 @@ var tool_table = function () {
                         count++;
                     }
 
+                    // for (let i = 0; i < table_data.post_data.rec - count; i++) {
+                    //     rows += table_data.blank_row_fn();
+                    // }
+                    
+                    // 写入空行
                     for (let i = 0; i < table_data.post_data.rec - count; i++) {
-                        rows += table_data.blank_row_fn();
+                        let row = '<tr>';
+                        for (let j = 0; j < table_data.blank_cells; j++) {
+                            row += '<td></td>';
+                        }
+                        rows += row + '</tr>';
                     }
 
                     table_data.body.innerHTML = rows;
