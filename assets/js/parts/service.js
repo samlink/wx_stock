@@ -739,8 +739,8 @@ var service = function () {
         }
     }
 
-    //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
-    let build_product_table = function (row_num, cb, more) {
+    //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用，从 cb 开始都是回调函数
+    let build_product_table = function (row_num, cb, more, more2) {
         let init_data = {
             container: '.table-product',
             url: `/fetch_product`,
@@ -797,12 +797,15 @@ var service = function () {
                     }
 
                     Object.assign(tool_table.table_data().post_data, post_data);
-                    tool_table.fetch_table(() => {
+                    tool_table.fetch_table((content) => {
                         if (cb) {
                             cb(table);
                         }
                         if (more) {
                             more();
+                        }
+                        if (more2) {
+                            more2(content);
                         }
                     });
                 }

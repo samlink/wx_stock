@@ -150,7 +150,7 @@ var tool_table = function () {
 
                     if (typeof cb == "function") {
                         cb_function = cb;
-                        cb();
+                        cb(content);
                     }
                 }
                 else {

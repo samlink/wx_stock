@@ -116,23 +116,25 @@ pub async fn fetch_product(
         // let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(products.文本字段1) as 记录数 FROM products
-            {}
-            JOIN documents on 单号id = 单号
-            LEFT JOIN length_weight() as foo
-            ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} {}"#,
+            r#"SELECT count(products.文本字段1) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
+                FROM products
+                {}
+                JOIN documents on 单号id = 单号
+                LEFT JOIN length_weight() as foo
+                ON products.文本字段1 = foo.物料号
+                WHERE {} {} {} {} {} {}"#,
             lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
 
-        let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
+        let row = &conn.query_one(sql2.as_str(), &[]).await.unwrap();
 
-        let mut count: i64 = 0;
-        for row in rows {
-            count = row.get("记录数");
-        }
+        let count: i64 = row.get("记录数");
+        let long: i64 = row.get("库存长度");
+        let w: f64 = row.get("库存重量");
+        let weight = format!("{:.0}", w);
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-        HttpResponse::Ok().json((products, count, pages))
+
+        HttpResponse::Ok().json((products, count, pages, long, weight))
     } else {
         HttpResponse::Ok().json(-1)
     }

@@ -36,7 +36,7 @@ let page_productset = function () {
                 add_lu_link();
             });
 
-            show_statistic(id);
+            // show_statistic(id);
         }
     }
 
@@ -57,7 +57,7 @@ let page_productset = function () {
 
     //商品规格表格数据 -------------------------------------------------------------------
 
-    service.build_product_table(row_num, make_filter, add_lu_link);
+    service.build_product_table(row_num, make_filter, add_lu_link, show_stat);
 
     // show_statistic("all");   // 参数有3个：all、3(圆钢) 和 4（钢管）
 
@@ -86,6 +86,12 @@ let page_productset = function () {
                     show_div.textContent = `长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
                 }
             });
+    }
+
+    function show_stat(content) {
+        console.log(content);
+        let show_div = document.querySelector('.info-show');
+        show_div.textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
     }
 
     function stem_click() {
