@@ -31,12 +31,11 @@ let page_productset = function () {
             };
 
             Object.assign(tool_table.table_data().post_data, post_data);
-            tool_table.fetch_table(() => {
+            tool_table.fetch_table((content) => {
                 make_filter();
                 add_lu_link();
+                show_stat(content);
             });
-
-            // show_statistic(id);
         }
     }
 
@@ -59,9 +58,7 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, add_lu_link, show_stat);
 
-    // show_statistic("all");   // 参数有3个：all、3(圆钢) 和 4（钢管）
-
-    // 表头显示统计信息
+    // 点击树的 stem 显示统计信息
     function show_statistic(cate) {
         fetch("/fetch_statistic", {
             method: 'post',
@@ -75,25 +72,18 @@ let page_productset = function () {
                 let obj = {
                     "3": "圆钢",
                     "4": "无缝钢管",
-                    "all": "全部"
                 };
 
-                let show_div = document.querySelector('.info-show');
-                if (cate == "3" || cate == "4" || cate == "all") {
-                    show_div.textContent = `${obj[cate]}重量合计：${content.库存重量} KG`;
-                }
-                else {
-                    show_div.textContent = `长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
-                }
+                document.querySelector('.info-show').textContent = `${obj[cate]}长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
             });
     }
 
+    // 显示统计信息，作为 fetch_table 的回调函数
     function show_stat(content) {
-        console.log(content);
-        let show_div = document.querySelector('.info-show');
-        show_div.textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
+        document.querySelector('.info-show').textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
     }
 
+    // 点击树的 stem
     function stem_click() {
         let all_stem = document.querySelectorAll('.item-down');
         all_stem.forEach(stem => {
@@ -331,9 +321,10 @@ let page_productset = function () {
 
         Object.assign(tool_table.table_data().post_data, post_data);
 
-        tool_table.fetch_table(() => {
+        tool_table.fetch_table((content) => {
             make_filter();
             add_lu_link();
+            show_stat(content);
         });
 
         make_red();
@@ -401,9 +392,10 @@ let page_productset = function () {
         };
 
         Object.assign(tool_table.table_data().post_data, post_data);
-        tool_table.fetch_table(() => {
+        tool_table.fetch_table((content) => {
             make_filter();
             add_lu_link();
+            show_stat(content);
         });
     });
 
@@ -697,9 +689,11 @@ let page_productset = function () {
                             modal_out_data.edit = 0;
                             notifier.show('商品修改成功', 'success');
 
-                            tool_table.fetch_table(() => {
+                            tool_table.fetch_table((content) => {
                                 make_filter();
                                 add_lu_link();
+                                show_stat(content);
+
                             });
 
                             if (global.eidt_cate == "add") {
@@ -726,9 +720,10 @@ let page_productset = function () {
                 .then(content => {
                     if (content == 1) {
                         notifier.show('批量操作成功', 'success');
-                        tool_table.fetch_table(() => {
+                        tool_table.fetch_table((content) => {
                             make_filter();
                             add_lu_link();
+                            show_stat(content);
                         });
                         close_modal();
                     } else {
