@@ -744,28 +744,53 @@ let page_productset = function () {
 
     document.querySelector('#data-out').addEventListener('click', function () {
         if (global.product_name != "") {
-            let data = {
-                id: global.product_id,
-                name: global.product_name,
-                done: document.querySelector('#p-select').value,
-            };
+            let fields = ["名称", "材质", "物料号", "规格", "状态", "执行标准", "炉号", "生产厂家", "切分", "库存长度", "库存重量",
+                "入库长度", "入库单号", "入库日期", "入库方式", "原因", "库位", "库存类别", "区域", "备注"];
 
-            fetch(`/product_out`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        download_file(`/download/${content}.xlsx`);
-                        notifier.show('成功导出至 Excel 文件', 'success');
-                    } else {
-                        notifier.show('权限不够，操作失败', 'danger');
-                    }
-                });
+            let form = "<form class='form-out'>";
+            for (let name of fields) {
+                let control;
+                control = `
+                    <div class="form-group fields-out">
+                        <label class="check-radio">
+                            <input type="checkbox">
+                            <span>${name}</span>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>`;
+
+                form += control;
+            }
+
+            form += "</form>";
+
+            document.querySelector('.modal-body').innerHTML = form;
+            document.querySelector('.modal-title').textContent = global.product_name + " - 请选择导出字段：";
+            document.querySelector('.modal-dialog').style.cssText = "max-width: 300px;";
+            document.querySelector('.modal').style.display = "block";
+
+            // let data = {
+            //     id: global.product_id,
+            //     name: global.product_name,
+            //     done: document.querySelector('#p-select').value,
+            // };
+
+            // fetch(`/product_out`, {
+            //     method: 'post',
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //     },
+            //     body: JSON.stringify(data),
+            // })
+            //     .then(response => response.json())
+            //     .then(content => {
+            //         if (content != -1) {
+            //             download_file(`/download/${content}.xlsx`);
+            //             notifier.show('成功导出至 Excel 文件', 'success');
+            //         } else {
+            //             notifier.show('权限不够，操作失败', 'danger');
+            //         }
+            //     });
         } else {
             notifier.show('请先选择商品', 'danger');
         }

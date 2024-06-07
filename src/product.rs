@@ -32,14 +32,8 @@ pub async fn fetch_product(
             filter_name: "".to_owned(),
         };
 
-        let (product_sql, conditions, now_sql, filter_sql) =
+        let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
             build_sql_search(db.clone(), f_data).await;
-
-        let lock_join_sql = if now_sql == "" {
-            "join sale_records() sale on products.文本字段1 = sale.物料号"
-        } else {
-            ""
-        };
 
         let skip = (post_data.page - 1) * post_data.rec;
         let f_map = map_fields(db.clone(), "商品规格").await;
@@ -143,7 +137,7 @@ pub async fn fetch_product(
 async fn build_sql_search(
     db: web::Data<Pool>,
     post_data: FilterData,
-) -> (String, String, String, String) {
+) -> (String, String, String, String, String) {
     let f_map = map_fields(db.clone(), "商品规格").await;
 
     let product_sql = if post_data.id == "" {
@@ -162,6 +156,12 @@ async fn build_sql_search(
         " AND 库存状态='不合格'"
     } else {
         ""
+    };
+
+    let lock_join_sql = if now_sql == "" {
+        "join sale_records() sale on products.文本字段1 = sale.物料号".to_owned()
+    } else {
+        "".to_owned()
     };
 
     // 构建搜索字符串
@@ -203,7 +203,7 @@ async fn build_sql_search(
             .replace("(空白)", "");
     }
 
-    (product_sql, conditions, now_sql.to_owned(), filter_sql)
+    (product_sql, conditions, now_sql.to_owned(), filter_sql, lock_join_sql)
 }
 
 #[derive(Deserialize)]
@@ -272,7 +272,7 @@ pub async fn fetch_filter_items(
             filter: post_data.filter.clone(),
             filter_name: "".to_owned(),
         };
-        let (product_sql, conditions, now_sql, filter_sql) =
+        let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
             build_sql_search(db.clone(), f_data).await;
 
         let mut items: Vec<String> = Vec::new();
@@ -280,11 +280,12 @@ pub async fn fetch_filter_items(
         if post_data.filter_name == "库存长度" {
             let sql = format!(
                 r#"SELECT DISTINCT 库存长度 FROM products 
+                    {}
                     LEFT JOIN length_weight() as foo
                     ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
-                product_sql, conditions, now_sql, filter_sql,
+                    lock_join_sql, product_sql, conditions, now_sql, filter_sql,
             );
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -296,12 +297,14 @@ pub async fn fetch_filter_items(
             }
         } else {
             let sql = format!(
-                r#"SELECT DISTINCT {} FROM products 
+                r#"SELECT DISTINCT {} FROM products
+                    {}
                     LEFT JOIN length_weight() as foo
                     ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY {}"#,
                 f_map[post_data.filter_name.as_str()],
+                lock_join_sql,
                 product_sql,
                 conditions,
                 now_sql,
