@@ -575,6 +575,11 @@ let page_productset = function () {
                     "is_use": true
                 },
                 {
+                    "show_name": "入库长度",
+                    "ctr_type": "普通输入",
+                    "is_use": true
+                },
+                {
                     "show_name": "库存类别",
                     "ctr_type": "下拉列表",
                     "option_value": "正常销售_自用_不合格_已切完",
