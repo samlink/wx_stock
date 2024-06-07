@@ -837,12 +837,15 @@ var service = function () {
 
             //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
             let table = document.querySelector('.table-product');
-            tool_table.fetch_table(() => {
+            tool_table.fetch_table((content) => {
                 if (cb) {
                     cb(table);
                 }
                 if (more) {
                     more();
+                }
+                if (more2) {
+                    more2(content);
                 }
             });
         }
