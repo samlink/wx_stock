@@ -57,6 +57,37 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, add_lu_link);
 
+    show_statistic("all");   // 参数有3个：all、3(圆钢) 和 4（钢管）
+
+    // 表头显示统计信息
+    function show_statistic(cate) {
+        fetch("/fetch_statistic", {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: cate,
+        })
+            .then(response => response.json())
+            .then(content => {
+                console.log(content);
+                let obj = {
+                    "3": "圆钢",
+                    "4": "无缝钢管",
+                    "all": "全部"
+                };
+
+                let show_div = document.querySelector('.info-show');
+                if (cate == "3" || cate == "4" || cate == "all") {
+                    show_div.textContent = `${obj[cate]} 库存重量：${content.库存重量}`;
+                }
+                else {
+                    let wu = cate.split('_')[0];
+                    show_div.textContent = `${obj[wu]} 库存长度：${content.库存长度}，库存重量：${content.库存重量}`;
+                }
+            });
+    }
+
     // 给炉号加入连接, 同时给入库单号加入连接
     function add_lu_link() {
         let trs = document.querySelectorAll('.table-product tbody tr');

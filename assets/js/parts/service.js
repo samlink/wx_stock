@@ -1,10 +1,3 @@
-// import { regDate, regInt, regReal, SPLITER, open_node } from './tools.js';
-// import { fetch_tree, tree_init, tree_search } from './tree.js';
-// import { table_data, table_init, fetch_table } from '../parts/table.mjs';
-// import { notifier } from "./notifier.mjs";
-// import { alert_confirm } from "./alert.mjs";
-// import { close_modal, modal_init } from './modal.mjs';
-
 var service = function () {
     var table_fields;
 

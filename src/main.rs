@@ -180,6 +180,7 @@ async fn main() -> std::io::Result<()> {
             .service(tree::tree_drag)
 
             .service(product::fetch_product)
+            .service(product::fetch_statistic)
             .service(product::update_product)
             .service(product::add_product)
             .service(product::product_auto)

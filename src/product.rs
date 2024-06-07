@@ -213,6 +213,45 @@ pub struct FilterData {
     filter: String,
 }
 
+///获取表头统计信息
+#[post("/fetch_statistic")]
+pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+
+        let cate_sql = if cate == "all" {
+            "true".to_owned()
+        } else {
+            format!("tree.num like '{}%'", cate)
+        };
+
+        let sql = format!(
+            r#"select sum(库存长度)/1000 库存长度, sum(理论重量) 库存重量 
+            from products p
+            join tree on tree.num = p.商品id
+            left join length_weight() foo on foo.物料号 = p.文本字段1  
+            where {} and 库存状态='' and 库存长度 > 10"#,
+            cate_sql
+        );
+
+        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+
+        let long: i64 = row.get("库存长度");
+        let w: f64 = row.get("库存重量");
+        let weight = format!("{:.0}", w);
+
+        let data = json!({
+            "库存长度": long,
+            "库存重量": weight
+        });
+
+        HttpResponse::Ok().json(data)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 ///获取 filter items
 #[post("/fetch_filter_items")]
 pub async fn fetch_filter_items(

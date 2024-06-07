@@ -21,6 +21,7 @@
         .table-top {
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         .product-search {
             display: flex;
@@ -37,6 +38,7 @@
 
     .product-select {
         display: flex;
+        align-items: center;
         select {
             width: 90px;
             height: 30px;
