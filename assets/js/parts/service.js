@@ -849,7 +849,6 @@ var service = function () {
                 }
             });
         }
-
     }
 
     //出入库时，获取单据列表
