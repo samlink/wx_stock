@@ -177,8 +177,8 @@ function moneyUppercase(n) {
         .replace(/^整$/, '零元整');
 };
 
-// 打开树的节点
-function open_node() {
-    document.querySelector('#t_4 span').click();
-    document.querySelector('#t_3 span').click();
-}
+// // 打开树的节点
+// function open_node() {
+//     document.querySelector('#t_4 span').click();
+//     document.querySelector('#t_3 span').click();
+// }

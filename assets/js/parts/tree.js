@@ -25,16 +25,22 @@ var tool_tree = function () {
                 tree.innerHTML = "";
                 gener_tree(tree, data);
 
-                var toggle = document.querySelectorAll(".item");
+                var toggle = document.querySelectorAll(".item");                
 
                 for (let i = 0; i < toggle.length; i++) {
-                    toggle[i].addEventListener('click', function (event) {
-                        if (event.target.tagName !== 'INPUT') {
-                            this.parentNode.querySelector(".nested").classList.toggle("active");
-                            this.classList.toggle("item-down");
-                            this.classList.toggle("item");
-                        }
-                    });
+                    // 直接打开节点
+                    toggle[i].classList.remove("item");
+                    toggle[i].classList.add("item-down");
+                    toggle[i].parentNode.querySelector(".nested").classList.add("active");                  
+
+                    // 需要打开收敛时用
+                    // toggle[i].addEventListener('click', function (event) {
+                    //     if (event.target.tagName !== 'INPUT') {
+                    //         this.parentNode.querySelector(".nested").classList.toggle("active");
+                    //         this.classList.toggle("item-down");
+                    //         this.classList.toggle("item");
+                    //     }
+                    // });
                 }
 
                 if (typeof func == "function") {

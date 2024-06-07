@@ -628,7 +628,7 @@ var service = function () {
             }
 
             tool_tree.tree_init(tree_data);
-            tool_tree.fetch_tree(open_node);
+            tool_tree.fetch_tree();
 
             let input = document.querySelector('#auto_input');
 
