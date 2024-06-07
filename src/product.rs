@@ -731,27 +731,25 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         let fs: &str = row.get("入库方式");
         let lb: &str = row.get("库存状态");
         let qy: &str = row.get("区域");
-        let bz: &str = row.get("备注");
-
+        let note: &str = row.get("备注");
 
         let wu_num = json!({
                 "物料号": wu,
-                "规格":gg,
-                状态
-                执行标准
-                炉号
-                生产厂家
-                切分
-                库存长度
-                库存重量
-                入库长度
-                入库单号
-                入库日期
-                入库方式
-                库存状态
-                区域
-                备注
-
+                "规格": gg,
+                "状态": zt,
+                "执行标准": bz,
+                "炉号": lh,
+                "生产厂家": sc,
+                "切分": qf,
+                "库存长度": kc,
+                "库存重量": zl,
+                "入库长度": cd,
+                "入库单号": dh,
+                "入库日期": rq,
+                "入库方式": fs,
+                "库存状态": lb,
+                "区域": qy,
+                "备注": note
         });
 
         HttpResponse::Ok().json(wu_num)

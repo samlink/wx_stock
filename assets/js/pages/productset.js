@@ -62,11 +62,14 @@ let page_productset = function () {
         let trs = document.querySelectorAll('.table-product tbody tr');
 
         let lus_arr = [];
-        trs.forEach(tr => {
-            let lu = tr.querySelector('.炉号').textContent.trim();
-            if (lu != "") {
-                let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu}`;
+        for (let tr of trs) {
+            let lu = tr.querySelector('.炉号');
+            if (lu) {
+                let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
                 lus_arr.push(da);
+            }
+            else {
+                break;
             }
 
             // 入库单号连接
@@ -80,7 +83,7 @@ let page_productset = function () {
             if (document.querySelector('#p-select').value != "销售锁定" && tr.querySelector('.库存类别').textContent.trim() == '锁定') {
                 tr.classList.add('red');
             }
-        })
+        }
 
         if (lus_arr.length > 0) {
             fetch("/fetch_lu", {
@@ -438,7 +441,7 @@ let page_productset = function () {
                     document.querySelector('#modal-sumit-button').style.display = "none";
                 });
         } else {
-            notifier.show('请先选择商品', 'danger');
+            notifier.show('请先选择物料', 'danger');
         }
     });
 
@@ -456,233 +459,292 @@ let page_productset = function () {
         if (global.product_id == "") {
             global.product_id = p_id;
         }
+        if (global.product_name != "" && id != "") {
+            fetch('/fetch_all_info', {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: id,
+            })
+                .then(response => response.json())
+                .then(content => {
+                    let fields = ["物料号", "规格", "状态", "执行标准", "炉号", "生产厂家", "切分", "库存长度", "库存重量",
+                        "入库长度", "入库单号", "入库日期", "入库方式", "库存状态", "区域", "备注"];
 
-
-
-        let form = "<form>";
-        for (let name of fields) {
-            let control;
-            let dis = !name.is_use ? "disabled" : "";
-            if (name.ctr_type == "普通输入") {
-                let value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
-                control = `<div class="form-group">
+                    let form = "<form>";
+                    for (let name of fields) {
+                        let control;
+                        control = `
+                        <div class="form-group">
                             <div class="form-label">
-                                <label>${name.show_name}</label>
+                                <label>${name}</label>
                             </div>
-                            <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
+                            <input class="form-control input-sm has-value" type="text" value="${content[name]}" readonly>
                         </div>`;
-            } else {
-                let show_value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
-                control = `<div class="form-group">
-                            <div class="form-label">                                    
-                                <label>${name.show_name}</label>
-                            </div>
-                            <select class='select-sm has-value'>`;
 
-                let options = name.option_value.split('_');
-                for (let value of options) {
-                    if (value == show_value) {
-                        control += `<option value="${value}" selected>${value}</option>`;
-                    } else {
-                        control += `<option value="${value}">${value}</option>`;
-                    }
-                }
-
-                control += "</select></div>";
-            }
-
-            form += control;
-        }
-        form += "</form>";
-
-        global.row_id = id;
-        document.querySelector('.modal-body').innerHTML = form;
-        document.querySelector('.modal-title').textContent = global.product_name;
-        document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
-        document.querySelector('.modal').style.display = "block";
-        document.querySelector('.modal-body input').focus();
-        leave_alert();
-
-    });
-
-//编辑按键
-if (document.querySelector('#edit-button')) {
-    document.querySelector('#edit-button').addEventListener('click', function () {
-        global.eidt_cate = "edit";
-
-        let chosed = document.querySelector('tbody .focus');
-        let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
-        let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
-        let p_id = chosed ? chosed.querySelector('.商品id').textContent.trim() : "";
-
-        if (global.product_name == "") {
-            global.product_name = p_name;
-        }
-
-        if (global.product_id == "") {
-            global.product_id = p_id;
-        }
-
-        if (global.product_name != "" && global.product_id != "" && id != "") {
-            let fields = [{
-                "id": 105,
-                "num": 2,
-                "field_name": "文本字段1",
-                "data_type": "文本",
-                "show_name": "物料号",
-                "show_width": 5,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 2,
-                "all_edit": true,
-                "is_use": false
-            },
-            {
-                "id": 131,
-                "num": 5,
-                "field_name": "文本字段2",
-                "data_type": "文本",
-                "show_name": "状态",
-                "show_width": 4,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 7,
-                "all_edit": true,
-                "is_use": true
-            },
-            {
-                "num": 10,
-                "field_name": "文本字段4",
-                "data_type": "文本",
-                "show_name": "炉号",
-                "ctr_type": "普通输入",
-                "show_order": 10,
-                "is_use": true
-            },
-            {
-                "id": 120,
-                "num": 17,
-                "field_name": "库存状态",
-                "data_type": "文本",
-                "show_name": "库存类别",
-                "show_width": 3,
-                "ctr_type": "下拉列表",
-                "option_value": "正常销售_自用_不合格_已切完",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 16,
-                "is_use": true
-            },
-            {
-                "id": 110,
-                "num": 16,
-                "field_name": "备注",
-                "data_type": "文本",
-                "show_name": "备注",
-                "show_width": 5,
-                "ctr_type": "普通输入",
-                "option_value": "",
-                "default_value": "",
-                "is_show": true,
-                "show_order": 17,
-                "all_edit": true,
-                "is_use": true
-            }];
-
-            let form = "<form>";
-            for (let name of fields) {
-                let control;
-                let dis = !name.is_use ? "disabled" : "";
-                if (name.ctr_type == "普通输入") {
-                    let value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
-                    control = `<div class="form-group">
-                            <div class="form-label">
-                                <label>${name.show_name}</label>
-                            </div>
-                            <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
-                        </div>`;
-                } else {
-                    let show_value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
-                    control = `<div class="form-group">
-                            <div class="form-label">                                    
-                                <label>${name.show_name}</label>
-                            </div>
-                            <select class='select-sm has-value'>`;
-
-                    let options = name.option_value.split('_');
-                    for (let value of options) {
-                        if (value == show_value) {
-                            control += `<option value="${value}" selected>${value}</option>`;
-                        } else {
-                            control += `<option value="${value}">${value}</option>`;
-                        }
+                        form += control;
                     }
 
-                    control += "</select></div>";
-                }
+                    form += "</form>";
 
-                form += control;
-            }
-            form += "</form>";
-
-            global.row_id = id;
-            document.querySelector('.modal-body').innerHTML = form;
-            document.querySelector('.modal-title').textContent = global.product_name;
-            document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
-            document.querySelector('.modal').style.display = "block";
-            document.querySelector('.modal-body input').focus();
-            leave_alert();
+                    global.row_id = id;
+                    document.querySelector('.modal-body').innerHTML = form;
+                    document.querySelector('.modal-title').textContent = global.product_name;
+                    document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
+                    document.querySelector('#modal-sumit-button').style.display = "none";
+                    document.querySelector('.modal').style.display = "block";
+                });
         } else {
             notifier.show('请先选择物料', 'danger');
         }
     });
-}
 
-//提交按键
-document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-    if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
-        let all_input = document.querySelectorAll('.has-value');
-        if (all_input[0].value != "") {
-            let num = 0;
-            for (let input of all_input) {
-                if (service.table_fields()[num].data_type == "整数" && !regInt.test(input.value)
-                    || service.table_fields()[num].data_type == "实数" && !regReal.test(input.value)) {
-                    notifier.show('数字字段输入错误', 'danger');
-                    return false;
-                }
-                num++;
-            }
-            let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
+    //编辑按键
+    if (document.querySelector('#edit-button')) {
+        document.querySelector('#edit-button').addEventListener('click', function () {
+            global.eidt_cate = "edit";
 
-            num = 0;
+            let chosed = document.querySelector('tbody .focus');
+            let id = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+            let p_name = chosed ? chosed.querySelector('.名称').textContent.trim() : "";
+            let p_id = chosed ? chosed.querySelector('.商品id').textContent.trim() : "";
 
-            for (let input of all_input) {
-                let value;
-                if (input.parentNode.className.indexOf('check-radio') == -1) {
-                    value = input.value;
-                } else {
-                    value = input.checked;
-                }
-
-                if (service.table_fields()[num].data_type == "整数" || service.table_fields()[num].data_type == "实数") {
-                    value = Number(value);
-                }
-
-                product += `${value}${SPLITER}`;
-                num++;
+            if (global.product_name == "") {
+                global.product_name = p_name;
             }
 
+            if (global.product_id == "") {
+                global.product_id = p_id;
+            }
+
+            if (global.product_name != "" && global.product_id != "" && id != "") {
+                let fields = [{
+                    "id": 105,
+                    "num": 2,
+                    "field_name": "文本字段1",
+                    "data_type": "文本",
+                    "show_name": "物料号",
+                    "show_width": 5,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 2,
+                    "all_edit": true,
+                    "is_use": false
+                },
+                {
+                    "id": 131,
+                    "num": 5,
+                    "field_name": "文本字段2",
+                    "data_type": "文本",
+                    "show_name": "状态",
+                    "show_width": 4,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 7,
+                    "all_edit": true,
+                    "is_use": true
+                },
+                {
+                    "num": 10,
+                    "field_name": "文本字段4",
+                    "data_type": "文本",
+                    "show_name": "炉号",
+                    "ctr_type": "普通输入",
+                    "show_order": 10,
+                    "is_use": true
+                },
+                {
+                    "id": 120,
+                    "num": 17,
+                    "field_name": "库存状态",
+                    "data_type": "文本",
+                    "show_name": "库存类别",
+                    "show_width": 3,
+                    "ctr_type": "下拉列表",
+                    "option_value": "正常销售_自用_不合格_已切完",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 16,
+                    "is_use": true
+                },
+                {
+                    "id": 110,
+                    "num": 16,
+                    "field_name": "备注",
+                    "data_type": "文本",
+                    "show_name": "备注",
+                    "show_width": 5,
+                    "ctr_type": "普通输入",
+                    "option_value": "",
+                    "default_value": "",
+                    "is_show": true,
+                    "show_order": 17,
+                    "all_edit": true,
+                    "is_use": true
+                }];
+
+                let form = "<form>";
+                for (let name of fields) {
+                    let control;
+                    let dis = !name.is_use ? "disabled" : "";
+                    if (name.ctr_type == "普通输入") {
+                        let value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
+                        control = `<div class="form-group">
+                            <div class="form-label">
+                                <label>${name.show_name}</label>
+                            </div>
+                            <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
+                        </div>`;
+                    } else {
+                        let show_value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
+                        control = `<div class="form-group">
+                            <div class="form-label">                                    
+                                <label>${name.show_name}</label>
+                            </div>
+                            <select class='select-sm has-value'>`;
+
+                        let options = name.option_value.split('_');
+                        for (let value of options) {
+                            if (value == show_value) {
+                                control += `<option value="${value}" selected>${value}</option>`;
+                            } else {
+                                control += `<option value="${value}">${value}</option>`;
+                            }
+                        }
+
+                        control += "</select></div>";
+                    }
+
+                    form += control;
+                }
+                form += "</form>";
+
+                global.row_id = id;
+                document.querySelector('.modal-body').innerHTML = form;
+                document.querySelector('.modal-title').textContent = global.product_name;
+                document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
+                document.querySelector('.modal').style.display = "block";
+                document.querySelector('.modal-body input').focus();
+                leave_alert();
+            } else {
+                notifier.show('请先选择物料', 'danger');
+            }
+        });
+    }
+
+    //提交按键
+    document.querySelector('#modal-sumit-button').addEventListener('click', function () {
+        if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
+            let all_input = document.querySelectorAll('.has-value');
+            if (all_input[0].value != "") {
+                let num = 0;
+                for (let input of all_input) {
+                    if (service.table_fields()[num].data_type == "整数" && !regInt.test(input.value)
+                        || service.table_fields()[num].data_type == "实数" && !regReal.test(input.value)) {
+                        notifier.show('数字字段输入错误', 'danger');
+                        return false;
+                    }
+                    num++;
+                }
+                let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
+
+                num = 0;
+
+                for (let input of all_input) {
+                    let value;
+                    if (input.parentNode.className.indexOf('check-radio') == -1) {
+                        value = input.value;
+                    } else {
+                        value = input.checked;
+                    }
+
+                    if (service.table_fields()[num].data_type == "整数" || service.table_fields()[num].data_type == "实数") {
+                        value = Number(value);
+                    }
+
+                    product += `${value}${SPLITER}`;
+                    num++;
+                }
+
+                let data = {
+                    data: product,
+                };
+
+                let url = global.eidt_cate == "edit" ? `/update_product` : `/add_product`;
+
+                fetch(url, {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content == 1) {
+                            global.edit = 0;
+                            modal_out_data.edit = 0;
+                            notifier.show('商品修改成功', 'success');
+
+                            tool_table.fetch_table(() => {
+                                make_filter();
+                                add_lu_link();
+                            });
+
+                            if (global.eidt_cate == "add") {
+                                for (let input of all_input) {
+                                    input.value = "";
+                                }
+                            }
+                            close_modal();
+                        } else {
+                            notifier.show('权限不够，操作失败', 'danger');
+                        }
+                    });
+            } else {
+                notifier.show('空值不能提交', 'danger');
+
+            }
+        } else {
+            let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
+            fetch(url, {
+                method: 'post',
+                body: global.product_id,
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content == 1) {
+                        notifier.show('批量操作成功', 'success');
+                        tool_table.fetch_table(() => {
+                            make_filter();
+                            add_lu_link();
+                        });
+                        close_modal();
+                    } else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
+        }
+    });
+
+    modal_init();
+
+    //数据导入和导出 ------------------------------------------------------------------------------
+
+    document.querySelector('#data-out').addEventListener('click', function () {
+        if (global.product_name != "") {
             let data = {
-                data: product,
+                id: global.product_id,
+                name: global.product_name,
+                done: document.querySelector('#p-select').value,
             };
 
-            let url = global.eidt_cate == "edit" ? `/update_product` : `/add_product`;
-
-            fetch(url, {
+            fetch(`/product_out`, {
                 method: 'post',
                 headers: {
                     "Content-Type": "application/json",
@@ -691,169 +753,102 @@ document.querySelector('#modal-sumit-button').addEventListener('click', function
             })
                 .then(response => response.json())
                 .then(content => {
-                    if (content == 1) {
-                        global.edit = 0;
-                        modal_out_data.edit = 0;
-                        notifier.show('商品修改成功', 'success');
-
-                        tool_table.fetch_table(() => {
-                            make_filter();
-                            add_lu_link();
-                        });
-
-                        if (global.eidt_cate == "add") {
-                            for (let input of all_input) {
-                                input.value = "";
-                            }
-                        }
-                        close_modal();
+                    if (content != -1) {
+                        download_file(`/download/${content}.xlsx`);
+                        notifier.show('成功导出至 Excel 文件', 'success');
                     } else {
                         notifier.show('权限不够，操作失败', 'danger');
                     }
                 });
         } else {
-            notifier.show('空值不能提交', 'danger');
-
+            notifier.show('请先选择商品', 'danger');
         }
-    } else {
-        let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
-        fetch(url, {
-            method: 'post',
-            body: global.product_id,
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content == 1) {
-                    notifier.show('批量操作成功', 'success');
-                    tool_table.fetch_table(() => {
-                        make_filter();
-                        add_lu_link();
-                    });
-                    close_modal();
-                } else {
-                    notifier.show('权限不够，操作失败', 'danger');
-                }
-            });
-    }
-});
+    });
 
-modal_init();
+    //批量导入
+    let fileBtn = document.getElementById('choose_file');
 
-//数据导入和导出 ------------------------------------------------------------------------------
+    document.getElementById('data-in').addEventListener('click', function () {
+        if (global.product_name == "") {
+            notifier.show('请先选择商品分类', 'danger');
+            return false;
+        }
+        fileBtn.click();
+    });
 
-document.querySelector('#data-out').addEventListener('click', function () {
-    if (global.product_name != "") {
-        let data = {
-            id: global.product_id,
-            name: global.product_name,
-            done: document.querySelector('#p-select').value,
-        };
+    fileBtn.addEventListener('change', () => {
+        data_in(fileBtn, "将追加", "追加新数据，同时保留原数据", "批量导入");
+    });
 
-        fetch(`/product_out`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    download_file(`/download/${content}.xlsx`);
-                    notifier.show('成功导出至 Excel 文件', 'success');
-                } else {
-                    notifier.show('权限不够，操作失败', 'danger');
-                }
-            });
-    } else {
-        notifier.show('请先选择商品', 'danger');
-    }
-});
+    //批量更新
+    let fileBtn_update = document.getElementById('choose_file2');
 
-//批量导入
-let fileBtn = document.getElementById('choose_file');
+    document.getElementById('data-update').addEventListener('click', function () {
+        if (global.product_name == "") {
+            notifier.show('请先选择商品分类', 'danger');
+            return false;
+        }
+        fileBtn_update.click();
+    });
 
-document.getElementById('data-in').addEventListener('click', function () {
-    if (global.product_name == "") {
-        notifier.show('请先选择商品分类', 'danger');
-        return false;
-    }
-    fileBtn.click();
-});
+    fileBtn_update.addEventListener('change', () => {
+        data_in(fileBtn_update, "将更新", "更新数据，原数据将被替换，请谨慎操作！", "批量更新");
+    });
 
-fileBtn.addEventListener('change', () => {
-    data_in(fileBtn, "将追加", "追加新数据，同时保留原数据", "批量导入");
-});
-
-//批量更新
-let fileBtn_update = document.getElementById('choose_file2');
-
-document.getElementById('data-update').addEventListener('click', function () {
-    if (global.product_name == "") {
-        notifier.show('请先选择商品分类', 'danger');
-        return false;
-    }
-    fileBtn_update.click();
-});
-
-fileBtn_update.addEventListener('change', () => {
-    data_in(fileBtn_update, "将更新", "更新数据，原数据将被替换，请谨慎操作！", "批量更新");
-});
-
-function data_in(fileBtn, info1, info2, cate) {
-    if (checkFileType(fileBtn)) {
-        const fd = new FormData();
-        fd.append('file', fileBtn.files[0]);
-        fetch(`/product_in`, {
-            method: 'POST',
-            body: fd,
-        })
-            .then(res => res.json())
-            .then(content => {
-                if (content != -1 && content != -2) {
-                    let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>";
-                    let n = 1;
-                    for (let item of content[0]) {
-                        let arr_p = item.split("<`*_*`>");
-                        let row;
-                        if (n == 1) {
-                            row = `<tr>`;
-                            for (let i = 0; i < arr_p.length - 1; i++) {
-                                row += `<th>${arr_p[i]}</th}>`;
+    function data_in(fileBtn, info1, info2, cate) {
+        if (checkFileType(fileBtn)) {
+            const fd = new FormData();
+            fd.append('file', fileBtn.files[0]);
+            fetch(`/product_in`, {
+                method: 'POST',
+                body: fd,
+            })
+                .then(res => res.json())
+                .then(content => {
+                    if (content != -1 && content != -2) {
+                        let rows = "<div class='table-container table-product'><table style='font-size: 12px;'><thead>";
+                        let n = 1;
+                        for (let item of content[0]) {
+                            let arr_p = item.split("<`*_*`>");
+                            let row;
+                            if (n == 1) {
+                                row = `<tr>`;
+                                for (let i = 0; i < arr_p.length - 1; i++) {
+                                    row += `<th>${arr_p[i]}</th}>`;
+                                }
+                                row += "</tr></thead><tbody>";
+                                n = 2;
+                            } else {
+                                row = `<tr>`;
+                                for (let i = 0; i < arr_p.length - 1; i++) {
+                                    row += `<td>${arr_p[i]}</td>`;
+                                }
+                                row += "</tr>";
                             }
-                            row += "</tr></thead><tbody>";
-                            n = 2;
-                        } else {
-                            row = `<tr>`;
-                            for (let i = 0; i < arr_p.length - 1; i++) {
-                                row += `<td>${arr_p[i]}</td>`;
-                            }
-                            row += "</tr>";
+
+                            rows += row;
                         }
+                        rows += "</tbody></table></div>";
+                        document.querySelector('.modal-body').innerHTML = rows;
 
-                        rows += row;
+                        let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
+                        document.querySelector('.modal-title').innerHTML = `${global.product_name} ${info1} ${content[1]} 条数据${message}：`;
+                        document.querySelector('#modal-info').innerHTML = `${global.product_name} ${info2}`;
+
+                        global.eidt_cate = cate;
+
+                        document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;";
+                        document.querySelector('.modal').style.cssText = "display: block";
+                        fileBtn.value = "";
+
+                    } else if (content == -1) {
+                        notifier.show('缺少操作权限', 'danger');
+                    } else {
+                        notifier.show('excel 表列数不符合', 'danger');
                     }
-                    rows += "</tbody></table></div>";
-                    document.querySelector('.modal-body').innerHTML = rows;
-
-                    let message = content[2] > 50 ? " (仅显示前 50 条）" : "";
-                    document.querySelector('.modal-title').innerHTML = `${global.product_name} ${info1} ${content[1]} 条数据${message}：`;
-                    document.querySelector('#modal-info').innerHTML = `${global.product_name} ${info2}`;
-
-                    global.eidt_cate = cate;
-
-                    document.querySelector('.modal-dialog').style.cssText = "max-width: 1200px;";
-                    document.querySelector('.modal').style.cssText = "display: block";
-                    fileBtn.value = "";
-
-                } else if (content == -1) {
-                    notifier.show('缺少操作权限', 'danger');
-                } else {
-                    notifier.show('excel 表列数不符合', 'danger');
-                }
-            });
-    } else {
-        notifier.show('需要 excel 文件', 'danger');
+                });
+        } else {
+            notifier.show('需要 excel 文件', 'danger');
+        }
     }
-}
 }();
