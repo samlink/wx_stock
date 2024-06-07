@@ -96,11 +96,12 @@ let page_productset = function () {
                 .then(response => response.json())
                 .then(content => {
                     for (let tr of trs) {
+                        let lu = tr.querySelector('.炉号');
+                        if (!lu) break;
                         for (let cont of content) {
-                            let lu = tr.querySelector('.炉号').textContent.trim();
-                            let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu}`;
+                            let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
                             if (cont.indexOf(da) != -1) {
-                                tr.querySelector('.炉号').innerHTML = `<a href="${cont}" title="点击下载质保书">${lu}</a>`;
+                                lu.innerHTML = `<a href="${cont}" title="点击下载质保书">${lu.textContent.trim()}</a>`;
                                 break;
                             }
                         }
@@ -470,7 +471,7 @@ let page_productset = function () {
                 .then(response => response.json())
                 .then(content => {
                     let fields = ["物料号", "规格", "状态", "执行标准", "炉号", "生产厂家", "切分", "库存长度", "库存重量",
-                        "入库长度", "入库单号", "入库日期", "入库方式", "库存状态", "区域", "备注"];
+                        "入库长度", "入库单号", "入库日期", "入库方式", "原因", "库位", "库存类别", "区域", "备注"];
 
                     let form = "<form>";
                     for (let name of fields) {
@@ -520,71 +521,29 @@ let page_productset = function () {
 
             if (global.product_name != "" && global.product_id != "" && id != "") {
                 let fields = [{
-                    "id": 105,
-                    "num": 2,
-                    "field_name": "文本字段1",
-                    "data_type": "文本",
                     "show_name": "物料号",
-                    "show_width": 5,
                     "ctr_type": "普通输入",
-                    "option_value": "",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 2,
-                    "all_edit": true,
                     "is_use": false
                 },
                 {
-                    "id": 131,
-                    "num": 5,
-                    "field_name": "文本字段2",
-                    "data_type": "文本",
                     "show_name": "状态",
-                    "show_width": 4,
                     "ctr_type": "普通输入",
-                    "option_value": "",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 7,
-                    "all_edit": true,
                     "is_use": true
                 },
                 {
-                    "num": 10,
-                    "field_name": "文本字段4",
-                    "data_type": "文本",
                     "show_name": "炉号",
                     "ctr_type": "普通输入",
-                    "show_order": 10,
                     "is_use": true
                 },
                 {
-                    "id": 120,
-                    "num": 17,
-                    "field_name": "库存状态",
-                    "data_type": "文本",
                     "show_name": "库存类别",
-                    "show_width": 3,
                     "ctr_type": "下拉列表",
                     "option_value": "正常销售_自用_不合格_已切完",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 16,
                     "is_use": true
                 },
                 {
-                    "id": 110,
-                    "num": 16,
-                    "field_name": "备注",
-                    "data_type": "文本",
                     "show_name": "备注",
-                    "show_width": 5,
                     "ctr_type": "普通输入",
-                    "option_value": "",
-                    "default_value": "",
-                    "is_show": true,
-                    "show_order": 17,
-                    "all_edit": true,
                     "is_use": true
                 }];
 
@@ -593,7 +552,7 @@ let page_productset = function () {
                     let control;
                     let dis = !name.is_use ? "disabled" : "";
                     if (name.ctr_type == "普通输入") {
-                        let value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
+                        let value = chosed.querySelector(`.${name.show_name}`).textContent;
                         control = `<div class="form-group">
                             <div class="form-label">
                                 <label>${name.show_name}</label>
@@ -601,7 +560,7 @@ let page_productset = function () {
                             <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
                         </div>`;
                     } else {
-                        let show_value = chosed.querySelector(`td:nth-child(${name.show_order})`).textContent;
+                        let show_value = chosed.querySelector(`.${name.show_name}`).textContent;
                         control = `<div class="form-group">
                             <div class="form-label">                                    
                                 <label>${name.show_name}</label>

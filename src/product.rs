@@ -171,7 +171,7 @@ async fn build_sql_search(
             conditions += &format!(
                 r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
                    LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                   OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
+                   OR LOWER(products.{}) LIKE '%{}%')
                 "#,
                 f_map["物料号"],
                 na,
@@ -179,9 +179,7 @@ async fn build_sql_search(
                 na,
                 f_map["生产厂家"],
                 na,
-                f_map["区域"],
-                na,
-                f_map["切完"],
+                f_map["炉号"],
                 na,
                 f_map["备注"],
                 na,
@@ -198,10 +196,6 @@ async fn build_sql_search(
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
-            // .replace(
-            //     "库存长度",
-            //     "库存长度",
-            // )
             .replace("炉号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
@@ -702,8 +696,8 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         let conn = db.get().await.unwrap();
 
         let sql = format!("
-            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号, p.文本字段5 生产厂家, 切分次数::text 切分,
-                库存长度::text 库存长度, 理论重量::text 库存重量, p.整数字段1::text 入库长度, 单号id 入库单号, d.日期 入库日期, d.类别 入库方式,
+            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号, p.文本字段5 生产厂家, COALESCE(切分次数,0)::text 切分,
+                COALESCE(库存长度,0)::text 库存长度, COALESCE(理论重量,0)::text 库存重量, p.整数字段1::text 入库长度, 单号id 入库单号, d.日期 入库日期, d.类别 入库方式,
                 case when 单号id like 'TR%' then d.文本字段1 else '' end 原因, p.库位,
                 case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态, p.文本字段6 区域, p.备注
             FROM products p
@@ -729,6 +723,8 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         let dh: &str = row.get("入库单号");
         let rq: &str = row.get("入库日期");
         let fs: &str = row.get("入库方式");
+        let yy: &str = row.get("原因");
+        let kw: &str = row.get("库位");
         let lb: &str = row.get("库存状态");
         let qy: &str = row.get("区域");
         let note: &str = row.get("备注");
@@ -747,7 +743,9 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
                 "入库单号": dh,
                 "入库日期": rq,
                 "入库方式": fs,
-                "库存状态": lb,
+                "原因": yy,
+                "库位": kw,
+                "库存类别": lb,
                 "区域": qy,
                 "备注": note
         });
