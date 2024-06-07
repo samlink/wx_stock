@@ -35,11 +35,13 @@ let page_productset = function () {
                 make_filter();
                 add_lu_link();
             });
+
+            show_statistic(id);
         }
     }
 
     tool_tree.tree_init(tree_data);
-    tool_tree.fetch_tree();
+    tool_tree.fetch_tree(stem_click);
 
     let input = document.querySelector('#auto_input');
 
@@ -57,7 +59,7 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, add_lu_link);
 
-    show_statistic("all");   // 参数有3个：all、3(圆钢) 和 4（钢管）
+    // show_statistic("all");   // 参数有3个：all、3(圆钢) 和 4（钢管）
 
     // 表头显示统计信息
     function show_statistic(cate) {
@@ -70,7 +72,6 @@ let page_productset = function () {
         })
             .then(response => response.json())
             .then(content => {
-                console.log(content);
                 let obj = {
                     "3": "圆钢",
                     "4": "无缝钢管",
@@ -79,13 +80,22 @@ let page_productset = function () {
 
                 let show_div = document.querySelector('.info-show');
                 if (cate == "3" || cate == "4" || cate == "all") {
-                    show_div.textContent = `${obj[cate]} 库存重量：${content.库存重量}`;
+                    show_div.textContent = `${obj[cate]}重量合计：${content.库存重量} KG`;
                 }
                 else {
-                    let wu = cate.split('_')[0];
-                    show_div.textContent = `${obj[wu]} 库存长度：${content.库存长度}，库存重量：${content.库存重量}`;
+                    show_div.textContent = `长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
                 }
             });
+    }
+
+    function stem_click() {
+        let all_stem = document.querySelectorAll('.item-down');
+        all_stem.forEach(stem => {
+            stem.addEventListener('click', function () {
+                let cate = this.textContent.trim() == "圆钢" ? "3" : "4";
+                show_statistic(cate);
+            });
+        })
     }
 
     // 给炉号加入连接, 同时给入库单号加入连接

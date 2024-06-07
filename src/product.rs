@@ -227,11 +227,11 @@ pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) ->
         };
 
         let sql = format!(
-            r#"select sum(库存长度)/1000 库存长度, sum(理论重量) 库存重量 
+            r#"select COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
             from products p
             join tree on tree.num = p.商品id
             left join length_weight() foo on foo.物料号 = p.文本字段1  
-            where {} and 库存状态='' and 库存长度 > 10"#,
+            where {} and 库存状态='' and COALESCE(库存长度,0) > 10"#,
             cate_sql
         );
 
