@@ -251,13 +251,37 @@ let page_productset = function () {
     }
 
     // 确定
-    document.querySelector('#f-ok').addEventListener('click', () => {
+    document.querySelector('#f-ok').addEventListener('click', (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+
+        document.querySelector('.filter-container').style.display = "none";
+
         let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
         let filter_name = document.querySelector('#filter-name').textContent
         let f_sql = "", check_now = "";
 
-        document.querySelector('.f-choose').innerHTML = "";
-        document.querySelector('.filter-container').style.display = "none";
+        // 全选状态
+        let all_checked = document.querySelector('#f-check-all').checked;
+
+        if (all_checked) {
+            document.querySelector('.f-choose').innerHTML = "";
+
+            if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
+                global.filter_conditions.delete(filter_name);
+                global.filter_sqls.shift();
+                let filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
+
+                let post_data = {
+                    filter: filter,
+                    page: 1,
+                };
+
+                fresh_table(post_data);
+            }
+
+            return;
+        }
 
         checked.forEach(ch => {
             const ch_name = ch.parentNode.textContent.trim();
@@ -267,60 +291,57 @@ let page_productset = function () {
             }
         });
 
-        if (check_now == "") {
-            return;
-        }
+        if (check_now != "") {
+            // 去掉末尾的 OR, 并加括号
+            let f_sql2 = f_sql.slice(0, -4) + ')';
 
-        // 去掉末尾的 OR, 并加括号
-        let f_sql2 = f_sql.slice(0, -4) + ')';
+            global.filter_conditions.set(filter_name, f_sql2);
+            let filter = get_filter();
 
-        global.filter_conditions.set(filter_name, f_sql2);
-        let filter = get_filter();
+            if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
+                check_now != "" && check_now.split(',').length != checked.length + 1) {
+                let orig = "";   // 过滤器原始值
+                checked.forEach(ch => {
+                    orig += `${ch.parentNode.textContent.trim()}, `;
+                });
 
-        // let filter = `AND (`;
-        // let keys = [];
+                let sql = {
+                    name: filter_name,
+                    sql: filter,
+                    origin: orig,
+                    now: check_now,
+                }
 
-        // // 构建过滤器（查询字符串）
-        // for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
-        //     filter += `${value} AND (`;
-        //     keys.push(key);
-        // }
+                global.filter_sqls.unshift(sql);
 
-        // filter = filter.slice(0, -6);
-
-        if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
-            check_now != "" && check_now.split(',').length != checked.length + 1) {
-            let orig = "";   // 过滤器原始值
-            checked.forEach(ch => {
-                orig += `${ch.parentNode.textContent.trim()}, `;
-            });
-
-            let sql = {
-                name: filter_name,
-                sql: filter,
-                origin: orig,
-                now: check_now,
+            } else if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
+                if (check_now == global.filter_sqls[0].origin || check_now.split(',').length == checked.length + 1) {
+                    global.filter_sqls.shift();
+                    filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
+                } else {
+                    global.filter_sqls[0].sql = filter;
+                    global.filter_sqls[0].now = check_now;
+                }
             }
 
-            global.filter_sqls.unshift(sql);
-        } else if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
-            if (check_now == global.filter_sqls[0].origin || check_now.split(',').length == checked.length + 1) {
-                global.filter_sqls.shift();
-                filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
-            } else {
-                global.filter_sqls[0].sql = filter;
-                global.filter_sqls[0].now = check_now;
-            }
+            let post_data = {
+                filter: filter,
+                page: 1,
+            };
+
+            fresh_table(post_data);
         }
+        else {
+            document.querySelector('#f-check-all').click();
+            document.querySelector('#f-ok').click();
+        }
+    });
 
-        // console.log(global.filter_sqls);
 
-        let post_data = {
-            filter: filter,
-            page: 1,
-        };
-
-        Object.assign(tool_table.table_data().post_data, post_data);
+    // 过滤点击 ok 后，刷新表格
+    function fresh_table(data) {
+        document.querySelector('.f-choose').innerHTML = "";
+        Object.assign(tool_table.table_data().post_data, data);
 
         tool_table.fetch_table((content) => {
             make_filter();
@@ -329,7 +350,7 @@ let page_productset = function () {
         });
 
         make_red();
-    });
+    }
 
     //设置过滤按钮颜色
     function make_red() {
@@ -351,12 +372,10 @@ let page_productset = function () {
 
     function get_filter() {
         let filter = `AND (`;
-        // let keys = [];
 
         // 构建过滤器（查询字符串）
         for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
             filter += `${value} AND (`;
-            // keys.push(key);
         }
 
         filter = filter.slice(0, -6);
@@ -366,6 +385,8 @@ let page_productset = function () {
     // 取消
     document.querySelector('#f-cancel').addEventListener('click', () => {
         document.querySelector('.filter-container').style.display = "none";
+        document.querySelector('.f-choose').innerHTML = "";
+
     });
 
     // 全选
@@ -386,6 +407,7 @@ let page_productset = function () {
             'checkmark', 'check-radio', 'form-check', 'all-choose', 'f-button'];
         if (filters.indexOf(e.target.className) == -1) {
             document.querySelector('.filter-container').style.display = "none";
+            document.querySelector('.f-choose').innerHTML = "";
         }
     });
 
@@ -394,6 +416,7 @@ let page_productset = function () {
         const keyName = event.key;
         if (keyName === 'Escape') {
             document.querySelector('.filter-container').style.display = "none";
+            document.querySelector('.f-choose').innerHTML = "";
         }
     }, false);
 
