@@ -523,8 +523,8 @@ let page_material = function () {
             items: table_data,
         }
 
-        // console.log(data);
-        //
+        console.log(data);
+        
         fetch(`/save_material`, {
             method: 'post',
             headers: {

@@ -749,22 +749,23 @@ pub async fn save_material(
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
 
-            let items_sql = if fields_cate != "库存调入" {
+            let lib = if value[10] == "销售" { "" } else { value[10] };    //库存类别
+
+            let items_sql = if fields_cate == "入库单据" {
                 format!(
-                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, {}, {}, {})
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', {})"#,
+                    r#"INSERT INTO products (单号id, 商品id, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, {}, {})
+                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', '{}', '{}', '{}', {})"#,
                     f_map["规格"],
                     f_map["状态"],
                     f_map["炉号"],
                     f_map["执行标准"],
                     f_map["生产厂家"],
-                    f_map["库位"],
                     f_map["物料号"],
                     f_map["入库长度"],
                     f_map["库存长度"],
                     f_map["理论重量"],
-                    f_map["区域"],
-                    f_map["合格"],
+                    f_map["外径壁厚"],
+                    f_map["库存类别"],
                     f_map["备注"],
                     f_map["质检书"],
                     f_map["顺序"],
@@ -777,11 +778,10 @@ pub async fn save_material(
                     value[5],
                     value[6],
                     value[7],
+                    value[7],
                     value[8],
-                    value[8],
-                    value[9],
-                    user.area,
-                    value[10],
+                    value[9],                    
+                    lib,
                     value[11],
                     value[14],
                     value[0]
@@ -1170,7 +1170,7 @@ pub async fn fetch_document_items_tr(
             let num: String = row.get("物料号");
             let long: i32 = row.get("入库长度");
             let theary_1: f64 = row.get("理论重量");
-            let theary: String = format!("{:.1}",theary_1);
+            let theary: String = format!("{:.1}", theary_1);
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
             let item = format!(
@@ -1226,8 +1226,8 @@ pub async fn fetch_document_items_rk(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!(
             r#"select split_part(node_name,' ', 2) as 名称, split_part(node_name,' ', 1) as 材质,
-                {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 库位, {} as 物料号, {} as 入库长度,
-                {} as 理论重量, {} 合格, {} as 备注, 商品id, {} as 质检书 FROM products
+                {} as 规格, {} as 状态, {} as 炉号, {} as 执行标准, {} as 生产厂家, {} as 物料号, {} as 入库长度,
+                {} as 理论重量, {} as 外径壁厚, {} as 库存类别, {} as 备注, 商品id, {} as 质检书 FROM products
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY {}"#,
             f_map["规格"],
@@ -1235,11 +1235,11 @@ pub async fn fetch_document_items_rk(
             f_map["炉号"],
             f_map["执行标准"],
             f_map["生产厂家"],
-            f_map["库位"],
             f_map["物料号"],
             f_map["入库长度"],
             f_map["理论重量"],
-            f_map["合格"],
+            f_map["外径壁厚"],
+            f_map["库存类别"],
             f_map["备注"],
             f_map["质检书"],
             data.dh,
@@ -1258,16 +1258,15 @@ pub async fn fetch_document_items_rk(
             let lu: String = row.get("炉号");
             let stand: String = row.get("执行标准");
             let factory: String = row.get("生产厂家");
-            let kw: String = row.get("库位");
+            let thick: String = row.get("外径壁厚");
             let num: String = row.get("物料号");
             let long: i32 = row.get("入库长度");
             let theary_1: f64 = row.get("理论重量");
             let theary: String = format!("{:.1}", theary_1);
             let note: String = row.get("备注");
             let m_id: String = row.get("商品id");
-            let ok: String = row.get("合格");
+            let lib: String = row.get("库存类别");
             let lu_id: String = row.get("质检书");
-            let pass = if ok == "是" { "checked" } else { "" };
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name,
@@ -1284,21 +1283,21 @@ pub async fn fetch_document_items_rk(
                 SPLITER,
                 factory,
                 SPLITER,
-                kw,
-                SPLITER,
                 num,
                 SPLITER,
                 long,
                 SPLITER,
                 theary,
                 SPLITER,
-                pass,
+                thick,
+                SPLITER,
+                lib,
                 SPLITER,
                 note,
                 SPLITER,
                 m_id,
                 SPLITER,
-                "0",        //用作 d_id 填充补位
+                "0", //用作 d_id 填充补位
                 SPLITER,
                 lu_id
             );
