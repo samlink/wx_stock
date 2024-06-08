@@ -147,6 +147,8 @@ let page_productset = function () {
         }
     }
 
+    // ------------------------------------ 过滤部分开始--------------------------------------------
+
     // 建立过滤器, 作为创建表格后的回调函数
     function make_filter() {
         const ths = document.querySelectorAll('.table-container thead th');
@@ -339,7 +341,6 @@ let page_productset = function () {
         }
     });
 
-
     // 过滤点击 ok 后，刷新表格
     function fresh_table(data) {
         document.querySelector('.f-choose').innerHTML = "";
@@ -438,6 +439,8 @@ let page_productset = function () {
             show_stat(content);
         });
     });
+
+    // ------------------------------- 过滤部分结束 --------------------------------
 
     //增加按键
     document.querySelector('#add-button').addEventListener('click', function () {
