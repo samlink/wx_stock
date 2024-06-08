@@ -275,17 +275,18 @@ let page_productset = function () {
         let f_sql2 = f_sql.slice(0, -4) + ')';
 
         global.filter_conditions.set(filter_name, f_sql2);
+        let filter = get_filter();
 
-        let filter = `AND (`;
-        let keys = [];
+        // let filter = `AND (`;
+        // let keys = [];
 
-        // 构建过滤器（查询字符串）
-        for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
-            filter += `${value} AND (`;
-            keys.push(key);
-        }
+        // // 构建过滤器（查询字符串）
+        // for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
+        //     filter += `${value} AND (`;
+        //     keys.push(key);
+        // }
 
-        filter = filter.slice(0, -6);
+        // filter = filter.slice(0, -6);
 
         if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
             check_now != "" && check_now.split(',').length != checked.length + 1) {
@@ -346,6 +347,20 @@ let page_productset = function () {
                 button.classList.remove('red');
             }
         });
+    }
+
+    function get_filter() {
+        let filter = `AND (`;
+        // let keys = [];
+
+        // 构建过滤器（查询字符串）
+        for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
+            filter += `${value} AND (`;
+            // keys.push(key);
+        }
+
+        filter = filter.slice(0, -6);
+        return filter;
     }
 
     // 取消
@@ -748,27 +763,32 @@ let page_productset = function () {
             })
 
             let data = {
-                wu_id:
-                query:,
-                names: names,
+                id: document.querySelector('#product-id').textContent.trim(),
+                name: document.querySelector('#product-name').textContent.trim(),
+                fields: names,
+                cate: document.querySelector('#p-select').value,
+                filter: get_filter(),
+                search: document.querySelector('#search-input').value,
             };
 
-            // fetch(`/product_out`, {
-            //     method: 'post',
-            //     headers: {
-            //         "Content-Type": "application/json",
-            //     },
-            //     body: JSON.stringify(data),
-            // })
-            //     .then(response => response.json())
-            //     .then(content => {
-            //         if (content != -1) {
-            //             download_file(`/download/${content}.xlsx`);
-            //             notifier.show('成功导出至 Excel 文件', 'success');
-            //         } else {
-            //             notifier.show('权限不够，操作失败', 'danger');
-            //         }
-            //     });
+            console.log(data);
+
+            fetch(`/product_out`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        download_file(`/download/${content}.xlsx`);
+                        notifier.show('成功导出至 Excel 文件', 'success');
+                    } else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
         }
     });
 
@@ -781,97 +801,78 @@ let page_productset = function () {
             let fields = [
                 {
                     name: "名称",
-                    width: 4,
                     checked: "checked"
                 },
                 {
                     name: "材质",
-                    width: 4,
                     checked: "checked"
                 },
                 {
                     name: "物料号",
-                    width: 5,
                     checked: "checked"
                 },
                 {
                     name: "规格",
-                    width: 5,
                     checked: "checked"
                 },
                 {
                     name: "状态",
-                    width: 6,
                     checked: "checked"
                 },
                 {
                     name: "执行标准",
-                    width: 7,
                     checked: "checked"
                 },
                 {
                     name: "炉号",
-                    width: 5,
                     checked: "checked"
                 },
                 {
                     name: "切分",
-                    width: 3,
                     checked: ""
                 },
                 {
                     name: "库存长度",
-                    width: 4,
                     checked: "checked"
                 },
                 {
                     name: "理论重量",
-                    width: 4,
                     checked: "checked"
                 },
                 {
                     name: "入库长度",
-                    width: 4,
                     checked: ""
                 },
                 {
                     name: "入库单号",
-                    width: 5,
                     checked: ""
                 },
                 {
                     name: "入库日期",
-                    width: 4,
                     checked: ""
                 },
                 {
                     name: "入库方式",
-                    width: 4,
                     checked: ""
                 },
                 {
                     name: "原因",
-                    width: 4,
                     checked: ""
                 },
                 {
                     name: "库位",
-                    width: 3,
                     checked: ""
                 },
                 {
                     name: "库存类别",
-                    width: 4,
                     checked: ""
                 },
                 {
                     name: "区域",
-                    width: 3,
                     checked: ""
                 },
                 {
                     name: "备注",
-                    width: 5,
                     checked: "checked"
                 }
             ];

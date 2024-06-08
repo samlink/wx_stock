@@ -7,6 +7,7 @@ use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+use std::collections::HashMap;
 use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
@@ -203,7 +204,13 @@ async fn build_sql_search(
             .replace("(空白)", "");
     }
 
-    (product_sql, conditions, now_sql.to_owned(), filter_sql, lock_join_sql)
+    (
+        product_sql,
+        conditions,
+        now_sql.to_owned(),
+        filter_sql,
+        lock_join_sql,
+    )
 }
 
 #[derive(Deserialize)]
@@ -285,7 +292,7 @@ pub async fn fetch_filter_items(
                     ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
-                    lock_join_sql, product_sql, conditions, now_sql, filter_sql,
+                lock_join_sql, product_sql, conditions, now_sql, filter_sql,
             );
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -423,7 +430,14 @@ pub struct ProductName {
     id: String,
     name: String,
     fields: String,
-    done: String,
+    cate: String,
+    filter: String,
+    search: String,
+}
+#[derive(Deserialize, Debug)]
+struct FieldsData {
+    width: f32,
+    field: &'static str,
 }
 
 //导出数据
@@ -435,7 +449,91 @@ pub async fn product_out(
 ) -> HttpResponse {
     let user = get_user(db.clone(), id, "导出数据".to_owned()).await;
     if user.name != "" {
-        let fields = get_fields(db.clone(), "商品规格").await;
+        let fields_str = r#"{
+            "名称": {
+                "width": 4,
+                "field": "split_part(node_name,' ',2) 名称,"
+            },
+            "材质": {
+                "width": 4,
+                "field": "split_part(node_name,' ',1) 材质,"
+            },
+            "物料号": {
+                "width": 5,
+                "field": "products.文本字段1 物料号,"
+            },
+            "规格": {
+                "width": 5,
+                "field": "products.规格型号 规格,"
+            },
+            "状态": {
+                "width": 6,
+                "field": "products.文本字段2 状态,"
+            },
+            "执行标准": {
+                "width": 7,
+                "field": "products.文本字段3 执行标准,"
+            },
+            "炉号": {
+                "width": 5,
+                "field": "products.文本字段4 炉号,"
+            },
+            "生产厂家": {
+                "width": 5,
+                "field": "products.文本字段5 生产厂家,"
+            },
+            "切分": {
+                "width": 3,
+                "field": "切分次数::text 切分,"
+            },
+            "库存长度": {
+                "width": 4,
+                "field": "库存长度::text 库存长度,"
+            },
+            "理论重量": {
+                "width": 4,
+                "field": "理论重量::text 理论重量,"
+            },
+            "入库长度": {
+                "width": 4,
+                "field": "products.整数字段1::text 入库长度,"
+            },
+            "入库单号": {
+                "width": 5,
+                "field": "单号id 入库单号,"
+            },
+            "入库日期": {
+                "width": 4,
+                "field": "d.日期 入库日期,"
+            },
+            "入库方式": {
+                "width": 4,
+                "field": "d.类别 入库方式,"
+            },
+            "原因": {
+                "width": 4,
+                "field": "case when 单号id like 'TR%' then d.文本字段1 else '' end 原因,"
+            },
+            "库位": {
+                "width": 3,
+                "field": "products.库位,"
+            },
+            "库存类别": {
+                "width": 4,
+                "field": "case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存类别,"
+            },
+            "区域": {
+                "width": 3,
+                "field": "products.文本字段6 区域,"
+            },
+            "备注": {
+                "width": 5,
+                "field": "products.备注,"
+            }
+        }"#;
+
+        let fields_map: HashMap<String, FieldsData> = serde_json::from_str(fields_str).unwrap();
+        let fields: Vec<&str> = product.fields.trim_end_matches('#').split('#').collect();
 
         let file_name = format!("./download/{}.xlsx", product.name);
         let wb = Workbook::new(&file_name).unwrap();
@@ -445,72 +543,70 @@ pub async fn product_out(
         sheet.set_column(0, 0, 8.0, None).unwrap();
         sheet.set_column(1, 1, 12.0, None).unwrap();
 
-        // sheet.write_string(0, 0, "商品id", Some(&format1)).unwrap();
-
         let mut n = 0;
-        for f in &fields {
-            sheet
-                .write_string(
-                    0,
-                    n,
-                    &f.show_name,
-                    Some(
-                        &wb.add_format()
-                            .set_align(FormatAlignment::CenterAcross)
-                            .set_bold(),
-                    ),
-                )
-                .unwrap();
-            sheet
-                .set_column(n, n, (f.show_width * 2.5).into(), None)
-                .unwrap();
+        let mut select_fields = "select ".to_owned();
 
-            n += 1;
+        for f in &fields {
+            if fields_map.contains_key(*f) {
+                // 构建查询字段
+                select_fields += &fields_map.get(*f).unwrap().field;
+
+                sheet
+                    .write_string(
+                        0,
+                        n,
+                        f,
+                        Some(
+                            &wb.add_format()
+                                .set_align(FormatAlignment::CenterAcross)
+                                .set_bold(),
+                        ),
+                    )
+                    .unwrap();
+
+                sheet
+                    .set_column(n, n, (fields_map.get(*f).unwrap().width * 3.0).into(), None)
+                    .unwrap();
+
+                n += 1;
+            }
         }
 
-        let now_sql = if product.done == "现有库存" {
-            " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 AND products.文本字段7 <> '是'"
-        } else {
-            " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <= 0 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
+        select_fields = select_fields.trim_end_matches(',').to_owned();
+
+        let f_data = FilterData {
+            id: product.id.clone(),
+            name: product.search.clone(),
+            cate: product.cate.clone(),
+            filter: product.filter.clone(),
+            filter_name: "".to_owned(),
         };
 
-        let init = r#"SELECT "#.to_owned();
-        let mut sql = build_sql_for_excel(init, &fields, "products".to_owned());
+        let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
+            build_sql_search(db.clone(), f_data).await;
 
-        sql += &format!(
-            r#"1 FROM products JOIN documents ON 单号id = 单号
-            LEFT JOIN cut_length() as foo
-            ON products.文本字段1 = foo.物料号
-            WHERE 商品id='{}' {} AND documents.文本字段10 <> '' ORDER BY products.文本字段1"#, //此处的 1 仅为配合前面自动生成最后的逗号, 无其他意义
-            product.id, now_sql
+        let sql = format!(
+            r#"{} from products 
+                {} JOIN tree ON products.商品id = tree.num
+                join documents d on d.单号 = products.单号id
+                LEFT JOIN length_weight() as foo
+                ON products.文本字段1 = foo.物料号
+                where {} {} {} {} {}"#,
+            select_fields, lock_join_sql, conditions, product_sql, now_sql, filter_sql, NOT_DEL_SQL
         );
 
-        let new_sql = sql
-            .replace("cast(products.整数字段2 as VARCHAR)", "COALESCE(切分次数,0)::text as 整数字段2")
-            .replace("cast(products.整数字段3 as VARCHAR)", "(products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::text as 整数字段3")
-            .replace("cast(products.库存下限 as VARCHAR)", "case when 库存下限-COALESCE(理重合计,0)<0.1 then '0' else round((库存下限-COALESCE(理重合计,0))::numeric,2)::text end as 库存下限");
-
+        // println!("{:?}\n", fields);
+        
         let conn = db.get().await.unwrap();
-        let rows = &conn.query(new_sql.as_str(), &[]).await.unwrap();
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
         let mut n = 1u32;
         for row in rows {
             let mut m = 0u16;
             for f in &fields {
-                if f.data_type == "布尔" {
-                    sheet
-                        .write_string(
-                            n,
-                            m,
-                            row.get(&*f.field_name),
-                            Some(&wb.add_format().set_align(FormatAlignment::CenterAcross)),
-                        )
-                        .unwrap();
-                } else {
-                    sheet
-                        .write_string(n, m, row.get(&*f.field_name), None)
-                        .unwrap();
-                }
+                sheet
+                    .write_string(n, m, row.get(&*f), None)
+                    .unwrap();
                 m += 1;
             }
             n += 1;
@@ -518,6 +614,8 @@ pub async fn product_out(
 
         wb.close().unwrap();
         HttpResponse::Ok().json(product.name.clone())
+
+        // HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
