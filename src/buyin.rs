@@ -130,10 +130,10 @@ pub async fn buyin_auto(
         } else if s.len() == 2 {
             s.push("");
         }
-        let mut cate_s = "".to_owned();
-        if search.cate == "销售单据" {
-            cate_s = format!("products.{}!='是' AND ", f_map["切完"]);
-        }
+        let cate_s = "".to_owned();
+        // if search.cate == "销售单据" {
+        //     cate_s = format!("products.{}!='是' AND ", f_map["切完"]);
+        // }
 
         let mut sql_fields = "".to_owned();
         for f in &fields {
@@ -163,7 +163,7 @@ pub async fn buyin_auto(
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
                 round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN cut_length() as foo
+                LEFT JOIN length_weight() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
                  (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({})
@@ -182,41 +182,35 @@ pub async fn buyin_auto(
                 f_map["理论重量"],
                 cate_s,
                 f_map["库存长度"],
-                s[0].to_lowercase(),
-                s[0].to_lowercase(),
+                s[0].to_uppercase(),
+                s[0].to_uppercase(),
                 sql_where
             )
         } else if search.cate == "销售单据" {
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                || '{}' || {} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' || products.文本字段1 AS label FROM products
-                JOIN tree ON products.商品id = tree.num
-                LEFT JOIN cut_length() as foo
-                ON products.文本字段1 = foo.物料号
-                WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
-                 (products.文本字段1 like '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
-            "#,
+                || '{}' || 规格型号 || '{}' || p.文本字段2 || '{}' || p.文本字段3 || '{}' || 
+                库存长度 || '{}' || 理论重量 || '{}' || p.文本字段1 AS label 
+                FROM products p
+                JOIN tree ON p.商品id = tree.num
+                LEFT JOIN length_weight() foo ON p.文本字段1 = foo.物料号
+                WHERE p.文本字段1 like '%{}%' and 库存状态='' and 库存长度 > 10 limit 10"#,
                 SPLITER,
                 SPLITER,
-                sql_fields,
                 SPLITER,
-                f_map["售价"],
                 SPLITER,
-                f_map["库存长度"],
                 SPLITER,
-                cate_s,
-                f_map["库存长度"],
-                s[0].to_lowercase(),
-                s[0].to_lowercase(),
-                sql_where
+                SPLITER,
+                SPLITER,
+                s[0].to_uppercase(),
             )
         } else {
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                || '{}' || {} || '{}' || products.{} AS label FROM products
+                || '{}' || {} || '{}' || products.{} AS label 
+                FROM products
                 JOIN tree ON products.商品id = tree.num
-                LEFT JOIN cut_length() as foo
+                LEFT JOIN length_weight() as foo
                 ON products.文本字段1 = foo.物料号
                 WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
             "#,
@@ -225,13 +219,13 @@ pub async fn buyin_auto(
                 f_map["规格"],
                 SPLITER,
                 f_map["状态"],
-                s[0].to_lowercase(),
-                s[0].to_lowercase(),
+                s[0].to_uppercase(),
+                s[0].to_uppercase(),
                 sql_where
             )
         };
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         autocomplete(db, &sql).await
     } else {

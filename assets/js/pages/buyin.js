@@ -281,16 +281,7 @@ let page_buyin = function () {
                 type: "普通输入",
                 editable: false,
                 is_save: true,
-                css: 'style="width:0%; border-left:none;border-right:none; color:white"',
-            });
-            show_names.push({
-                name: "",
-                width: 0,
-                class: "m_num",
-                type: "普通输入",
-                editable: false,
-                is_save: false,
-                css: 'style="width:0%; border-left:none; color:white"',
+                css: 'style="width:0%; border-left:none; color:white"'
             });
 
             // 设置"状态"为自动输入
@@ -305,7 +296,7 @@ let page_buyin = function () {
             //计算表格行数，33 为 lineHeight （行高）
             table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
             //构造商品规格自动完成
-            let gg_n = document_name == "销售单据" ? 4 : 3;
+            // let gg_n = document_name == "销售单据" ? 4 : 3;
 
             let show_th = [
                 { name: "名称", width: 60 },
@@ -313,8 +304,8 @@ let page_buyin = function () {
                 { name: "规格", width: 80 },
                 { name: "状态", width: 100 },
                 { name: "执行标准", width: 100 },
-                { name: "售价", width: 60 },
                 { name: "库存长度", width: 80 },
+                { name: "库存重量", width: 80 },
                 { name: "物料号", width: 60 },
             ];
 
@@ -579,40 +570,26 @@ let page_buyin = function () {
 
     //自动填充
     function fill_gg() {
-        let field_values = document.querySelector(`.inputting .auto-input`).getAttribute("data").split(SPLITER);
+        let row_input = document.querySelector(`.table-items .inputting`);
+        let field_values = row_input.querySelector(`.auto-input`).getAttribute("data").split(SPLITER);
 
-        let n = 3;  //从第 3 列开始填入数据
-        let num = 4;  //填充数量，销售与采购相同
-        for (let i = 2; i < 2 + num; i++) {     //不计末尾的库存和售价两个字段
-            let val = field_values[i];
-            // console.log(shown);
-            if ((show_names[i].type == "普通输入" || show_names[i].type == "autocomplete") && show_names[i].editable) {
-                document.querySelector(`.inputting td:nth-child(${n}) input`).value = val;
-            } else if (show_names[i].type == "普通输入" && !show_names[i].editable) {
-                document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
-            } else if (show_names[i].type == "下拉列表" && show_names[i].editable) {
-                document.querySelector(`.inputting td:nth-child(${n}) select`).value = val;
-            } else if (show_names[i].type == "下拉列表" && !show_names[i].editable) {
-                document.querySelector(`.inputting td:nth-child(${n})`).textContent = val;
-            }
-            // if (product_table_fields[i - 2].ctr_type == "二值选一") {
-            //     val = val == "true" ? product_table_fields[i - 2].option_value.split('_')[0] : product_table_fields[i - 2].option_value.split('_')[1];
-            // }
-
-            if (document_name == "销售单据") {
-                document.querySelector(`.inputting td:nth-child(${14})`).textContent = field_values[8];
-                document.querySelector(`.inputting td:nth-child(${17})`).textContent = field_values[7];
-                document.querySelector(`.inputting td:nth-child(${16})`).textContent = field_values[0];
-                let row = document.querySelector('.table-items .inputting');
-                calc_weight(row);
-            }
-            else {
-                document.querySelector(`.inputting td:nth-child(${12})`).textContent = field_values[0];
-            }
-            n++;
+        if (document_name == "销售单据") {
+            row_input.querySelector(`.材质`).textContent = field_values[2];
+            row_input.querySelector(`.规格`).textContent = field_values[3];
+            row_input.querySelector(`.状态`).textContent = field_values[4];
+            row_input.querySelector(`.执行标准`).textContent = field_values[5];
+            row_input.querySelector(`.long`).value = field_values[6];
+            row_input.querySelector(`.num`).value = 1;
+            row_input.querySelector(`.mount`).value = field_values[7];
+            row_input.querySelector(`.物料号`).textContent = field_values[8];
+            row_input.querySelector(`.m_id`).textContent = field_values[0];
+            calc_weight(row_input);
+        }
+        else {
+            row_input.querySelector(`td:nth-child(${12})`).textContent = field_values[0];
         }
 
-        let price_input = document.querySelector(`.inputting .price`);
+        let price_input = row_input.querySelector(`.price`);
         price_input.focus();
 
         let row = edit_table.appand_edit_row();
