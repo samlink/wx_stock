@@ -213,7 +213,7 @@ let page_buyin = function () {
 
             if (document_name == "销售单据") {
                 show_names.push({
-                    name: "类型", width: 50, class: "类型", type: "下拉列表", editable: true, is_save: true, default: "按重量_按件数"
+                    name: "类型", width: 50, class: "类型", type: "下拉列表", editable: true, is_save: true, default: "按重量_按件"
                 });
                 show_names.push({
                     name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
