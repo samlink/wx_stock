@@ -7,7 +7,7 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use std::fs;
 // use uuid::Uuid;
-use time::now;
+// use time::now;
 
 //自动完成
 #[get("/material_auto")]
@@ -976,83 +976,6 @@ pub async fn save_material_ck(
         }
 
         let _result = transaction.commit().await;
-
-        HttpResponse::Ok().json(dh)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
-#[post("/handle_not_pass")]
-pub async fn handle_not_pass(
-    db: web::Data<Pool>,
-    data: web::Json<DocumentDh>,
-    id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
-    if user.name != "" {
-        let f_map = map_fields(db.clone(), "商品规格").await;
-
-        let mut conn = db.get().await.unwrap();
-        let conn2 = db.get().await.unwrap();
-        let sql = format!(r#"select 客商id from documents where 单号='{}'"#, data.cate);
-
-        let rows = &conn2.query(sql.as_str(), &[]).await.unwrap();
-        let mut cus_id: i32 = 0;
-        for row in rows {
-            cus_id = row.get("客商id");
-        }
-
-        let transaction = conn.transaction().await.unwrap();
-
-        let dh = get_dh(db.clone(), "采购退货").await;
-        let date = now().strftime("%Y-%m-%d").unwrap().to_string();
-        let sql = format!(
-            "insert into documents (单号, 客商id, 日期, 经办人, 类别, 备注, 文本字段7)
-                            values ('{}', {}, '{}', '{}', '采购退货', '不合格品退货', '{}')",
-            dh, cus_id, date, user.name, user.area
-        );
-
-        transaction.execute(sql.as_str(), &[]).await.unwrap();
-
-        let sql = format!(
-            r#"select 商品id, max({}) 规格, max({}) 状态, max({}) 炉号, sum({})::int4 长度, sum({}) 重量 from products
-            where 单号id = '{}' and {} = '否' group by 商品id"#,
-            f_map["规格"],
-            f_map["状态"],
-            f_map["炉号"],
-            f_map["入库长度"],
-            f_map["理论重量"],
-            data.dh,
-            f_map["合格"]
-        );
-
-        let rows = &conn2.query(sql.as_str(), &[]).await.unwrap();
-
-        for row in rows {
-            let 商品id: &str = row.get("商品id");
-            let 规格: &str = row.get("规格");
-            let 状态: &str = row.get("状态");
-            let 炉号: &str = row.get("炉号");
-            let 长度: i32 = row.get("长度");
-            let 重量: f32 = row.get("重量");
-
-            let sql = format!(
-                "insert into document_items(单号id, 商品id, 规格, 状态, 炉号, 长度, 重量)
-                             values('{}','{}','{}','{}','{}', {}, {})",
-                dh, 商品id, 规格, 状态, 炉号, 长度, 重量
-            );
-
-            transaction.execute(sql.as_str(), &[]).await.unwrap();
-        }
-
-        let sql = format!(
-            r#"delete from products where 单号id = '{}' and {} = '否'"#,
-            data.dh, f_map["合格"],
-        );
-
-        transaction.execute(sql.as_str(), &[]).await.unwrap();
-        let _result = transaction.commit().await.unwrap();
 
         HttpResponse::Ok().json(dh)
     } else {

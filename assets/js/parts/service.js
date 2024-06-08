@@ -754,7 +754,7 @@ var service = function () {
             },
             edit: false,
 
-            blank_cells: 17,
+            blank_cells: 18,
             row_fn: table_row,
         };
 

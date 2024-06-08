@@ -81,10 +81,6 @@ let page_material = function () {
     let auto_comp = new AutoInput(standart, "执行标准", "/get_status_auto");
     auto_comp.init();
 
-    // let position = document.querySelector('#库位');
-    // let auto_comp2 = new AutoInput(position, "库位", "/get_status_auto");
-    // auto_comp2.init();
-
     function set_readonly() {
         let all_edit = document.querySelectorAll('.fields-show input');
         for (let edit of all_edit) {
@@ -451,8 +447,6 @@ let page_material = function () {
                 show_names[5].value = document.querySelector('#炉号').value;
                 show_names[6].value = document.querySelector('#执行标准').value;
                 show_names[7].value = document.querySelector('#生产厂家').value;
-                // show_names[8].value = document.querySelector('#库位').value;
-                // show_names[12].value = 'checked';
                 show_names[14].value = document.querySelector('#m_id').value;
                 show_names[15].value = document.querySelector('#d_id').value;
                 show_names[16].value = document.querySelector('#lu_id').textContent;
@@ -524,7 +518,7 @@ let page_material = function () {
         }
 
         console.log(data);
-        
+
         fetch(`/save_material`, {
             method: 'post',
             headers: {
@@ -577,32 +571,22 @@ let page_material = function () {
         let all_rows = document.querySelectorAll('.table-items .has-input');
         let trs = '';
         for (let row of all_rows) {
-            trs += `<tr><td>${row.querySelector('td:nth-child(1)').textContent}</td>
-                <td>${row.querySelector('td:nth-child(10) input').value}</td>`;
-
-            for (let i = 3; i < 13; i++) {
-                if (i == 7) {
-                    let v = row.querySelector(`td:nth-child(${i})`).textContent;
-                    let l = row.querySelector('td:nth-child(11) input').value;
-                    l = l == "0" ? "" : l;
-                    trs += `<td>${l}</td><td>1</td><td>${v}</td>`;
-                    continue;
-                }
-
-                if (i == 9 || i == 10 || i == 11) {
-                    continue;
-                }
-
-                let t = row.querySelector(`td:nth-child(${i}) input`);
-                let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
-                td = td == "0" ? "" : td;
-                trs += `<td>${td}</td>`;
-            }
+            trs += `<tr><td>${row.querySelector('.序号').textContent}</td>
+                <td>${row.querySelector('.物料号').value}</td>
+                <td>${row.querySelector('.材质').textContent}</td>
+                <td>${row.querySelector('.规格').textContent}</td>
+                <td>${row.querySelector('.状态').textContent}</td>
+                <td>${row.querySelector('.炉号').textContent}</td>
+                <td>${row.querySelector('.长度').value}</td>
+                <td>1</td>
+                <td>${row.querySelector('.执行标准').textContent}</td>
+                <td>${row.querySelector('.生产厂家').textContent}</td>
+                <td>${row.querySelector('.重量').textContent}</td> `;
 
             trs += '</tr>';
 
-            sum_weight += Number(row.querySelector(`td:nth-child(12)`).textContent);
-            sum_long += Number(row.querySelector(`td:nth-child(11) input`).value);
+            sum_weight += Number(row.querySelector(`.重量`).textContent);
+            sum_long += Number(row.querySelector(`.长度`).value);
         }
 
         // 补空行
@@ -623,7 +607,6 @@ let page_material = function () {
         document.querySelector('#print').hidden = false;
         Print('#print', {});
         document.querySelector('#print').hidden = true;
-
     });
 
     //审核单据
@@ -634,7 +617,6 @@ let page_material = function () {
             document_name: document_name,
             edited: edited || edit_table.input_table_outdata().edited,
             readonly_fun: set_readonly,
-            after_shen_fun: handle_not_pass,    //审核后执行的函数
             xsdh: document.querySelector('#文本字段6').value,    //销售单号，用于确认出库完成
             after_func: make_complete  //审核后，确认出库完成
         }
@@ -651,43 +633,6 @@ let page_material = function () {
             },
             body: JSON.stringify(dh),
         });
-    }
-
-    // 处理不合格产品
-    function handle_not_pass() {
-        let rows = document.querySelectorAll('.table-items .has-input');
-        let dh = "";
-        let cgdh = ""
-        for (let row of rows) {
-            if (row.querySelector('.合格').checked == false) {
-                cgdh = document.querySelector('#文本字段6').value;
-                dh = document.querySelector('#dh').textContent.trim();
-                break;
-            }
-        }
-
-        if (dh != "") {
-            fetch(`/handle_not_pass`, {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    cate: cgdh,
-                    dh: dh,
-                })
-            }).then(response => response.json())
-                .then(content => {
-                    if (content != -1) {
-                        alert_confirm("不合格材料已转入退货单 " + content, {
-                            cancel: false,
-                            confirmText: "返回",
-                            confirmCallBack: () => {
-                            }
-                        })
-                    }
-                });
-        }
     }
 
     //共用事件和函数 ---------------------------------------------------------------------

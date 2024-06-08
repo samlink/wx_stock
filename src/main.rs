@@ -147,7 +147,6 @@ async fn main() -> std::io::Result<()> {
             .service(material::materialin_saved_docs)
             .service(material::materialsale_docs)
             .service(material::materialsale_saved_docs)
-            .service(material::handle_not_pass)
             .service(material::pic_in)
             .service(material::pic_in_save)
             .service(material::pic_kp_save)
