@@ -500,6 +500,10 @@ pub async fn product_out(
                 "width": 4,
                 "field": "products.整数字段1::text 入库长度,"
             },
+            "外径壁厚": {
+                "width": 4,
+                "field": "products.文本字段8 外径壁厚,"
+            },
             "入库单号": {
                 "width": 5,
                 "field": "单号id 入库单号,"

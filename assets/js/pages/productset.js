@@ -872,6 +872,10 @@ let page_productset = function () {
                     checked: ""
                 },
                 {
+                    name: "外径壁厚",
+                    checked: ""
+                },
+                {
                     name: "入库单号",
                     checked: ""
                 },

@@ -41,8 +41,8 @@ let page_documentquery = function () {
         },
         edit: false,
 
+        blank_cells: 14,
         row_fn: table_row,
-        blank_row_fn: blank_row,
     };
 
     fetch(`/fetch_show_fields`, {
@@ -111,10 +111,10 @@ let page_documentquery = function () {
         return service.build_row_from_string(rec, row, table_fields, 4);
     }
 
-    function blank_row() {
-        let row = "<tr><td></td><td></td><td></td><td></td><td></td><td></td>";     //与上面的 table_row() 中的 row 变量保持一致
-        return service.build_blank_from_fields(row, table_fields);
-    }
+    // function blank_row() {
+    //     let row = "<tr><td></td><td></td><td></td><td></td><td></td><td></td>";     //与上面的 table_row() 中的 row 变量保持一致
+    //     return service.build_blank_from_fields(row, table_fields);
+    // }
 
     document.querySelector('#serach-button').addEventListener('click', function () {
         search_table();

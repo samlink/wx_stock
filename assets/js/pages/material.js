@@ -1,5 +1,4 @@
 let page_material = function () {
-
     let document_table_fields, table_lines, show_names, edited;
     let document_bz = document.querySelector('#document-bz').textContent.trim();
     let dh_div = document.querySelector('#dh');
@@ -82,9 +81,9 @@ let page_material = function () {
     let auto_comp = new AutoInput(standart, "执行标准", "/get_status_auto");
     auto_comp.init();
 
-    let position = document.querySelector('#库位');
-    let auto_comp2 = new AutoInput(position, "库位", "/get_status_auto");
-    auto_comp2.init();
+    // let position = document.querySelector('#库位');
+    // let auto_comp2 = new AutoInput(position, "库位", "/get_status_auto");
+    // auto_comp2.init();
 
     function set_readonly() {
         let all_edit = document.querySelectorAll('.fields-show input');
@@ -289,19 +288,19 @@ let page_material = function () {
             default: ""
         },
         { name: "生产厂家", width: 70, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "库位", width: 20, class: "库位", type: "普通输入", editable: false, is_save: true, default: "" },
         { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
         { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
         { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
+        { name: "外径壁厚", width: 30, class: "外径", type: "普通输入", editable: true, is_save: true, default: "" },
         {
-            name: "合格",
-            width: 20,
-            class: "合格",
-            type: "二值选一",
-            value: 'checked',
+            name: "库存类别",
+            width: 50,
+            class: "库存类别",
+            type: "下拉列表",
+            value: '销售',
             editable: true,
             is_save: true,
-            default: ""
+            default: "销售_自用_不合格"
         },
         {
             name: "备注",
@@ -452,8 +451,8 @@ let page_material = function () {
                 show_names[5].value = document.querySelector('#炉号').value;
                 show_names[6].value = document.querySelector('#执行标准').value;
                 show_names[7].value = document.querySelector('#生产厂家').value;
-                show_names[8].value = document.querySelector('#库位').value;
-                show_names[12].value = 'checked';
+                // show_names[8].value = document.querySelector('#库位').value;
+                // show_names[12].value = 'checked';
                 show_names[14].value = document.querySelector('#m_id').value;
                 show_names[15].value = document.querySelector('#d_id').value;
                 show_names[16].value = document.querySelector('#lu_id').textContent;
@@ -461,7 +460,7 @@ let page_material = function () {
                 let data = {
                     show_names: show_names,
                     show_names_fn: function (n) {
-                        this.show_names[9].value = `M${padZero(this.material_num + n + 1, 6)}`;
+                        this.show_names[8].value = `M${padZero(this.material_num + n + 1, 6)}`;
                     },
                     num: n,
                     lines: table_lines,
