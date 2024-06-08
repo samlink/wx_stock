@@ -422,6 +422,7 @@ pub async fn product_auto(
 pub struct ProductName {
     id: String,
     name: String,
+    fields: String,
     done: String,
 }
 

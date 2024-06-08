@@ -629,7 +629,7 @@ let page_productset = function () {
 
                 global.row_id = id;
                 document.querySelector('.modal-body').innerHTML = form;
-                document.querySelector('.modal-title').textContent = global.product_name;
+                document.querySelector('.modal-title').textContent = "编辑物料 - " + global.product_name;
                 document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
                 document.querySelector('.modal').style.display = "block";
                 document.querySelector('.modal-body input').focus();
@@ -642,138 +642,116 @@ let page_productset = function () {
 
     //提交按键
     document.querySelector('#modal-sumit-button').addEventListener('click', function () {
-        if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
-            let all_input = document.querySelectorAll('.has-value');
-            if (all_input[0].value != "") {
-                let num = 0;
-                for (let input of all_input) {
-                    if (service.table_fields()[num].data_type == "整数" && !regInt.test(input.value)
-                        || service.table_fields()[num].data_type == "实数" && !regReal.test(input.value)) {
-                        notifier.show('数字字段输入错误', 'danger');
-                        return false;
+        if (document.querySelector('.modal-title').textContent.indexOf('编辑') != -1) {
+            if (global.eidt_cate == "add" || global.eidt_cate == "edit") {
+                let all_input = document.querySelectorAll('.has-value');
+                if (all_input[0].value != "") {
+                    let num = 0;
+                    for (let input of all_input) {
+                        if (service.table_fields()[num].data_type == "整数" && !regInt.test(input.value)
+                            || service.table_fields()[num].data_type == "实数" && !regReal.test(input.value)) {
+                            notifier.show('数字字段输入错误', 'danger');
+                            return false;
+                        }
+                        num++;
                     }
-                    num++;
+                    let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
+
+                    num = 0;
+
+                    for (let input of all_input) {
+                        let value;
+                        if (input.parentNode.className.indexOf('check-radio') == -1) {
+                            value = input.value;
+                        } else {
+                            value = input.checked;
+                        }
+
+                        if (service.table_fields()[num].data_type == "整数" || service.table_fields()[num].data_type == "实数") {
+                            value = Number(value);
+                        }
+
+                        product += `${value}${SPLITER}`;
+                        num++;
+                    }
+
+                    let data = {
+                        data: product,
+                    };
+
+                    let url = global.eidt_cate == "edit" ? `/update_product` : `/add_product`;
+
+                    fetch(url, {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(data),
+                    })
+                        .then(response => response.json())
+                        .then(content => {
+                            if (content == 1) {
+                                global.edit = 0;
+                                modal_out_data.edit = 0;
+                                notifier.show('商品修改成功', 'success');
+
+                                tool_table.fetch_table((content) => {
+                                    make_filter();
+                                    add_lu_link();
+                                    show_stat(content);
+
+                                });
+
+                                if (global.eidt_cate == "add") {
+                                    for (let input of all_input) {
+                                        input.value = "";
+                                    }
+                                }
+                                close_modal();
+                            } else {
+                                notifier.show('权限不够，操作失败', 'danger');
+                            }
+                        });
+                } else {
+                    notifier.show('空值不能提交', 'danger');
+
                 }
-                let product = `${global.row_id}${SPLITER}${global.product_id}${SPLITER}`;
-
-                num = 0;
-
-                for (let input of all_input) {
-                    let value;
-                    if (input.parentNode.className.indexOf('check-radio') == -1) {
-                        value = input.value;
-                    } else {
-                        value = input.checked;
-                    }
-
-                    if (service.table_fields()[num].data_type == "整数" || service.table_fields()[num].data_type == "实数") {
-                        value = Number(value);
-                    }
-
-                    product += `${value}${SPLITER}`;
-                    num++;
-                }
-
-                let data = {
-                    data: product,
-                };
-
-                let url = global.eidt_cate == "edit" ? `/update_product` : `/add_product`;
-
+            } else {
+                let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
                 fetch(url, {
                     method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(data),
+                    body: global.product_id,
                 })
                     .then(response => response.json())
                     .then(content => {
                         if (content == 1) {
-                            global.edit = 0;
-                            modal_out_data.edit = 0;
-                            notifier.show('商品修改成功', 'success');
-
+                            notifier.show('批量操作成功', 'success');
                             tool_table.fetch_table((content) => {
                                 make_filter();
                                 add_lu_link();
                                 show_stat(content);
-
                             });
-
-                            if (global.eidt_cate == "add") {
-                                for (let input of all_input) {
-                                    input.value = "";
-                                }
-                            }
                             close_modal();
                         } else {
                             notifier.show('权限不够，操作失败', 'danger');
                         }
                     });
-            } else {
-                notifier.show('空值不能提交', 'danger');
-
             }
-        } else {
-            let url = global.eidt_cate == "批量导入" ? `/product_datain` : `/product_updatein`;
-            fetch(url, {
-                method: 'post',
-                body: global.product_id,
-            })
-                .then(response => response.json())
-                .then(content => {
-                    if (content == 1) {
-                        notifier.show('批量操作成功', 'success');
-                        tool_table.fetch_table((content) => {
-                            make_filter();
-                            add_lu_link();
-                            show_stat(content);
-                        });
-                        close_modal();
-                    } else {
-                        notifier.show('权限不够，操作失败', 'danger');
-                    }
-                });
         }
-    });
+        else {
+            let inputs = document.querySelectorAll('.fields-out input[type=checkbox]');
+            let names = "";
+            inputs.forEach(input => {
+                if (input.checked) {
+                    names += input.nextElementSibling.textContent.trim() + "#";
+                }
+            })
 
-    modal_init();
-
-    //数据导入和导出 ------------------------------------------------------------------------------
-
-    document.querySelector('#data-out').addEventListener('click', function () {
-        if (global.product_name != "") {
-            let fields = ["名称", "材质", "物料号", "规格", "状态", "执行标准", "炉号", "生产厂家", "切分", "库存长度", "库存重量",
-                "入库长度", "入库单号", "入库日期", "入库方式", "原因", "库位", "库存类别", "区域", "备注"];
-
-            let form = "<form class='form-out'>";
-            for (let name of fields) {
-                let control;
-                control = `
-                    <div class="form-group fields-out">
-                        <label class="check-radio">
-                            <input type="checkbox">
-                            <span>${name}</span>
-                            <span class="checkmark"></span>
-                        </label>
-                    </div>`;
-
-                form += control;
-            }
-
-            form += "</form>";
-
-            document.querySelector('.modal-body').innerHTML = form;
-            document.querySelector('.modal-title').textContent = global.product_name + " - 请选择导出字段：";
-            document.querySelector('.modal-dialog').style.cssText = "max-width: 300px;";
-            document.querySelector('.modal').style.display = "block";
-
-            // let data = {
-            //     id: global.product_id,
-            //     name: global.product_name,
-            //     done: document.querySelector('#p-select').value,
-            // };
+            let data = {
+                wu_id:
+                query:,
+                names: names,
+            };
 
             // fetch(`/product_out`, {
             //     method: 'post',
@@ -791,6 +769,133 @@ let page_productset = function () {
             //             notifier.show('权限不够，操作失败', 'danger');
             //         }
             //     });
+        }
+    });
+
+    modal_init();
+
+    //数据导入和导出 ------------------------------------------------------------------------------
+
+    document.querySelector('#data-out').addEventListener('click', function () {
+        if (global.product_name != "") {
+            let fields = [
+                {
+                    name: "名称",
+                    width: 4,
+                    checked: "checked"
+                },
+                {
+                    name: "材质",
+                    width: 4,
+                    checked: "checked"
+                },
+                {
+                    name: "物料号",
+                    width: 5,
+                    checked: "checked"
+                },
+                {
+                    name: "规格",
+                    width: 5,
+                    checked: "checked"
+                },
+                {
+                    name: "状态",
+                    width: 6,
+                    checked: "checked"
+                },
+                {
+                    name: "执行标准",
+                    width: 7,
+                    checked: "checked"
+                },
+                {
+                    name: "炉号",
+                    width: 5,
+                    checked: "checked"
+                },
+                {
+                    name: "切分",
+                    width: 3,
+                    checked: ""
+                },
+                {
+                    name: "库存长度",
+                    width: 4,
+                    checked: "checked"
+                },
+                {
+                    name: "理论重量",
+                    width: 4,
+                    checked: "checked"
+                },
+                {
+                    name: "入库长度",
+                    width: 4,
+                    checked: ""
+                },
+                {
+                    name: "入库单号",
+                    width: 5,
+                    checked: ""
+                },
+                {
+                    name: "入库日期",
+                    width: 4,
+                    checked: ""
+                },
+                {
+                    name: "入库方式",
+                    width: 4,
+                    checked: ""
+                },
+                {
+                    name: "原因",
+                    width: 4,
+                    checked: ""
+                },
+                {
+                    name: "库位",
+                    width: 3,
+                    checked: ""
+                },
+                {
+                    name: "库存类别",
+                    width: 4,
+                    checked: ""
+                },
+                {
+                    name: "区域",
+                    width: 3,
+                    checked: ""
+                },
+                {
+                    name: "备注",
+                    width: 5,
+                    checked: "checked"
+                }
+            ];
+            let form = "<form class='form-out'>";
+            for (let f of fields) {
+                let control;
+                control = `
+                    <div class="form-group fields-out">
+                        <label class="check-radio">
+                            <input type="checkbox" ${f.checked}>
+                            <span>${f.name}</span>
+                            <span class="checkmark"></span>
+                        </label>
+                    </div>`;
+
+                form += control;
+            }
+
+            form += "</form>";
+
+            document.querySelector('.modal-body').innerHTML = form;
+            document.querySelector('.modal-title').textContent = global.product_name + " - 请选择导出字段：";
+            document.querySelector('.modal-dialog').style.cssText = "max-width: 300px;";
+            document.querySelector('.modal').style.display = "block";
         } else {
             notifier.show('请先选择商品', 'danger');
         }
