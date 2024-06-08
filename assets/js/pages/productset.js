@@ -291,6 +291,7 @@ let page_productset = function () {
             }
         });
 
+        // 非空选中
         if (check_now != "") {
             // 去掉末尾的 OR, 并加括号
             let f_sql2 = f_sql.slice(0, -4) + ')';
@@ -332,6 +333,7 @@ let page_productset = function () {
             fresh_table(post_data);
         }
         else {
+            // 全不选的情况
             document.querySelector('#f-check-all').click();
             document.querySelector('#f-ok').click();
         }
