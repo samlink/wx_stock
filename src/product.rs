@@ -141,6 +141,7 @@ async fn build_sql_search(
 ) -> (String, String, String, String, String) {
     let f_map = map_fields(db.clone(), "商品规格").await;
 
+    // where 条件第一个 sql, 其他 sql 跟在其后
     let product_sql = if post_data.id == "" {
         "true".to_owned()
     } else {
@@ -157,12 +158,6 @@ async fn build_sql_search(
         " AND 库存状态='不合格'"
     } else {
         ""
-    };
-
-    let lock_join_sql = if now_sql == "" {
-        "join sale_records() sale on products.文本字段1 = sale.物料号".to_owned()
-    } else {
-        "".to_owned()
     };
 
     // 构建搜索字符串
@@ -203,6 +198,13 @@ async fn build_sql_search(
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
     }
+
+    // join 语句，非 where 条件
+    let lock_join_sql = if now_sql == "" {
+        "join sale_records() sale on products.文本字段1 = sale.物料号".to_owned()
+    } else {
+        "".to_owned()
+    };
 
     (
         product_sql,
@@ -592,10 +594,10 @@ pub async fn product_out(
                 LEFT JOIN length_weight() as foo
                 ON products.文本字段1 = foo.物料号
                 where {} {} {} {} {}"#,
-            select_fields, lock_join_sql, conditions, product_sql, now_sql, filter_sql, NOT_DEL_SQL
+            select_fields, lock_join_sql, product_sql, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
 
-        // println!("{:?}\n", fields);
+        // println!("{}\n", sql);
         
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -614,8 +616,6 @@ pub async fn product_out(
 
         wb.close().unwrap();
         HttpResponse::Ok().json(product.name.clone())
-
-        // HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
