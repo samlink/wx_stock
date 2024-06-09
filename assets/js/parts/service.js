@@ -664,34 +664,23 @@ var service = function () {
             row_fn: table_row,
         };
 
-        fetch(`/fetch_fields`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: "商品规格"
-            }),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    let table = document.querySelector('.table-product');
-                    let th_header = [
-                        { name: '序号', width: 3 }, 
-                        { name: '名称', width: 4 }, 
-                        { name: '材质', width: 6 },
-                        { name: '规格', width: 6 },
-                        { name: '状态', width: 6 },
-                        { name: '执行标准', width: 6 }
-                    ];
+        setTimeout(() => {
+            let table = document.querySelector('.table-product');
+            let th_header = [
+                { name: '序号', width: 3 },
+                { name: '名称', width: 4 },
+                { name: '材质', width: 6 },
+                { name: '规格', width: 6 },
+                { name: '状态', width: 6 },
+                { name: '执行标准', width: 6 }
+            ];
 
-                    let header = build_table_header(table, th_header, [], "", "products");
-                    table.querySelector('thead tr').innerHTML = header.th_row;
-                    tool_table.table_init(init_data);
-                    tool_table.fetch_table();
-                }
-            });
+            let header = build_table_header(table, th_header, [], "", "products");
+            // console.log(header);
+            table.querySelector('thead tr').innerHTML = header.th_row;
+            tool_table.table_init(init_data);
+            tool_table.fetch_table();
+        }, 100);
 
         function table_row(tr) {
             let rec = tr.split(',');
@@ -706,7 +695,6 @@ var service = function () {
             tool_table.fetch_table();
         });
     }
-
 
     // 检查是否超过库存
     let check_ku = function (save) {
