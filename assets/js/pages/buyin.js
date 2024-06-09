@@ -359,10 +359,10 @@ let page_buyin = function () {
         let row_input = document.querySelector(`.table-items .inputting`);
         let field_values = row_input.querySelector(`.auto-input`).getAttribute("data").split(SPLITER);
 
-        row_input.querySelector(`.材质`).textContent = field_values[2];
-        row_input.querySelector(`.规格`).value = field_values[3];
-        row_input.querySelector(`.状态`).value = field_values[4];
-        row_input.querySelector(`.执行标准`).value = field_values[5];
+        row_input.querySelector(`.材质`).textContent = field_values[1];
+        row_input.querySelector(`.规格`).value = field_values[2];
+        row_input.querySelector(`.状态`).value = field_values[3];
+        row_input.querySelector(`.执行标准`).value = field_values[4];
         row_input.querySelector('.m_id').textContent = field_values[0];
 
         let price_input = row_input.querySelector(`.price`);

@@ -480,11 +480,9 @@ let edit_table = function () {
         let tbody = document.querySelector('.table-items tbody');
         let x = getLeft(element, tbody);
         let y = getTop(element, tbody);
-
         let auto_div = element.querySelector('.autocomplete');
         auto_div.style.left = (x + add_x) + "px";
         auto_div.style.top = (y + add_y) + "px";
-
         element.querySelector('.autocomplete').classList.add('auto-edit');
     }
 
@@ -494,7 +492,19 @@ let edit_table = function () {
             e.stopImmediatePropagation();
             let selected_row = document.querySelector('table .focus');
             if (selected_row) {
-                service.chose_exit(selected_row, input_data.auto_data[0].cb);
+                    let id = selected_row.querySelector('.id').textContent;
+                    let name = selected_row.querySelector('.名称').textContent;
+                    let cz = selected_row.querySelector('.材质').textContent;
+                    let gg = selected_row.querySelector('.规格').textContent;
+                    let zt = selected_row.querySelector('.状态').textContent;
+                    let zx = selected_row.querySelector('.执行标准').textContent;
+                    let data = `${id}${SPLITER}${cz}${SPLITER}${gg}${SPLITER}${zt}${SPLITER}${zx}`;
+                    let el = document.querySelector('.table-items .inputting .名称');
+                    el.value = name;
+                    el.setAttribute('data', data);
+                    close_modal();
+                    input_data.auto_data[0].cb();
+                // service.chose_exit(selected_row, input_data.auto_data[0].cb);
             } else {
                 notifier.show('请先选择再提交', 'danger');
             }

@@ -606,7 +606,7 @@ var service = function () {
                     document.querySelector('#product-id').textContent = id;
 
                     let post_data = {
-                        cate: name,   // 使用 cate 传送物料名
+                        cate: name + " " + id,   // 使用 cate 传送物料名和id
                         id: id,
                         name: '',
                         page: 1,
@@ -638,6 +638,7 @@ var service = function () {
         document.querySelector('.modal').style.display = "block";
     }
 
+    // 构建采购商品表
     let build_product_buyin = function (row_num) {
         let init_data = {
             container: '.table-product',
@@ -681,7 +682,7 @@ var service = function () {
         }, 100);
 
         function table_row(tr) {
-            let row = `<tr><td>${tr.序号}</td><td hidden>${tr.序号}</td><td class='名称'>${tr.名称}</td>
+            let row = `<tr><td>${tr.序号}</td><td class="id" hidden>${tr.id}</td><td class='名称'>${tr.名称}</td>
                 <td class='材质'>${tr.材质}</td><td class='规格'>${tr.规格}</td><td class='状态'>${tr.状态}</td>
                 <td class='执行标准'>${tr.执行标准}</td></tr>`;
 

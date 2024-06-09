@@ -212,13 +212,13 @@ pub async fn fetch_product_buyin(
         };
 
         let sql = format!(
-            r#"select split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
+            r#"select num id, split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
                     规格型号 规格, p.文本字段2 状态, p.文本字段3 执行标准,
                     ROW_NUMBER () OVER (ORDER BY {}) as 序号
                 FROM products p
                 JOIN tree ON p.商品id = tree.num
                 where 规格型号 like '%{}%' {}
-                group by node_name, 规格型号, 文本字段2, 文本字段3
+                group by num, node_name, 规格型号, 文本字段2, 文本字段3
                 ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, name, id_sql, post_data.sort, skip, post_data.rec);
 
@@ -227,6 +227,7 @@ pub async fn fetch_product_buyin(
         if rows.len() > 0 {
             for row in rows {
                 let json = json!({
+                "id": row.get::<&str, &str>("id"),
                 "序号": row.get::<&str, i64>("序号"),
                 "名称": row.get::<&str, &str>("名称"),
                 "材质": row.get::<&str, &str>("材质"),
@@ -238,12 +239,13 @@ pub async fn fetch_product_buyin(
         } else {
             let name: Vec<&str> = post_data.cate.split(' ').collect();
             let json = json!({
+                "id" : name[2],
                 "序号": 1,
                 "名称": name[1],
                 "材质": name[0],
-                "规格": "--",
-                "状态": "--",
-                "执行标准": "--"
+                "规格": "",
+                "状态": "",
+                "执行标准": ""
             });
             products.push(json);
         }
@@ -253,7 +255,7 @@ pub async fn fetch_product_buyin(
                 (SELECT node_name FROM products
                 JOIN tree ON 商品id = tree.num
                 where 规格型号 like '{}%' {}
-                group by node_name, 规格型号, 文本字段2, 文本字段3) foo
+                group by num, node_name, 规格型号, 文本字段2, 文本字段3) foo
                 "#, name, id_sql);
 
         let row = &conn.query_one(sql2.as_str(), &[]).await.unwrap();
@@ -286,7 +288,8 @@ pub async fn fetch_one_product(
                             JOIN documents on 单号id = 单号
                             WHERE products.{} = '{}' and documents.文本字段10 <> ''",
                           SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-                          f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], f_map["物料号"], product_id);
+                          f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
+                          f_map["物料号"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -314,8 +317,9 @@ pub async fn get_status_auto(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!("select distinct products.{} label, '1' as id from products
                         join documents on 单号id = 单号
-                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' order by products.{} limit 10",
-                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
+                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> ''
+                        order by products.{} limit 10",
+                        f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
