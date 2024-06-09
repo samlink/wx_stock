@@ -525,7 +525,7 @@ var service = function () {
     }
 
     // 销售用商品规格表
-    let sales_products = function (modal_title, init_func) {
+    let sales_products = function (modal_title) {
         if (!document.querySelector('.product-content') || modal_title != document.querySelector('.modal-title').textContent.trim()) {
             document.querySelector('.modal-title').textContent = modal_title;
             let width = document.querySelector('body').clientWidth * 0.8;
@@ -607,7 +607,7 @@ var service = function () {
                     document.querySelector('#product-id').textContent = id;
 
                     let post_data = {
-                        cate: "现有库存",
+                        cate: "正常销售",
                         id: id,
                         name: '',
                         page: 1,
@@ -616,7 +616,7 @@ var service = function () {
 
                     Object.assign(tool_table.table_data().post_data, post_data);
 
-                    tool_table.fetch_table(init_func);
+                    tool_table.fetch_table();
                 }
             }
 
@@ -630,7 +630,7 @@ var service = function () {
             });
 
             let row_num = Math.floor(tbody_height / 30);
-            build_product_table(row_num, init_func);
+            build_product_buyin(row_num);
 
             document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
             document.querySelector('.modal-content').style.cssText = `height: 100%;`;
@@ -638,6 +638,75 @@ var service = function () {
 
         document.querySelector('.modal').style.display = "block";
     }
+
+    let build_product_buyin = function (row_num) {
+        let init_data = {
+            container: '.table-product',
+            url: '/fetch_product_buyin',
+            header_names: {
+                "名称": "split_part(node_name,' ',2)",
+                "材质": "split_part(node_name,' ',1)",
+                "规格": "products.规格型号",
+                "状态": "products.文本字段2",
+                "执行标准": "products.文本字段3",
+            },
+            post_data: {
+                id: "",
+                name: '',
+                sort: "products.文本字段1 ASC",
+                rec: row_num,
+                cate: '',
+                filter: '',
+            },
+            edit: false,
+
+            blank_cells: 7,
+            row_fn: table_row,
+        };
+
+        fetch(`/fetch_fields`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: "商品规格"
+            }),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    let table = document.querySelector('.table-product');
+                    let th_header = [
+                        { name: '序号', width: 3 }, 
+                        { name: '名称', width: 4 }, 
+                        { name: '材质', width: 6 },
+                        { name: '规格', width: 6 },
+                        { name: '状态', width: 6 },
+                        { name: '执行标准', width: 6 }
+                    ];
+
+                    let header = build_table_header(table, th_header, [], "", "products");
+                    table.querySelector('thead tr').innerHTML = header.th_row;
+                    tool_table.table_init(init_data);
+                    tool_table.fetch_table();
+                }
+            });
+
+        function table_row(tr) {
+            let rec = tr.split(',');
+            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='name'>${rec[1]}</td><td class='材质'>${rec[0]}</td>`;
+
+            return rows;
+        }
+
+        document.querySelector('#serach-button').addEventListener('click', function () {
+            let search = document.querySelector('#search-input').value;
+            Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
+            tool_table.fetch_table();
+        });
+    }
+
 
     // 检查是否超过库存
     let check_ku = function (save) {
@@ -737,7 +806,7 @@ var service = function () {
     let build_product_table = function (row_num, cb, more, more2) {
         let init_data = {
             container: '.table-product',
-            url: `/fetch_product`,
+            url: '/fetch_product',
             post_data: {
                 id: "",
                 name: '',
@@ -786,7 +855,7 @@ var service = function () {
                     tool_table.table_init(init_data);
 
                     let post_data = {
-                        cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "现有库存",
+                        cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "正常销售",
                         page: 1,
                     }
 
@@ -815,11 +884,6 @@ var service = function () {
 
             return rows;
         }
-
-        // function blank_row() {
-        //     let row = "<tr><td></td><td></td>";
-        //     return build_blank_from_fields(row, table_fields);
-        // }
 
         document.querySelector('#serach-button').addEventListener('click', function () {
             search_table();

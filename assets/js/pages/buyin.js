@@ -229,17 +229,6 @@ let page_buyin = function () {
                 }
             });
 
-            // let show_th = [
-            //     { name: "名称", width: 60 },
-            //     { name: "材质", width: 80 },
-            //     { name: "规格", width: 80 },
-            //     { name: "状态", width: 100 },
-            //     { name: "执行标准", width: 100 },
-            //     { name: "库存长度", width: 80 },
-            //     { name: "库存重量", width: 80 },
-            //     { name: "物料号", width: 60 },
-            // ];
-
             auto_data = [{
                 n: 2,                       //第2个单元格是自动输入
                 cate: document_name,
@@ -371,9 +360,9 @@ let page_buyin = function () {
         let field_values = row_input.querySelector(`.auto-input`).getAttribute("data").split(SPLITER);
 
         row_input.querySelector(`.材质`).textContent = field_values[2];
-        row_input.querySelector(`.规格`).textContent = field_values[3];
-        row_input.querySelector(`.状态`).textContent = field_values[4];
-        row_input.querySelector(`.执行标准`).textContent = field_values[5];
+        row_input.querySelector(`.规格`).value = field_values[3];
+        row_input.querySelector(`.状态`).value = field_values[4];
+        row_input.querySelector(`.执行标准`).value = field_values[5];
         row_input.querySelector('.m_id').textContent = field_values[0];
 
         let price_input = row_input.querySelector(`.price`);
@@ -473,9 +462,7 @@ let page_buyin = function () {
         service.make_formal(formal_data);
     });
 
-    //共用事件和函数 ---------------------------------------------------------------------
-
-    //保存、打印和审核前的错误检查
+    //错误检查
     function error_check() {
         let customer_id = document.querySelector('#supplier-input').getAttribute('data');
         if (customer_id == null) {
