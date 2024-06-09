@@ -225,7 +225,7 @@ pub async fn buyin_auto(
             )
         };
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         autocomplete(db, &sql).await
     } else {
