@@ -676,7 +676,6 @@ var service = function () {
             ];
 
             let header = build_table_header(table, th_header, [], "", "products");
-            // console.log(header);
             table.querySelector('thead tr').innerHTML = header.th_row;
             tool_table.table_init(init_data);
             tool_table.fetch_table();
@@ -684,9 +683,9 @@ var service = function () {
 
         function table_row(tr) {
             let rec = tr.split(',');
-            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='name'>${rec[1]}</td><td class='材质'>${rec[0]}</td>`;
+            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='名称'>${rec[1]}</td><td class='材质'>${rec[0]}</td>`;
 
-            return rows;
+            return row;
         }
 
         document.querySelector('#serach-button').addEventListener('click', function () {
