@@ -516,10 +516,11 @@ pub async fn get_stockin_items(
         };
 
         let sql = format!(
-            r#"select documents.{} 到货日期, documents.{} 入库日期, 单号, split_part(node_name,' ',2) as 名称, products.{} 物料号,
-                 split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态, products.{} 炉号, products.{} 入库长度,
-                 products.{} 执行标准, products.{} 生产厂家, products.{} 理论重量, products.备注,
-                 ROW_NUMBER () OVER (ORDER BY {}) as 序号 from products
+            r#"select documents.{} 到货日期, documents.{} 入库日期, 单号, split_part(node_name,' ',2) 名称,
+                products.{} 物料号, split_part(node_name,' ',1) as 材质, 规格型号, products.{} 状态,
+                products.{} 炉号, products.{} 入库长度, products.{} 执行标准, products.{} 生产厂家,
+                products.{} 理论重量, products.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
+            from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != ''
@@ -649,8 +650,8 @@ pub async fn get_stockout_items(
             format!(
                 r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
-                OR LOWER(documents.备注) LIKE '%{}%')"#,
+                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR
+                LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
                 name,
                 name,
                 name,
@@ -825,8 +826,9 @@ pub async fn get_trans_items(
 
         let sql = format!(
             r#"select d.日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
-            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价, 长度, 数量, 重量, 
-            case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额, ROW_NUMBER () OVER (ORDER BY {}) as 序号, di.备注
+            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价,
+            长度, 数量, 重量, case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额,
+            ROW_NUMBER () OVER (ORDER BY {}) as 序号, di.备注
             from document_items di 
             join documents d on d.单号 = di.单号id 
             join tree t on t.num = di.商品id
