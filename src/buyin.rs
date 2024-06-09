@@ -131,9 +131,6 @@ pub async fn buyin_auto(
             s.push("");
         }
         let cate_s = "".to_owned();
-        // if search.cate == "销售单据" {
-        //     cate_s = format!("products.{}!='是' AND ", f_map["切完"]);
-        // }
 
         let mut sql_fields = "".to_owned();
         for f in &fields {
@@ -149,44 +146,8 @@ pub async fn buyin_auto(
 
         let str_match = format!(" || '{}' ||", SPLITER);
         sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
-        // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
-        let sql = if search.cate == "采购单据" {
-            format!(
-                r#"SELECT num as id, split_part(node_name,' ',2) || '<`*_*`>' || split_part(node_name,' ',1) ||
-                 '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' ||
-                ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' || '<`*_*`>' || ' ' as label             
-                from tree WHERE LOWER(pinyin) like '%{}%' and LOWER(node_name) LIKE '%{}%' and num ~ '_' 
-                UNION ALL
-                SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
-                || '{}' || {} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer || '{}' ||
-                round((products.{}-COALESCE(理重合计,0))::numeric,2)::real AS label FROM products
-                JOIN tree ON products.商品id = tree.num
-                LEFT JOIN length_weight() as foo
-                ON products.文本字段1 = foo.物料号
-                WHERE {} (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer > 0 and
-                 (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({})
-                limit 10
-            "#,
-                s[0].to_lowercase(),
-                s[1].to_lowercase(),
-                SPLITER,
-                SPLITER,
-                sql_fields,
-                SPLITER,
-                f_map["售价"],
-                SPLITER,
-                f_map["库存长度"],
-                SPLITER,
-                f_map["理论重量"],
-                cate_s,
-                f_map["库存长度"],
-                s[0].to_uppercase(),
-                s[0].to_uppercase(),
-                sql_where
-            )
-        } else if search.cate == "销售单据" {
+        let sql = if search.cate == "销售单据" {
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || 规格型号 || '{}' || p.文本字段2 || '{}' || p.文本字段3 || '{}' || 

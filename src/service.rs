@@ -248,6 +248,12 @@ pub async fn fetch_blank() -> HttpResponse {
     HttpResponse::Ok().json((v, 0, 0))
 }
 
+///获取一条空记录
+#[get("/fetch_nothing")]
+pub async fn fetch_nothing() -> HttpResponse {
+        HttpResponse::Ok().json(1)
+}
+
 //上传文件保存
 pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
     let path = "./upload/upload_in.xlsx".to_owned();

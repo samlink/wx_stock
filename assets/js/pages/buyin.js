@@ -1,23 +1,15 @@
 let page_buyin = function () {
-    let document_table_fields, table_lines, show_names, edited, auto_data;
+    let document_table_fields, show_names, edited, auto_data;
     let document_bz = document.querySelector('#document-bz').textContent.trim();
     let dh_div = document.querySelector('#dh');
+
+    //计算表格行数，33 为 lineHeight （行高）
+    let table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
     //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
     let document_name, edit_data;
-    if (document_bz.indexOf("销售") != -1) {
-        document_name = "销售单据";
-    } else if (document_bz.indexOf("采购") != -1) {
-        document_name = "采购单据";
-    }
-
-    if (document_bz == "商品销售") {
-        let buttons = document.querySelectorAll('.buy-buttons .buttons button');
-        buttons.forEach((button) => {
-            button.classList.add('ch-width');
-        });
-    }
+    document_name = "采购单据";
 
     //获取单据表头部分的字段（字段设置中的右表内容）
     fetch(`/fetch_inout_fields`, {
@@ -107,8 +99,6 @@ let page_buyin = function () {
                         document.querySelector('.table-items tbody .名称').focus();
                     }, 200);
                 }
-
-                sale_back();
             }
         });
 
@@ -117,9 +107,6 @@ let page_buyin = function () {
         if (document_bz == "采购退货") {
             html = html.replace("到货", "发货");
             html = html.replace("入库完成</label>", "处理完成</label>");
-        } else if (document_bz == "销售退货") {
-            html = html.replace("交货", "收货");
-            html = html.replace("出库完成</label>", "入库完成</label>");
         }
 
         if (document.querySelector('.has-auto')) {
@@ -128,34 +115,22 @@ let page_buyin = function () {
             document.querySelector('.fields-show').innerHTML = html;
         }
 
+        // 订单日期
         let date = document.querySelector('#日期');
         if (!has_date) {
             date.value = new Date().Format("yyyy-MM-dd");
         }
 
-        //执行一个laydate实例
         laydate.render({
             elem: date,
             showBottom: false,
-            // theme: 'molv',
-            // theme: '#62468d',
         });
 
-        if (document.querySelector('#文本字段2')) {
-            let da = document.querySelector('#文本字段2');
-            laydate.render({
-                elem: da,
-                showBottom: false,
-            })
-        }
-
-        if (document.querySelector('#文本字段3')) {
-            let da = document.querySelector('#文本字段3');
-            laydate.render({
-                elem: da,
-                showBottom: false,
-            })
-        }
+        // 到货日期
+        laydate.render({
+            elem: document.querySelector('#文本字段3'),
+            showBottom: false,
+        })
 
         let all_input = document.querySelectorAll('.fields-show input');
         let form = document.querySelector('.fields-show');
@@ -204,65 +179,26 @@ let page_buyin = function () {
             ];
 
             for (let item of content) {
-                let edit = document_name == "销售单据" ? false : true;
+                let edit = true;
                 show_names.push({
                     name: item.show_name, width: item.show_width * 18, type: item.ctr_type,
                     class: item.show_name, editable: edit, is_save: true, default: item.option_value
                 });
             }
 
-            if (document_name == "销售单据") {
-                show_names.push({
-                    name: "类型", width: 50, class: "类型", type: "下拉列表", editable: true, is_save: true, default: "按重量_按件"
-                });
-                show_names.push({
-                    name: "单价", width: 50, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-                show_names.push({
-                    name: "长度", width: 60, class: "long", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-                show_names.push({
-                    name: "数量", width: 50, class: "num", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-                show_names.push({
-                    name: "理论重量",
-                    width: 60,
-                    class: "mount",
-                    type: "普通输入",
-                    editable: true,
-                    is_save: true,
-                    default: ""
-                });
-                show_names.push({
-                    name: "实际重量",
-                    width: 60,
-                    class: "weight",
-                    type: "普通输入",
-                    editable: true,
-                    is_save: true,
-                    default: ""
-                });
-            } else if (document_name == "采购单据") {
-                show_names.push({
-                    name: "单价", width: 60, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-                show_names.push({
-                    name: "长度", width: 60, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-                show_names.push({
-                    name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: ""
-                });
-            }
+            show_names.push({
+                name: "单价", width: 60, class: "price", type: "普通输入", editable: true, is_save: true, default: ""
+            });
+            show_names.push({
+                name: "长度", width: 60, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""
+            });
+            show_names.push({
+                name: "重量", width: 60, class: "mount", type: "普通输入", editable: true, is_save: true, default: ""
+            });
 
             show_names.push({
                 name: "金额", width: 80, class: "money", type: "普通输入", editable: false, is_save: true, default: ""
             });
-
-            if (document_name == "销售单据") {
-                show_names.push({
-                    name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: ""
-                })
-            }
 
             show_names.push({
                 name: "备注",
@@ -286,41 +222,29 @@ let page_buyin = function () {
 
             // 设置"状态"为自动输入
             show_names.forEach(item => {
-                if (document_name == "采购单据" && (item.name == "状态" || item.name == "执行标准")) {
+                if (item.name == "状态" || item.name == "执行标准") {
                     item.type = "autocomplete";
                     item.no_button = true;           //无需 modal 选择按钮
                     item.save = "value";             //保存值, 而非 id
                 }
             });
 
-            //计算表格行数，33 为 lineHeight （行高）
-            table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
-            //构造商品规格自动完成
-            // let gg_n = document_name == "销售单据" ? 4 : 3;
+            // let show_th = [
+            //     { name: "名称", width: 60 },
+            //     { name: "材质", width: 80 },
+            //     { name: "规格", width: 80 },
+            //     { name: "状态", width: 100 },
+            //     { name: "执行标准", width: 100 },
+            //     { name: "库存长度", width: 80 },
+            //     { name: "库存重量", width: 80 },
+            //     { name: "物料号", width: 60 },
+            // ];
 
-            let show_th = [
-                { name: "名称", width: 60 },
-                { name: "材质", width: 80 },
-                { name: "规格", width: 80 },
-                { name: "状态", width: 100 },
-                { name: "执行标准", width: 100 },
-                { name: "库存长度", width: 80 },
-                { name: "库存重量", width: 80 },
-                { name: "物料号", width: 60 },
-            ];
-
-            auto_data = document_name == "销售单据" ? [{
+            auto_data = [{
                 n: 2,                       //第2个单元格是自动输入
                 cate: document_name,
-                auto_url: `/buyin_auto`,
-                show_th: show_th,
-                type: "table",
-                cb: fill_gg,
-            }] : [{
-                n: 2,                       //第2个单元格是自动输入
-                cate: document_name,
-                auto_url: `/buyin_auto`,
-                show_th: show_th,
+                auto_url: '/fetch_nothing',
+                show_th: '',
                 type: "table",
                 cb: fill_gg,
             }, {
@@ -350,12 +274,8 @@ let page_buyin = function () {
 
                 edit_table.build_blank_table(edit_data);
                 let row = edit_table.appand_edit_row();
-                if (document_name == "销售单据") {
-                    type_change(row);
-                }
             } else {
-                let url = document_name == "销售单据" ? "/fetch_document_items_sales" : "/fetch_document_items";
-                fetch(url, {
+                fetch("/fetch_document_items", {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
@@ -382,106 +302,29 @@ let page_buyin = function () {
 
                         setTimeout(() => {
                             if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                                let row = edit_table.appand_edit_row();
-                                if (document_name == "销售单据") {
-                                    type_change(row);
-                                }
+                                edit_table.appand_edit_row();
                             }
-
-                            let rows = document.querySelectorAll('.table-items tbody tr');
-                            rows.forEach(row => {
-                                type_change(row);
-                            });
-
                         }, 200);
                     })
             }
         });
 
-    // 类型变化事件
-    function type_change(row) {
-        if (row.querySelector('.类型')) {
-            row.querySelector('.类型').addEventListener('change', function () {
-                calc_money(row);
-                sum_money();
-            });
-        }
-    }
-
-    // 销售退货右表
-    function sale_back() {
-        if (document_bz == "销售退货") {
-            document.querySelector('.table-note').style.display = "block";
-            document.querySelector('.table-history').style.marginLeft = 0;
-            document.querySelector('.table-history').style.borderBottomLeftRadius = 0;
-            document.querySelector('.table-history').style.borderBottomRightRadius = 0;
-
-            let ht = document.querySelector('#文本字段6');
-            ht.addEventListener('blur', function () {
-                if (ht.value == "") {
-                    return;
-                }
-
-                fetch('/get_sale_dh', {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: ht.value.trim()
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.querySelector(".table-note tbody").innerHTML = `<tr><td>${data}</td></tr>`;
-                        let tr = document.querySelector(".table-note tbody tr");
-                        tr.addEventListener('click', function () {
-                            window.open("/sale/" + tr.querySelector('td').textContent.split('　')[1]);
-                        })
-                    })
-            });
-        }
-    }
-
     // 自动计算
     function calculate(input_row) {
-        if (input_row.querySelector('.规格')) {
-            input_row.querySelector('.规格').addEventListener('blur', function () {
-                calc_weight(input_row);
-                calc_money(input_row);
-                sum_money();
-            });
-        }
+        input_row.querySelector('.规格').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
 
-        if (input_row.querySelector('.price')) {
-            input_row.querySelector('.price').addEventListener('blur', function () {
-                calc_money(input_row);
-                sum_money();
-            });
+        input_row.querySelector('.price').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
 
-            input_row.querySelector('.mount').addEventListener('blur', function () {
-                calc_money(input_row);
-                sum_money();
-            });
-        }
-
-        if (input_row.querySelector('.long')) {
-            input_row.querySelector('.long').addEventListener('blur', function () {
-                calc_weight(input_row);
-                calc_money(input_row);
-                sum_money();
-                // if (check_sum(input_row) == -1) {
-                //     notifier.show('数量超过库存', 'danger');
-                // }
-            });
-
-            input_row.querySelector('.num').addEventListener('blur', function () {
-                calc_weight(input_row);
-                calc_money(input_row);
-                sum_money();
-                // if (check_sum(input_row) == -1) {
-                //     notifier.show('数量超过库存', 'danger');
-                // }
-            });
-        }
+        input_row.querySelector('.mount').addEventListener('blur', function () {
+            calc_money(input_row);
+            sum_money();
+        });
     }
 
     //计算行金额
@@ -494,16 +337,7 @@ let page_buyin = function () {
         }
         let money = "";
         if (price && regReal.test(price) && mount && regReal.test(mount)) {
-            if (document_name == "销售单据") {
-                if (input_row.querySelector('.类型').value == "按重量") {
-                    money = (price * mount).toFixed(2);
-                } else {
-                    money = (price * input_row.querySelector('.num').value).toFixed(2);
-                }
-            }
-            else {
-                money = (price * mount).toFixed(2);
-            }
+            money = (price * mount).toFixed(2);
         }
 
         input_row.querySelector('.money').textContent = money;
@@ -512,7 +346,7 @@ let page_buyin = function () {
     //计算合计金额
     function sum_money() {
         let all_input = document.querySelectorAll('.has-input');
-        let sum = 0, sum_n = 0, sum_weight = 0, sum_weight_s = 0;
+        let sum = 0, sum_weight = 0;
 
         for (let i = 0; i < all_input.length; i++) {
             let price = all_input[i].querySelector('.price').value;
@@ -521,51 +355,14 @@ let page_buyin = function () {
                 mount = all_input[i].querySelector('.mount').textContent;
             }
 
-            let n = document_name == "销售单据" ? Number(all_input[i].querySelector('.num').value) : 0;
-            let weight_s = document_name == "销售单据" ? Number(all_input[i].querySelector('.weight').value) : 0;
-
             if (all_input[i].querySelector('td:nth-child(2) .auto-input').value != "" &&
                 price && regReal.test(price) && mount && regReal.test(mount)) {
-                if (document_name == "销售单据") {
-                    if (all_input[i].querySelector('.类型').value == "按重量") {
-                        sum += price * mount;
-                    } else {
-                        sum += price * all_input[i].querySelector('.num').value;
-                    }
-                }
-                else {
-                    sum += price * mount;
-                }
-
-                sum_n += n;
+                sum += price * mount;
                 sum_weight += Number(mount);
-                sum_weight_s += weight_s;
             }
         }
 
-        document.querySelector('#sum-money').innerHTML = document_name == "销售单据" ? `数量：${sum_n}，  理论重量：${sum_weight.toFixed(1)} kg，  实际重量：${sum_weight_s.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元` :
-            `重量：${sum_weight.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
-
-        if (document.querySelector('#应结金额')) {
-            document.querySelector('#应结金额').value = sum.toFixed(2);
-        }
-    }
-
-    // 销售时使用的理论重量计算
-    function calc_weight(input_row) {
-        let data = {
-            long: input_row.querySelector('.long').value,
-            num: input_row.querySelector('.num').value,
-            name: input_row.querySelector('.auto-input').value,
-            cz: input_row.querySelector('.材质').textContent.trim(),
-            gg: input_row.querySelector('.规格').textContent.trim(),
-        }
-
-        if (regInt.test(data.long) && regInt.test(data.num) && input_row.querySelector('.材质').textContent.trim() != "--") {
-            input_row.querySelector('.mount').value = service.calc_weight(data);
-        } else {
-            input_row.querySelector('.mount').value = 0;
-        }
+        document.querySelector('#sum-money').innerHTML = `重量：${sum_weight.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
     }
 
     //自动填充
@@ -573,140 +370,20 @@ let page_buyin = function () {
         let row_input = document.querySelector(`.table-items .inputting`);
         let field_values = row_input.querySelector(`.auto-input`).getAttribute("data").split(SPLITER);
 
-        if (document_name == "销售单据") {
-            row_input.querySelector(`.材质`).textContent = field_values[2];
-            row_input.querySelector(`.规格`).textContent = field_values[3];
-            row_input.querySelector(`.状态`).textContent = field_values[4];
-            row_input.querySelector(`.执行标准`).textContent = field_values[5];
-            row_input.querySelector(`.long`).value = field_values[6];
-            row_input.querySelector(`.num`).value = 1;
-            row_input.querySelector(`.mount`).value = field_values[7];
-            row_input.querySelector(`.物料号`).textContent = field_values[8];
-            row_input.querySelector(`.m_id`).textContent = field_values[0];
-            calc_weight(row_input);
-        }
-        else {
-            row_input.querySelector(`td:nth-child(${12})`).textContent = field_values[0];
-        }
+        row_input.querySelector(`.材质`).textContent = field_values[2];
+        row_input.querySelector(`.规格`).textContent = field_values[3];
+        row_input.querySelector(`.状态`).textContent = field_values[4];
+        row_input.querySelector(`.执行标准`).textContent = field_values[5];
+        row_input.querySelector('.m_id').textContent = field_values[0];
 
         let price_input = row_input.querySelector(`.price`);
         price_input.focus();
 
-        let row = edit_table.appand_edit_row();
-        if (document_name == "销售单据") {
-            type_change(row);
-        }
+        edit_table.appand_edit_row();
         edited = true;
     }
 
-    //点选、保存、打印和审核 -------------------------------------------------------------------
-
-    let has_chose = new Map();
-    let choose_button = document.querySelector('#choose-button');
-
-    // 点选
-    if (choose_button) {
-        choose_button.addEventListener('click', function () {
-            service.sales_products("点选商品", choose_it);
-        });
-    }
-
-    function choose_it() {
-        let p_id = document.querySelector('#product-id').textContent.trim();
-        if (!p_id) {
-            return;
-        }
-
-        let rows = document.querySelectorAll('.table-product tbody tr');
-        rows.forEach(row => {
-            let wu_num = row.querySelector('td:nth-child(2)').textContent.trim();
-            if (wu_num != "") {
-                let check = has_chose.has(wu_num) ? "checked" : "";
-                row.querySelector('td:nth-child(1)').innerHTML = `<label class="check-radio fields-set">
-            <input type="checkbox" class="has-choosed" ${check}><span class="checkmark"></span></label>`;
-
-                row.querySelector('.has-choosed').addEventListener('click', function () {
-                    let wu_num = row.querySelector('td:nth-child(2)').textContent.trim();
-                    if (this.checked) {
-                        let cols = row.querySelectorAll('td');
-
-                        let 规格 = cols[3].textContent;
-                        let 状态 = cols[4].textContent;
-                        let 标准 = cols[5].textContent;
-                        let 单价 = cols[8].textContent;
-                        let 长度 = cols[11].textContent;
-                        let 理重 = cols[12].textContent;
-                        let 名称 = row.querySelector('.名称').textContent;
-                        let p_id = row.querySelector('.商品id').textContent;
-                        let na = 名称.split(' ');
-
-                        has_chose.set(wu_num, `${na[1]}${SPLITER}${na[0]}${SPLITER}${规格}${SPLITER}${状态}${SPLITER}${标准}${SPLITER}${"按重量"}${SPLITER}${单价}${SPLITER}${长度}${SPLITER}1${SPLITER}${理重}${SPLITER}0${SPLITER}${(单价 * 理重).toFixed(2)}${SPLITER}${wu_num}${SPLITER}${""}${SPLITER}${p_id}`);
-                    }
-                    else {
-                        has_chose.delete(wu_num);
-                    }
-                });
-            }
-        });
-    }
-
-    // modal 提交按钮 点选专用
-    document.querySelector('#modal-sumit-button').addEventListener('click', function (e) {
-        if (document.querySelector('.modal-title').textContent == "点选商品") {
-            e.stopImmediatePropagation();
-            let content = [];
-            let rows = document.querySelectorAll('.table-items tbody tr');
-
-            for (let [key, value] of has_chose) {
-                let values = value.split(SPLITER);
-                for (let row of rows) {
-                    let wu = row.querySelector('.物料号');
-                    if (wu && wu.textContent.trim() == values[12]) {
-                        values[5] = row.querySelector('.类型').value;
-                        values[6] = row.querySelector('.price').value;
-                        values[10] = row.querySelector('.weight').value;
-                        values[11] = row.querySelector('.money').textContent;
-                        break;
-                    }
-                }
-
-                value = values.join(SPLITER);
-                content.push(value);
-            }
-
-            let edit_data = {
-                show_names: show_names,
-                rows: content,
-                auto_data: auto_data,
-                lines: table_lines,
-                document: document_name,
-                calc_func: calculate,
-                change_func: sum_money,         //新加载或删除变动时运行
-            }
-
-            document.querySelector('.table-items tbody').innerHTML = '';
-
-            edit_table.build_items_table(edit_data);
-
-            setTimeout(() => {
-                if (document.querySelector('#remember-button').textContent.trim() == "审核") {
-                    rows = document.querySelectorAll('.table-items tbody tr');
-                    for (let r of rows) {
-                        if (r.querySelector('.物料号')) {
-                            type_change(r);
-                        }
-                    }
-
-                    let row = edit_table.appand_edit_row();
-                    type_change(row);
-                }
-            }, 200);
-
-            close_modal();
-
-            document.querySelector('.table-items tbody .price').focus();
-        }
-    }, false);
+    //保存、打印和审核 -------------------------------------------------------------------
 
     //保存
     document.querySelector('#save-button').addEventListener('click', function () {
@@ -715,15 +392,6 @@ let page_buyin = function () {
             return false;
         }
 
-        if (document_name == "销售单据") {
-            service.check_ku(save);
-        }
-        else {
-            save();
-        }
-    });
-
-    function save() {
         let customer_id = document.querySelector('#supplier-input').getAttribute('data');
         let all_values = document.querySelectorAll('.document-value');
 
@@ -736,10 +404,7 @@ let page_buyin = function () {
         let all_rows = document.querySelectorAll('.table-items .has-input');
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(2) input').value != "") {
-                let save_str = document_name == "销售单据" ?
-                    `${row.querySelector('td:nth-child(16)').textContent.trim()}${SPLITER}` :
-                    `${row.querySelector('td:nth-child(12)').textContent.trim()}${SPLITER}`;
-
+                let save_str = `${row.querySelector('td:nth-child(12)').textContent.trim()}${SPLITER}`;
                 save_str += service.build_save_items(2, row, show_names);
                 table_data.push(save_str);
             }
@@ -770,20 +435,19 @@ let page_buyin = function () {
                     notifier.show('权限不够，操作失败', 'danger');
                 }
             });
-    }
+    });
 
     // 只读设置
     function set_readonly() {
         let all_edit = document.querySelectorAll('.fields-show input');
         for (let edit of all_edit) {
-            if (document_name == "采购单据" && (edit.id == '入库完成' || edit.id == "备注")) {
-                continue;
-            } else if (document_name == "销售单据" && (edit.id == '是否欠款' || edit.id == "文本字段2" || edit.id == "出库完成" ||
-                edit.id == "发货完成" || edit.id == "文本字段5" || edit.id == "文本字段4" || edit.id == "备注")) {
+            if (edit.id == '入库完成' || edit.id == "备注") {
                 continue;
             }
+
             edit.disabled = true;
         }
+
         document.querySelector('#supplier-serach').disabled = true;
 
         setTimeout(() => {
@@ -795,10 +459,6 @@ let page_buyin = function () {
         }, 100);
 
         service.edit_button_disabled();
-        let choose_button = document.querySelector('#choose-button');
-        if (choose_button) {
-            choose_button.disabled = true;
-        }
     }
 
     //审核单据

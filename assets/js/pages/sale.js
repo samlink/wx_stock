@@ -453,10 +453,7 @@ let page_sale = function () {
         }
 
         document.querySelector('#sum-money').innerHTML = `数量：${sum_n}，  理论重量：${sum_weight.toFixed(1)} kg，  实际重量：${sum_weight_s.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
-
-        if (document.querySelector('#应结金额')) {
-            document.querySelector('#应结金额').value = sum.toFixed(2);
-        }
+        document.querySelector('#应结金额').value = sum.toFixed(2);
     }
 
     // 销售时使用的理论重量计算
@@ -579,10 +576,6 @@ let page_sale = function () {
         }, 100);
 
         service.edit_button_disabled();
-        let choose_button = document.querySelector('#choose-button');
-        if (choose_button) {
-            choose_button.disabled = true;
-        }
     }
 
     //审核单据
@@ -632,30 +625,7 @@ let page_sale = function () {
                     return false;
                 } else if (!mount.value) {
                     mount.value = 0;
-                }
-
-                if (row.querySelector('.long')) {
-                    if (row.querySelector('.long').value && !regReal.test(row.querySelector('.long').value)) {
-                        notifier.show(`长度输入错误`, 'danger');
-                        return false;
-                    } else if (!row.querySelector('.long').value) {
-                        row.querySelector('.long').value = 0;
-                    }
-
-                    if (row.querySelector('.num').value && !regReal.test(row.querySelector('.num').value)) {
-                        notifier.show(`数量输入错误`, 'danger');
-                        return false;
-                    } else if (!row.querySelector('.num').value) {
-                        row.querySelector('.num').value = 0;
-                    }
-
-                    if (row.querySelector('.weight').value && !regReal.test(row.querySelector('.weight').value)) {
-                        notifier.show(`实际重量输入错误`, 'danger');
-                        return false;
-                    } else if (row.querySelector('.weight').value.trim() == "") {
-                        row.querySelector('.weight').value = 0;
-                    }
-                }
+                }               
             }
         }
 

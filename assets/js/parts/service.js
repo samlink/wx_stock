@@ -525,119 +525,119 @@ var service = function () {
     }
 
     // 销售用商品规格表
-    // let sales_products = function (modal_title, init_func) {
-    //     if (!document.querySelector('.product-content') || modal_title != document.querySelector('.modal-title').textContent.trim()) {
-    //         document.querySelector('.modal-title').textContent = modal_title;
-    //         let width = document.querySelector('body').clientWidth * 0.8;
-    //         let height = document.querySelector('body').clientHeight * 0.8;
-    //         let tbody_height = height - 270;
+    let sales_products = function (modal_title, init_func) {
+        if (!document.querySelector('.product-content') || modal_title != document.querySelector('.modal-title').textContent.trim()) {
+            document.querySelector('.modal-title').textContent = modal_title;
+            let width = document.querySelector('body').clientWidth * 0.8;
+            let height = document.querySelector('body').clientHeight * 0.8;
+            let tbody_height = height - 270;
 
-    //         let html = `
-    //         <div class="product-content">
-    //             <div class="tree-show">
-    //                 <div class="autocomplete table-top">
-    //                     <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
-    //                     <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
-    //                             width="20px"></button>
-    //                 </div>
-    //                 <div class="tree-title">商品分类</div>
-    //                 <div class="tree-container">
-    //                     <ul id="tree">
-    //                     </ul>
-    //                 </div>
-    //             </div>
-    //             <div id="product-show">
-    //                 <div class="table-top">
-    //                     <div class="autocomplete product-search">
-    //                         <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
-    //                         <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
-    //                         <span id="product-name"></span><span id="product-id"></span>
-    //                     </div>
-    //                     <div class="table-tools">
-    //                     </div>
-    //                 </div>
+            let html = `
+            <div class="product-content">
+                <div class="tree-show">
+                    <div class="autocomplete table-top">
+                        <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
+                        <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png"
+                                width="20px"></button>
+                    </div>
+                    <div class="tree-title">商品分类</div>
+                    <div class="tree-container">
+                        <ul id="tree">
+                        </ul>
+                    </div>
+                </div>
+                <div id="product-show">
+                    <div class="table-top">
+                        <div class="autocomplete product-search">
+                            <input type="text" class="form-control search-input" id="search-input" placeholder="规格搜索">
+                            <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
+                            <span id="product-name"></span><span id="product-id"></span>
+                        </div>
+                        <div class="table-tools">
+                        </div>
+                    </div>
         
-    //                 <div class="table-container table-product">
-    //                     <table>
-    //                         <thead>
-    //                             <tr>
-    //                                 <th></th>
-    //                             </tr>
-    //                         </thead>
-    //                         <tbody>
-    //                         </tbody>
-    //                     </table>
-    //                     <div class="table-ctrl">
-    //                         <div class="tools-button"></div>
-    //                         <div class="table-button">
-    //                             <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
-    //                                     width="12px"></button>
-    //                             <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
-    //                                     width="12px"></button>
-    //                             <p class="seperator"></p>
-    //                             <span>第</span><input type="text" class="form-control" id="page-input" value="1">
-    //                             <span>页，共</span><span id="pages"></span><span>页</span>
-    //                             <p class="seperator"></p>
-    //                             <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
-    //                                     width="12px"></button>
-    //                             <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
-    //                                     width="12px"></button>
-    //                         </div>
+                    <div class="table-container table-product">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                        <div class="table-ctrl">
+                            <div class="tools-button"></div>
+                            <div class="table-button">
+                                <button class="page-button btn" id="first" title="首页"><img src="/assets/img/backward.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="pre" title="前一页"><img src="/assets/img/backward2.png"
+                                        width="12px"></button>
+                                <p class="seperator"></p>
+                                <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                                <span>页，共</span><span id="pages"></span><span>页</span>
+                                <p class="seperator"></p>
+                                <button class="page-button btn" id="aft" title="后一页"><img src="/assets/img/forward2.png"
+                                        width="12px"></button>
+                                <button class="page-button btn" id="last" title="尾页"><img src="/assets/img/forward.png"
+                                        width="12px"></button>
+                            </div>
         
-    //                         <div class="table-info">
-    //                             共 <span id="total-records"></span> 条记录
-    //                         </div>
+                            <div class="table-info">
+                                共 <span id="total-records"></span> 条记录
+                            </div>
         
-    //                     </div>
-    //                 </div>
-    //             </div>
-    //             <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
-    //                 <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
-    //             </div>
-    //         </div>`;
+                        </div>
+                    </div>
+                </div>
+                <div class="hide"><span id="context-menu"></span><span id="zhezhao"></span>
+                    <span id="context-add"></span><span id="context-edit"></span><span id="context-del"></span>
+                </div>
+            </div>`;
 
-    //         document.querySelector('.modal-body').innerHTML = html;
-    //         document.querySelector('.tree-container').style.height = (height - 240) + "px";
+            document.querySelector('.modal-body').innerHTML = html;
+            document.querySelector('.tree-container').style.height = (height - 240) + "px";
 
-    //         let tree_data = {
-    //             node_num: "",
-    //             leaf_click: (id, name) => {
+            let tree_data = {
+                node_num: "",
+                leaf_click: (id, name) => {
 
-    //                 document.querySelector('#product-name').textContent = name;
-    //                 document.querySelector('#product-id').textContent = id;
+                    document.querySelector('#product-name').textContent = name;
+                    document.querySelector('#product-id').textContent = id;
 
-    //                 let post_data = {
-    //                     cate: "现有库存",
-    //                     id: id,
-    //                     name: '',
-    //                     page: 1,
-    //                     done: '否',
-    //                 };
+                    let post_data = {
+                        cate: "现有库存",
+                        id: id,
+                        name: '',
+                        page: 1,
+                        done: '否',
+                    };
 
-    //                 Object.assign(tool_table.table_data().post_data, post_data);
+                    Object.assign(tool_table.table_data().post_data, post_data);
 
-    //                 tool_table.fetch_table(init_func);
-    //             }
-    //         }
+                    tool_table.fetch_table(init_func);
+                }
+            }
 
-    //         tool_tree.tree_init(tree_data);
-    //         tool_tree.fetch_tree();
+            tool_tree.tree_init(tree_data);
+            tool_tree.fetch_tree();
 
-    //         let input = document.querySelector('#auto_input');
+            let input = document.querySelector('#auto_input');
 
-    //         document.querySelector("#auto_search").addEventListener('click', () => {
-    //             tool_tree.tree_search(input.value);
-    //         });
+            document.querySelector("#auto_search").addEventListener('click', () => {
+                tool_tree.tree_search(input.value);
+            });
 
-    //         let row_num = Math.floor(tbody_height / 30);
-    //         build_product_table(row_num, init_func);
+            let row_num = Math.floor(tbody_height / 30);
+            build_product_table(row_num, init_func);
 
-    //         document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
-    //         document.querySelector('.modal-content').style.cssText = `height: 100%;`;
-    //     }
+            document.querySelector('.modal-dialog').style.cssText = `max-width: ${width}px; height: ${height}px;`;
+            document.querySelector('.modal-content').style.cssText = `height: 100%;`;
+        }
 
-    //     document.querySelector('.modal').style.display = "block";
-    // }
+        document.querySelector('.modal').style.display = "block";
+    }
 
     // 检查是否超过库存
     let check_ku = function (save) {
@@ -994,7 +994,7 @@ var service = function () {
         build_edit_form: build_edit_form,
         build_add_form: build_add_form,
         build_inout_form: build_inout_form,
-        // sales_products: sales_products,
+        sales_products: sales_products,
         check_ku: check_ku,
         chose_exit: chose_exit,
         build_product_table: build_product_table,

@@ -221,6 +221,7 @@ async fn main() -> std::io::Result<()> {
             .service(statistic::get_waitshen)
             
             .service(service::fetch_blank)
+            .service(service::fetch_nothing)
             .service(service::fetch_help)
             .service(service::serve_download)
             .service(service::start_date)
