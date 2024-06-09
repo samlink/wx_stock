@@ -130,7 +130,6 @@ pub async fn buyin_auto(
         } else if s.len() == 2 {
             s.push("");
         }
-        let cate_s = "".to_owned();
 
         let mut sql_fields = "".to_owned();
         for f in &fields {
@@ -144,8 +143,6 @@ pub async fn buyin_auto(
             s[2]
         );
 
-        let str_match = format!(" || '{}' ||", SPLITER);
-        sql_fields = sql_fields.trim_end_matches(&str_match).to_owned();
 
         let sql = if search.cate == "销售单据" {
             format!(
@@ -205,36 +202,43 @@ pub async fn fetch_product_buyin(
     if user.name != "" {
         let conn = db.get().await.unwrap();
 
+        let sql = r#"select split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格型号, p.文本字段2 状态, p.文本字段3 执行标准
+                    FROM products p
+                    JOIN tree ON p.商品id = tree.num
+                    where num = '3_111'
+                    group by node_name, 规格型号, 文本字段2, 文本字段3
+                    order by node_name"#.to_owned(); 
+
         let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2, 
                             COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,库位,products.文本字段6,
                             case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
                             COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
-        let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
-            {}
-            JOIN documents on 单号id = 单号
-            JOIN tree on tree.num = products.商品id
-            LEFT JOIN lu on lu.炉号 = products.文本字段10
-            LEFT JOIN length_weight() as foo
-            ON products.文本字段1 = foo.物料号
-            WHERE {} {} {} {} {} {} {} 
-            ORDER BY {} OFFSET {} LIMIT {}"#,
-            sql_fields,
-            post_data.sort,
-            lock_join_sql,
-            product_sql,
-            done,
-            area,
-            conditions,
-            now_sql,
-            filter_sql,
-            NOT_DEL_SQL,
-            post_data.sort,
-            skip,
-            post_data.rec
-        );
+        // let sql2 = format!(
+        //     r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
+        //     {}
+        //     JOIN documents on 单号id = 单号
+        //     JOIN tree on tree.num = products.商品id
+        //     LEFT JOIN lu on lu.炉号 = products.文本字段10
+        //     LEFT JOIN length_weight() as foo
+        //     ON products.文本字段1 = foo.物料号
+        //     WHERE {} {} {} {} {} {} {} 
+        //     ORDER BY {} OFFSET {} LIMIT {}"#,
+        //     sql_fields,
+        //     post_data.sort,
+        //     lock_join_sql,
+        //     product_sql,
+        //     done,
+        //     area,
+        //     conditions,
+        //     now_sql,
+        //     filter_sql,
+        //     NOT_DEL_SQL,
+        //     post_data.sort,
+        //     skip,
+        //     post_data.rec
+        // );
 
         // println!("{}\n", sql);
 
@@ -249,7 +253,7 @@ pub async fn fetch_product_buyin(
             let num: i64 = row.get("序号");
             product += &format!("{}{}", num, SPLITER);
 
-            product += &simple_string_from_base(row, &fields);
+            // product += &simple_string_from_base(row, &fields);
 
             let p_name: &str = row.get("node_name");
             product += &format!("{}{}", p_name, SPLITER);
@@ -268,12 +272,12 @@ pub async fn fetch_product_buyin(
         let sql2 = format!(
             r#"SELECT count(products.文本字段1) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
                 FROM products
-                {}
+                
                 JOIN documents on 单号id = 单号
                 LEFT JOIN length_weight() as foo
                 ON products.文本字段1 = foo.物料号
-                WHERE {} {} {} {} {} {}"#,
-            lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
+                WHERE {}"#,
+            NOT_DEL_SQL
         );
 
         let row = &conn.query_one(sql2.as_str(), &[]).await.unwrap();
