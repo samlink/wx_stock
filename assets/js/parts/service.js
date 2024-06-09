@@ -602,12 +602,11 @@ var service = function () {
             let tree_data = {
                 node_num: "",
                 leaf_click: (id, name) => {
-
                     document.querySelector('#product-name').textContent = name;
                     document.querySelector('#product-id').textContent = id;
 
                     let post_data = {
-                        cate: "正常销售",
+                        cate: name,   // 使用 cate 传送物料名
                         id: id,
                         name: '',
                         page: 1,
@@ -646,14 +645,14 @@ var service = function () {
             header_names: {
                 "名称": "split_part(node_name,' ',2)",
                 "材质": "split_part(node_name,' ',1)",
-                "规格": "products.规格型号",
-                "状态": "products.文本字段2",
-                "执行标准": "products.文本字段3",
+                "规格": "p.规格型号",
+                "状态": "p.文本字段2",
+                "执行标准": "p.文本字段3",
             },
             post_data: {
                 id: "",
                 name: '',
-                sort: "products.文本字段1 ASC",
+                sort: "node_name",
                 rec: row_num,
                 cate: '',
                 filter: '',
@@ -667,12 +666,12 @@ var service = function () {
         setTimeout(() => {
             let table = document.querySelector('.table-product');
             let th_header = [
-                { name: '序号', width: 3 },
-                { name: '名称', width: 4 },
-                { name: '材质', width: 6 },
-                { name: '规格', width: 6 },
-                { name: '状态', width: 6 },
-                { name: '执行标准', width: 6 }
+                {name: '序号', width: 3},
+                {name: '名称', width: 4},
+                {name: '材质', width: 6},
+                {name: '规格', width: 6},
+                {name: '状态', width: 6},
+                {name: '执行标准', width: 8}
             ];
 
             let header = build_table_header(table, th_header, [], "", "products");
@@ -682,15 +681,16 @@ var service = function () {
         }, 100);
 
         function table_row(tr) {
-            let rec = tr.split(',');
-            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='名称'>${rec[1]}</td><td class='材质'>${rec[0]}</td>`;
+            let row = `<tr><td>${tr.序号}</td><td hidden>${tr.序号}</td><td class='名称'>${tr.名称}</td>
+                <td class='材质'>${tr.材质}</td><td class='规格'>${tr.规格}</td><td class='状态'>${tr.状态}</td>
+                <td class='执行标准'>${tr.执行标准}</td></tr>`;
 
             return row;
         }
 
         document.querySelector('#serach-button').addEventListener('click', function () {
             let search = document.querySelector('#search-input').value;
-            Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
+            Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
             tool_table.fetch_table();
         });
     }
@@ -825,7 +825,7 @@ var service = function () {
                     });
 
                     let table = document.querySelector('.table-product');
-                    let header = build_table_header(table, [{ name: '序号', width: 3 }, { name: '名称', width: 4 }, { name: '材质', width: 6 }], table_fields, "", "products");
+                    let header = build_table_header(table, [{name: '序号', width: 3}, {name: '名称', width: 4}, {name: '材质', width: 6}], table_fields, "", "products");
                     table.querySelector('thead tr').innerHTML = header.th_row;
                     // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
 
@@ -878,7 +878,7 @@ var service = function () {
 
         function search_table() {
             let search = document.querySelector('#search-input').value;
-            Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
+            Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
 
             //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
             let table = document.querySelector('.table-product');

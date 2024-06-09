@@ -3,6 +3,7 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 ///获取单据显示字段
 #[post("/fetch_inout_fields")]
@@ -201,94 +202,66 @@ pub async fn fetch_product_buyin(
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let name = post_data.name.to_lowercase();
 
-        let sql = r#"select split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格型号, p.文本字段2 状态, p.文本字段3 执行标准
-                    FROM products p
-                    JOIN tree ON p.商品id = tree.num
-                    where num = '3_111'
-                    group by node_name, 规格型号, 文本字段2, 文本字段3
-                    order by node_name"#.to_owned(); 
+        let id_sql = if post_data.id != "" {
+            format!(" and num = '{}'", post_data.id)
+        } else {
+            "".to_owned()
+        };
 
-        let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
-                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2, 
-                            COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,库位,products.文本字段6,
-                            case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
-                            COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
-
-        // let sql2 = format!(
-        //     r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
-        //     {}
-        //     JOIN documents on 单号id = 单号
-        //     JOIN tree on tree.num = products.商品id
-        //     LEFT JOIN lu on lu.炉号 = products.文本字段10
-        //     LEFT JOIN length_weight() as foo
-        //     ON products.文本字段1 = foo.物料号
-        //     WHERE {} {} {} {} {} {} {} 
-        //     ORDER BY {} OFFSET {} LIMIT {}"#,
-        //     sql_fields,
-        //     post_data.sort,
-        //     lock_join_sql,
-        //     product_sql,
-        //     done,
-        //     area,
-        //     conditions,
-        //     now_sql,
-        //     filter_sql,
-        //     NOT_DEL_SQL,
-        //     post_data.sort,
-        //     skip,
-        //     post_data.rec
-        // );
-
-        // println!("{}\n", sql);
+        let sql = format!(
+            r#"select split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
+                    规格型号 规格, p.文本字段2 状态, p.文本字段3 执行标准,
+                    ROW_NUMBER () OVER (ORDER BY {}) as 序号
+                FROM products p
+                JOIN tree ON p.商品id = tree.num
+                where 规格型号 like '%{}%' {}
+                group by node_name, 规格型号, 文本字段2, 文本字段3
+                ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, name, id_sql, post_data.sort, skip, post_data.rec);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
         let mut products = Vec::new();
-        for row in rows {
-            let mut product = "".to_owned();
-            let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
-            product += &format!("{}{}", num, SPLITER);
-
-            let num: i64 = row.get("序号");
-            product += &format!("{}{}", num, SPLITER);
-
-            // product += &simple_string_from_base(row, &fields);
-
-            let p_name: &str = row.get("node_name");
-            product += &format!("{}{}", p_name, SPLITER);
-
-            let p_id: &str = row.get("商品id");
-            product += &format!("{}{}", p_id, SPLITER);
-
-            let zhi: &str = row.get("质保书");
-            product += &format!("{}{}", zhi, SPLITER);
-
-            products.push(product);
+        if rows.len() > 0 {
+            for row in rows {
+                let json = json!({
+                "序号": row.get::<&str, i64>("序号"),
+                "名称": row.get::<&str, &str>("名称"),
+                "材质": row.get::<&str, &str>("材质"),
+                "规格": row.get::<&str, &str>("规格"),
+                "状态": row.get::<&str, &str>("状态"),
+                "执行标准": row.get::<&str, &str>("执行标准")});
+                products.push(json);
+            }
+        } else {
+            let name: Vec<&str> = post_data.cate.split(' ').collect();
+            let json = json!({
+                "序号": 1,
+                "名称": name[1],
+                "材质": name[0],
+                "规格": "--",
+                "状态": "--",
+                "执行标准": "--"
+            });
+            products.push(json);
         }
 
-        // let products = build_string_from_base(rows, fields);
-
         let sql2 = format!(
-            r#"SELECT count(products.文本字段1) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
-                FROM products
-                
-                JOIN documents on 单号id = 单号
-                LEFT JOIN length_weight() as foo
-                ON products.文本字段1 = foo.物料号
-                WHERE {}"#,
-            NOT_DEL_SQL
-        );
+            r#"select count(*) 记录数 from
+                (SELECT node_name FROM products
+                JOIN tree ON 商品id = tree.num
+                where 规格型号 like '{}%' {}
+                group by node_name, 规格型号, 文本字段2, 文本字段3) foo
+                "#, name, id_sql);
 
         let row = &conn.query_one(sql2.as_str(), &[]).await.unwrap();
 
         let count: i64 = row.get("记录数");
-        let long: i64 = row.get("库存长度");
-        let w: f64 = row.get("库存重量");
-        let weight = format!("{:.0}", w);
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
-        HttpResponse::Ok().json((products, count, pages, long, weight))
+        HttpResponse::Ok().json((products, count, pages))
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -312,7 +285,7 @@ pub async fn fetch_one_product(
                             JOIN tree ON products.商品id = tree.num
                             JOIN documents on 单号id = 单号
                             WHERE products.{} = '{}' and documents.文本字段10 <> ''",
-                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER, 
+                          SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
                           f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER, f_map["物料号"], f_map["物料号"], product_id);
 
         let conn = db.get().await.unwrap();

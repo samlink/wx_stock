@@ -66,30 +66,30 @@ let page_buyin = function () {
                     })
                         .then(response => response.json())
                         .then(data => {
-                            let tr = "";
-                            data.forEach(obj => {
-                                tr += `<tr><td>${obj}</td></tr>`;
-                            });
+                                let tr = "";
+                                data.forEach(obj => {
+                                    tr += `<tr><td>${obj}</td></tr>`;
+                                });
 
-                            document.querySelector(".table-history tbody").innerHTML = tr;
-                            let trs = document.querySelectorAll(".table-history tbody tr");
-                            for (let tr of trs) {
-                                tr.addEventListener('click', function () {
-                                    let url;
-                                    let cate = tr.querySelector('td').textContent.split('　')[0];
-                                    if (cate.indexOf("出库") != -1) {
-                                        url = "/material_out/";
-                                    } else if (cate.indexOf("发货") != -1) {
-                                        url = "/transport/";
-                                    } else if (cate.indexOf("开票") != -1) {
-                                        url = "/kp/";
-                                    } else {
-                                        url = "/material_in/";
-                                    }
-                                    window.open(url + tr.querySelector('td').textContent.split('　')[1]);
-                                })
+                                document.querySelector(".table-history tbody").innerHTML = tr;
+                                let trs = document.querySelectorAll(".table-history tbody tr");
+                                for (let tr of trs) {
+                                    tr.addEventListener('click', function () {
+                                        let url;
+                                        let cate = tr.querySelector('td').textContent.split('　')[0];
+                                        if (cate.indexOf("出库") != -1) {
+                                            url = "/material_out/";
+                                        } else if (cate.indexOf("发货") != -1) {
+                                            url = "/transport/";
+                                        } else if (cate.indexOf("开票") != -1) {
+                                            url = "/kp/";
+                                        } else {
+                                            url = "/material_in/";
+                                        }
+                                        window.open(url + tr.querySelector('td').textContent.split('　')[1]);
+                                    })
+                                }
                             }
-                        }
                         );
                 } else {
                     let html = service.build_inout_form(content);
@@ -164,7 +164,7 @@ let page_buyin = function () {
         .then(response => response.json())
         .then(content => {
             show_names = [
-                { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
+                {name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1},
                 {
                     name: "名称",
                     width: 80,
@@ -175,7 +175,7 @@ let page_buyin = function () {
                     save: "id",      //对于 autocomplete 可选择保存 id 或是 value
                     default: ""
                 },
-                { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+                {name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
             ];
 
             for (let item of content) {
@@ -243,13 +243,13 @@ let page_buyin = function () {
                 type: "simple",
                 width: 230,
             },
-            {
-                n: 6,
-                cate: "执行标准",
-                auto_url: '/get_status_auto',
-                type: "simple",
-                width: 300,  //自定义宽度，默认与 auto input 宽度相同
-            }];
+                {
+                    n: 6,
+                    cate: "执行标准",
+                    auto_url: '/get_status_auto',
+                    type: "simple",
+                    width: 300,  //自定义宽度，默认与 auto input 宽度相同
+                }];
 
             if (dh_div.textContent == "新单据") {
                 edit_data = {
