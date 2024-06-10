@@ -7,25 +7,21 @@
             margin-left: 5px;
         }
     }
-
     .table-top {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin-left: 10px;
     }
-
     .table-documents {
         overflow-x: auto;
     }
-
     .table-edit {
         min-width: 200px;
         button {
             margin-left: 10px;
         }
     }
-
     .data-button {
         margin-left: 40px;
         margin-right: 20px;
@@ -35,34 +31,37 @@
             margin-left: 10px;
         }
     }
-
     #search-input,
     #search-input2 {
         width: 260px;
     }
-
     td:nth-child(2),
     th:nth-child(2) {
         border-left: none !important;
     }
-
     table th {
         padding: 0;
         //    color:lighten(#fd3995, 25%);
     }
-
     .has-border {
         border-left: 3px solid tomato;
     }
-
     .not-confirm {
         background-color: #faebd7;
         &:hover {
             background-color: #e4f4f8;
         }
     }
-
     #query-show {
         padding-top: 10px;
+    }
+    #del-button {
+        margin-right: 10px;
+        color: white;
+        border-color: #e65042;
+        background-color: #e95245;
+        &:hover {
+            background-color: #c9382b;
+        }
     }
 }

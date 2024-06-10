@@ -453,7 +453,9 @@ let page_sale = function () {
         }
 
         document.querySelector('#sum-money').innerHTML = `数量：${sum_n}，  理论重量：${sum_weight.toFixed(1)} kg，  实际重量：${sum_weight_s.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
-        document.querySelector('#应结金额').value = sum.toFixed(2);
+        if (document.querySelector('#应结金额')) {
+            document.querySelector('#应结金额').value = sum.toFixed(2);
+        }
     }
 
     // 销售时使用的理论重量计算
@@ -611,7 +613,7 @@ let page_sale = function () {
         }
 
         for (let row of all_rows) {
-            if (row.querySelector('td:nth-child(2) input').value != "") {
+            if (row.querySelector('.名称').value != "") {
                 let mount = row.querySelector('.mount');
                 if (row.querySelector('.price').value && !regReal.test(row.querySelector('.price').value)) {
                     notifier.show(`单价输入错误`, 'danger');
@@ -625,7 +627,15 @@ let page_sale = function () {
                     return false;
                 } else if (!mount.value) {
                     mount.value = 0;
-                }               
+                }
+
+                let weight = row.querySelector('.weight');
+                if (weight.value && !regReal.test(weight.value)) {
+                    notifier.show(`重量输入错误`, 'danger');
+                    return false;
+                } else if (!weight.value) {
+                    weight.value = 0;
+                }
             }
         }
 

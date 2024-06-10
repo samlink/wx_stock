@@ -318,7 +318,7 @@ pub async fn get_status_auto(
                         join documents on 单号id = 单号
                         where lower(products.{}) like '%{}%' and documents.文本字段10 <> ''
                         order by products.{} limit 10",
-                        f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
+                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -467,40 +467,19 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 金额, 物料号, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
-                    dh,
-                    value[0],
-                    value[1],
-                    value[2],
-                    value[3],
-                    value[4],
-                    value[5],
-                    value[6],
-                    value[7],
-                    value[8],
-                    value[9],
-                    value[10],
-                    value[11],
-                    value[12],
-                    n
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度,
+                        数量, 理重, 重量, 金额, 物料号, 备注, 顺序)
+                       VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6],
+                    value[7], value[8], value[9], value[10], value[11], value[12], n
                 )
             } else {
                 format!(
                     r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
                         重量, 金额, 备注, 顺序)
                         VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', {})"#,
-                    dh,
-                    value[0],
-                    value[1],
-                    value[2],
-                    value[3],
-                    value[4],
-                    value[5],
-                    value[6],
-                    value[7],
-                    value[8],
-                    n
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5],
+                    value[6], value[7], value[8], n
                 )
             };
             // println!("{}", items_sql);

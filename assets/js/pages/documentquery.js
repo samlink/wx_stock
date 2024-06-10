@@ -111,11 +111,6 @@ let page_documentquery = function () {
         return service.build_row_from_string(rec, row, table_fields, 4);
     }
 
-    // function blank_row() {
-    //     let row = "<tr><td></td><td></td><td></td><td></td><td></td><td></td>";     //与上面的 table_row() 中的 row 变量保持一致
-    //     return service.build_blank_from_fields(row, table_fields);
-    // }
-
     document.querySelector('#serach-button').addEventListener('click', function () {
         search_table();
     });
@@ -178,6 +173,46 @@ let page_documentquery = function () {
                 alert_confirm(`单据 ${dh} 删除后无法恢复，确认删除吗？`, {
                     confirmCallBack: () => {
                         fetch(`/documents_del`, {
+                            method: 'post',
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify(del),
+                        })
+                            .then(response => response.json())
+                            .then(content => {
+                                if (content != -1) {
+                                    search_table();
+                                } else {
+                                    notifier.show('权限不够，操作失败', 'danger');
+                                }
+                            });
+                    }
+                });
+            } else {
+                notifier.show('请先选择单据', 'danger');
+            }
+        });
+    }
+
+    //作废单据
+    let fei_btn = document.querySelector('#fei-button');
+    if (fei_btn) {
+        fei_btn.addEventListener('click', function () {
+            let chosed = document.querySelector('tbody .focus');
+            let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
+            let base = document.querySelector('#base').textContent;
+
+            let del = {
+                id: dh,
+                rights: "作废单据",
+                base: base,
+            }
+
+            if (dh != "") {
+                alert_confirm(`单据 ${dh} 确认作废吗？`, {
+                    confirmCallBack: () => {
+                        fetch(`/documents_fei`, {
                             method: 'post',
                             headers: {
                                 "Content-Type": "application/json",
