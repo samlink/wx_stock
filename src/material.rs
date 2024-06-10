@@ -211,9 +211,10 @@ pub async fn materialsale_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and
-            单号 not in (select 文本字段6 from documents where documents.类别='销售出库' and 文本字段10 = '')
+            单号 not in (select 文本字段6 from documents where 类别='销售出库' and 文本字段10 = '' {})
+            {}
             order by 单号 desc"#,
-            f_map3["简称"], search, f_map["审核"], f_map["出库完成"],
+            f_map3["简称"], search, f_map["审核"], f_map["出库完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}",sql);
@@ -238,18 +239,19 @@ pub async fn materialsale_saved_docs(
         let f_map3 = map_fields(db.clone(), "客户").await;
 
         let sql = &format!(
-            r#"SELECT 出库单号 as id, 单号 || '　' || customers.{} || '　' || 出库单.经办人 AS label FROM documents
+            r#"SELECT 出库单号 as id, 单号 || '　' || customers.{} || '　' || 出库单.经办人 AS label
+            FROM documents
             join customers on 客商id = customers.id
             join 
             (select 单号 出库单号, 文本字段6, 经办人 from documents where documents.类别='销售出库' and 
-            布尔字段3 = false and 文本字段10 = '') as 出库单
+            布尔字段3 = false and 文本字段10 = '' {}) as 出库单
             on 出库单.文本字段6 = documents.单号
-            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false
+            WHERE documents.类别='{}' AND documents.{} <> '' AND documents.{} = false {}
             order by 单号 desc"#,
-            f_map3["简称"], search, f_map["审核"], f_map["出库完成"],
+            f_map3["简称"], NOT_DEL_SQL, search, f_map["审核"], f_map["出库完成"], NOT_DEL_SQL
         );
 
-        // println!("{}",sql);
+        println!("{}",sql);
 
         autocomplete(db, sql).await
     } else {

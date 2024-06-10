@@ -456,7 +456,7 @@ pub async fn save_document(
                 )
             } else {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
+                    r#"INSERT INTO document_buy (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
                         重量, 金额, 备注, 顺序)
                         VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', {})"#,
                     dh, value[0], value[1], value[2], value[3], value[4], value[5],

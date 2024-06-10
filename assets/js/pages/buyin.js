@@ -54,7 +54,7 @@ let page_buyin = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
-                            service.fei_readonly(values[len - 6],"buy-content");
+                            service.fei_readonly(values[len - 6], "buy-content");
                         });
 
                     //同时获取相关单据信息
@@ -322,10 +322,10 @@ let page_buyin = function () {
         let price = input_row.querySelector('.price').value;
         let mount = input_row.querySelector('.mount').value;
 
-        if (!mount) {
-            mount = input_row.querySelector('.mount').textContent;
-        }
-        let money = "";
+        price = price.trim() == "" ? 0 : price;
+        mount = mount.trim() == "" ? 0 : mount;
+
+        let money = "0";
         if (price && regReal.test(price) && mount && regReal.test(mount)) {
             money = (price * mount).toFixed(2);
         }
