@@ -154,14 +154,7 @@ pub async fn buyin_auto(
                 JOIN tree ON p.商品id = tree.num
                 LEFT JOIN length_weight() foo ON p.文本字段1 = foo.物料号
                 WHERE p.文本字段1 like '%{}%' and 库存状态='' and 库存长度 > 10 limit 10"#,
-                SPLITER,
-                SPLITER,
-                SPLITER,
-                SPLITER,
-                SPLITER,
-                SPLITER,
-                SPLITER,
-                s[0].to_uppercase(),
+                SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, s[0].to_uppercase(),
             )
         } else {
             format!(
@@ -173,14 +166,8 @@ pub async fn buyin_auto(
                 ON products.文本字段1 = foo.物料号
                 WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
             "#,
-                SPLITER,
-                SPLITER,
-                f_map["规格"],
-                SPLITER,
-                f_map["状态"],
-                s[0].to_uppercase(),
-                s[0].to_uppercase(),
-                sql_where
+                SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"],
+                s[0].to_uppercase(), s[0].to_uppercase(), sql_where
             )
         };
 
@@ -440,13 +427,7 @@ pub async fn save_document(
             doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
             doc_sql += &format!(
                 "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-                doc_data[2],
-                doc_data[0],
-                f_map["经办人"],
-                doc_data[3],
-                f_map["区域"],
-                user.area,
-                dh
+                doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
             );
         }
 
@@ -736,31 +717,9 @@ pub async fn fetch_trans_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                lu,
-                SPLITER,
-                long,
-                SPLITER,
-                num,
-                SPLITER,
-                theory,
-                SPLITER,
-                weight,
-                SPLITER,
-                price,
-                SPLITER,
-                money,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id,
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long, SPLITER,
+                num, SPLITER, theory, SPLITER, weight, SPLITER, price, SPLITER, money, SPLITER,
+                note, SPLITER, m_id,
             );
 
             document_items.push(item)
@@ -817,35 +776,9 @@ pub async fn fetch_document_items_sales(
             let wu: String = row.get("物料号");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                stand,
-                SPLITER,
-                ty,
-                SPLITER,
-                price,
-                SPLITER,
-                long,
-                SPLITER,
-                num,
-                SPLITER,
-                theary,
-                SPLITER,
-                weight,
-                SPLITER,
-                money,
-                SPLITER,
-                wu,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id,
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER,
+                ty, SPLITER, price, SPLITER, long, SPLITER, num, SPLITER, theary, SPLITER,
+                weight, SPLITER, money, SPLITER, wu, SPLITER, note, SPLITER, m_id,
             );
 
             document_items.push(item)
@@ -1068,18 +1001,8 @@ pub async fn save_stransport(
             let items_sql = format!(
                 r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 备注, 顺序)
                      VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                dh,
-                value[10],
-                value[1],
-                value[2],
-                value[3],
-                value[4],
-                value[5],
-                value[6],
-                value[7],
-                value[8],
-                value[9],
-                value[0]
+                dh, value[10], value[1], value[2], value[3], value[4], value[5], value[6],
+                value[7], value[8], value[9], value[0]
             );
 
             // 发货完成
@@ -1121,13 +1044,8 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
             单号 not in (select 文本字段6 from documents where documents.类别='销售开票') 
             AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室'
             order by 单号 desc"#,
-            f_map2["简称"],
-            SPLITER,
-            f_map["合同编号"],
-            f_map["客户PO"],
-            f_map["单据金额"],
-            f_map["是否欠款"],
-            f_map["发货完成"],
+            f_map2["简称"], SPLITER, f_map["合同编号"], f_map["客户PO"], f_map["单据金额"],
+            f_map["是否欠款"], f_map["发货完成"],
         );
 
         // println!("{}",sql);
@@ -1157,14 +1075,8 @@ pub async fn fetch_sale_saved_docs(db: web::Data<Pool>, id: Identity) -> HttpRes
             单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true) 
             AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室'
             order by 单号 desc"#,
-            f_map2["简称"],
-            SPLITER,
-            f_map["合同编号"],
-            f_map["客户PO"],
-            f_map["单据金额"],
-            // user.name,
-            f_map["是否欠款"],
-            f_map["发货完成"],
+            f_map2["简称"], SPLITER, f_map["合同编号"], f_map["客户PO"], f_map["单据金额"],
+            f_map["是否欠款"], f_map["发货完成"],
         );
 
         // println!("{}",sql);
@@ -1299,19 +1211,8 @@ pub async fn fetch_kp_items(
 
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                gg,
-                SPLITER,
-                num,
-                SPLITER,
-                price,
-                SPLITER,
-                money,
-                SPLITER,
-                tax,
-                SPLITER,
-                tt
+                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money, SPLITER, tax,
+                SPLITER, tt
             );
 
             document_items.push(item)
@@ -1358,19 +1259,8 @@ pub async fn fetch_fh_items(
             let tt = format!("{:.2}", m - m / 1.13);
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                gg,
-                SPLITER,
-                num,
-                SPLITER,
-                price,
-                SPLITER,
-                money,
-                SPLITER,
-                tax,
-                SPLITER,
-                tt
+                name, SPLITER, gg, SPLITER, num, SPLITER, price, SPLITER, money, SPLITER,
+                tax, SPLITER, tt
             );
 
             document_items.push(item)

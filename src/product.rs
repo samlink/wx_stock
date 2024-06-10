@@ -850,10 +850,12 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         let conn = db.get().await.unwrap();
 
         let sql = format!("
-            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号, p.文本字段5 生产厂家, COALESCE(切分次数,0)::text 切分,
-                COALESCE(库存长度,0)::text 库存长度, COALESCE(理论重量,0)::text 库存重量, p.整数字段1::text 入库长度, 单号id 入库单号, d.日期 入库日期, d.类别 入库方式,
-                case when 单号id like 'TR%' then d.文本字段1 else '' end 原因, p.库位,
-                case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态, p.文本字段6 区域, p.备注
+            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号,
+                p.文本字段5 生产厂家, COALESCE(切分次数,0)::text 切分, COALESCE(库存长度,0)::text 库存长度,
+                COALESCE(理论重量,0)::text 库存重量, p.整数字段1::text 入库长度, p.文本字段8 外径壁厚, 单号id 入库单号,
+                d.日期 入库日期, d.类别 入库方式, case when 单号id like 'TR%' then d.文本字段1 else '' end 原因,
+                p.库位, case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存类别,
+                p.文本字段6 区域, p.备注
             FROM products p
             JOIN tree ON p.商品id = tree.num
             JOIN documents d ON d.单号 = p.单号id
@@ -864,44 +866,26 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         // println!("{}", sql);
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
-        let wu: &str = row.get("物料号");
-        let gg: &str = row.get("规格");
-        let zt: &str = row.get("状态");
-        let bz: &str = row.get("执行标准");
-        let lh: &str = row.get("炉号");
-        let sc: &str = row.get("生产厂家");
-        let qf: &str = row.get("切分");
-        let kc: &str = row.get("库存长度");
-        let zl: &str = row.get("库存重量");
-        let cd: &str = row.get("入库长度");
-        let dh: &str = row.get("入库单号");
-        let rq: &str = row.get("入库日期");
-        let fs: &str = row.get("入库方式");
-        let yy: &str = row.get("原因");
-        let kw: &str = row.get("库位");
-        let lb: &str = row.get("库存状态");
-        let qy: &str = row.get("区域");
-        let note: &str = row.get("备注");
-
         let wu_num = json!({
-                "物料号": wu,
-                "规格": gg,
-                "状态": zt,
-                "执行标准": bz,
-                "炉号": lh,
-                "生产厂家": sc,
-                "切分": qf,
-                "库存长度": kc,
-                "库存重量": zl,
-                "入库长度": cd,
-                "入库单号": dh,
-                "入库日期": rq,
-                "入库方式": fs,
-                "原因": yy,
-                "库位": kw,
-                "库存类别": lb,
-                "区域": qy,
-                "备注": note
+                "物料号": row.get::<&str, &str>("物料号"),
+                "规格": row.get::<&str, &str>("规格"),
+                "状态": row.get::<&str, &str>("状态"),
+                "执行标准": row.get::<&str, &str>("执行标准"),
+                "炉号": row.get::<&str, &str>("炉号"),
+                "生产厂家": row.get::<&str, &str>("生产厂家"),
+                "切分": row.get::<&str, &str>("切分"),
+                "库存长度": row.get::<&str, &str>("库存长度"),
+                "库存重量": row.get::<&str, &str>("库存重量"),
+                "入库长度": row.get::<&str, &str>("入库长度"),
+                "外径壁厚": row.get::<&str, &str>("外径壁厚"),
+                "入库单号": row.get::<&str, &str>("入库单号"),
+                "入库日期": row.get::<&str, &str>("入库日期"),
+                "入库方式": row.get::<&str, &str>("入库方式"),
+                "原因": row.get::<&str, &str>("原因"),
+                "库位": row.get::<&str, &str>("库位"),
+                "库存类别": row.get::<&str, &str>("库存类别"),
+                "区域": row.get::<&str, &str>("区域"),
+                "备注": row.get::<&str, &str>("备注"),
         });
 
         HttpResponse::Ok().json(wu_num)

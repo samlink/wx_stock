@@ -553,7 +553,7 @@ let page_productset = function () {
                 .then(response => response.json())
                 .then(content => {
                     let fields = ["物料号", "规格", "状态", "执行标准", "炉号", "生产厂家", "切分", "库存长度", "库存重量",
-                        "入库长度", "入库单号", "入库日期", "入库方式", "原因", "库位", "库存类别", "区域", "备注"];
+                        "入库长度", "外径壁厚", "入库单号", "入库日期", "入库方式", "原因", "库位", "库存类别", "区域", "备注"];
 
                     let form = "<form>";
                     for (let name of fields) {
@@ -638,6 +638,7 @@ let page_productset = function () {
                 for (let name of fields) {
                     let control;
                     let dis = !name.is_use ? "disabled" : "";
+
                     if (name.ctr_type == "普通输入") {
                         let value = chosed.querySelector(`.${name.show_name}`).textContent;
                         control = `<div class="form-group">
