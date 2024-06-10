@@ -210,7 +210,6 @@ pub async fn fetch_product_buyin(
         } else {
             "".to_owned()
         };
-
         let sql = format!(
             r#"select num id, split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
                     规格型号 规格, p.文本字段2 状态, p.文本字段3 执行标准,
@@ -488,8 +487,9 @@ pub async fn save_document(
                 )
             } else {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度, 重量, 备注, 顺序) 
-                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, '{}', {})"#,
+                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
+                        重量, 金额, 备注, 顺序)
+                        VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', {})"#,
                     dh,
                     value[0],
                     value[1],
@@ -499,6 +499,7 @@ pub async fn save_document(
                     value[5],
                     value[6],
                     value[7],
+                    value[8],
                     n
                 )
             };

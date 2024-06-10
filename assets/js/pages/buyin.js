@@ -56,7 +56,7 @@ let page_buyin = function () {
                             service.set_shens_owner(set_data);
                         });
 
-                    //同时获取相关单据信息, 加载表头内容时
+                    //同时获取相关单据信息
                     fetch(`/fetch_other_documents`, {
                         method: 'post',
                         headers: {
@@ -351,6 +351,9 @@ let page_buyin = function () {
             }
         }
 
+        if (document.querySelector('#应结金额')) {
+            document.querySelector('#应结金额').value = sum.toFixed(Number(2));
+        }
         document.querySelector('#sum-money').innerHTML = `重量：${sum_weight.toFixed(1)} kg， 金额合计：${sum.toFixed(2)} 元`;
     }
 
