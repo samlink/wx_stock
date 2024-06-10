@@ -332,6 +332,8 @@ pub async fn documents_fei(db: web::Data<Pool>, fei: web::Json<Del>, id: Identit
         let sql = format!(r#"UPDATE documents set 作废 = {} WHERE 单号='{}'"#, action, fei.id);
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
+        // todo:: 对于自动入库完成和出库完成的单据需重新计算判断
+
         HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)

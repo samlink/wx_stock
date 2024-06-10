@@ -45,6 +45,8 @@ let page_stockout = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
+                            let da = data.split(SPLITER);
+                            service.fei_readonly(da[da.length - 6], "buy-content");
                         });
                 } else {
                     let html = service.build_inout_form(content);

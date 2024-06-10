@@ -442,7 +442,7 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} documents.{} as 审核, 经办人, customers.id, documents.{} as 图片, documents.{} as 提交审核 FROM documents
+            r#"{} 作废, documents.{} as 审核, 经办人, customers.id, documents.{} as 图片, documents.{} as 提交审核 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["审核"], f_map["图片"], f_map["提交审核"], data.dh
         );
@@ -457,9 +457,12 @@ pub async fn fetch_document_ck(
             let rem: String = row.get("审核");
             let pic: String = row.get("图片");
             let worker: String = row.get("经办人");
+            let fei: bool = row.get("作废");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields),
+                SPLITER,
+                fei,
                 SPLITER,
                 sumit_shen,
                 SPLITER,
@@ -1003,7 +1006,7 @@ pub async fn fetch_document_rkd(
         }
 
         let sql = format!(
-            r#"{} documents.{} as 图片, documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人
+            r#"{} 作废, documents.{} as 图片, documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人
             FROM documents
             JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["图片"], f_map["提交审核"], f_map["审核"], data.dh
@@ -1020,9 +1023,12 @@ pub async fn fetch_document_rkd(
             let rem: &str = row.get("审核");
             let worker: &str = row.get("经办人");
             let pic: &str = row.get("图片");
+            let fei: bool = row.get("作废");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields),
+                SPLITER,
+                fei,
                 SPLITER,
                 pic,
                 SPLITER,

@@ -44,7 +44,9 @@ let page_stockin = function () {
                                     }, 200);
                                 }
                             }
+                            let da = data.split(SPLITER);
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(da[da.length - 6], "buy-content");
                         });
                 } else {
                     let html = service.build_inout_form(content);
@@ -113,7 +115,7 @@ let page_stockin = function () {
     //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
     show_names = [
-        { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
+        {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
         {
             name: "原物料号",
             width: 60,
@@ -133,8 +135,8 @@ let page_stockin = function () {
             is_save: false,
             default: ""
         },
-        { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-        { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
+        {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
+        {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
         {
             name: "状态",
             width: 80,
@@ -155,7 +157,7 @@ let page_stockin = function () {
             // no_button: true,
             default: ""
         },
-        { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
+        {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
         {
             name: "生产厂家",
             width: 80,
@@ -176,9 +178,9 @@ let page_stockin = function () {
             no_button: true,
             default: ""
         },
-        { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-        { name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
+        {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+        {name: "理论重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
         {
             name: "备注",
             width: 100,
@@ -205,15 +207,15 @@ let page_stockin = function () {
     table_lines = Math.floor((document.querySelector('body').clientHeight - 395) / 33);
 
     let show_th = [
-        { name: "物料号", width: 60 },
-        { name: "名称", width: 60 },
-        { name: "材质", width: 80 },
-        { name: "规格", width: 80 },
-        { name: "状态", width: 100 },
-        { name: "执行标准", width: 100 },
-        { name: "炉号", width: 100 },
-        { name: "生产厂家", width: 100 },
-        { name: "库存长度", width: 80 },
+        {name: "物料号", width: 60},
+        {name: "名称", width: 60},
+        {name: "材质", width: 80},
+        {name: "规格", width: 80},
+        {name: "状态", width: 100},
+        {name: "执行标准", width: 100},
+        {name: "炉号", width: 100},
+        {name: "生产厂家", width: 100},
+        {name: "库存长度", width: 80},
     ];
 
     let auto_data = [{

@@ -52,6 +52,7 @@ let page_kp = function () {
                                 focus_fun: () => { }
                             }
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(values[len-6],"buy-content");
 
                             let dh = document.querySelector('#文本字段6').value;
                             fetch_others(dh);

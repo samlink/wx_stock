@@ -65,6 +65,7 @@ let page_material = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(da[da.length - 7], "buy-content");
                         });
                 } else {
                     let html = service.build_inout_form(content);
@@ -268,12 +269,12 @@ let page_material = function () {
     //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
     show_names = [
-        { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
-        { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
-        { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: "" },
+        {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false, default: ""},
+        {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
+        {name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: true, default: ""},
         {
             name: "执行标准",
             width: 120,
@@ -283,11 +284,11 @@ let page_material = function () {
             is_save: true,
             default: ""
         },
-        { name: "生产厂家", width: 70, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: "" },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-        { name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: "" },
-        { name: "外径壁厚", width: 30, class: "外径", type: "普通输入", editable: true, is_save: true, default: "" },
+        {name: "生产厂家", width: 70, class: "生产厂家", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "物料号", width: 60, class: "物料号", type: "普通输入", editable: true, is_save: true, default: ""},
+        {name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: ""},
+        {name: "重量", width: 30, class: "重量", type: "普通输入", editable: false, is_save: true, default: ""},
+        {name: "外径壁厚", width: 30, class: "外径", type: "普通输入", editable: true, is_save: true, default: ""},
         {
             name: "库存类别",
             width: 50,

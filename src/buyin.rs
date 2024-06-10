@@ -608,7 +608,7 @@ pub async fn fetch_document_fh(
         }
 
         let sql = format!(
-            r#"{} documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人, documents.{} 图片
+            r#"{} 作废, documents.{} as 提交审核, 客商id, 名称, documents.{} as 审核, 经办人, documents.{} 图片
             FROM documents
             JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["提交审核"], f_map["审核"], f_map["图片"], data.dh
@@ -625,21 +625,12 @@ pub async fn fetch_document_fh(
             let rem: &str = row.get("审核");
             let pic: &str = row.get("图片");
             let worker: &str = row.get("经办人");
+            let fei: bool = row.get("作废");
             document += &format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 simple_string_from_base(row, &fields),
-                SPLITER,
-                pic,
-                SPLITER,
-                sumit_shen,
-                SPLITER,
-                id,
-                SPLITER,
-                name,
-                SPLITER,
-                rem,
-                SPLITER,
-                worker
+                SPLITER, fei, SPLITER, pic, SPLITER, sumit_shen, SPLITER, id, SPLITER, name,
+                SPLITER, rem, SPLITER, worker
             );
         }
 
@@ -690,27 +681,8 @@ pub async fn fetch_document_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name,
-                SPLITER,
-                cz,
-                SPLITER,
-                gg,
-                SPLITER,
-                status,
-                SPLITER,
-                stand,
-                SPLITER,
-                price,
-                SPLITER,
-                long,
-                SPLITER,
-                weight,
-                SPLITER,
-                money,
-                SPLITER,
-                note,
-                SPLITER,
-                m_id,
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER, price,
+                SPLITER, long, SPLITER, weight, SPLITER, money, SPLITER, note, SPLITER, m_id,
             );
 
             document_items.push(item)

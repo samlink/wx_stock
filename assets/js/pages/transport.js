@@ -56,6 +56,7 @@ let page_transport = function () {
                             if (pic.startsWith("/upload")) {
                                 document.querySelector('#upload-pic').setAttribute('src', `${pic}?${Math.random()}`);
                             }
+                            service.fei_readonly(da[da.length - 7], "buy-content");
                         });
                 } else {
                     let html = service.build_inout_form(content);

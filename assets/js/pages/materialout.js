@@ -59,6 +59,7 @@ let page_materialout = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(da[da.length - 6], "buy-content");
                         });
                 } else {
                     let html = service.build_inout_form(content);
