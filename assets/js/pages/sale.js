@@ -59,6 +59,7 @@ let page_sale = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(values[len - 6],"buy-content");
                         });
 
                     //同时获取相关单据信息, 加载表头内容时
@@ -71,30 +72,30 @@ let page_sale = function () {
                     })
                         .then(response => response.json())
                         .then(data => {
-                            let tr = "";
-                            data.forEach(obj => {
-                                tr += `<tr><td>${obj}</td></tr>`;
-                            });
+                                let tr = "";
+                                data.forEach(obj => {
+                                    tr += `<tr><td>${obj}</td></tr>`;
+                                });
 
-                            document.querySelector(".table-history tbody").innerHTML = tr;
-                            let trs = document.querySelectorAll(".table-history tbody tr");
-                            for (let tr of trs) {
-                                tr.addEventListener('click', function () {
-                                    let url;
-                                    let cate = tr.querySelector('td').textContent.split('　')[0];
-                                    if (cate.indexOf("出库") != -1) {
-                                        url = "/material_out/";
-                                    } else if (cate.indexOf("发货") != -1) {
-                                        url = "/transport/";
-                                    } else if (cate.indexOf("开票") != -1) {
-                                        url = "/kp/";
-                                    } else {
-                                        url = "/material_in/";
-                                    }
-                                    window.open(url + tr.querySelector('td').textContent.split('　')[1]);
-                                })
+                                document.querySelector(".table-history tbody").innerHTML = tr;
+                                let trs = document.querySelectorAll(".table-history tbody tr");
+                                for (let tr of trs) {
+                                    tr.addEventListener('click', function () {
+                                        let url;
+                                        let cate = tr.querySelector('td').textContent.split('　')[0];
+                                        if (cate.indexOf("出库") != -1) {
+                                            url = "/material_out/";
+                                        } else if (cate.indexOf("发货") != -1) {
+                                            url = "/transport/";
+                                        } else if (cate.indexOf("开票") != -1) {
+                                            url = "/kp/";
+                                        } else {
+                                            url = "/material_in/";
+                                        }
+                                        window.open(url + tr.querySelector('td').textContent.split('　')[1]);
+                                    })
+                                }
                             }
-                        }
                         );
                 } else {
                     let html = service.build_inout_form(content);
@@ -160,7 +161,7 @@ let page_sale = function () {
         tool_customer.customer_init();
     }
 
-    //构建商品规格表字段 --------------------------
+    //构建商品规格表字段 参数与上面同样的 url 不同--------------------------
     fetch(`/fetch_inout_fields`, {
         method: 'post',
         headers: {
@@ -171,7 +172,7 @@ let page_sale = function () {
         .then(response => response.json())
         .then(content => {
             show_names = [
-                { name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1 },
+                {name: "序号", width: 40, class: "序号", type: "普通输入", editable: false, is_save: false, default: 1},
                 {
                     name: "名称",
                     width: 80,
@@ -183,7 +184,7 @@ let page_sale = function () {
                     default: "",
                     no_button: true
                 },
-                { name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
+                {name: "材质", width: 100, class: "材质", type: "普通输入", editable: false, is_save: false, default: ""},
             ];
 
             for (let item of content) {
@@ -255,14 +256,14 @@ let page_sale = function () {
             });
 
             let show_th = [
-                { name: "名称", width: 60 },
-                { name: "材质", width: 80 },
-                { name: "规格", width: 80 },
-                { name: "状态", width: 100 },
-                { name: "执行标准", width: 100 },
-                { name: "库存长度", width: 80 },
-                { name: "库存重量", width: 80 },
-                { name: "物料号", width: 60 },
+                {name: "名称", width: 60},
+                {name: "材质", width: 80},
+                {name: "规格", width: 80},
+                {name: "状态", width: 100},
+                {name: "执行标准", width: 100},
+                {name: "库存长度", width: 80},
+                {name: "库存重量", width: 80},
+                {name: "物料号", width: 60},
             ];
 
             auto_data = [{

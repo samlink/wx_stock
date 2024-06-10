@@ -54,6 +54,7 @@ let page_buyin = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
+                            service.fei_readonly(values[len - 6],"buy-content");
                         });
 
                     //同时获取相关单据信息

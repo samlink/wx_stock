@@ -6,7 +6,7 @@ let page_documentquery = function () {
     let row_num = Math.floor(get_height / 30);
 
     let document_cate;
-    let sort="开单时间 DESC";
+    let sort = "开单时间 DESC";
 
     if (cate == "采购查询") {
         document_cate = "采购单据";
@@ -57,18 +57,18 @@ let page_documentquery = function () {
             if (content != -1) {
                 table_fields = content;
                 let custom_fields = [
-                    { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
-                    { name: '单号', field: '单号', width: 7 },
-                    { name: '类别', field: 'documents.类别', width: 4 },
-                    { name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10 },
+                    {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
+                    {name: '单号', field: '单号', width: 7},
+                    {name: '类别', field: 'documents.类别', width: 4},
+                    {name: cate == '销售查询' ? '客户' : '供应商', field: 'customers.名称', width: 10},
                 ];
 
                 // 对于出入库的表格, 不需要供应商列, 要去除
                 if (cate.indexOf("销售") == -1 && cate.indexOf("采购") == -1) {
                     custom_fields = [
-                        { name: '序号', field: '-', width: 2 },  //field 是用于排序的字段
-                        { name: '单号', field: '单号', width: 7 },
-                        { name: '类别', field: 'documents.类别', width: 4 },
+                        {name: '序号', field: '-', width: 2},  //field 是用于排序的字段
+                        {name: '单号', field: '单号', width: 7},
+                        {name: '类别', field: 'documents.类别', width: 4},
                     ];
                 }
 
@@ -79,7 +79,7 @@ let page_documentquery = function () {
                 init_data.header_names = data.header_names;
 
                 tool_table.table_init(init_data);
-                tool_table.fetch_table();
+                tool_table.fetch_table(fei_restore);
             }
         });
 
@@ -96,8 +96,12 @@ let page_documentquery = function () {
             bk_color = "not-confirm";
         }
 
+        if (rec[4] == "true") {
+            bk_color = "void";
+        }
+
         let row = `<tr class='${border_left} ${bk_color}'><td style="text-align: center;">${rec[0]}</td>
-        <td title='${rec[1]}'>${rec[1]}</td>
+        <td>${rec[1]}</td>
         <td style="text-align: center;">${rec[2]}</td>
         <td style="text-align: center;">${rec[3]}</td>`;
 
@@ -108,7 +112,7 @@ let page_documentquery = function () {
         <td style="text-align: center;">${rec[2]}</td>`;
         }
 
-        return service.build_row_from_string(rec, row, table_fields, 4);
+        return service.build_row_from_string(rec, row, table_fields, 5);
     }
 
     document.querySelector('#serach-button').addEventListener('click', function () {
@@ -117,8 +121,25 @@ let page_documentquery = function () {
 
     function search_table() {
         let search = document.querySelector('#search-input').value;
-        Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
-        tool_table.fetch_table();
+        Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
+        tool_table.fetch_table(fei_restore);
+    }
+
+    // 作废按钮变换
+    function fei_restore() {
+        let trs = document.querySelectorAll('tbody tr');
+        let fei_button = document.querySelector('#fei-button');
+        for (let i = 0; i < trs.length; i++) {
+            trs[i].addEventListener('click', function () {
+                if (this.classList.contains('void')) {
+                    fei_button.textContent = '恢复单据';
+                    fei_button.style.background = 'green';
+                } else {
+                    fei_button.textContent = '作废单据';
+                    fei_button.style.background = '#2574a9';
+                }
+            });
+        }
     }
 
     //编辑按键
@@ -203,14 +224,15 @@ let page_documentquery = function () {
             let dh = chosed ? chosed.querySelector('td:nth-child(2)').textContent : "";
             let base = document.querySelector('#base').textContent;
 
+            let action = this.textContent.trim() == "作废单据" ? "作废" : "恢复";
             let del = {
                 id: dh,
-                rights: "作废单据",
+                rights: action,
                 base: base,
             }
 
             if (dh != "") {
-                alert_confirm(`单据 ${dh} 确认作废吗？`, {
+                alert_confirm(`单据 ${dh} 确认${action}吗？`, {
                     confirmCallBack: () => {
                         fetch(`/documents_fei`, {
                             method: 'post',

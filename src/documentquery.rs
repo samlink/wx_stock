@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{post, web, HttpResponse};
@@ -119,7 +120,7 @@ pub async fn fetch_all_documents(
 
         let fields = get_fields(db.clone(), doc_cate).await;
 
-        let mut sql_fields = "SELECT 单号,documents.类别,".to_owned();
+        let mut sql_fields = "SELECT 单号,documents.类别, ".to_owned();
         let mut sql_where = "".to_owned();
 
         for f in &fields {
@@ -140,7 +141,7 @@ pub async fn fetch_all_documents(
         // sql_where = sql_where.trim_end_matches(" OR ").to_owned();
 
         let sql = format!(
-            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents 
+            r#"{} 作废, ROW_NUMBER () OVER (ORDER BY {}) as 序号,customers.名称 FROM documents
             JOIN customers ON documents.客商id=customers.id
             WHERE {} {} ({}) AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
@@ -159,12 +160,13 @@ pub async fn fetch_all_documents(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut doc_rows: Vec<String> = Vec::new();
         for row in rows {
+            let fei: bool = row.get("作废");
             let num: i64 = row.get("序号");
             let dh: String = row.get("单号");
             let cate: String = row.get("类别");
             let customer_name: String = row.get("名称");
             let row_str = format!(
-                "{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}",
                 num,
                 SPLITER,
                 dh,
@@ -172,6 +174,8 @@ pub async fn fetch_all_documents(
                 cate,
                 SPLITER,
                 customer_name,
+                SPLITER,
+                fei,
                 SPLITER,
                 simple_string_from_base(row, &fields),
             );
@@ -225,7 +229,7 @@ pub async fn fetch_a_documents(
             doc_sql = "documents.类别='销售退货' and documents.文本字段10 != '' and documents.布尔字段2 = false and 已记账 = false";
 
             if user.duty == "库管" {
-                limits = format!("documents.文本字段7 = '{}' AND", user.area,); // 文本字段7 为 区域
+                limits = format!("documents.文本字段7 = '{}' AND", user.area, ); // 文本字段7 为 区域
             }
         }
 
@@ -311,6 +315,21 @@ pub async fn documents_del(db: web::Data<Pool>, del: web::Json<Del>, id: Identit
 
         let sql = format!(r#"DELETE FROM documents WHERE 单号='{}'"#, del.id);
 
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+#[post("/documents_fei")]
+pub async fn documents_fei(db: web::Data<Pool>, fei: web::Json<Del>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id, "删除单据".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let action = if fei.rights == "作废" { true } else { false };
+        let sql = format!(r#"UPDATE documents set 作废 = {} WHERE 单号='{}'"#, action, fei.id);
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         HttpResponse::Ok().json(1)
@@ -475,3 +494,4 @@ pub async fn trans_excel(
         HttpResponse::Ok().json(-1)
     }
 }
+

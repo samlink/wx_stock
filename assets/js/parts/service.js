@@ -1027,6 +1027,22 @@ var service = function () {
     let get_data = function () {
         return table_fields;
     }
+    // 作废单据设为只读
+    let fei_readonly = function (fei_bool, container) {
+        if (fei_bool == "true") {
+            setTimeout(()=> {
+                document.querySelectorAll(`.${container} button`).forEach(button =>{
+                    button.setAttribute('disabled', 'disabled');
+                });
+                document.querySelectorAll(`.${container} input`).forEach(input => {
+                    input.setAttribute('disabled', 'disabled');
+                });
+                document.querySelectorAll(`.${container} select`).forEach(input => {
+                    input.setAttribute('disabled', 'disabled');
+                });
+            },200)
+        }
+    }
 
     return {
         table_fields: get_data,
@@ -1053,5 +1069,6 @@ var service = function () {
         get_materials_docs: get_materials_docs,
         set_date: set_date,
         handle_pic: handle_pic,
+        fei_readonly: fei_readonly,
     }
 }();
