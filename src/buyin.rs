@@ -149,11 +149,11 @@ pub async fn buyin_auto(
             format!(
                 r#"SELECT num as id, split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1) 
                 || '{}' || 规格型号 || '{}' || p.文本字段2 || '{}' || p.文本字段3 || '{}' || 
-                库存长度 || '{}' || 理论重量 || '{}' || p.文本字段1 AS label 
+                库存长度 || '{}' || 理论重量 || '{}' || p.物料号 AS label 
                 FROM products p
                 JOIN tree ON p.商品id = tree.num
-                LEFT JOIN length_weight() foo ON p.文本字段1 = foo.物料号
-                WHERE p.文本字段1 like '%{}%' and 库存状态='' and 库存长度 > 10 limit 10"#,
+                LEFT JOIN length_weight() foo ON p.物料号 = foo.物料号
+                WHERE p.物料号 like '%{}%' and 库存状态='' and 库存长度 > 10 limit 10"#,
                 SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, s[0].to_uppercase(),
             )
         } else {
@@ -163,7 +163,7 @@ pub async fn buyin_auto(
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 LEFT JOIN length_weight() as foo
-                ON products.文本字段1 = foo.物料号
+                ON products.物料号 = foo.物料号
                 WHERE (pinyin LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%') AND ({}) limit 10
             "#,
                 SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"],
@@ -905,7 +905,7 @@ pub async fn get_items_trans(
                 pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 || '　' || pout_items.备注 || '　' || 
                 商品id || '　' || pout_items.单号id as item
             FROM pout_items
-            JOIN products ON 物料号 = 文本字段1
+            JOIN products ON products.物料号 = pout_items.物料号
             JOIN tree ON 商品id = num
             WHERE pout_items.单号id = '{}' order by 顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data
@@ -1427,8 +1427,8 @@ pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpRe
             let sql = format!(
                 r#"select 库存长度 from products
                    LEFT JOIN length_weight('{}') as foo
-                   ON products.文本字段1 = foo.物料号
-                   where 文本字段1 = '{}'"#,
+                   ON products.物料号 = foo.物料号
+                   where products.物料号 = '{}'"#,
                 dh_data[1], wu_num
             );
 
@@ -1466,8 +1466,8 @@ pub async fn check_ku2(db: web::Data<Pool>, data: String, id: Identity) -> HttpR
             let sql = format!(
                 r#"select (整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::real as 库存 from products
                                 LEFT JOIN cut_length() as foo
-                                ON products.文本字段1 = foo.物料号
-                                where 文本字段1 = '{}'"#,
+                                ON products.物料号 = foo.物料号
+                                where products.物料号 = '{}'"#,
                 field[0]
             );
 

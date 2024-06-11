@@ -50,7 +50,7 @@ pub async fn fetch_product(
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
+        let sql_fields = "SELECT products.物料号 as id, products.商品id, node_name, products.物料号, 规格型号, products.文本字段2,
                             products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2, 
                             COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,库位,products.文本字段6,
                             case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
@@ -63,7 +63,7 @@ pub async fn fetch_product(
             JOIN tree on tree.num = products.商品id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN length_weight() as foo
-            ON products.文本字段1 = foo.物料号
+            ON products.物料号 = foo.物料号
             WHERE {} {} {} {} {} {} {} 
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
@@ -111,12 +111,12 @@ pub async fn fetch_product(
         // let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(products.文本字段1) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
+            r#"SELECT count(products.物料号) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
                 FROM products
                 {}
                 JOIN documents on 单号id = 单号
                 LEFT JOIN length_weight() as foo
-                ON products.文本字段1 = foo.物料号
+                ON products.物料号 = foo.物料号
                 WHERE {} {} {} {} {} {}"#,
             lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
@@ -201,7 +201,7 @@ async fn build_sql_search(
 
     // join 语句，非 where 条件
     let lock_join_sql = if now_sql == "" {
-        "join sale_records() sale on products.文本字段1 = sale.物料号".to_owned()
+        "join sale_records() sale on products.物料号 = sale.物料号".to_owned()
     } else {
         "".to_owned()
     };
@@ -241,7 +241,7 @@ pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) ->
             r#"select COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
             from products p
             join tree on tree.num = p.商品id
-            left join length_weight() foo on foo.物料号 = p.文本字段1  
+            left join length_weight() foo on foo.物料号 = p.物料号  
             where {} and 库存状态='' and COALESCE(库存长度,0) > 10"#,
             cate_sql
         );
@@ -291,7 +291,7 @@ pub async fn fetch_filter_items(
                 r#"SELECT DISTINCT 库存长度 FROM products 
                     {}
                     LEFT JOIN length_weight() as foo
-                    ON products.文本字段1 = foo.物料号
+                    ON products.物料号 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
                 lock_join_sql, product_sql, conditions, now_sql, filter_sql,
@@ -309,7 +309,7 @@ pub async fn fetch_filter_items(
                 r#"SELECT DISTINCT {} FROM products
                     {}
                     LEFT JOIN length_weight() as foo
-                    ON products.文本字段1 = foo.物料号
+                    ON products.物料号 = foo.物料号
                     where {} {} {} {}
                     ORDER BY {}"#,
                 f_map[post_data.filter_name.as_str()],
@@ -351,14 +351,14 @@ pub async fn update_product(
         };
 
         let sql = format!(
-            r#"UPDATE products SET 文本字段2='{}', 文本字段4='{}', 整数字段1={}, 库存状态='{}', 备注='{}' WHERE 文本字段1='{}'"#,
+            r#"UPDATE products SET 文本字段2='{}', 文本字段4='{}', 整数字段1={}, 库存状态='{}', 备注='{}' WHERE 物料号='{}'"#,
             product[3], product[4], product[5], product[6], product[7], product[0]
         );
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         let sql = format!(
-            r#"UPDATE products SET 库存下限 = 库存下限*(整数字段1::real/整数字段3::real), 整数字段3 = {} WHERE 文本字段1='{}'"#,
+            r#"UPDATE products SET 库存下限 = 库存下限*(整数字段1::real/整数字段3::real), 整数字段3 = {} WHERE 物料号='{}'"#,
             product[5], product[0]
         );
 
@@ -462,7 +462,7 @@ pub async fn product_out(
             },
             "物料号": {
                 "width": 5,
-                "field": "products.文本字段1 物料号,"
+                "field": "products.物料号 物料号,"
             },
             "规格": {
                 "width": 5,
@@ -596,7 +596,7 @@ pub async fn product_out(
                 {} JOIN tree ON products.商品id = tree.num
                 join documents d on d.单号 = products.单号id
                 LEFT JOIN length_weight() as foo
-                ON products.文本字段1 = foo.物料号
+                ON products.物料号 = foo.物料号
                 where {} {} {} {} {}"#,
             select_fields, lock_join_sql, product_sql, conditions, now_sql, filter_sql, NOT_DEL_SQL
         );
@@ -769,7 +769,7 @@ pub async fn product_updatein(db: web::Data<Pool>, id: Identity) -> HttpResponse
                     }
 
                     sql = sql.trim_end_matches(',').to_owned();
-                    sql += &format!(r#" WHERE 文本字段1='{}'"#, r[(j + 1, 0)]);
+                    sql += &format!(r#" WHERE 物料号='{}'"#, r[(j + 1, 0)]);
 
                     let _ = &conn.query(sql.as_str(), &[]).await.unwrap();
                 }
@@ -850,7 +850,7 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
         let conn = db.get().await.unwrap();
 
         let sql = format!("
-            select p.文本字段1 物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号,
+            select p.物料号, 规格型号 规格, p.文本字段2 状态,p.文本字段3 执行标准, p.文本字段4 炉号,
                 p.文本字段5 生产厂家, COALESCE(切分次数,0)::text 切分, COALESCE(库存长度,0)::text 库存长度,
                 COALESCE(理论重量,0)::text 库存重量, p.整数字段1::text 入库长度, p.文本字段8 外径壁厚, 单号id 入库单号,
                 d.日期 入库日期, d.类别 入库方式, case when 单号id like 'TR%' then d.文本字段1 else '' end 原因,
@@ -860,8 +860,8 @@ pub async fn fetch_all_info(db: web::Data<Pool>, data: String, id: Identity) -> 
             JOIN tree ON p.商品id = tree.num
             JOIN documents d ON d.单号 = p.单号id
             LEFT JOIN length_weight() as foo
-            ON p.文本字段1 = foo.物料号
-            WHERE p.文本字段1 = '{}'", data);
+            ON p.物料号 = foo.物料号
+            WHERE p.物料号 = '{}'", data);
 
         // println!("{}", sql);
 

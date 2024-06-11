@@ -160,7 +160,7 @@ pub async fn fetch_cost(
                             where {} documents.日期::date <= '{}'::date and documents.文本字段10 != ''
                             group by 物料号
                         ) as foo
-                    ON products.文本字段1 = foo.物料号
+                    ON products.物料号 = foo.物料号
                     JOIN documents on 单号id = 单号
                     where {} products.文本字段7 <> '是' and
                     documents.日期::date <= '{}'::date and documents.文本字段10 != ''
@@ -687,7 +687,7 @@ pub async fn get_stockout_items(
                  pout_items.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
             from pout_items
             join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.文本字段1
+            join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {} {} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
@@ -769,7 +769,7 @@ pub async fn get_stockout_items(
         let count_sql = format!(
             r#"select count(物料号) as 记录数 from pout_items
             join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.文本字段1
+            join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {}{} and documents.文本字段10 != ''"#,
@@ -1179,7 +1179,7 @@ pub async fn stockout_excel(
                  pout_items.备注, ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号
             from pout_items
             join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.文本字段1
+            join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != '' order by documents.日期 DESC"#,

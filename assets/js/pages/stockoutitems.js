@@ -25,7 +25,7 @@ let page_stockoutitems = function () {
             "销售单号": "documents.文本字段6",
             "公司名称": "documents.文本字段4",
             "名称": "split_part(node_name,' ',2)",
-            "物料号": "products.文本字段1",
+            "物料号": "products.物料号",
             "材质": "split_part(node_name,' ',1)",
             "规格": "规格型号",
             "状态": "products.文本字段2",

@@ -796,7 +796,7 @@ var service = function () {
             post_data: {
                 id: "",
                 name: '',
-                sort: "products.文本字段1 ASC",
+                sort: "products.物料号 ASC",
                 rec: row_num,
                 cate: '',
                 filter: '',

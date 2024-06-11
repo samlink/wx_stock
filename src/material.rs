@@ -279,7 +279,7 @@ pub async fn material_auto_out(
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
-                ON products.文本字段1 = foo.物料号
+                ON products.物料号 = foo.物料号
                 WHERE LOWER(products.{}) LIKE LOWER('%{}%') AND num='{}' AND 
                 products.{} = '{}' and products.{} = '{}' and
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer + 10 >= {} AND
@@ -317,7 +317,7 @@ pub async fn material_auto_sotckout(
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
-                    ON products.文本字段1 = foo.物料号
+                    ON products.物料号 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["执行标准"], SPLITER, f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"],
@@ -349,7 +349,7 @@ pub async fn material_auto_kt(
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
-                ON products.文本字段1 = foo.物料号
+                ON products.物料号 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND 
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND                
                 documents.文本字段10 !='' LIMIT 10"#,
@@ -454,7 +454,7 @@ pub async fn get_items_out(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = &format!(
-            r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
+            r#"SELECT 物料号 || '　' ||  || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
                 规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 备注 ||  '{}' || 单价 || '{}' || id || '{}' || 出库状态 as item 
             from document_items
             JOIN tree ON 商品id = tree.num
@@ -1038,7 +1038,7 @@ pub async fn fetch_document_items_ck(
             r#"select COALESCE(split_part(node_name,' ', 2),'') as 名称, COALESCE(split_part(node_name,' ', 1), '') as 材质,
                 COALESCE({},'') as 规格, COALESCE({}, '') as 状态, COALESCE({}, '') as 炉号, 长度, 数量, (长度*数量)::integer as 总长度,
                 物料号, 重量, 理重, pout_items.备注, COALESCE(商品id, '') 商品id, 单价, xsid FROM pout_items
-                left JOIN products ON 文本字段1=物料号
+                left JOIN products ON products.物料号=物料号
                 left JOIN tree ON 商品id=tree.num
                 WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data.dh

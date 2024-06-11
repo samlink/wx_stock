@@ -23,7 +23,7 @@ let page_stockinitems = function () {
             "入库日期": "documents.日期",
             "入库单号": "documents.单号",
             "名称": "split_part(node_name,' ',2)",
-            "物料号": "products.文本字段1",
+            "物料号": "products.物料号",
             "材质": "split_part(node_name,' ',1)",
             "规格": "规格型号",
             "状态": "products.文本字段2",
