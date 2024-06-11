@@ -420,9 +420,9 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
         let conn = db.get().await.unwrap();
         let sql = &format!(
             r#"SELECT num || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 ||  '　' || customers.文本字段1 || '　' || 执行标准 || '{}' || document_items.id
-                || '{}' || 出库完成 as item
-            from document_items 
+                规格 || '　' || 状态 ||  '　' || customers.文本字段1 || '　' || 执行标准 || '{}' || document_buy.id
+                || '{}' || 入库完成 as item
+            from document_buy
             JOIN tree ON 商品id = tree.num
             JOIN documents on 单号id = 单号
             JOIN customers on 客商id = customers.id
