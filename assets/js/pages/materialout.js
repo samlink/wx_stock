@@ -160,30 +160,30 @@ let page_materialout = function () {
             }
         });
 
-    let show_th = [
-        { name: "物料号", width: 100 },
-        { name: "名称", width: 60 },
-        { name: "材质", width: 80 },
-        { name: "规格", width: 80 },
-        { name: "状态", width: 100 },
-        { name: "炉号", width: 100 },
-        { name: "库存长度", width: 80 },
-    ];
-
-    let auto_data = [{
-        n: 10,
-        cate: "",
-        auto_url: `/material_auto_out`,
-        show_th: show_th,
-        cb: fill_gg,
-        cf: () => {  //前置函数, 用于动态构建查询字符串
-            let stat = document.querySelector('.table-items .inputting .状态').textContent.trim();
-            return `${document.querySelector('.table-items .inputting .m_id').textContent.trim()}　
-                ${document.querySelector('.table-items .inputting .规格').textContent.trim()}　
-                ${stat.replace('+', SPLITER)}　
-                ${document.querySelector('.table-items .inputting .长度').value.trim()}`
-        }
-    }];
+    // let show_th = [
+    //     { name: "物料号", width: 100 },
+    //     { name: "名称", width: 60 },
+    //     { name: "材质", width: 80 },
+    //     { name: "规格", width: 80 },
+    //     { name: "状态", width: 100 },
+    //     { name: "炉号", width: 100 },
+    //     { name: "库存长度", width: 80 },
+    // ];
+    //
+    // let auto_data = [{
+    //     n: 10,
+    //     cate: "",
+    //     auto_url: `/material_auto_out`,
+    //     show_th: show_th,
+    //     cb: fill_gg,
+    //     cf: () => {  //前置函数, 用于动态构建查询字符串
+    //         let stat = document.querySelector('.table-items .inputting .状态').textContent.trim();
+    //         return `${document.querySelector('.table-items .inputting .m_id').textContent.trim()}　
+    //             ${document.querySelector('.table-items .inputting .规格').textContent.trim()}　
+    //             ${stat.replace('+', SPLITER)}　
+    //             ${document.querySelector('.table-items .inputting .长度').value.trim()}`
+    //     }
+    // }];
 
     function build_items(dh) {
         fetch('/get_docs_out', {
@@ -236,15 +236,17 @@ let page_materialout = function () {
                             document.querySelector('#save-button').disabled == true) {
                             return false;
                         }
+                        let wu_lu = l.querySelector('td:nth-child(1)').textContent.split('　');
                         let value = l.querySelector('td:nth-child(2)').textContent.split('　');
-                        show_names[1].value = value[0];
+                        show_names[1].value = value[0];    // 名称 ...
                         show_names[2].value = value[1];
                         show_names[3].value = value[2];
                         show_names[4].value = value[3];
+                        show_names[5].value = wu_lu[1];    // 炉号
                         show_names[6].value = value[4];
                         show_names[7].value = value[5];
                         show_names[8].value = value[4] * value[5];
-                        show_names[9].value = "";
+                        show_names[9].value = wu_lu[0];   // 物料号
                         show_names[12].value = value[6];
                         show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
                         show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
@@ -254,7 +256,7 @@ let page_materialout = function () {
                             show_names: show_names,
                             lines: table_lines,
                             dh: dh_div.textContent,
-                            auto_data: auto_data,
+                            // auto_data: auto_data,
                             document: document_name,
                             calc_func: get_weight,
                             calc_func2: weight,
@@ -284,17 +286,16 @@ let page_materialout = function () {
         { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false },
         { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
         { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true },
+        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
         { name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true },
         { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
         {
             name: "物料号",
             width: 100,
             class: "物料号",
-            type: "autocomplete",
-            editable: true,
+            type: "普通输入",
+            editable: false,
             is_save: true,
-            no_button: true
         },
         { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
         { name: "理论重量", width: 40, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
@@ -408,26 +409,26 @@ let page_materialout = function () {
             }
         });
 
-        input_row.querySelector('.长度').addEventListener('blur', function () {
-            let mount = input_row.querySelector('.数量').value;
-            let long = input_row.querySelector('.长度').value;
-            if (regInt.test(mount) && regInt.test(long)) {
-                input_row.querySelector('.总长度').textContent = mount * long;
-                weight(input_row);
-                sum_money();
-            } else {
-                input_row.querySelector('.总长度').textContent = 0;
-            }
-        });
+        // input_row.querySelector('.长度').addEventListener('blur', function () {
+        //     let mount = input_row.querySelector('.数量').value;
+        //     let long = input_row.querySelector('.长度').value;
+        //     if (regInt.test(mount) && regInt.test(long)) {
+        //         input_row.querySelector('.总长度').textContent = mount * long;
+        //         weight(input_row);
+        //         sum_money();
+        //     } else {
+        //         input_row.querySelector('.总长度').textContent = 0;
+        //     }
+        // });
 
         input_row.querySelector('.重量').addEventListener('blur', function () {
             sum_money();
         });
 
-        input_row.querySelector('.auto-input').addEventListener('blur', function () {
-            weight(input_row);
-            sum_money();
-        })
+        // input_row.querySelector('.auto-input').addEventListener('blur', function () {
+        //     weight(input_row);
+        //     sum_money();
+        // })
     }
 
     // 出库时使用的理论重量计算
