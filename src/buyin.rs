@@ -272,10 +272,11 @@ pub async fn fetch_one_product(
                             from products
                             JOIN tree ON products.商品id = tree.num
                             JOIN documents on 单号id = 单号
-                            WHERE products.{} = '{}' and documents.文本字段10 <> ''",
+                            WHERE products.{} = '{}' and documents.文本字段10 <> '' {}",
                           SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
                           f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
-                          f_map["物料号"], f_map["物料号"], product_id);
+                          f_map["物料号"], f_map["物料号"], product_id, NOT_DEL_SQL
+                        );
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -303,9 +304,10 @@ pub async fn get_status_auto(
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!("select distinct products.{} label, '1' as id from products
                         join documents on 单号id = 单号
-                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> ''
+                        where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' {}
                         order by products.{} limit 10",
-                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), f_map[&search.cate]);
+                        f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), NOT_DEL_SQL, f_map[&search.cate]
+                        );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -339,10 +341,10 @@ pub async fn get_truck_auto(
     if user_name != "" {
         let sql = format!(
             r#"select distinct 文本字段11 label, '1' as id from documents
-                        where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段11) like '%{}%'"#,
-            search.cate,
-            search.s.to_lowercase()
-        );
+                where 类别='运输发货' and 文本字段5 like '%{}%' and 
+                lower(文本字段11) like '%{}%' {}"#,
+            search.cate,            search.s.to_lowercase(), NOT_DEL_SQL
+                );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -359,9 +361,9 @@ pub async fn get_truck2_auto(
     if user_name != "" {
         let sql = format!(
             r#"select distinct 文本字段12 label, '1' as id from documents
-                        where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段12) like '%{}%'"#,
+                        where 类别='运输发货' and 文本字段5 like '%{}%' and lower(文本字段12) like '%{}% {}'"#,
             search.cate,
-            search.s.to_lowercase()
+            search.s.to_lowercase(), NOT_DEL_SQL
         );
         autocomplete(db, &sql).await
     } else {
@@ -481,8 +483,8 @@ pub async fn save_document(
         if dh_data != "新单据" && fields_cate == "销售单据" {
             let conn2 = db.get().await.unwrap();
             let sql = format!(
-                r#"select {} 发货完成 from documents where 单号='{}'"#,
-                f_map["发货完成"], dh
+                r#"select {} 发货完成 from documents where 单号='{}' {}"#,
+                f_map["发货完成"], dh, NOT_DEL_SQL
             );
             let row = &conn2.query_one(sql.as_str(), &[]).await.unwrap();
             let comp: bool = row.get("发货完成");
@@ -809,8 +811,10 @@ pub async fn fetch_other_documents(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 单号,日期,类别 from documents where (文本字段6 = '{}' or 文本字段4 = '{}') and 文本字段10 <>'' order by 日期 desc"#,
-            data, data
+            r#"select 单号,日期,类别 from documents 
+                where (文本字段6 = '{}' or 文本字段4 = '{}') 
+                and 文本字段10 <>'' {} order by 日期 desc"#,
+            data, data, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -838,8 +842,8 @@ pub async fn get_sale_dh(db: web::Data<Pool>, data: String, id: Identity) -> Htt
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 单号,日期 from documents where 文本字段6 = '{}' and 类别 = '商品销售'"#,
-            data
+            r#"select 单号,日期 from documents where 文本字段6 = '{}' and 类别 = '商品销售' {}"#,
+            data, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -870,8 +874,8 @@ pub async fn get_sale_out(
         let f_map = map_fields(db.clone(), "出库单据").await;
         let sql = &format!(
             r#"SELECT 单号 || '　' || 日期 || '{}' || 布尔字段1 as item FROM documents WHERE {} = '{}' 
-                and 类别='销售出库' and 文本字段10 !='' order by 单号"#,
-            SPLITER, f_map["销售单号"], data
+                and 类别='销售出库' and 文本字段10 !='' {} order by 单号"#,
+            SPLITER, f_map["销售单号"], data, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -925,8 +929,8 @@ pub async fn get_items_trans(
             r#"SELECT '锯口费' || '　' || '--' || '　' || '' || '　' || '' || '　' || '' || '　' || 长度 || '　' || 数量 || '　' ||
                 理重 || '　' || 重量 || '　' || 单价 || '　' || 备注 || '　' || 商品id || '　' || '{}' as item
                 from document_items 
-                where 单号id = (select 文本字段6 销售单号 from documents where 单号= '{}') and 商品id = '4_111'"#,
-            data, data
+                where 单号id = (select 文本字段6 销售单号 from documents where 单号= '{}' {}) and 商品id = '4_111'"#,
+            data, data, NOT_DEL_SQL
         );
 
         let rows = conn.query(sql.as_str(), &[]).await.unwrap();
@@ -1048,11 +1052,11 @@ pub async fn fetch_sale_docs(db: web::Data<Pool>, id: Identity) -> HttpResponse 
             '　' || documents.{} || '　' || documents.{} || '　' || customers.id  as label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
-            单号 not in (select 文本字段6 from documents where documents.类别='销售开票') 
-            AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室'
+            单号 not in (select 文本字段6 from documents where documents.类别='销售开票' {}) 
+            AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' {}
             order by 单号 desc"#,
             f_map2["简称"], SPLITER, f_map["合同编号"], f_map["客户PO"], f_map["单据金额"],
-            f_map["是否欠款"], f_map["发货完成"],
+            f_map["是否欠款"], f_map["发货完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}",sql);
@@ -1076,14 +1080,14 @@ pub async fn fetch_sale_saved_docs(db: web::Data<Pool>, id: Identity) -> HttpRes
             join customers on 客商id = customers.id
             join 
             (select 单号 开票单号, 文本字段6, 经办人 from documents where documents.类别='销售开票' and 
-            布尔字段3 = false and 文本字段10 = '') as 开票单
+            布尔字段3 = false and 文本字段10 = '' {}) as 开票单
             on 开票单.文本字段6 = documents.单号
             WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
-            单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true) 
-            AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室'
+            单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true {}) 
+            AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' {}
             order by 单号 desc"#,
-            f_map2["简称"], SPLITER, f_map["合同编号"], f_map["客户PO"], f_map["单据金额"],
-            f_map["是否欠款"], f_map["发货完成"],
+            f_map2["简称"], SPLITER, f_map["合同编号"], f_map["客户PO"], f_map["单据金额"], NOT_DEL_SQL,
+            f_map["是否欠款"], f_map["发货完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}",sql);
@@ -1247,8 +1251,10 @@ pub async fn fetch_fh_items(
                 case when 商品id <> '4_111' then 重量 else 数量 end as 数量, 单价
                 FROM document_items
                 JOIN tree on document_items.商品id = tree.num
-                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}') and 类别='运输发货' and 文本字段10 != '') ORDER BY 顺序"#,
-            data, data
+                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}')
+                     and 类别='运输发货' and 文本字段10 != '' {}) 
+                ORDER BY 顺序"#,
+            data, data, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -1398,7 +1404,7 @@ pub async fn get_customer_po(db: web::Data<Pool>, data: String, id: Identity) ->
     let user = get_user(db.clone(), id, "".to_owned()).await;
     if user.name != "" {
         let conn = db.get().await.unwrap();
-        let sql = format!(r#"select 文本字段8 from documents WHERE 单号='{}'"#, data);
+        let sql = format!(r#"select 文本字段8 from documents WHERE 单号='{}' {}"#, data, NOT_DEL_SQL);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut po: String = "".to_owned();

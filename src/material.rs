@@ -27,8 +27,8 @@ pub async fn material_auto(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.文本字段10 <> '' LIMIT 10"#,
-            f_map2["简称"], cate_s, s, f_map["入库完成"],
+            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.文本字段10 <> '' {} LIMIT 10"#,
+            f_map2["简称"], cate_s, s, f_map["入库完成"], NOT_DEL_SQL
         );
 
         autocomplete(db, sql).await
@@ -56,8 +56,8 @@ pub async fn materialout_auto(
         let sql = &format!(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             JOIN customers on 客商id = customers.id
-            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.{} <> '' LIMIT 10"#,
-            f_map2["简称"], cate_s, s, f_map["发货完成"], f_map["审核"]
+            WHERE {} 单号 like '%{}%' AND documents.{}=false AND documents.{} <> '' {} LIMIT 10"#,
+            f_map2["简称"], cate_s, s, f_map["发货完成"], f_map["审核"], NOT_DEL_SQL
         );
 
         autocomplete(db, sql).await
@@ -84,12 +84,12 @@ pub async fn materialout_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id            
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '' and {} = false) and
-            单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 = '')
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '' and {} = false {}) and
+            单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 = '' {}) {}
             order by 单号 desc
             "#,
             f_map2["简称"], limit, search, f_map["审核"], f_map["发货完成"], f_map3["销售单号"],
-            f_map3["销售单号"], f_map3["审核"], f_map3["发货完成"]
+            f_map3["销售单号"], f_map3["审核"], f_map3["发货完成"], NOT_DEL_SQL, NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -118,14 +118,14 @@ pub async fn materialout_saved_docs(
             join customers on 客商id = customers.id
             join 
             (select 单号 运输单号, 文本字段6, 经办人 from documents where documents.类别='运输发货' and 
-            布尔字段3 = false and 文本字段10 = '') as 运输单
+            布尔字段3 = false and 文本字段10 = '' {}) as 运输单
             on 运输单.文本字段6 = documents.单号
             WHERE {} documents.类别='{}' AND documents.{} <> '' AND documents.{} = false and 单号 in 
-            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '')
+            (select {} from documents where {} <>'' and 类别='销售出库' and  {} <> '' {}) {}
             order by 单号 desc
             "#,
-            f_map2["简称"], limit, search, f_map["审核"], f_map["发货完成"], f_map3["销售单号"],
-            f_map3["销售单号"], f_map3["审核"],
+            f_map2["简称"], NOT_DEL_SQL, limit, search, f_map["审核"], f_map["发货完成"], f_map3["销售单号"],
+            f_map3["销售单号"], f_map3["审核"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -151,9 +151,10 @@ pub async fn materialin_docs(
             r#"SELECT 单号 as id, 单号 || '　' || customers.{} AS label FROM documents
             join customers on 客商id = customers.id
             WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> '' 
-            and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 文本字段10 = '')
+                and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库'
+                and 文本字段10 = '' {}) {}
             order by 单号 desc"#,
-            f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
+            f_map2["简称"], search, f_map["入库完成"], f_map["审核"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         autocomplete(db, sql).await
@@ -175,18 +176,19 @@ pub async fn materialin_saved_docs(
         let f_map2 = map_fields(db.clone(), "供应商").await;
 
         let sql = &format!(
-            r#"SELECT 入库单号 as id, 单号 || '　' || customers.{} || '　' || 入库单.经办人 AS label FROM documents
+            r#"SELECT 入库单号 as id, 单号 || '　' || customers.{} || '　' || 入库单.经办人 AS label
+            FROM documents
             join customers on 客商id = customers.id
             join 
-            (select 单号 入库单号, 文本字段6, 经办人 from documents where documents.类别='采购入库' and 
-            布尔字段3 = false and 文本字段10 = '') as 入库单
+                (select 单号 入库单号, 文本字段6, 经办人 from documents where documents.类别='采购入库' and
+                布尔字段3 = false and 文本字段10 = '' {}) as 入库单
             on 入库单.文本字段6 = documents.单号
-            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> ''            
+            WHERE documents.类别='{}' AND documents.{}=false AND documents.{} <> '' {}
             order by 单号 desc"#,
-            f_map2["简称"], search, f_map["入库完成"], f_map["审核"]
+            f_map2["简称"], NOT_DEL_SQL, search, f_map["入库完成"], f_map["审核"], NOT_DEL_SQL
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
@@ -283,11 +285,11 @@ pub async fn material_auto_out(
                 WHERE LOWER(products.{}) LIKE LOWER('%{}%') AND num='{}' AND 
                 products.{} = '{}' and products.{} = '{}' and
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer + 10 >= {} AND
-                products.{} != '是' AND documents.文本字段10 <> '' 
+                products.{} != '是' AND documents.文本字段10 <> '' {}
                 order by products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["炉号"], SPLITER, f_map["库存长度"], f_map["物料号"], search.s, ss[0], f_map["规格"],
-            ss[1].trim(), f_map["状态"], ss2.trim(), f_map["库存长度"], ss[3], f_map["切完"], f_map["库存长度"],
+            ss[1].trim(), f_map["状态"], ss2.trim(), f_map["库存长度"], ss[3], f_map["切完"], NOT_DEL_SQL, f_map["库存长度"],
         );
 
         // println!("{}", sql);
@@ -318,10 +320,10 @@ pub async fn material_auto_sotckout(
                 JOIN documents ON 单号id = 单号
                 LEFT JOIN cut_length() as foo
                     ON products.物料号 = foo.物料号
-                WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
+                WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' {} LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
             f_map["执行标准"], SPLITER, f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"],
-            f_map["库存长度"], f_map["物料号"], search.s
+            f_map["库存长度"], f_map["物料号"], search.s, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -352,9 +354,9 @@ pub async fn material_auto_kt(
                 ON products.物料号 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND 
                 (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND                
-                documents.文本字段10 !='' LIMIT 10"#,
+                documents.文本字段10 !='' {} LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["库存长度"], f_map["物料号"], search.s.to_lowercase(), f_map["切完"], f_map["库存长度"],
+            f_map["库存长度"], f_map["物料号"], search.s.to_lowercase(), f_map["切完"], f_map["库存长度"], NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -384,7 +386,8 @@ pub async fn fetch_document_ck(
         }
 
         let sql = format!(
-            r#"{} 作废, documents.{} as 审核, 经办人, customers.id, documents.{} as 图片, documents.{} as 提交审核 FROM documents
+            r#"{} 作废, documents.{} as 审核, 经办人, customers.id, documents.{} as 图片, 
+                    documents.{} as 提交审核 FROM documents
                 JOIN customers ON documents.客商id=customers.id WHERE 单号='{}'"#,
             sql_fields, f_map["审核"], f_map["图片"], f_map["提交审核"], data.dh
         );
@@ -489,8 +492,8 @@ pub async fn get_docs_out(
         let sql = &format!(
             r#"SELECT documents.{} as 合同编号,名称, 客商id, documents.备注 from documents
             JOIN customers ON 客商id = customers.id
-            WHERE 单号 = '{}'"#,
-            f_map["合同编号"], data
+            WHERE 单号 = '{}' {}"#,
+            f_map["合同编号"], data, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -528,8 +531,8 @@ pub async fn get_trans_info(
             r#"SELECT documents.{} as 合同编号, 名称, customers.{} 联系人, customers.{} 电话,
             customers.{} 公司地址, documents.{} 审核 from documents
             JOIN customers ON 客商id = customers.id
-            WHERE 单号 = '{}'"#,
-            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], f_map["审核"], data
+            WHERE 单号 = '{}' {}"#,
+            f_map["合同编号"], f_map2["收货人"], f_map2["收货电话"], f_map2["收货地址"], f_map["审核"], data, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -829,18 +832,18 @@ pub async fn save_material_ck(
 
             dh_sql = format!(
                 r#"update document_items set 出库状态='已', 出库完成 = true from 
-                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库') group by xsid) foo
+                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}) group by xsid) foo
                 where document_items.id::text = foo.xsid and document_items.数量 = foo.sum"#,
-                sale_dh
+                sale_dh, NOT_DEL_SQL
             );
 
             transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
 
             dh_sql = format!(
                 r#"update document_items set 出库状态='分', 出库完成 = false from 
-                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库') group by xsid) foo
+                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}) group by xsid) foo
                 where document_items.id::text = foo.xsid and document_items.数量 > foo.sum"#,
-                sale_dh
+                sale_dh, NOT_DEL_SQL
             );
 
             transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
@@ -1210,8 +1213,8 @@ pub async fn make_ck_complete(
             r#"update documents set 布尔字段2 = true where 单号 ='{}' and
                 (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
                 (select sum(数量) from pout_items where 单号id in
-                (select 单号 from documents where 文本字段6='{}' and 类别='销售出库'))"#,
-            dh, dh, dh
+                (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}))"#,
+            dh, dh, dh, NOT_DEL_SQL
         );
 
         let _ = conn.query(sql.as_str(), &[]).await;
@@ -1235,8 +1238,8 @@ pub async fn make_fh_complete(
         let sql = format!(
             r#"update documents set 布尔字段1 = true where 单号='{}' and 布尔字段2 = true 
              and false not in (select 布尔字段1 from documents where 文本字段6 ='{}' and 
-             类别 = '销售出库' and 文本字段10 !='')"#,
-            dh, dh
+             类别 = '销售出库' and 文本字段10 !='' {})"#,
+            dh, dh, NOT_DEL_SQL
         );
 
         let _ = conn.query(sql.as_str(), &[]).await;
@@ -1245,8 +1248,8 @@ pub async fn make_fh_complete(
             r#"update documents set 布尔字段1 = true where 单号 ='{}' and 布尔字段2 = true and
                 (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
                 (select sum(数量) from document_items where 商品id <> '4_111' and 单号id in
-                (select 单号 from documents where 文本字段6='{}' and 类别='运输发货'))"#,
-            dh, dh, dh
+                (select 单号 from documents where 文本字段6='{}' and 类别='运输发货' {}))"#,
+            dh, dh, dh, NOT_DEL_SQL
         );
 
         let _ = conn.query(sql.as_str(), &[]).await;

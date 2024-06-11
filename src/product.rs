@@ -64,7 +64,7 @@ pub async fn fetch_product(
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN length_weight() as foo
             ON products.物料号 = foo.物料号
-            WHERE {} {} {} {} {} {} {} 
+            WHERE {} {} {} {} {} {} {}
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
@@ -416,9 +416,9 @@ pub async fn product_auto(
         let sql = &format!(
             r#"SELECT id, 规格型号 AS label FROM products
                JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
+               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> {}'' LIMIT 10"#,
             search.cate,
-            search.s.to_lowercase()
+            search.s.to_lowercase(), NOT_DEL_SQL
         );
 
         autocomplete(db, sql).await

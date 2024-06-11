@@ -53,13 +53,13 @@ pub async fn fetch_statis(
             r#"
             select {} as date_cate, sum(单据金额) as 销售额, ROW_NUMBER () OVER (order by {}) as 序号
             from documents join (select 单号, 应结金额 as 单据金额 from documents where 单号 in 
-            (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 != '' and {}))
+            (select 文本字段6 from documents where documents.类别='运输发货' and 文本字段10 != '' and {} {}) {})
             as t on t.单号 = documents.文本字段6
-            where {} 类别 = '运输发货' and 文本字段10 != '' and {}            
+            where {} 类别 = '运输发货' and 文本字段10 != '' and {} {}            
             group by date_cate
             order by date_cate
             "#,
-            da_cate, da_cate, date_sql, limits, date_sql
+            da_cate, da_cate, date_sql, NOT_DEL_SQL, NOT_DEL_SQL, limits, date_sql, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -81,10 +81,10 @@ pub async fn fetch_statis(
         let sql = format!(
             r#"select {} as date_cate, sum(应结金额) as 销售额
                 from documents
-                where {} 类别 = '销售退货' and 文本字段10 != '' and {}
+                where {} 类别 = '销售退货' and 文本字段10 != '' and {} {}
                 group by date_cate
                 "#,
-            da_cate, limits, date_sql
+            da_cate, limits, date_sql, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -157,15 +157,15 @@ pub async fn fetch_cost(
                     LEFT JOIN
                         (select 物料号, sum(理重) as 理重合计 from pout_items
                             join documents on 单号id = 单号
-                            where {} documents.日期::date <= '{}'::date and documents.文本字段10 != ''
+                            where {} documents.日期::date <= '{}'::date and documents.文本字段10 != '' {}
                             group by 物料号
                         ) as foo
                     ON products.物料号 = foo.物料号
                     JOIN documents on 单号id = 单号
                     where {} products.文本字段7 <> '是' and
-                    documents.日期::date <= '{}'::date and documents.文本字段10 != ''
+                    documents.日期::date <= '{}'::date and documents.文本字段10 != '' {}
                 "#,
-                limit1, date, limit2, date
+                limit1, date, NOT_DEL_SQL, limit2, date, NOT_DEL_SQL
             );
 
             // println!("{}", sql);
@@ -233,9 +233,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             r#"select 单号, customers.{} 简称, 经办人 from documents
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and 是否欠款=true and             
-            documents.文本字段10 != '' and 名称 != '实验室' 
+            documents.文本字段10 != '' and 名称 != '实验室' {}
             order by 单号 desc"#,
-            f_map2["简称"], limits
+            f_map2["简称"], limits, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -256,8 +256,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             WHERE documents.类别='商品销售' AND documents.{} = true AND documents.{} = true AND
             单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 
-            布尔字段3 = true) AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' order by 单号 desc"#,
-            f_map2["简称"], f_map["是否欠款"], f_map["发货完成"]
+            布尔字段3 = true {}) AND 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' {} order by 单号 desc"#,
+            f_map2["简称"], f_map["是否欠款"], f_map["发货完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -278,15 +278,15 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             join customers on 客商id = customers.id
             where {} documents.类别='商品销售' and documents.{} = false and documents.文本字段10 != ''
             and 单号 in (select documents.{} from documents where documents.{} <>''
-            and documents.类别='销售出库' and documents.{} <> '' and {} = false) 
+            and documents.类别='销售出库' and documents.{} <> '' and {} = false {}) 
             and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
-            布尔字段3 = true and 文本字段10 = '')
+            布尔字段3 = true and 文本字段10 = '' {})
             or 单号 in 
                 (select 单号 from documents join
                     (select 文本字段6 from documents where documents.类别='运输发货' and
-                        布尔字段3 = false and 文本字段10 = '') as foo
+                        布尔字段3 = false and 文本字段10 = '' {}) as foo
                     on foo.文本字段6 = 单号
-                where 类别 = '商品销售' and 布尔字段1 = false)
+                where 类别 = '商品销售' and 布尔字段1 = false {}) {}
             order by 单号 desc"#,
             f_map2["简称"],
             limits,
@@ -294,7 +294,12 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             f_map4["销售单号"],
             f_map4["销售单号"],
             f_map4["审核"],
-            f_map4["发货完成"]
+            f_map4["发货完成"],
+            NOT_DEL_SQL,
+            NOT_DEL_SQL,
+            NOT_DEL_SQL, 
+            NOT_DEL_SQL,
+            NOT_DEL_SQL,
         );
 
         // println!("{}", sql);
@@ -320,9 +325,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             where documents.类别='材料采购' and documents.{} = false and 
             documents.文本字段10 != '' 
             and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 
-            布尔字段3 = true and 文本字段10 = '')
+            布尔字段3 = true and 文本字段10 = '' {}) {}
             order by 单号 desc"#,
-            f_map3["简称"], f_map5["入库完成"]
+            f_map3["简称"], f_map5["入库完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -342,9 +347,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             where {} documents.类别='商品销售' and documents.文本字段10 != '' and
             documents.{} = false and
             单号 not in (select 文本字段6 from documents where documents.类别='销售出库' and 
-            布尔字段3 = true and 文本字段10 = '')
+            布尔字段3 = true and 文本字段10 = '' {}) {}
             order by 单号 desc"#,
-            f_map2["简称"], limit, f_map["出库完成"],
+            f_map2["简称"], limit, f_map["出库完成"], NOT_DEL_SQL, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -361,9 +366,9 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let mut shen = Vec::new();
 
         let sql = format!(
-            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true and 文本字段10 = ''
+            r#"select 类别, count(单号) 数量 from documents where {} 布尔字段3 = true and 文本字段10 = '' {}
                 group by 类别"#,
-            limits,
+            limits, NOT_DEL_SQL
         );
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -380,8 +385,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         let mut others = Vec::new();
         let sql = format!(
             r#"select count(单号) as 数量 from documents
-            where {} 布尔字段3 = false and 已记账 = false and 类别 !='采购退货'"#,
-            limits
+            where {} 布尔字段3 = false and 已记账 = false and 类别 !='采购退货' {}"#,
+            limits, NOT_DEL_SQL
         );
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
@@ -394,8 +399,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         //采购退货未完成 ------------------------
         let sql = format!(
             r#"select count(单号) as 数量 from documents
-            where 类别='采购退货' and {} = false and 已记账 = false"#,
-            f_map5["入库完成"]
+            where 类别='采购退货' and {} = false and 已记账 = false {}"#,
+            f_map5["入库完成"], NOT_DEL_SQL
         );
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
@@ -408,8 +413,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         //销售退货未完成 ------------------------
         let sql = format!(
             r#"select count(单号) as 数量 from documents
-            where 类别='销售退货' and {} = false and 文本字段10 != '' and 已记账 = false"#,
-            f_map5["入库完成"]
+            where 类别='销售退货' and {} = false and 文本字段10 != '' and 已记账 = false {}"#,
+            f_map5["入库完成"], NOT_DEL_SQL
         );
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
@@ -422,8 +427,8 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
         //反审单据 ------------------------
         let sql = format!(
             r#"select count(单号) as 数量 from documents
-            where {} 文本字段10 = '' and 布尔字段3 = false and 已记账 = true"#,
-            limits
+            where {} 文本字段10 = '' and 布尔字段3 = false and 已记账 = true {}"#,
+            limits, NOT_DEL_SQL
         );
 
         let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
@@ -444,8 +449,8 @@ pub async fn get_waitshen(db: web::Data<Pool>, time: web::Path<String>) -> Strin
     let conn = db.get().await.unwrap();
 
     let sql = format!(
-        r#"select count(单号) 数量 from documents where 布尔字段3 = true and 文本字段10 = '' and 提交时间 > '{}'"#,
-        *time
+        r#"select count(单号) 数量 from documents where 布尔字段3 = true and 文本字段10 = '' and 提交时间 > '{}' {}"#,
+        *time, NOT_DEL_SQL
     );
 
     let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -523,7 +528,7 @@ pub async fn get_stockin_items(
             from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != ''
+            where {}{} and documents.文本字段10 != '' {}
             ORDER BY {} OFFSET {} LIMIT {}"#,
             f_map["到货日期"],
             f_map["入库日期"],
@@ -537,6 +542,7 @@ pub async fn get_stockin_items(
             post_data.sort,
             query_date,
             query_field,
+            NOT_DEL_SQL,
             post_data.sort,
             skip,
             post_data.rec
@@ -605,8 +611,8 @@ pub async fn get_stockin_items(
             r#"select count(products.{}) as 记录数 from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != ''"#,
-            f_map2["物料号"], query_date, query_field
+            where {}{} and documents.文本字段10 != '' {}"#,
+            f_map2["物料号"], query_date, query_field, NOT_DEL_SQL
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -690,7 +696,7 @@ pub async fn get_stockout_items(
             join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {} {} {} and documents.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
+            where {} {} {} and documents.文本字段10 != '' {} ORDER BY {} OFFSET {} LIMIT {}"#,
             f_map["客户"],
             f_map["合同编号"],
             f_map["销售单号"],
@@ -700,6 +706,7 @@ pub async fn get_stockout_items(
             limit,
             query_date,
             query_field,
+            NOT_DEL_SQL,
             post_data.sort,
             skip,
             post_data.rec
@@ -772,8 +779,8 @@ pub async fn get_stockout_items(
             join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {} {}{} and documents.文本字段10 != ''"#,
-            limit, query_date, query_field
+            where {} {}{} and documents.文本字段10 != '' {}"#,
+            limit, query_date, query_field, NOT_DEL_SQL
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -832,8 +839,8 @@ pub async fn get_trans_items(
             from document_items di 
             join documents d on d.单号 = di.单号id 
             join tree t on t.num = di.商品id
-            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, query_date, query_field, post_data.sort, skip, post_data.rec
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, query_date, query_field, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -905,8 +912,8 @@ pub async fn get_trans_items(
             r#"select count(*) as 记录数
             from document_items di 
             join documents d on d.单号 = di.单号id 
-            where {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
-            query_date, query_field
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {}"#,
+            query_date, query_field, NOT_DEL_SQL
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -993,7 +1000,7 @@ pub async fn stockin_excel(
                  ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from products
             join documents on products.单号id = documents.单号
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != ''
+            where {}{} and documents.文本字段10 != '' {}
             ORDER BY documents.日期 DESC"#,
             f_map["到货日期"],
             f_map["入库日期"],
@@ -1006,6 +1013,7 @@ pub async fn stockin_excel(
             f_map2["理论重量"],
             query_date,
             query_field,
+            NOT_DEL_SQL,
         );
         // println!("{}", sql);
 
@@ -1182,13 +1190,14 @@ pub async fn stockout_excel(
             join products on pout_items.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
-            where {}{} and documents.文本字段10 != '' order by documents.日期 DESC"#,
+            where {}{} and documents.文本字段10 != '' {} order by documents.日期 DESC"#,
             f_map["客户"],
             f_map["合同编号"],
             f_map2["状态"],
             f_map2["炉号"],
             query_date,
-            query_field
+            query_field,
+            NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -1347,8 +1356,8 @@ pub async fn trans_item_excel(
             from document_items di 
             join documents d on d.单号 = di.单号id 
             join tree t on t.num = di.商品id
-            where {} {} and d.类别 = '运输发货' and d.文本字段10 != ''"#,
-            query_date, query_field 
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {}"#,
+            query_date, query_field, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -1523,9 +1532,9 @@ pub async fn fetch_business(
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, limits, query_field, query_date, post_data.sort, skip, post_data.rec
+            post_data.sort, limits, query_field, query_date, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -1596,8 +1605,8 @@ pub async fn fetch_business(
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}"#,
-            limits, query_field, query_date
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}"#,
+            limits, query_field, query_date, NOT_DEL_SQL
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
@@ -1662,9 +1671,9 @@ pub async fn business_excel(
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
             join tree on tree.num = document_items.商品id
-            where {} documents.文本字段10 != '' and customers.类别='客户' {}{}
+            where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}
             ORDER BY documents.日期 DESC"#,
-            limits, query_field, query_date
+            limits, query_field, query_date, NOT_DEL_SQL
         );
 
         // println!("{}", sql);

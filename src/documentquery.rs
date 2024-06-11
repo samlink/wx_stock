@@ -76,31 +76,31 @@ pub async fn fetch_all_documents(
         if cate.len() > 1 {
             query_limit = if cate[1] == "wait_out" {
                 r#"documents.类别='商品销售' and documents.文本字段10 != '' and documents.布尔字段2 = false and 单号 not in
-                (select 文本字段6 from documents where documents.类别='销售出库' and 布尔字段3 = true and 文本字段10 = '') and"#.to_string()
+                (select 文本字段6 from documents where documents.类别='销售出库' and 布尔字段3 = true and 文本字段10 = '' and 作废=false) and"#.to_string()
             } else if cate[1] == "wait_shen" {
                 format!("documents.布尔字段3 = true and documents.文本字段10 = '' and documents.类别 = '{}' and", &cate[2])
             } else if cate[1] == "wait_trans" {
                 "documents.类别 = '商品销售' and documents.布尔字段1 = false and documents.文本字段10 != ''
                 and 单号 in (select documents.文本字段6 from documents where documents.文本字段6 <>''
-                and documents.类别='销售出库' and documents.文本字段10 != '' and 布尔字段1 = false) 
+                and documents.类别='销售出库' and documents.文本字段10 != '' and 布尔字段1 = false and 作废=false) 
                 and 单号 not in (select 文本字段6 from documents where documents.类别='运输发货' and 
-                布尔字段3 = true and 文本字段10 = '') 
+                布尔字段3 = true and 文本字段10 = '' and 作废=false) 
                 or 单号 in 
                 (select 单号 from documents join
                     (select 文本字段6 from documents where documents.类别='运输发货' and
-                        布尔字段3 = false and 文本字段10 = '') as foo
+                        布尔字段3 = false and 文本字段10 = '' and 作废=false) as foo
                     on foo.文本字段6 = 单号
-                where 类别 = '商品销售' and 布尔字段1 = false) and".to_owned()
+                where 类别 = '商品销售' and 布尔字段1 = false and 作废=false) and".to_owned()
             } else if cate[1] == "wait_money" {
                 "documents.类别 = '商品销售' and documents.是否欠款 = true and documents.文本字段10 != '' and 名称 != '实验室' and".to_owned()
             } else if cate[1] == "wait_kp" {
                 "documents.类别='商品销售' AND documents.是否欠款 = true AND documents.布尔字段1 = true AND
-                单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true) AND 
+                单号 not in (select 文本字段6 from documents where documents.类别='销售开票' and 布尔字段3 = true and 作废=false) AND 
                 名称 != '天津彩虹石油机械有限公司' AND 名称 != '实验室' and".to_owned()
             } else if cate[1] == "wait_in" {
                 "documents.类别 = '材料采购' and documents.布尔字段2 = false and documents.文本字段10 != '' 
                 and 单号 not in (select 文本字段6 from documents where documents.类别='采购入库' and 
-                布尔字段3 = true and 文本字段10 = '') and".to_owned()
+                布尔字段3 = true and 文本字段10 = '' and 作废=false) and".to_owned()
             } else if cate[1] == "wait_buy_back" {
                 "documents.类别 = '采购退货' and documents.布尔字段2 = false and documents.文本字段10 != '' and".to_owned()
             } else {
@@ -248,8 +248,8 @@ pub async fn fetch_a_documents(
             r#"SELECT 单号, documents.类别, documents.日期, ROW_NUMBER () OVER (ORDER BY {}) as 序号,
             经办人, customers.备注 FROM documents 
             JOIN customers ON documents.客商id=customers.id
-            WHERE {} ({}) AND ({}) ORDER BY {} OFFSET {} LIMIT {}"#,
-            post_data.sort, limits, doc_sql, sql_where, post_data.sort, skip, post_data.rec
+            WHERE {} ({}) AND ({}) {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            post_data.sort, limits, doc_sql, sql_where, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -274,8 +274,8 @@ pub async fn fetch_a_documents(
         let count_sql = format!(
             r#"SELECT count(单号) as 记录数 FROM documents 
             JOIN customers ON documents.客商id=customers.id 
-            WHERE {} {} AND ({})"#,
-            limits, doc_sql, sql_where
+            WHERE {} {} AND ({}) {}"#,
+            limits, doc_sql, sql_where, NOT_DEL_SQL
         );
 
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
