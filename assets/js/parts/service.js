@@ -124,7 +124,9 @@ var service = function () {
     }
 
     // 保存时，读取表格明细，n 为去除隐藏列及序号列的个数
-    let build_save_items = function (n, row, show_names) {
+    let build_save_items = function (name, row, show_names) {
+        let n = show_names.findIndex(item => item.name == name);
+        if (n == -1) return "";
         let save_str = "";
         let len = show_names.length;
         for (let i = n; i < len; i++) {

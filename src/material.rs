@@ -188,7 +188,7 @@ pub async fn materialin_saved_docs(
             f_map2["简称"], NOT_DEL_SQL, search, f_map["入库完成"], f_map["审核"], NOT_DEL_SQL
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         autocomplete(db, sql).await
     } else {
@@ -447,6 +447,7 @@ pub async fn get_items(db: web::Data<Pool>, data: web::Json<String>, id: Identit
     }
 }
 
+// 获取出库条目，用于出库单
 #[post("/get_items_out")]
 pub async fn get_items_out(
     db: web::Data<Pool>,
@@ -457,11 +458,15 @@ pub async fn get_items_out(
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let sql = &format!(
-            r#"SELECT 物料号 || '　' ||  || '{}' || split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                规格 || '　' || 状态 || '　' || 长度 || '　' || 数量 || '　' || 备注 ||  '{}' || 单价 || '{}' || id || '{}' || 出库状态 as item 
-            from document_items
-            JOIN tree ON 商品id = tree.num
-            WHERE 单号id = '{}' and 商品id <> '4_111'  order by 顺序"#,
+            r#"SELECT di.物料号 || '　' || p.文本字段4  || '{}' || split_part(node_name,' ',2) || '　' ||
+                split_part(node_name,' ',1) || '　' || p.规格型号 || '　' || p.文本字段2 || '　' ||
+                长度 || '　' || 数量 || '　' || di.备注 ||  '{}' || 单价 || '{}' || id || '{}' ||
+                出库状态 as item
+            from document_items di
+            JOIN products p on p.物料号 = di.物料号
+            JOIN tree ON p.商品id = tree.num
+            WHERE di.单号id = '{}' and di.物料号 <> '锯口费'
+            order by 顺序"#,
             SPLITER, SPLITER, SPLITER, SPLITER, data
         );
 

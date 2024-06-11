@@ -360,7 +360,7 @@ let page_stockin = function () {
             if (row.querySelector('.材质').textContent.trim() != "") {
                 let save_str = "";
                 // save_str = row.querySelector('.原物料号').getAttribute("data").split(SPLITER)[0] + SPLITER;
-                save_str += service.build_save_items(0, row, show_names);
+                save_str += service.build_save_items("序号", row, show_names);
                 save_str += row.querySelector('.原物料号').value;
                 table_data.push(save_str);
             }

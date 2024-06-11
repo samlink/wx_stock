@@ -506,7 +506,7 @@ let page_material = function () {
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(1)').textContent != "") {
                 let save_str = '';
-                save_str += service.build_save_items(0, row, show_names);
+                save_str += service.build_save_items("序号", row, show_names);
                 table_data.push(save_str);
             }
         }

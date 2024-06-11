@@ -457,11 +457,11 @@ pub async fn save_document(
             let value: Vec<&str> = item.split(SPLITER).collect();
             let items_sql = if fields_cate == "销售单据" {
                 format!(
-                    r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 执行标准, 类型, 单价, 长度,
-                        数量, 理重, 重量, 金额, 物料号, 备注, 顺序)
-                       VALUES('{}', '{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    r#"INSERT INTO document_items (单号id, 类型, 单价, 长度, 数量, 理重, 重量,
+                        金额, 物料号, 备注, 顺序)
+                       VALUES('{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
                     dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6],
-                    value[7], value[8], value[9], value[10], value[11], value[12], n
+                    value[7], value[8], n
                 )
             } else {
                 format!(
@@ -740,7 +740,7 @@ pub async fn fetch_trans_items(
     }
 }
 
-///获取单据明细
+///获取销售单明细
 #[post("/fetch_document_items_sales")]
 pub async fn fetch_document_items_sales(
     db: web::Data<Pool>,
@@ -753,10 +753,13 @@ pub async fn fetch_document_items_sales(
 
         let sql = format!(
             r#"select split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 执行标准, 类型, 单价, 长度, 数量, 理重, 重量, 物料号, 金额, 备注, 商品id
-                FROM document_items
-                JOIN tree ON 商品id=tree.num
-                WHERE 单号id='{}' ORDER BY 顺序"#,
+                    p.规格型号 规格, 文本字段2 状态, 文本字段3 执行标准, di.类型, 单价, 长度, 数量, 理重,
+                    重量, di.物料号, 金额, di.备注
+               FROM document_items di
+               JOIN products p ON p.物料号 = di.物料号
+               JOIN tree ON p.商品id = tree.num
+               WHERE di.单号id = '{}'
+               ORDER BY 顺序"#,
             data.dh
         );
 
@@ -781,13 +784,12 @@ pub async fn fetch_document_items_sales(
             let m: f32 = row.get("金额");
             let money: String = format!("{:.2}", m);
             let note: String = row.get("备注");
-            let m_id: String = row.get("商品id");
             let wu: String = row.get("物料号");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, stand, SPLITER,
                 ty, SPLITER, price, SPLITER, long, SPLITER, num, SPLITER, theary, SPLITER,
-                weight, SPLITER, money, SPLITER, wu, SPLITER, note, SPLITER, m_id,
+                weight, SPLITER, money, SPLITER, wu, SPLITER, note,
             );
 
             document_items.push(item)

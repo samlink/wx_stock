@@ -59,7 +59,7 @@ let page_sale = function () {
                                 }
                             }
                             service.set_shens_owner(set_data);
-                            service.fei_readonly(values[len - 6],"buy-content");
+                            service.fei_readonly(values[len - 6], "buy-content");
                         });
 
                     //同时获取相关单据信息, 加载表头内容时
@@ -242,17 +242,6 @@ let page_sale = function () {
                 editable: true,
                 is_save: true,
                 default: "",
-                css: 'style="border-right:none"'
-            });
-
-            show_names.push({
-                name: "",
-                width: 0,
-                class: "m_id",
-                type: "普通输入",
-                editable: false,
-                is_save: true,
-                css: 'style="width:0%; border-left:none; color:white"'
             });
 
             let show_th = [
@@ -489,7 +478,6 @@ let page_sale = function () {
         row_input.querySelector(`.num`).value = 1;
         row_input.querySelector(`.mount`).value = field_values[7];
         row_input.querySelector(`.物料号`).textContent = field_values[8];
-        row_input.querySelector(`.m_id`).textContent = field_values[0];
         calc_weight(row_input);
 
         let price_input = row_input.querySelector(`.price`);
@@ -525,10 +513,13 @@ let page_sale = function () {
         let table_data = [];
         let all_rows = document.querySelectorAll('.table-items .has-input');
         for (let row of all_rows) {
-            if (row.querySelector('td:nth-child(2) input').value != "") {
-                let save_str = `${row.querySelector('td:nth-child(16)').textContent.trim()}${SPLITER}`;
-                save_str += service.build_save_items(2, row, show_names);
-                table_data.push(save_str);
+            if (row.querySelector('.名称') && row.querySelector('.名称').value != "") {
+                let save_items = service.build_save_items("类型", row, show_names);  // show_names 从“类型”开始索引
+                if (save_items != "") {
+                    table_data.push(save_items);
+                }
+            } else {
+                break;
             }
         }
 
@@ -538,6 +529,8 @@ let page_sale = function () {
             remember: document.querySelector('#remember-button').textContent,
             items: table_data,
         }
+
+        // console.log(data);
 
         fetch(`/save_document`, {
             method: 'post',

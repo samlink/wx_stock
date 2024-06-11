@@ -393,7 +393,7 @@ let page_buyin = function () {
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(2) input').value != "") {
                 let save_str = `${row.querySelector('td:nth-child(12)').textContent.trim()}${SPLITER}`;
-                save_str += service.build_save_items(2, row, show_names);
+                save_str += service.build_save_items("规格", row, show_names);
                 table_data.push(save_str);
             }
         }
