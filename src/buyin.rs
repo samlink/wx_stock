@@ -276,7 +276,7 @@ pub async fn fetch_one_product(
                           SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
                           f_map["执行标准"], SPLITER, f_map["售价"], SPLITER, f_map["库存长度"], SPLITER,
                           f_map["物料号"], f_map["物料号"], product_id, NOT_DEL_SQL
-                        );
+        );
 
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -306,8 +306,8 @@ pub async fn get_status_auto(
                         join documents on 单号id = 单号
                         where lower(products.{}) like '%{}%' and documents.文本字段10 <> '' {}
                         order by products.{} limit 10",
-                        f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), NOT_DEL_SQL, f_map[&search.cate]
-                        );
+                          f_map[&search.cate], f_map[&search.cate], search.s.to_lowercase(), NOT_DEL_SQL, f_map[&search.cate]
+        );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -343,8 +343,8 @@ pub async fn get_truck_auto(
             r#"select distinct 文本字段11 label, '1' as id from documents
                 where 类别='运输发货' and 文本字段5 like '%{}%' and 
                 lower(文本字段11) like '%{}%' {}"#,
-            search.cate,            search.s.to_lowercase(), NOT_DEL_SQL
-                );
+            search.cate, search.s.to_lowercase(), NOT_DEL_SQL
+        );
         autocomplete(db, &sql).await
     } else {
         HttpResponse::Ok().json(-1)
@@ -379,7 +379,130 @@ pub struct Document {
     pub items: Vec<String>,
 }
 
-///保存单据
+///保存销售单据
+#[post("/save_document_sale")]
+pub async fn save_document_sale(
+    db: web::Data<Pool>,
+    data: web::Json<Document>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id.clone(), "".to_owned()).await;
+    if user.name != "" {
+        let mut conn = db.get().await.unwrap();
+        let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
+        let mut doc_sql;
+
+        let f_map = map_fields(db.clone(), "销售单据").await;
+
+        let fields = get_inout_fields(db.clone(), "销售单据").await;
+        let dh_data = doc_data[1].to_owned();
+        let mut dh = doc_data[1].to_owned();
+
+        // 更新单据信息
+        if dh_data == "新单据" {
+            dh = get_dh(db.clone(), doc_data[0]).await;
+
+            let mut init = "INSERT INTO documents (单号,".to_owned();
+            for f in &fields {
+                init += &format!("{},", &*f.field_name);
+            }
+
+            init += &format!(
+                "客商id,类别,{},{}) VALUES('{}',",
+                f_map["经办人"], f_map["区域"], dh
+            );
+
+            doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
+            doc_sql += &format!(
+                "{},'{}','{}', '{}')",
+                doc_data[2], doc_data[0], doc_data[3], user.area
+            );
+        } else {
+            let init = "UPDATE documents SET ".to_owned();
+            doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
+            doc_sql += &format!(
+                "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
+                doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
+            );
+        }
+
+        // println!("{}", doc_sql);
+
+        let transaction = conn.transaction().await.unwrap();
+        transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
+
+        // 更新明细
+        if dh_data == "新单据" {
+            let mut n = 1;
+            for item in &data.items {
+                let value: Vec<&str> = item.split(SPLITER).collect();
+                let items_sql = format!(
+                    r#"INSERT INTO document_items (单号id, 类型, 单价, 长度, 数量, 理重, 重量,
+                        金额, 物料号, 备注, 顺序)
+                       VALUES('{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6],
+                    value[7], value[8], n
+                );
+
+                // println!("{}", items_sql);
+
+                transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+                n += 1;
+            }
+
+            let _result = transaction.commit().await;
+        } else {
+            let mut n = 1;
+            for item in &data.items {
+                let value: Vec<&str> = item.split(SPLITER).collect();
+                let items_sql = format!(
+                    r#"INSERT INTO document_items (单号id, 类型, 单价, 长度, 数量, 理重, 重量,
+                        金额, 物料号, 备注, 顺序)
+                       VALUES('{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
+                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6],
+                    value[7], value[8], n
+                );
+
+                // println!("{}", items_sql);
+
+                transaction.execute(items_sql.as_str(), &[]).await.unwrap();
+                n += 1;
+            }
+
+            let _result = transaction.commit().await;
+
+            // 处理发货完成
+            let conn2 = db.get().await.unwrap();
+            let sql = format!(
+                r#"select {} 发货完成 from documents where 单号='{}' {}"#,
+                f_map["发货完成"], dh, NOT_DEL_SQL
+            );
+            let row = &conn2.query_one(sql.as_str(), &[]).await.unwrap();
+            let comp: bool = row.get("发货完成");
+            let f_map2 = map_fields(db.clone(), "出库单据").await;
+            let comp_sql = format!(
+                r#"update documents set {} = {} where {}='{}'"#,
+                f_map2["发货完成"], comp, f_map2["销售单号"], dh
+            );
+            let _ = &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
+        }
+
+        // 处理彩虹石油
+        let conn2 = db.get().await.unwrap();
+        let owe = if doc_data[2] == "25" { false } else { true };
+        let sql = format!(
+            r#"update documents set 是否欠款 = {} where 单号 = '{}'"#,
+            owe, dh
+        );
+
+        let _ = &conn2.query(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(dh)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
 #[post("/save_document")]
 pub async fn save_document(
     db: web::Data<Pool>,
@@ -392,9 +515,7 @@ pub async fn save_document(
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
         let mut doc_sql;
 
-        let fields_cate = if data.rights.contains("销售") {
-            "销售单据"
-        } else if data.rights.contains("采购") {
+        let fields_cate = if data.rights.contains("采购") {
             "采购单据"
         } else {
             "库存调整"
@@ -439,39 +560,22 @@ pub async fn save_document(
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
         if dh_data != "新单据" {
-            if fields_cate == "销售单据" {
-                transaction
-                    .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
-                    .await
-                    .unwrap();
-            } else {
-                transaction
-                    .execute("DELETE FROM document_buy WHERE 单号id=$1", &[&dh])
-                    .await
-                    .unwrap();
-            }
+            transaction
+                .execute("DELETE FROM document_buy WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
         }
 
         let mut n = 1;
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
-            let items_sql = if fields_cate == "销售单据" {
-                format!(
-                    r#"INSERT INTO document_items (单号id, 类型, 单价, 长度, 数量, 理重, 重量,
-                        金额, 物料号, 备注, 顺序)
-                       VALUES('{}', '{}', {}, {}, {}, {}, {}, {}, '{}', '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5], value[6],
-                    value[7], value[8], n
-                )
-            } else {
-                format!(
-                    r#"INSERT INTO document_buy (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
+            let items_sql = format!(
+                r#"INSERT INTO document_buy (单号id, 商品id, 规格, 状态, 执行标准, 单价, 长度,
                         重量, 金额, 备注, 顺序)
                         VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, '{}', {})"#,
-                    dh, value[0], value[1], value[2], value[3], value[4], value[5],
-                    value[6], value[7], value[8], n
-                )
-            };
+                dh, value[0], value[1], value[2], value[3], value[4], value[5],
+                value[6], value[7], value[8], n
+            );
             // println!("{}", items_sql);
 
             transaction.execute(items_sql.as_str(), &[]).await.unwrap();
@@ -480,39 +584,12 @@ pub async fn save_document(
 
         let _result = transaction.commit().await;
 
-        if dh_data != "新单据" && fields_cate == "销售单据" {
-            let conn2 = db.get().await.unwrap();
-            let sql = format!(
-                r#"select {} 发货完成 from documents where 单号='{}' {}"#,
-                f_map["发货完成"], dh, NOT_DEL_SQL
-            );
-            let row = &conn2.query_one(sql.as_str(), &[]).await.unwrap();
-            let comp: bool = row.get("发货完成");
-            let f_map2 = map_fields(db.clone(), "出库单据").await;
-            let comp_sql = format!(
-                r#"update documents set {} = {} where {}='{}'"#,
-                f_map2["发货完成"], comp, f_map2["销售单号"], dh
-            );
-            let _ = &conn2.query(comp_sql.as_str(), &[]).await.unwrap();
-        }
-
-        // 处理彩虹石油
-        if fields_cate == "销售单据" {
-            let conn2 = db.get().await.unwrap();
-            let owe = if doc_data[2] == "25" { false } else { true };
-            let sql = format!(
-                r#"update documents set 是否欠款 = {} where 单号 = '{}'"#,
-                owe, dh
-            );
-
-            let _ = &conn2.query(sql.as_str(), &[]).await.unwrap();
-        }
-
         HttpResponse::Ok().json(dh)
     } else {
         HttpResponse::Ok().json(-1)
     }
 }
+
 
 #[derive(Deserialize, Serialize)]
 pub struct History {
