@@ -321,15 +321,10 @@ let page_buyin = function () {
     function calc_money(input_row) {
         let price = input_row.querySelector('.price').value;
         let mount = input_row.querySelector('.mount').value;
-
-        price = price.trim() == "" ? 0 : price;
-        mount = mount.trim() == "" ? 0 : mount;
-
         let money = "0";
         if (price && regReal.test(price) && mount && regReal.test(mount)) {
             money = (price * mount).toFixed(2);
         }
-
         input_row.querySelector('.money').textContent = money;
     }
 

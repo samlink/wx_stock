@@ -437,10 +437,17 @@ pub async fn save_document(
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
         if dh_data != "新单据" {
-            transaction
-                .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
-                .await
-                .unwrap();
+            if fields_cate == "销售单据" {
+                transaction
+                    .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
+                    .await
+                    .unwrap();
+            } else {
+                transaction
+                    .execute("DELETE FROM document_buy WHERE 单号id=$1", &[&dh])
+                    .await
+                    .unwrap();
+            }
         }
 
         let mut n = 1;
@@ -636,7 +643,7 @@ pub async fn fetch_document_items(
             r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
                 规格, 状态, 执行标准, 单价, 长度, round((重量)::numeric,1)::real 重量, 
                 round((单价*重量)::numeric,2)::real as 金额, 备注
-                FROM document_items
+                FROM document_buy
                 JOIN tree ON 商品id=tree.num
                 WHERE 单号id='{}' ORDER BY 顺序"#,
             data.dh
@@ -1411,29 +1418,28 @@ pub async fn check_ku(db: web::Data<Pool>, data: String, id: Identity) -> HttpRe
     if user.name != "" {
         let conn = db.get().await.unwrap();
         let mut result = Vec::new();
-        let da: Vec<&str> = data.split(SPLITER).collect();
+        let dh_data: Vec<&str> = data.split("##").collect();  // L658：1690##XS2406-015
+        let da: Vec<&str> = dh_data[0].split(SPLITER).collect();
         for d in da {
             let now_num: Vec<&str> = d.split("：").collect();
-            let field: Vec<&str> = now_num[0].split("##").collect();
+            let wu_num = now_num[0];
 
             let sql = format!(
-                r#"select sum(整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::real from products
-                                LEFT JOIN cut_length() as foo
-                                ON products.文本字段1 = foo.物料号
-                                where 商品id = '{}' and trim(BOTH FROM 规格型号) = '{}' and trim(BOTH FROM 文本字段2) = '{}' 
-                                group by 商品id,规格型号,文本字段2"#,
-                field[0], field[1], field[2]
+                r#"select 库存长度 from products
+                   LEFT JOIN length_weight('{}') as foo
+                   ON products.文本字段1 = foo.物料号
+                   where 文本字段1 = '{}'"#,
+                dh_data[1], wu_num
             );
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-            let mut v: f32 = 0f32;
+            let mut v: i32 = 0;
             for row in rows {
                 v = row.get(0);
             }
 
-            if now_num[1].parse::<f32>().unwrap() > v {
-                let re = format!("{}#${}#${}", field[0], field[1], field[2]);
-                result.push(re);
+            if now_num[1].parse::<i32>().unwrap() > v + 10 {    // 10 为切分损耗补偿
+                result.push(wu_num);
             }
         }
 

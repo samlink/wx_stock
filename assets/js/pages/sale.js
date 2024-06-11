@@ -263,7 +263,7 @@ let page_sale = function () {
                 {name: "执行标准", width: 100},
                 {name: "库存长度", width: 80},
                 {name: "库存重量", width: 80},
-                {name: "物料号", width: 60},
+                {name: "物料号", width: 90},
             ];
 
             auto_data = [{
@@ -509,7 +509,8 @@ let page_sale = function () {
             return false;
         }
 
-        service.check_ku(save);
+        let dh = dh_div.textContent == "新单据" ? "" : dh_div.textContent;
+        service.check_ku(dh, save);
     });
 
     function save() {

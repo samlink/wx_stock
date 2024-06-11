@@ -251,7 +251,7 @@ pub async fn materialsale_saved_docs(
             f_map3["简称"], NOT_DEL_SQL, search, f_map["审核"], f_map["出库完成"], NOT_DEL_SQL
         );
 
-        println!("{}",sql);
+        // println!("{}",sql);
 
         autocomplete(db, sql).await
     } else {

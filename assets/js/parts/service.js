@@ -697,17 +697,17 @@ var service = function () {
     }
 
     // 检查是否超过库存
-    let check_ku = function (save) {
+    let check_ku = function (dh, save) {
         let ku = new Map();
         let all_rows = document.querySelectorAll('.table-items .has-input');
 
         for (let row of all_rows) {
-            if (row.querySelector('.材质').textContent.trim() != "") {
-                let key = `${row.querySelector('.m_id').textContent.trim()}##${row.querySelector('.规格').textContent.trim()}##${row.querySelector('.状态').textContent.trim()}`;
+            let cz = row.querySelector('.材质').textContent.trim();
+            if (cz != "" && cz != "--") {
+                let key = `${row.querySelector('.物料号').textContent.trim()}`;
                 let num1 = row.querySelector('.num');
                 let num = num1 ? num1.value : 1;
-                let l = row.querySelector('.long');
-                let long = l ? l.value : row.querySelector('.长度').value;
+                let long = row.querySelector('.long').value;
 
                 let now_num = 0;
                 if (long && regReal.test(long) && num && regReal.test(num)) {
@@ -728,6 +728,7 @@ var service = function () {
         }
 
         ku_str = ku_str.substring(0, ku_str.lastIndexOf(SPLITER));
+        ku_str += "##" + dh;
 
         fetch(`/check_ku`, {
             method: 'post',
@@ -749,12 +750,9 @@ var service = function () {
                     for (let row of all_rows) {
                         row.classList.remove('ku_danger');
                     }
-                    for (let c of content) {
-                        let ku = c.split('#$');
+                    for (let wu_num of content) {
                         for (let row of all_rows) {
-                            if (row.querySelector('.m_id').textContent.trim() == ku[0] &&
-                                row.querySelector('.规格').textContent.trim() == ku[1] &&
-                                row.querySelector('.状态').textContent.trim() == ku[2]) {
+                            if (row.querySelector('.物料号').textContent.trim() == wu_num) {
                                 row.classList.add('ku_danger');
                             }
                         }
@@ -1030,8 +1028,8 @@ var service = function () {
     // 作废单据设为只读
     let fei_readonly = function (fei_bool, container) {
         if (fei_bool == "true") {
-            setTimeout(()=> {
-                document.querySelectorAll(`.${container} button`).forEach(button =>{
+            setTimeout(() => {
+                document.querySelectorAll(`.${container} button`).forEach(button => {
                     button.setAttribute('disabled', 'disabled');
                 });
                 document.querySelectorAll(`.${container} input`).forEach(input => {
@@ -1040,7 +1038,7 @@ var service = function () {
                 document.querySelectorAll(`.${container} select`).forEach(input => {
                     input.setAttribute('disabled', 'disabled');
                 });
-            },200)
+            }, 200)
         }
     }
 
