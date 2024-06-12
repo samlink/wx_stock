@@ -924,7 +924,7 @@ pub async fn get_items_trans(
             f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
-        println!("{}", sql);
+        // println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();

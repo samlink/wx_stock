@@ -1180,7 +1180,7 @@ pub async fn make_xs_wight(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select xsid, sum(重量) as 重量 from pout_items where 单号id = '{}' group by xsid;"#,
+            r#"select 销售id, sum(重量) as 重量 from pout_items where 单号id = '{}' group by 销售id;"#,
             dh
         );
 
@@ -1190,7 +1190,7 @@ pub async fn make_xs_wight(
             let weight: f32 = row.get("重量");
 
             let sql = format!(
-                r#"update document_items set 重量 = {} where id::text = '{}'"#,
+                r#"update document_items set 重量 = {} where id = '{}'"#,
                 weight, id
             );
 
