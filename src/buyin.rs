@@ -909,13 +909,15 @@ pub async fn get_items_trans(
         // let da: Vec<&str> = data.split(" ").collect();
         let sql = &format!(
             r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
-                {} || '　' || {} || '　' || {} || '　' || pout_items.长度 || '　' || pout_items.数量 || '　' ||
-                pout_items.理重 || '　' || pout_items.重量 || '　' || 单价 || '　' || pout_items.备注 || '　' || 
-                商品id || '　' || pout_items.单号id as item
-            FROM pout_items
-            JOIN products ON products.物料号 = pout_items.物料号
+                {} || '　' || {} || '　' || {} || '　' || di.长度 || '　' || pi.数量 || '　' ||
+                pi.理重 || '　' || pi.重量 || '　' || 单价 || '　' || di.金额 || '　' || pi.备注 || '　' ||
+                di.物料号 || '　' || pi.单号id as item
+            FROM pout_items pi
+            join document_items di on di.id = pi.销售id
+            JOIN products ON products.物料号 = di.物料号
             JOIN tree ON 商品id = num
-            WHERE pout_items.单号id = '{}' order by 顺序"#,
+            WHERE pi.单号id = '{}'
+            order by pi.顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
@@ -930,10 +932,13 @@ pub async fn get_items_trans(
 
         // 补上锯口费
         let sql = format!(
-            r#"SELECT '锯口费' || '　' || '--' || '　' || '' || '　' || '' || '　' || '' || '　' || 长度 || '　' || 数量 || '　' ||
-                理重 || '　' || 重量 || '　' || 单价 || '　' || 备注 || '　' || 商品id || '　' || '{}' as item
-                from document_items 
-                where 单号id = (select 文本字段6 销售单号 from documents where 单号= '{}' {}) and 商品id = '4_111'"#,
+            r#"SELECT '锯口费' || '　' || '--' || '　' || '' || '　' || '' || '　' || '' || '　' ||
+                    长度 || '　' || 数量 || '　' || 理重 || '　' || 重量 || '　' || 单价 || '　' ||
+                    di.金额 || '　' || di.备注 || '　' || di.物料号 || '　' || '{}' as item
+                from document_items di
+                join products on products.物料号 = di.物料号
+                where di.单号id = (select 文本字段6 销售单号
+                    from documents where 单号= '{}' {}) and di.物料号 = '锯口费'"#,
             data, data, NOT_DEL_SQL
         );
 

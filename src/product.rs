@@ -44,9 +44,6 @@ pub async fn fetch_product(
         if !user.rights.contains("跨区查库存") {
             area = format!(r#"AND products.{}='{}'"#, f_map["区域"], user.area);
         }
-        if post_data.cate == "销售单据" {
-            done = format!("AND products.{}='否'", f_map["切完"]);
-        }
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
@@ -804,7 +801,7 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
         let sql = if da.len() == 1 {
             format!("select pi.单号id, 类别, 日期, pi.数量, di.长度*pi.数量 as 总长, pi.重量, pi.备注
                     from pout_items pi
-                    join document_items di on di.id = pi.单号id
+                    join document_items di on di.id = pi.销售id
                     join documents on 单号 = pi.单号id
                     where 物料号 = '{}' and 文本字段10 <> '' {}
                     order by pi.单号id desc", da[0], NOT_DEL_SQL)
@@ -812,7 +809,7 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
             format!("select pi.单号id, max(类别) 类别, max(日期) 日期, sum(pi.数量)::int 数量,
                         sum(di.长度*pi.数量)::int as 总长, sum(pi.重量) 重量, max(pi.备注) 备注
                         from pout_items pi
-                        join document_items di on di.id = pi.单号id
+                        join document_items di on di.id = pi.销售id
                         join documents on 单号 = pi.单号id
                         where 物料号 = '{}' and 文本字段10 = '' {}
                         group by pi.单号id

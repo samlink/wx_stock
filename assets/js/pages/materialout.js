@@ -20,6 +20,8 @@ let page_materialout = function () {
             if (content != -1) {
                 document_table_fields = content;
                 if (dh_div.textContent != "新单据") {
+                    document.querySelector('#all-out').disabled = true;
+
                     fetch(`/fetch_document_ck`, {
                         method: 'post',
                         headers: {
@@ -213,8 +215,7 @@ let page_materialout = function () {
 
                     if (material[4] == "已") {
                         done = "class='red'";
-                    }
-                    else if (material[4] == "分") {
+                    } else if (material[4] == "分") {
                         done = "class='yellow'";
                     }
 
@@ -231,37 +232,56 @@ let page_materialout = function () {
                             document.querySelector('#save-button').disabled == true) {
                             return false;
                         }
-                        let wu_lu = l.querySelector('td:nth-child(1)').textContent.split('　');
-                        let value = l.querySelector('td:nth-child(2)').textContent.split('　');
-                        show_names[1].value = value[0];    // 名称 ...
-                        show_names[2].value = value[1];
-                        show_names[3].value = value[2];
-                        show_names[4].value = value[3];
-                        show_names[5].value = wu_lu[1];    // 炉号
-                        show_names[6].value = value[4];
-                        show_names[7].value = value[5];
-                        show_names[8].value = value[4] * value[5];
-                        show_names[9].value = wu_lu[0];   // 物料号
-                        show_names[12].value = value[6];
-                        show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
-                        show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
-                        show_names[15].value = l.querySelector('td:nth-child(4)').textContent;
-
-                        let data = {
-                            show_names: show_names,
-                            lines: table_lines,
-                            dh: dh_div.textContent,
-                            // auto_data: auto_data,
-                            document: document_name,
-                            calc_func: get_weight,
-                            calc_func2: weight,
-                        }
-
-                        edit_table.build_out_table(data);
-                        edited = 1;
+                        item_out(l);
                     })
                 }
             });
+    }
+
+    // 全部出库按钮
+    document.querySelector('#all-out').addEventListener('click', function () {
+        let lines = document.querySelectorAll(".table-history tbody tr");
+        if (lines.length == 0) return false;
+        alert_confirm('将替换表格内容，确认全部出库吗？', {
+            confirmCallBack: () => {
+                document.querySelector(".table-items tbody").innerHTML = "";
+                for (let l of lines) {
+                    item_out(l);
+                }
+                this.disabled = true;
+            },
+        });
+    });
+
+    function item_out(l) {
+        let wu_lu = l.querySelector('td:nth-child(1)').textContent.split('　');
+        let value = l.querySelector('td:nth-child(2)').textContent.split('　');
+        show_names[1].value = value[0];    // 名称 ...
+        show_names[2].value = value[1];
+        show_names[3].value = value[2];
+        show_names[4].value = value[3];
+        show_names[5].value = wu_lu[1];    // 炉号
+        show_names[6].value = value[4];
+        show_names[7].value = value[5];
+        show_names[8].value = value[4] * value[5];
+        show_names[9].value = wu_lu[0];   // 物料号
+        show_names[12].value = value[6];
+        show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
+        show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
+        show_names[15].value = l.querySelector('td:nth-child(4)').textContent;
+
+        let data = {
+            show_names: show_names,
+            lines: table_lines,
+            dh: dh_div.textContent,
+            // auto_data: auto_data,
+            document: document_name,
+            calc_func: get_weight,
+            calc_func2: weight,
+        }
+
+        edit_table.build_out_table(data);
+        edited = 1;
     }
 
     let ku = new Map();  // 记忆物料库存长度
@@ -275,15 +295,15 @@ let page_materialout = function () {
     //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
     show_names = [
-        { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true },
-        { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false },
-        { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false },
-        { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false },
-        { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
-        { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: false },
-        { name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true },
-        { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
+        {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true},
+        {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false},
+        {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false},
+        {name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false},
+        {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false},
+        {name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false},
+        {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: false},
+        {name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true},
+        {name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false},
         {
             name: "物料号",
             width: 100,
@@ -292,8 +312,8 @@ let page_materialout = function () {
             editable: false,
             is_save: false,
         },
-        { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
-        { name: "理论重量", width: 40, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
+        {name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true,},
+        {name: "理论重量", width: 40, class: "理论重量", type: "普通输入", editable: false, is_save: true,},
         {
             name: "　备注",
             width: 100,

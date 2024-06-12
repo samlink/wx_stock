@@ -7,7 +7,6 @@ let page_transport = function () {
 
     let document_name = "发货单据";
     let shen_print = "";   //打印审核人
-    // let customer_po = "";  //用于打印的全局变量
 
     //获取单据表头部分的字段（字段设置中的右表内容）
     fetch(`/fetch_inout_fields`, {
@@ -226,10 +225,6 @@ let page_transport = function () {
 
                                 for (let c of content) {
                                     let value = c.split('　');
-                                    let money = Number(value[9] * value[8]).toFixed(2);
-                                    if (value[0] == "锯口费") {
-                                        money = Number(value[9] * value[6]).toFixed(2);
-                                    }
                                     show_names[1].value = value[0];
                                     show_names[2].value = value[1];
                                     show_names[3].value = value[2];
@@ -240,10 +235,10 @@ let page_transport = function () {
                                     show_names[8].value = value[7];
                                     show_names[9].value = value[8];
                                     show_names[10].value = value[9];
-                                    show_names[11].value = money;
-                                    show_names[12].value = value[10];
-                                    show_names[13].value = value[11];
-                                    show_names[14].value = value[12];
+                                    show_names[11].value = Number(value[10]).toFixed(2);
+                                    show_names[12].value = value[11];
+                                    show_names[13].value = value[12];
+                                    show_names[14].value = value[13];
 
                                     let data = {
                                         show_names: show_names,
@@ -369,7 +364,7 @@ let page_transport = function () {
         { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
         { name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: true, is_save: true, },
         { name: "单价", width: 30, class: "单价", type: "普通输入", editable: false, is_save: true },
-        { name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: false, no_button: true },
+        { name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: false },
         {
             name: "备注",
             width: 100,
