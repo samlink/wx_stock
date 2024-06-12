@@ -518,7 +518,7 @@ let page_material = function () {
             items: table_data,
         }
 
-        console.log(data);
+        // console.log(data);
 
         fetch(`/save_material`, {
             method: 'post',
@@ -627,7 +627,7 @@ let page_material = function () {
     //审核时，将对采购单做入库完成的确认
     function make_complete(dh) {
         //与销售单共用
-        fetch(`/make_ck_complete`, {
+        fetch(`/make_rk_complete`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",

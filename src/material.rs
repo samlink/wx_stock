@@ -716,10 +716,9 @@ pub async fn save_material(
                 if rkid != value[13] {
                     rkid = value[13];
                     let dh_sql = format!(
-                        r#"update document_items set 出库完成 = true where id::text = '{}'"#, // 与销售单据共用出库完成
+                        r#"update document_buy set 入库完成 = true where id = '{}'"#,
                         rkid
                     );
-                    // let _ = conn2.query(dh_sql.as_str(), &[]).await;
                     transaction.execute(dh_sql.as_str(), &[]).await.unwrap();
                 }
             }
@@ -728,6 +727,7 @@ pub async fn save_material(
                 .execute(items_sql.as_str(), &[])
                 .await
                 .unwrap_or(0);
+
             if re == 0 {
                 return HttpResponse::Ok().json(-2); //物料号重复时无法保存
             }
@@ -1186,7 +1186,7 @@ pub async fn make_xs_wight(
 
         let rows = conn.query(sql.as_str(), &[]).await.unwrap();
         for row in rows {
-            let id: &str = row.get("xsid");
+            let id: &str = row.get("销售id");
             let weight: f32 = row.get("重量");
 
             let sql = format!(
@@ -1202,7 +1202,31 @@ pub async fn make_xs_wight(
     }
 }
 
-// 确认销售单的出库完成
+// 确认入库完成
+#[post("/make_rk_complete")]
+pub async fn make_rk_complete(
+    db: web::Data<Pool>,
+    dh: web::Json<String>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id, "".to_owned()).await;
+    if user.name != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(
+            r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
+            (select 入库完成 from document_buy where 单号id='{}' and 商品id <> '4_111');"#,
+            dh, dh
+        );
+
+        let _ = conn.query(sql.as_str(), &[]).await;
+
+        HttpResponse::Ok().json(1)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+// 确认出库完成
 #[post("/make_ck_complete")]
 pub async fn make_ck_complete(
     db: web::Data<Pool>,
@@ -1214,7 +1238,7 @@ pub async fn make_ck_complete(
         let conn = db.get().await.unwrap();
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号='{}' and false not in
-            (select 出库完成 from document_items where 单号id='{}' and 商品id <> '4_111');"#,
+            (select 出库完成 from document_items where 单号id='{}' and 物料号 <> '锯口费');"#,
             dh, dh
         );
 
@@ -1222,7 +1246,7 @@ pub async fn make_ck_complete(
 
         let sql = format!(
             r#"update documents set 布尔字段2 = true where 单号 ='{}' and
-                (select sum(数量) from document_items where 单号id ='{}' and 商品id <> '4_111') = 
+                (select sum(数量) from document_items where 单号id ='{}' and 物料号 <> '锯口费') =
                 (select sum(数量) from pout_items where 单号id in
                 (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}))"#,
             dh, dh, dh, NOT_DEL_SQL

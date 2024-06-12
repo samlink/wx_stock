@@ -655,8 +655,8 @@ pub async fn get_stockout_items(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(di.物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR
                 LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
                 name,
@@ -664,8 +664,6 @@ pub async fn get_stockout_items(
                 name,
                 name,
                 f_map2["状态"],
-                name,
-                f_map2["炉号"],
                 name,
                 name,
                 f_map["合同编号"],
@@ -689,12 +687,13 @@ pub async fn get_stockout_items(
 
         let sql = format!(
             r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, documents.{} 销售单号,
-                 split_part(node_name,' ',2) as 名称, 物料号, split_part(node_name,' ',1) as 材质, 
-                 规格型号, products.{} 状态, products.{} 炉号, 长度, 数量, 重量,
-                 pout_items.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
-            from pout_items
-            join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.物料号
+                 split_part(node_name,' ',2) as 名称, di.物料号, split_part(node_name,' ',1) as 材质,
+                 规格型号, products.{} 状态, products.{} 炉号, di.长度, pi.数量, pi.重量,
+                 pi.备注, ROW_NUMBER () OVER (ORDER BY {}) as 序号
+            from pout_items pi
+            join documents on pi.单号id = documents.单号
+            join document_items di on di.id = pi.销售id
+            join products on di.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {} {} and documents.文本字段10 != '' {} ORDER BY {} OFFSET {} LIMIT {}"#,
@@ -775,9 +774,10 @@ pub async fn get_stockout_items(
         }
 
         let count_sql = format!(
-            r#"select count(物料号) as 记录数 from pout_items
+            r#"select count(di.物料号) as 记录数 from pout_items
             join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.物料号
+            join document_items di on di.id = pout_items.销售id
+            join products on di.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {}{} and documents.文本字段10 != '' {}"#,
