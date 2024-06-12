@@ -322,8 +322,8 @@ let page_transport = function () {
         for (let i = 0; i < all_input.length; i++) {
             let mount = Number(all_input[i].querySelector('.理论重量').textContent);
             let money = Number(all_input[i].querySelector('.总价').textContent);
-            let n = Number(all_input[i].querySelector('.数量').value);
-            let weight_s = Number(all_input[i].querySelector('.实际重量').value);
+            let n = Number(all_input[i].querySelector('.数量').textContent);
+            let weight_s = Number(all_input[i].querySelector('.实际重量').textContent);
 
             sum += money;
             sum_n += n;
@@ -338,7 +338,7 @@ let page_transport = function () {
     function weight(input_row) {
         let data = {
             long: input_row.querySelector('.长度').textContent.trim(),
-            num: input_row.querySelector('.数量').value.trim(),
+            num: input_row.querySelector('.数量').textContent.trim(),
             name: input_row.querySelector('.名称').textContent.trim(),
             cz: input_row.querySelector('.材质').textContent.trim(),
             gg: input_row.querySelector('.规格').textContent.trim(),
@@ -353,18 +353,18 @@ let page_transport = function () {
     //构建商品规格表字段，字段设置中的右表数据 --------------------------
 
     show_names = [
-        { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true },
-        { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false },
-        { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false },
-        { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false },
-        { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
-        { name: "炉号", width: 80, class: "炉号", type: "普通输入", editable: false, is_save: false },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
-        { name: "数量", width: 30, class: "数量", type: "普通输入", editable: false, is_save: true },
-        { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
-        { name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: false, is_save: true, },
-        { name: "单价", width: 30, class: "单价", type: "普通输入", editable: false, is_save: true },
-        { name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: true },
+        {name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true},
+        {name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false},
+        {name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false},
+        {name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false},
+        {name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false},
+        {name: "炉号", width: 80, class: "炉号", type: "普通输入", editable: false, is_save: false},
+        {name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true},
+        {name: "数量", width: 30, class: "数量", type: "普通输入", editable: false, is_save: true},
+        {name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true,},
+        {name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: false, is_save: true,},
+        {name: "单价", width: 30, class: "单价", type: "普通输入", editable: false, is_save: true},
+        {name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: true},
         {
             name: "备注",
             width: 100,
@@ -433,26 +433,42 @@ let page_transport = function () {
 
                 let trs = document.querySelectorAll('.table-items .has-input');
 
+                let lus_arr = [];
                 for (let tr of trs) {
-                    if (tr.querySelector(".炉号")) {
-                        let lu = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
-                        fetch("/fetch_lu", {
-                            method: 'post',
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify(lu),
-                        })
-                            .then(response => response.json())
-                            .then(content => {
-                                if (content != "" && content != -1) {
-                                    tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                    let lu = tr.querySelector('.炉号');
+                    if (lu.textContent.trim() != '') {
+                        // 不可换行
+                        let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                        lus_arr.push(da);
+                    } else {
+                        break;
+                    }
+                }
+
+                console.log(lus_arr);
+
+                if (lus_arr.length > 0) {
+                    fetch("/fetch_lu", {
+                        method: 'post',
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(lus_arr),
+                    })
+                        .then(response => response.json())
+                        .then(content => {
+                            for (let tr of trs) {
+                                let lu = tr.querySelector('.炉号');
+                                if (!lu) break;
+                                for (let cont of content) {
+                                    let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                                    if (cont.indexOf(da) != -1) {
+                                        lu.innerHTML = `<a href="${cont}" title="点击下载质保书">${lu.textContent.trim()}</a>`;
+                                        break;
+                                    }
                                 }
-                            })
-                    }
-                    else {
-                        continue;
-                    }
+                            }
+                        })
                 }
             });
     }
@@ -564,67 +580,65 @@ let page_transport = function () {
 
     //打印
     document.querySelector('#print-button').addEventListener('click', async function () {
-        //错误勘察
-        if (!error_check()) {
-            return false;
-        }
+            //错误勘察
+            if (!error_check()) {
+                return false;
+            }
 
-        let select_print = document.querySelector('#select-print').value;
+            let select_print = document.querySelector('#select-print').value;
 
-        if (select_print == "发货单" && document.querySelector('#remember-button').textContent == "审核") {
-            notifier.show('审核后才能打印', 'danger');
-            return false;
-        }
+            if (select_print == "发货单" && document.querySelector('#remember-button').textContent == "审核") {
+                notifier.show('审核后才能打印', 'danger');
+                return false;
+            }
 
-        // 获取客户PO
-        let cus_po = await (await fetch("/get_customer_po", {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: document.querySelector('#文本字段6').value.trim(),
-        })).json();
+            // 获取客户PO
+            let cus_po = await (await fetch("/get_customer_po", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: document.querySelector('#文本字段6').value.trim(),
+            })).json();
 
-        if (select_print == "发货单") {
-            document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-销售发货单";
+            if (select_print == "发货单") {
+                document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-销售发货单";
 
-            let p = `<p style="padding:0">客户名称：${document.querySelector('#文本字段5').value}</p>
+                let p = `<p style="padding:0">客户名称：${document.querySelector('#文本字段5').value}</p>
                         <p>客户地址：${document.querySelector('#文本字段1').value}</p>`;
-            document.querySelector('#p-block1').innerHTML = p;
+                document.querySelector('#p-block1').innerHTML = p;
 
-            let contact = `收货人/电话：${document.querySelector('#文本字段8').value} ${document.querySelector('#文本字段9').value}`;
-            p = `<p>发货日期：${document.querySelector('#日期').value}</p><p>${contact}</p>`;
-            document.querySelector('#p-block2').innerHTML = p;
+                let contact = `收货人/电话：${document.querySelector('#文本字段8').value} ${document.querySelector('#文本字段9').value}`;
+                p = `<p>发货日期：${document.querySelector('#日期').value}</p><p>${contact}</p>`;
+                document.querySelector('#p-block2').innerHTML = p;
 
-            p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
-            document.querySelector('#p-block3').innerHTML = p;
+                p = `<p>合同号：${document.querySelector('#文本字段3').value}</p><p>车号：${document.querySelector('#文本字段2').value} / ${document.querySelector('#文本字段11').value}</p>`;
+                document.querySelector('#p-block3').innerHTML = p;
 
-            p = `<p>客户PO：${cus_po}</p><p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>`;
-            document.querySelector('#p-block4').innerHTML = p;
-        }
-        else {
-            document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-结算单";
+                p = `<p>客户PO：${cus_po}</p><p>销售单号：${document.querySelector('#文本字段6').value.split('　')[0]}</p>`;
+                document.querySelector('#p-block4').innerHTML = p;
+            } else {
+                document.querySelector('#print .print-title').innerHTML = "<img src='/assets/img/logo_blue.png'/> 五星(天津)石油装备有限公司-结算单";
 
-            let p = `<p style="padding:0">客户：${document.querySelector('#文本字段5').value}</p>`;
-            document.querySelector('#p-block1').innerHTML = p;
+                let p = `<p style="padding:0">客户：${document.querySelector('#文本字段5').value}</p>`;
+                document.querySelector('#p-block1').innerHTML = p;
 
-            p = `<p>合同号：${document.querySelector('#文本字段3').value}</p>`;
-            document.querySelector('#p-block2').innerHTML = p;
+                p = `<p>合同号：${document.querySelector('#文本字段3').value}</p>`;
+                document.querySelector('#p-block2').innerHTML = p;
 
-            p = `<p>日期：${document.querySelector('#日期').value}</p>`;
-            document.querySelector('#p-block4').innerHTML = p;
+                p = `<p>日期：${document.querySelector('#日期').value}</p>`;
+                document.querySelector('#p-block4').innerHTML = p;
 
-            if (cus_po.trim() != "") {
-                p = `<p>客户PO：${cus_po}</p>`;
+                if (cus_po.trim() != "") {
+                    p = `<p>客户PO：${cus_po}</p>`;
+                } else {
+                    p = "";
+                }
+
+                document.querySelector('#p-block3').innerHTML = p;
             }
-            else {
-                p = "";
-            }
 
-            document.querySelector('#p-block3').innerHTML = p;
-        }
-
-        var th = `<tr>
+            var th = `<tr>
         <th width="3%">序号</th>
         <th width="7%">商品名称</th>
         <th width="8%">材质</th>
@@ -640,54 +654,54 @@ let page_transport = function () {
         <th width="8%">备注</th>
     </tr>`;
 
-        document.querySelector('.print-table thead').innerHTML = th;
+            document.querySelector('.print-table thead').innerHTML = th;
 
-        let sum_money = 0;
-        let sum_weight = 0;
-        let sum_li_weight = 0;
-        let sum_zhi = 0;
+            let sum_money = 0;
+            let sum_weight = 0;
+            let sum_li_weight = 0;
+            let sum_zhi = 0;
 
-        let all_rows = document.querySelectorAll('.table-items .has-input');
-        let trs = '';
-        for (let row of all_rows) {
-            trs += '<tr>';
-            for (let i = 1; i < 14; i++) {
-                let t = row.querySelector(`td:nth-child(${i}) input`);
-                let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
-                trs += `<td>${td}</td>`;
+            let all_rows = document.querySelectorAll('.table-items .has-input');
+            let trs = '';
+            for (let row of all_rows) {
+                trs += '<tr>';
+                for (let i = 1; i < 14; i++) {
+                    let t = row.querySelector(`td:nth-child(${i}) input`);
+                    let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+                    trs += `<td>${td}</td>`;
+                }
+
+                trs += '</tr>';
+
+                sum_weight += Number(row.querySelector(`.实际重量`).textContent);
+                sum_money += Number(row.querySelector(`.总价`).textContent);
+                sum_li_weight += Number(row.querySelector(`.理论重量`).textContent);
+                let name = row.querySelector('.名称').textContent.trim();
+                sum_zhi += name != "锯口费" ? Number(row.querySelector(`.数量`).textContent) : 0;
             }
 
-            trs += '</tr>';
+            // 补空行
+            let len = 6 - all_rows.length;
+            trs += append_blanks(len, 13);
 
-            sum_weight += Number(row.querySelector(`td:nth-child(10) input`).value);
-            sum_money += Number(row.querySelector(`td:nth-child(12)`).textContent);
-            sum_li_weight += Number(row.querySelector(`td:nth-child(9)`).textContent);
-            let name = row.querySelector('td:nth-child(2)').textContent.trim();
-            sum_zhi += name != "锯口费" ? Number(row.querySelector(`td:nth-child(8) input`).value) : 0;
-        }
-
-        // 补空行
-        let len = 6 - all_rows.length;
-        trs += append_blanks(len, 13);
-
-        trs += `<tr><td colspan="2">合计</td>${append_cells(5)}<td>${sum_zhi}</td><td>${sum_li_weight.toFixed(1)}</td>
+            trs += `<tr><td colspan="2">合计</td>${append_cells(5)}<td>${sum_zhi}</td><td>${sum_li_weight.toFixed(1)}</td>
              <td>${sum_weight.toFixed(1)}</td><td></td><td>${sum_money.toFixed(2)}</td><td></td>`;
-        trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money.toFixed(2))}</td>`;
-        trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
+            trs += `<tr><td colspan="2">合计（大写）</td><td colspan="11">${moneyUppercase(sum_money.toFixed(2))}</td>`;
+            trs += `<tr class='no-bottom' style="height: 40px"><td colspan="2">备注</td><td colspan="11"></td>`;
 
-        document.querySelector('.print-table tbody').innerHTML = trs;
+            document.querySelector('.print-table tbody').innerHTML = trs;
 
-        if (select_print == "发货单") {
-            document.querySelector('#p-block5').innerHTML = `<p>制单人：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
-            document.querySelector('#p-block6').innerHTML = `<p>审核：${shen_print}</p>`;
-            document.querySelector('#p-block7').innerHTML = '<p>装车：</p>';
-            document.querySelector('#p-block8').innerHTML = '<p>提货：</p>';
+            if (select_print == "发货单") {
+                document.querySelector('#p-block5').innerHTML = `<p>制单人：${document.querySelector('#user-name').textContent.split('　')[1]}</p>`;
+                document.querySelector('#p-block6').innerHTML = `<p>审核：${shen_print}</p>`;
+                document.querySelector('#p-block7').innerHTML = '<p>装车：</p>';
+                document.querySelector('#p-block8').innerHTML = '<p>提货：</p>';
+            }
+
+            document.querySelector('#print').hidden = false;
+            Print('#print', {});
+            document.querySelector('#print').hidden = true;
         }
-
-        document.querySelector('#print').hidden = false;
-        Print('#print', {});
-        document.querySelector('#print').hidden = true;
-    }
     );
 
     //审核单据
