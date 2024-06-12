@@ -97,7 +97,7 @@ async fn main() -> std::io::Result<()> {
             .service(buyin::fetch_one_product)
             .service(buyin::save_document)
             .service(buyin::save_document_sale)
-            .service(buyin::save_stransport)
+            .service(buyin::save_transport)
             .service(buyin::save_document_kp)
             .service(buyin::fetch_fh_items)
             .service(buyin::make_xs_kp)

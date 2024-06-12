@@ -698,12 +698,13 @@ pub async fn fetch_trans_items(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 商品id, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 
-                case when 商品id <> '4_111' then (单价*重量)::real else 
-                (单价*数量)::real end as 金额, 备注 FROM document_items
-                JOIN tree ON 商品id=tree.num
-                WHERE 单号id='{}' ORDER BY 顺序"#,
+            r#"select df.物料号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
+                    规格型号 规格, 文本字段2 状态, 文本字段4 炉号, 长度, 数量, 理重, 重量, 单价, 金额, df.备注
+                FROM document_fh df
+                join products p on p.物料号 = df.物料号
+                JOIN tree ON 商品id = tree.num
+                WHERE df.单号id = '{}'
+                ORDER BY 顺序"#,
             data.dh
         );
 
@@ -712,7 +713,7 @@ pub async fn fetch_trans_items(
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
         for row in rows {
-            let m_id: String = row.get("商品id");
+            let m_id: String = row.get("物料号");
             let name: String = row.get("名称");
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
@@ -910,7 +911,9 @@ pub async fn get_items_trans(
         let sql = &format!(
             r#"SELECT split_part(node_name,' ',2) || '　' || split_part(node_name,' ',1) || '　' ||
                 {} || '　' || {} || '　' || {} || '　' || di.长度 || '　' || pi.数量 || '　' ||
-                pi.理重 || '　' || pi.重量 || '　' || 单价 || '　' || di.金额 || '　' || pi.备注 || '　' ||
+                pi.理重 || '　' || pi.重量 || '　' || 单价 || '　' ||
+                case when di.类型 = '按重量' then di.单价 * pi.重量 else di.单价 * pi.数量 end
+                || '　' || pi.备注 || '　' ||
                 di.物料号 || '　' || pi.单号id as item
             FROM pout_items pi
             join document_items di on di.id = pi.销售id
@@ -921,7 +924,7 @@ pub async fn get_items_trans(
             f_map["规格"], f_map["状态"], f_map["炉号"], data
         );
 
-        // println!("{}", sql);
+        println!("{}", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
@@ -955,8 +958,8 @@ pub async fn get_items_trans(
 }
 
 ///保存运输发货单据
-#[post("/save_stransport")]
-pub async fn save_stransport(
+#[post("/save_transport")]
+pub async fn save_transport(
     db: web::Data<Pool>,
     data: web::Json<crate::material::Document>,
     id: Identity,
@@ -1010,7 +1013,7 @@ pub async fn save_stransport(
 
         if dh_data != "新单据" {
             transaction
-                .execute("DELETE FROM document_items WHERE 单号id=$1", &[&dh])
+                .execute("DELETE FROM document_fh WHERE 单号id=$1", &[&dh])
                 .await
                 .unwrap();
         }
@@ -1018,17 +1021,19 @@ pub async fn save_stransport(
         let mut ckdh = "";
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
+            let id = format!("{}-{}", dh, value[0]);
             let items_sql = format!(
-                r#"INSERT INTO document_items (单号id, 商品id, 规格, 状态, 炉号, 长度, 数量, 理重, 重量, 单价, 备注, 顺序)
-                     VALUES('{}', '{}', '{}', '{}', '{}', {}, {}, {}, {}, {}, '{}',{})"#,
-                dh, value[10], value[1], value[2], value[3], value[4], value[5], value[6],
-                value[7], value[8], value[9], value[0]
+                r#"INSERT INTO document_fh (id, 单号id, 物料号, 长度, 数量, 理重, 重量, 单价,
+                        金额, 备注, 顺序)
+                   VALUES('{}', '{}', '{}', {}, {}, {}, {}, {}, {},'{}', {})"#,
+                id, dh, value[8], value[1], value[2], value[3], value[4], value[5],
+                value[6], value[7], value[0]
             );
 
-            // 发货完成
-            if value.len() > 11 && value[11] != "" {
-                if ckdh != value[11] {
-                    ckdh = value[11];
+            // 发货完成, value[9] 是发货单号
+            if value.len() > 9 && value[9] != "" {
+                if ckdh != value[9] {
+                    ckdh = value[9];
                     let dh_sql = format!(
                         r#"update documents set 布尔字段1 = true where 单号 = '{}'"#,
                         ckdh

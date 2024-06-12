@@ -356,15 +356,15 @@ let page_transport = function () {
         { name: "序号", width: 10, class: "序号", type: "普通输入", editable: false, is_save: true },
         { name: "名称", width: 40, class: "名称", type: "普通输入", editable: false, is_save: false },
         { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false },
-        { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: true },
-        { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: true },
-        { name: "炉号", width: 80, class: "炉号", type: "普通输入", editable: false, is_save: true },
+        { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false },
+        { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
+        { name: "炉号", width: 80, class: "炉号", type: "普通输入", editable: false, is_save: false },
         { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
-        { name: "数量", width: 30, class: "数量", type: "普通输入", editable: true, is_save: true },
+        { name: "数量", width: 30, class: "数量", type: "普通输入", editable: false, is_save: true },
         { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
-        { name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: true, is_save: true, },
+        { name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: false, is_save: true, },
         { name: "单价", width: 30, class: "单价", type: "普通输入", editable: false, is_save: true },
-        { name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: false },
+        { name: "总价", width: 60, class: "总价", type: "普通输入", editable: false, is_save: true },
         {
             name: "备注",
             width: 100,
@@ -519,9 +519,9 @@ let page_transport = function () {
             items: table_data,
         }
 
-        // console.log(data);
+        console.log(data);
 
-        fetch(`/save_stransport`, {
+        fetch(`/save_transport`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",
