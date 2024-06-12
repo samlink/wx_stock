@@ -5,12 +5,7 @@ let page_materialout = function () {
 
     //单据顶部信息构造显示，并添加事件处理 -----------------------------------------------------------
 
-    let document_name;
-    if (document_bz.indexOf("入库") != -1) {
-        document_name = "入库单据";
-    } else if (document_bz.indexOf("出库") != -1) {
-        document_name = "出库单据";
-    }
+    let document_name = "出库单据";
 
     //获取单据表头部分的字段（字段设置中的右表内容）
     fetch(`/fetch_inout_fields`, {
@@ -286,7 +281,7 @@ let page_materialout = function () {
         { name: "规格", width: 50, class: "规格", type: "普通输入", editable: false, is_save: false },
         { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false },
         { name: "炉号", width: 100, class: "炉号", type: "普通输入", editable: false, is_save: false },
-        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: true },
+        { name: "长度", width: 30, class: "长度", type: "普通输入", editable: false, is_save: false },
         { name: "数量", width: 20, class: "数量", type: "普通输入", editable: true, is_save: true },
         { name: "总长度", width: 30, class: "总长度", type: "普通输入", editable: false, is_save: false },
         {
@@ -295,7 +290,7 @@ let page_materialout = function () {
             class: "物料号",
             type: "普通输入",
             editable: false,
-            is_save: true,
+            is_save: false,
         },
         { name: "重量", width: 30, class: "重量", type: "普通输入", editable: true, is_save: true, },
         { name: "理论重量", width: 40, class: "理论重量", type: "普通输入", editable: false, is_save: true, },
@@ -322,7 +317,7 @@ let page_materialout = function () {
             class: "s_id",
             type: "普通输入",
             editable: false,
-            is_save: true,
+            is_save: false,
             css: 'style="width:0%; border-left:none; border-right:none; color:white"',
         }, {
             name: "",
@@ -330,7 +325,7 @@ let page_materialout = function () {
             class: "d_id",
             type: "普通输入",
             editable: false,
-            is_save: true,
+            is_save: false,
             css: 'style="width:0%; border-left:none; color:white"',
         },
     ];
@@ -457,7 +452,7 @@ let page_materialout = function () {
     //保存
     document.querySelector('#save-button').addEventListener('click', function () {
         //错误勘察
-        if (!error_check() || !ku_check()) {
+        if (!error_check()) {
             return false;
         }
 
@@ -655,54 +650,42 @@ let page_materialout = function () {
         }
         for (let row of all_rows) {
             if (row.querySelector('td:nth-child(1)').textContent != "") {
-                if (row.querySelector('.auto-input').value.trim() == "") {
-                    notifier.show(`物料号不能为空`, 'danger');
-                    return false;
-                }
-
                 if (row.querySelector('.重量').value && !regReal.test(row.querySelector('.重量').value)) {
                     notifier.show(`重量输入错误`, 'danger');
                     return false;
                 } else if (!row.querySelector('.重量').value) {
                     row.querySelector('.重量').value = 0;
                 }
-
-                let wl = row.querySelector('.物料号')
-                if (wl.getAttribute("data") != "undefined" &&
-                    wl.getAttribute("data").split(SPLITER).length == 1 && dh_div.textContent == "新单据") {
-                    notifier.show(`${wl.value} 不在库中`, 'danger');
-                    return false;
-                }
             }
         }
         return true;
     }
 
-    function ku_check() {
-        let now_ku = new Map();
-        let all_rows = document.querySelectorAll('.table-items .has-input');
-
-        for (let row of all_rows) {
-            if (row.querySelector('.名称').textContent.trim() != "") {
-                let key = row.querySelector('.物料号').value.trim();
-                let long = row.querySelector('.总长度').textContent.trim();
-
-                if (now_ku.has(key)) {
-                    now_ku.set(key, now_ku.get(key) + Number(long));
-                } else {
-                    now_ku.set(key, Number(long));
-                }
-            }
-        }
-
-        for (let [key, value] of now_ku) {
-            if (ku.has(key) && value > ku.get(key)) {
-                notifier.show(`${key} 超过库存长度}`, 'danger');
-                return false;
-            }
-        }
-        return true;
-    }
+    // function ku_check() {
+    //     let now_ku = new Map();
+    //     let all_rows = document.querySelectorAll('.table-items .has-input');
+    //
+    //     for (let row of all_rows) {
+    //         if (row.querySelector('.名称').textContent.trim() != "") {
+    //             let key = row.querySelector('.物料号').value.trim();
+    //             let long = row.querySelector('.总长度').textContent.trim();
+    //
+    //             if (now_ku.has(key)) {
+    //                 now_ku.set(key, now_ku.get(key) + Number(long));
+    //             } else {
+    //                 now_ku.set(key, Number(long));
+    //             }
+    //         }
+    //     }
+    //
+    //     for (let [key, value] of now_ku) {
+    //         if (ku.has(key) && value > ku.get(key)) {
+    //             notifier.show(`${key} 超过库存长度}`, 'danger');
+    //             return false;
+    //         }
+    //     }
+    //     return true;
+    // }
 
     window.onbeforeunload = function (e) {
         if (edited || edit_table.input_table_outdata().edited) {

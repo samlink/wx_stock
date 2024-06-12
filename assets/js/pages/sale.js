@@ -532,7 +532,7 @@ let page_sale = function () {
 
         // console.log(data);
 
-        fetch(`/save_document`, {
+        fetch(`/save_document_sale`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",

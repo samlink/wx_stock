@@ -155,8 +155,9 @@ pub async fn fetch_cost(
             let sql = format!(
                 r#"select COALESCE(sum(库存下限-COALESCE(理重合计,0)),0) as 库存重量 from products
                     LEFT JOIN
-                        (select 物料号, sum(理重) as 理重合计 from pout_items
+                        (select 物料号, sum(pout_items.理重) as 理重合计 from pout_items
                             join documents on 单号id = 单号
+                            join document_items on pout_items.销售id = document_items.id
                             where {} documents.日期::date <= '{}'::date and documents.文本字段10 != '' {}
                             group by 物料号
                         ) as foo
