@@ -461,41 +461,6 @@ pub async fn save_document_sale(
     }
 }
 
-async fn get_doc_sql(db: web::Data<Pool>, user: UserData, doc_data: Vec<&str>, table_name: &str) -> (String, String) {
-    let f_map = map_fields(db.clone(), table_name).await;
-    let fields = get_inout_fields(db.clone(), table_name).await;
-    let mut dh = doc_data[1].to_owned();
-    let mut doc_sql;
-    // 更新单据信息
-    if dh == "新单据" {
-        dh = get_dh(db.clone(), doc_data[0]).await;
-
-        let mut init = "INSERT INTO documents (单号,".to_owned();
-        for f in &fields {
-            init += &format!("{},", &*f.field_name);
-        }
-
-        init += &format!(
-            "客商id,类别,{},{}) VALUES('{}',",
-            f_map["经办人"], f_map["区域"], dh
-        );
-
-        doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
-        doc_sql += &format!(
-            "{},'{}','{}', '{}')",
-            doc_data[2], doc_data[0], doc_data[3], user.area
-        );
-    } else {
-        let init = "UPDATE documents SET ".to_owned();
-        doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
-        doc_sql += &format!(
-            "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-            doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
-        );
-    }
-    (dh, doc_sql)
-}
-
 #[post("/save_document")]
 pub async fn save_document(
     db: web::Data<Pool>,

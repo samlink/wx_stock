@@ -802,20 +802,28 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
         let da: Vec<&str> = data.split('#').collect();
 
         let sql = if da.len() == 1 {
-            format!("select 单号id, 类别, 日期, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
-                        join documents on 单号 = 单号id
-                        where 物料号 = '{}' and 文本字段10 <> '' {} order by 单号id desc", da[0], NOT_DEL_SQL)
+            format!("select pi.单号id, 类别, 日期, pi.数量, di.长度*pi.数量 as 总长, pi.重量, pi.备注
+                    from pout_items pi
+                    join document_items di on di.id = pi.单号id
+                    join documents on 单号 = pi.单号id
+                    where 物料号 = '{}' and 文本字段10 <> '' {}
+                    order by pi.单号id desc", da[0], NOT_DEL_SQL)
         } else {
-            format!("select 单号id, max(类别) 类别, max(日期) 日期, sum(数量)::int 数量, sum(长度*数量)::int as 总长, sum(重量) 重量, max(pout_items.备注) 备注 from pout_items
-                        join documents on 单号 = 单号id
+            format!("select pi.单号id, max(类别) 类别, max(日期) 日期, sum(pi.数量)::int 数量,
+                        sum(di.长度*pi.数量)::int as 总长, sum(pi.重量) 重量, max(pi.备注) 备注
+                        from pout_items pi
+                        join document_items di on di.id = pi.单号id
+                        join documents on 单号 = pi.单号id
                         where 物料号 = '{}' and 文本字段10 = '' {}
-                        group by 单号id
+                        group by pi.单号id
                     union all
-                    select 单号id, max(类别) 类别, max(日期) 日期, sum(数量)::int 数量, sum(长度*数量)::int as 总长, sum(理重) 重量, max(document_items.备注) 备注 from document_items
-                        join documents on 单号 = 单号id
-                        where 单号id like 'XS%' and 物料号 = '{}' and 出库完成 = false  {}
-                        group by 单号id
-                        order by 单号id desc", da[0], NOT_DEL_SQL, da[0], NOT_DEL_SQL)
+                    (select di.单号id, max(类别) 类别, max(日期) 日期, sum(数量)::int 数量,
+                        sum(长度*数量)::int as 总长, sum(理重) 重量, max(di.备注) 备注
+                        from document_items di
+                        join documents on 单号 = di.单号id
+                        where di.单号id like 'XS%' and 物料号 = '{}' and 出库完成 = false  {}
+                        group by di.单号id
+                        order by di.单号id desc)", da[0], NOT_DEL_SQL, da[0], NOT_DEL_SQL)
         };
 
         // println!("{}", sql);

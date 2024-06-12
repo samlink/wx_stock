@@ -325,7 +325,7 @@ let page_materialout = function () {
             class: "d_id",
             type: "普通输入",
             editable: false,
-            is_save: false,
+            is_save: true,
             css: 'style="width:0%; border-left:none; color:white"',
         },
     ];
@@ -362,7 +362,7 @@ let page_materialout = function () {
                     show_names: show_names,
                     rows: content,              //已有单据需要 rows
                     lines: table_lines,
-                    auto_data: auto_data,
+                    // auto_data: auto_data,
                     dh: dh_div.textContent,
                     document: document_name,
                     calc_func: get_weight,      // 自动计算的函数, 可带参数
@@ -394,7 +394,7 @@ let page_materialout = function () {
     function get_weight(input_row) {
         input_row.querySelector('.数量').addEventListener('blur', function () {
             let mount = input_row.querySelector('.数量').value;
-            let long = input_row.querySelector('.长度').value;
+            let long = input_row.querySelector('.长度').textContent.trim();
             if (regInt.test(mount) && regInt.test(long)) {
                 input_row.querySelector('.总长度').textContent = mount * long;
                 weight(input_row);

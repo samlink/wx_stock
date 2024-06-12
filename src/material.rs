@@ -367,7 +367,7 @@ pub async fn material_auto_kt(
     }
 }
 
-///获取单据字段
+///获取出库单据字段
 #[post("/fetch_document_ck")]
 pub async fn fetch_document_ck(
     db: web::Data<Pool>,
@@ -764,10 +764,9 @@ pub async fn save_material_ck(
         let f_map = map_fields(db.clone(), fields_cate).await;
 
         let fields = get_inout_fields(db.clone(), fields_cate).await;
-        let dh_data = doc_data[1].to_owned();
         let mut dh = doc_data[1].to_owned();
 
-        if dh_data == "新单据" {
+        if dh == "新单据" {
             dh = get_dh(db.clone(), doc_data[0]).await;
 
             let mut init = "INSERT INTO documents (单号, 客商id,".to_owned();
@@ -797,7 +796,7 @@ pub async fn save_material_ck(
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
         // 单据明细
-        if dh_data != "新单据" {
+        if dh != "新单据" {
             transaction
                 .execute("DELETE FROM pout_items WHERE 单号id=$1", &[&dh])
                 .await
@@ -806,12 +805,13 @@ pub async fn save_material_ck(
 
         for item in &data.items {
             let value: Vec<&str> = item.split(SPLITER).collect();
+
+            let id = format!("{}-{}", dh, value[0]);
             let items_sql = if fields_cate == "出库单据" {
                 format!(
-                    r#"INSERT INTO pout_items (单号id, 长度, 数量, 物料号, 重量, 理重, 备注, 单价, 顺序, xsid)
-                     VALUES('{}',  {}, {}, '{}', {}, {}, '{}', {}, {}, '{}')"#,
-                    dh, value[1], value[2], value[3], value[4], value[5], value[6], value[7],
-                    value[0], value[8],
+                    r#"INSERT INTO pout_items (id, 单号id, 数量, 重量, 理重, 备注, 顺序, 销售id)
+                     VALUES('{}', '{}', {}, {}, {}, '{}', {}, '{}')"#,
+                    id, dh, value[1], value[2], value[3], value[4], value[0], value[5]
                 )
             } else {
                 format!(
@@ -837,8 +837,10 @@ pub async fn save_material_ck(
 
             dh_sql = format!(
                 r#"update document_items set 出库状态='已', 出库完成 = true from 
-                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}) group by xsid) foo
-                where document_items.id::text = foo.xsid and document_items.数量 = foo.sum"#,
+                (select 销售id, sum(数量) 数量 from pout_items where 单号id in
+                    (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {})
+                group by 销售id) foo
+                where document_items.id = foo.销售id and document_items.数量 = foo.数量"#,
                 sale_dh, NOT_DEL_SQL
             );
 
@@ -846,8 +848,10 @@ pub async fn save_material_ck(
 
             dh_sql = format!(
                 r#"update document_items set 出库状态='分', 出库完成 = false from 
-                (select xsid,sum(数量) from pout_items where 单号id in (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {}) group by xsid) foo
-                where document_items.id::text = foo.xsid and document_items.数量 > foo.sum"#,
+                (select 销售id, sum(数量) 数量 from pout_items where 单号id in
+                    (select 单号 from documents where 文本字段6='{}' and 类别='销售出库' {})
+                group by 销售id) foo
+                where document_items.id = foo.销售id and document_items.数量 > foo.数量"#,
                 sale_dh, NOT_DEL_SQL
             );
 
@@ -1043,12 +1047,14 @@ pub async fn fetch_document_items_ck(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!(
-            r#"select COALESCE(split_part(node_name,' ', 2),'') as 名称, COALESCE(split_part(node_name,' ', 1), '') as 材质,
-                COALESCE({},'') as 规格, COALESCE({}, '') as 状态, COALESCE({}, '') as 炉号, 长度, 数量, (长度*数量)::integer as 总长度,
-                物料号, 重量, 理重, pout_items.备注, COALESCE(商品id, '') 商品id, 单价, xsid FROM pout_items
-                left JOIN products ON products.物料号=物料号
-                left JOIN tree ON 商品id=tree.num
-                WHERE pout_items.单号id='{}' ORDER BY pout_items.顺序"#,
+            r#"select split_part(node_name,' ', 2) 名称, split_part(node_name,' ', 1) 材质,
+                    {} 规格, {} 状态, {} 炉号, di.长度, pi.数量, (di.长度*pi.数量)::integer as 总长度,
+                    di.物料号, pi.重量, pi.理重, pi.备注, 商品id, 单价, 销售id
+                FROM pout_items pi
+                join document_items di on di.id = pi.销售id
+                JOIN products ON products.物料号 = di.物料号
+                JOIN tree ON 商品id = tree.num
+                WHERE pi.单号id = '{}' ORDER BY pi.顺序"#,
             f_map["规格"], f_map["状态"], f_map["炉号"], data.dh
         );
 
@@ -1072,7 +1078,7 @@ pub async fn fetch_document_items_ck(
                 let note: String = row.get("备注");
                 let m_id: String = row.get("商品id");
                 let s_id: f32 = row.get("单价");
-                let d_id: String = row.get("xsid");
+                let d_id: String = row.get("销售id");
                 let item = format!(
                     "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                     name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long,
