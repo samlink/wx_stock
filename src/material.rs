@@ -1113,15 +1113,14 @@ pub async fn fetch_document_items_tc(
         let conn = db.get().await.unwrap();
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = format!(
-            r#"select split_part(node_name,' ', 2) 名称, split_part(node_name,' ', 1) 材质,
-                    {} 规格, {} 状态, {} 炉号, di.长度, pi.数量, (di.长度*pi.数量)::integer as 总长度,
-                    di.物料号, pi.重量, pi.理重, pi.备注, 商品id, 单价, 销售id
-                FROM pout_items pi
-                join document_items di on di.id = pi.销售id
-                JOIN products ON products.物料号 = di.物料号
+            r#"select dt.物料号, split_part(node_name,' ', 2) 名称, split_part(node_name,' ', 1) 材质,
+                    {} 规格, {} 状态, 长度, 理重, dt.备注
+                FROM document_tc dt
+                JOIN products ON products.物料号 = dt.物料号
                 JOIN tree ON 商品id = tree.num
-                WHERE pi.单号id = '{}' ORDER BY pi.顺序"#,
-            f_map["规格"], f_map["状态"], f_map["炉号"], data.dh
+                WHERE dt.单号id = '{}'
+                ORDER BY 顺序"#,
+            f_map["规格"], f_map["状态"], data.dh
         );
 
         // println!("{}", sql);
@@ -1130,20 +1129,18 @@ pub async fn fetch_document_items_tc(
         let mut document_items: Vec<String> = Vec::new();
 
         for row in rows {
+            let num: String = row.get("物料号");
             let name: String = row.get("名称");
             let cz: String = row.get("材质");
             let gg: String = row.get("规格");
             let status: String = row.get("状态");
             let long: i32 = row.get("长度");
-            let num: String = row.get("物料号");
-            let weight: f32 = row.get("重量");
             let theory: f32 = row.get("理重");
             let note: String = row.get("备注");
-            let m_id: String = row.get("商品id");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 num, SPLITER, name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, long,
-                SPLITER, weight, SPLITER, theory, SPLITER, note, SPLITER, m_id, SPLITER
+                SPLITER, theory, SPLITER, note
             );
 
             document_items.push(item);

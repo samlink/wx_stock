@@ -189,8 +189,7 @@ let page_stockout = function () {
         edit_table.build_blank_table(data);
         edit_table.appand_edit_row();
     } else {
-        // let url = document_name == "入库单据" ?  : "/fetch_document_items"
-        fetch("/fetch_document_items_ck", {
+        fetch("/fetch_document_items_tc", {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",

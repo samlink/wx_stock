@@ -784,8 +784,8 @@ struct PoutItem {
     cate: String,
     date: String,
     // long: i32,
-    all_long: i32,
-    num: i32,
+    all_long: i64,
+    num: i64,
     weight: f32,
     note: String,
 }
@@ -799,12 +799,22 @@ pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -
         let da: Vec<&str> = data.split('#').collect();
 
         let sql = if da.len() == 1 {
-            format!("select pi.单号id, 类别, 日期, pi.数量, di.长度*pi.数量 as 总长, pi.重量, pi.备注
+            format!("select pi.单号id, max(类别) 类别, max(日期) 日期, sum(pi.数量) 数量,
+                        sum(di.长度*pi.数量) 总长, sum(pi.重量) 重量, max(documents.备注) 备注
                     from pout_items pi
                     join document_items di on di.id = pi.销售id
                     join documents on 单号 = pi.单号id
                     where 物料号 = '{}' and 文本字段10 <> '' {}
-                    order by pi.单号id desc", da[0], NOT_DEL_SQL)
+                    group by pi.单号id
+                    union all
+                    (select 单号id, max(类别) 类别, max(日期) 日期, 1 数量, sum(长度) 总长,
+                        sum(理重) 重量, max(documents.备注) 备注
+                    from document_tc
+                    join documents on 单号 = 单号id
+                    where 物料号 = '{}' {}
+                    group by 单号id)
+                    order by 单号id",
+                    da[0], NOT_DEL_SQL, da[0], NOT_DEL_SQL)
         } else {
             format!("select pi.单号id, max(类别) 类别, max(日期) 日期, sum(pi.数量)::int 数量,
                         sum(di.长度*pi.数量)::int as 总长, sum(pi.重量) 重量, max(pi.备注) 备注

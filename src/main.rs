@@ -144,6 +144,7 @@ async fn main() -> std::io::Result<()> {
             .service(material::fetch_document_items_rk)
             .service(material::fetch_document_items_tr)
             .service(material::fetch_document_items_ck)
+            .service(material::fetch_document_items_tc)
             .service(material::materialout_docs)
             .service(material::materialout_saved_docs)
             .service(material::materialin_docs)
