@@ -699,7 +699,7 @@ pub async fn fetch_trans_items(
 
         let sql = format!(
             r#"select df.物料号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                    规格型号 规格, 文本字段2 状态, 文本字段4 炉号, 长度, 数量, 理重, 重量, 单价, 金额, df.备注
+                    规格型号 规格, 文本字段2 状态, 文本字段4 炉号, 长度, 数量, 理重, 重量, 单价, 金额, 类型, df.备注
                 FROM document_fh df
                 join products p on p.物料号 = df.物料号
                 JOIN tree ON 商品id = tree.num
@@ -726,12 +726,13 @@ pub async fn fetch_trans_items(
             let theory: f32 = row.get("理重");
             let m: f32 = row.get("金额");
             let money: String = format!("{:.2}", m);
+            let m_cate: String = row.get("类型");
             let note: String = row.get("备注");
             let item = format!(
-                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
                 name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long, SPLITER,
                 num, SPLITER, theory, SPLITER, weight, SPLITER, price, SPLITER, money, SPLITER,
-                note, SPLITER, m_id,
+                note, SPLITER, m_id, SPLITER, m_cate
             );
 
             document_items.push(item)
@@ -913,8 +914,7 @@ pub async fn get_items_trans(
                 {} || '　' || {} || '　' || {} || '　' || di.长度 || '　' || pi.数量 || '　' ||
                 pi.理重 || '　' || pi.重量 || '　' || 单价 || '　' ||
                 case when di.类型 = '按重量' then di.单价 * pi.重量 else di.单价 * pi.数量 end
-                || '　' || pi.备注 || '　' ||
-                di.物料号 || '　' || pi.单号id as item
+                || '　' || pi.备注 || '　' || di.物料号 || '　' || di.类型 || '　' || pi.单号id item
             FROM pout_items pi
             join document_items di on di.id = pi.销售id
             JOIN products ON products.物料号 = di.物料号
@@ -937,7 +937,7 @@ pub async fn get_items_trans(
         let sql = format!(
             r#"SELECT '锯口费' || '　' || '--' || '　' || '' || '　' || '' || '　' || '' || '　' ||
                     长度 || '　' || 数量 || '　' || 理重 || '　' || 重量 || '　' || 单价 || '　' ||
-                    di.金额 || '　' || di.备注 || '　' || di.物料号 || '　' || '{}' as item
+                    di.金额 || '　' || di.备注 || '　' || di.物料号 || '　' || di.类型 || '　' || '{}' item
                 from document_items di
                 join products on products.物料号 = di.物料号
                 where di.单号id = (select 文本字段6 销售单号
@@ -1024,16 +1024,16 @@ pub async fn save_transport(
             let id = format!("{}-{}", dh, value[0]);
             let items_sql = format!(
                 r#"INSERT INTO document_fh (id, 单号id, 物料号, 长度, 数量, 理重, 重量, 单价,
-                        金额, 备注, 顺序)
-                   VALUES('{}', '{}', '{}', {}, {}, {}, {}, {}, {},'{}', {})"#,
+                        金额, 备注, 类型, 顺序)
+                   VALUES('{}', '{}', '{}', {}, {}, {}, {}, {}, {},'{}', '{}', {})"#,
                 id, dh, value[8], value[1], value[2], value[3], value[4], value[5],
-                value[6], value[7], value[0]
+                value[6], value[7], value[9], value[0]
             );
 
-            // 发货完成, value[9] 是发货单号
-            if value.len() > 9 && value[9] != "" {
-                if ckdh != value[9] {
-                    ckdh = value[9];
+            // 发货完成, value[10] 是发货单号
+            if value.len() > 10 && value[10] != "" {
+                if ckdh != value[10] {
+                    ckdh = value[10];
                     let dh_sql = format!(
                         r#"update documents set 布尔字段1 = true where 单号 = '{}'"#,
                         ckdh
@@ -1261,11 +1261,12 @@ pub async fn fetch_fh_items(
         let conn = db.get().await.unwrap();
 
         let sql = format!(
-            r#"select 顺序 as 序号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ', 1) || '/' || 规格 as 规格, 
-                case when 商品id <> '4_111' then 重量 else 数量 end as 数量, 单价
-                FROM document_items
-                JOIN tree on document_items.商品id = tree.num
-                WHERE 单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}')
+            r#"select 顺序 as 序号, split_part(node_name,' ',2) 名称, split_part(node_name,' ', 1)
+                || '/' || 规格型号 as 规格, case when di.物料号 <> '锯口费' then 重量 else 数量 end 数量, 单价
+                FROM document_fh di
+                join products on di.物料号 = products.物料号
+                JOIN tree on products.商品id = tree.num
+                WHERE di.单号id in (select 单号 from documents where (文本字段6='{}' or 文本字段4='{}')
                      and 类别='运输发货' and 文本字段10 != '' {}) 
                 ORDER BY 顺序"#,
             data, data, NOT_DEL_SQL

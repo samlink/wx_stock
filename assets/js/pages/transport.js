@@ -239,6 +239,7 @@ let page_transport = function () {
                                     show_names[12].value = value[11];
                                     show_names[13].value = value[12];
                                     show_names[14].value = value[13];
+                                    show_names[15].value = value[14];
 
                                     let data = {
                                         show_names: show_names,
@@ -382,6 +383,15 @@ let page_transport = function () {
             editable: false,
             is_save: true,
             css: 'style="width:0%; border-left:none; border-right:none; color:white"',
+        },
+        {
+            name: "",
+            width: 0,
+            class: "m_cate",
+            type: "普通输入",
+            editable: false,
+            is_save: true,
+            css: 'style="width:0%; border-left:none; border-right:none;color:white"',
         },
         {
             name: "",
