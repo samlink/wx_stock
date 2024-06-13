@@ -460,14 +460,20 @@ pub async fn get_items_out(
         let sql = &format!(
             r#"SELECT di.物料号 || '　' || p.文本字段4  || '{}' || split_part(node_name,' ',2) || '　' ||
                 split_part(node_name,' ',1) || '　' || p.规格型号 || '　' || p.文本字段2 || '　' ||
-                长度 || '　' || 数量 || '　' || di.备注 ||  '{}' || 单价 || '{}' || id || '{}' ||
+                长度 || '　' || 数量 || '　' || di.备注 ||  '{}' || 数量 - coalesce(pi.已出, 0) || '{}' || id || '{}' ||
                 出库状态 as item
             from document_items di
+            LEFT JOIN (
+                select 销售id, sum(数量) 已出 from pout_items pi
+                join documents d on d.单号 = pi.单号id
+                where 销售id like '{}%' and 作废 = false
+                group by 销售id
+            ) pi on pi.销售id = di.id
             JOIN products p on p.物料号 = di.物料号
             JOIN tree ON p.商品id = tree.num
             WHERE di.单号id = '{}' and di.物料号 <> '锯口费'
             order by 顺序"#,
-            SPLITER, SPLITER, SPLITER, SPLITER, data
+            SPLITER, SPLITER, SPLITER, SPLITER, data, data
         );
 
         // println!("{}", sql);

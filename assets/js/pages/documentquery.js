@@ -41,7 +41,7 @@ let page_documentquery = function () {
         },
         edit: false,
 
-        blank_cells: 17,
+        blank_cells: 20,
         row_fn: table_row,
     };
 

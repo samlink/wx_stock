@@ -256,18 +256,23 @@ let page_materialout = function () {
     function item_out(l) {
         let wu_lu = l.querySelector('td:nth-child(1)').textContent.split('　');
         let value = l.querySelector('td:nth-child(2)').textContent.split('　');
+        let can_out = Number(l.querySelector('td:nth-child(3)').textContent);
+        if (can_out == 0) {
+            notifier.show('该条目已出库', 'danger');
+            return false;
+        }
         show_names[1].value = value[0];    // 名称 ...
         show_names[2].value = value[1];
         show_names[3].value = value[2];
         show_names[4].value = value[3];
         show_names[5].value = wu_lu[1];    // 炉号
         show_names[6].value = value[4];
-        show_names[7].value = value[5];
+        show_names[7].value = can_out;
         show_names[8].value = value[4] * value[5];
         show_names[9].value = wu_lu[0];   // 物料号
         show_names[12].value = value[6];
         show_names[13].value = l.querySelector('td:nth-child(1)').textContent;
-        show_names[14].value = l.querySelector('td:nth-child(3)').textContent;
+        show_names[14].value = can_out;
         show_names[15].value = l.querySelector('td:nth-child(4)').textContent;
 
         let data = {
@@ -687,20 +692,18 @@ let page_materialout = function () {
     //
     //     for (let row of all_rows) {
     //         if (row.querySelector('.名称').textContent.trim() != "") {
-    //             let key = row.querySelector('.物料号').value.trim();
-    //             let long = row.querySelector('.总长度').textContent.trim();
+    //             let key = row.querySelector('.d_id').textContent.trim() + "#" +
+    //                 row.querySelector('.s_id').textContent.trim();
     //
-    //             if (now_ku.has(key)) {
-    //                 now_ku.set(key, now_ku.get(key) + Number(long));
-    //             } else {
-    //                 now_ku.set(key, Number(long));
-    //             }
+    //             let num = Number(row.querySelector('.数量').value);
+    //             num = now_ku.has(key) ? now_ku.get(key) + num : num;
+    //             now_ku.set(key, num);
     //         }
     //     }
     //
     //     for (let [key, value] of now_ku) {
-    //         if (ku.has(key) && value > ku.get(key)) {
-    //             notifier.show(`${key} 超过库存长度}`, 'danger');
+    //         if (ku.has(key) && value > key.split("#")[1]) {
+    //             notifier.show(`${key} 超库存}`, 'danger');
     //             return false;
     //         }
     //     }

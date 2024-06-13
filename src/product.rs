@@ -146,9 +146,9 @@ async fn build_sql_search(
     };
 
     let now_sql = if post_data.cate == "正常销售" {
-        " AND 库存状态='' and 库存长度 > 10"
+        " AND (库存状态='' and 库存长度 > 10 OR products.物料号 = '锯口费')"
     } else if post_data.cate == "已切完" {
-        " AND (库存状态='已切完' OR 库存状态 = '' and 库存长度 <= 10)"
+        " AND (库存状态='已切完' OR 库存状态 = '' and 库存长度 <= 10 and products.物料号 <> '锯口费')"
     } else if post_data.cate == "自用库" {
         " AND 库存状态='自用'"
     } else if post_data.cate == "不合格品" {

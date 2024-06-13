@@ -445,7 +445,7 @@ let page_transport = function () {
                     }
                 }
 
-                console.log(lus_arr);
+                // console.log(lus_arr);
 
                 if (lus_arr.length > 0) {
                     fetch("/fetch_lu", {
@@ -535,7 +535,7 @@ let page_transport = function () {
             items: table_data,
         }
 
-        console.log(data);
+        // console.log(data);
 
         fetch(`/save_transport`, {
             method: 'post',
@@ -639,20 +639,20 @@ let page_transport = function () {
             }
 
             var th = `<tr>
-        <th width="3%">序号</th>
-        <th width="7%">商品名称</th>
-        <th width="8%">材质</th>
-        <th width="6%">规格<br>(mm)</th>
-        <th width="10%">状态</th>
-        <th width="10%">炉号</th>
-        <th width="5%">长度 (mm)</th>
-        <th width="3%">支数</th>
-        <th width="6%">理论重量<br>(KG)</th>
-        <th width="7%">实际重量<br>(KG)</th>
-        <th width="5%">单价<br>(元/KG)</th>
-        <th width="8%">总价<br>(元)</th>
-        <th width="8%">备注</th>
-    </tr>`;
+                <th width="3%">序号</th>
+                <th width="7%">商品名称</th>
+                <th width="8%">材质</th>
+                <th width="6%">规格<br>(mm)</th>
+                <th width="10%">状态</th>
+                <th width="10%">炉号</th>
+                <th width="5%">长度 (mm)</th>
+                <th width="3%">支数</th>
+                <th width="6%">理论重量<br>(KG)</th>
+                <th width="7%">实际重量<br>(KG)</th>
+                <th width="5%">单价<br>(元/KG)</th>
+                <th width="8%">总价<br>(元)</th>
+                <th width="8%">备注</th>
+            </tr>`;
 
             document.querySelector('.print-table thead').innerHTML = th;
 
@@ -667,7 +667,8 @@ let page_transport = function () {
                 trs += '<tr>';
                 for (let i = 1; i < 14; i++) {
                     let t = row.querySelector(`td:nth-child(${i}) input`);
-                    let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent;
+                    let td = t ? t.value : row.querySelector(`td:nth-child(${i})`).textContent.trim();
+                    td = td == "0" ? "" : td;
                     trs += `<td>${td}</td>`;
                 }
 

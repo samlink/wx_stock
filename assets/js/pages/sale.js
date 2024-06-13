@@ -485,6 +485,10 @@ let page_sale = function () {
 
         let row = edit_table.appand_edit_row();
         type_change(row);
+
+        if (row_input.querySelector(`.物料号`).textContent == "锯口费") {
+            row_input.querySelector(`.类型`).value = "按件";
+        }
         edited = true;
     }
 

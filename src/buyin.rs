@@ -154,7 +154,7 @@ pub async fn buyin_auto(
                 FROM products p
                 JOIN tree ON p.商品id = tree.num
                 LEFT JOIN length_weight() foo ON p.物料号 = foo.物料号
-                WHERE p.物料号 like '%{}%' and 库存状态='' and 库存长度 > 10 limit 10"#,
+                WHERE p.物料号 like '%{}%' and (库存状态='' and 库存长度 > 10 OR p.物料号 = '锯口费') limit 10"#,
                 SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, SPLITER, s[0].to_uppercase(),
             )
         } else {
