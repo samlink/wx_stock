@@ -97,18 +97,9 @@ let page_productset = function () {
     // 给炉号加入连接, 同时给入库单号加入连接
     function add_lu_link() {
         let trs = document.querySelectorAll('.table-product tbody tr');
+        service.get_lu(trs);
 
-        let lus_arr = [];
         for (let tr of trs) {
-            let lu = tr.querySelector('.炉号');
-            if (lu) {
-                let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
-                lus_arr.push(da);
-            }
-            else {
-                break;
-            }
-
             // 入库单号连接
             let rk = tr.querySelector('.入库单号');
             if (rk && rk.textContent.trim() != "KT202312-01") {
@@ -117,33 +108,11 @@ let page_productset = function () {
             }
 
             // 设置锁定行颜色
-            if (document.querySelector('#p-select').value != "销售锁定" && tr.querySelector('.库存类别').textContent.trim() == '锁定') {
+            let lb = tr.querySelector('.库存类别');
+            let p = document.querySelector('#p-select');
+            if (p && p.value != "销售锁定" && lb && lb.textContent.trim() == '锁定') {
                 tr.classList.add('red');
             }
-        }
-
-        if (lus_arr.length > 0) {
-            fetch("/fetch_lu", {
-                method: 'post',
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(lus_arr),
-            })
-                .then(response => response.json())
-                .then(content => {
-                    for (let tr of trs) {
-                        let lu = tr.querySelector('.炉号');
-                        if (!lu) break;
-                        for (let cont of content) {
-                            let da = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
-                            if (cont.indexOf(da) != -1) {
-                                lu.innerHTML = `<a href="${cont}" title="点击下载质保书">${lu.textContent.trim()}</a>`;
-                                break;
-                            }
-                        }
-                    }
-                })
         }
     }
 
@@ -333,8 +302,7 @@ let page_productset = function () {
             };
 
             fresh_table(post_data);
-        }
-        else {
+        } else {
             // 全不选的情况
             document.querySelector('#f-check-all').click();
             document.querySelector('#f-ok').click();
@@ -607,32 +575,32 @@ let page_productset = function () {
                     "ctr_type": "普通输入",
                     "is_use": false
                 },
-                {
-                    "show_name": "状态",
-                    "ctr_type": "普通输入",
-                    "is_use": true
-                },
-                {
-                    "show_name": "炉号",
-                    "ctr_type": "普通输入",
-                    "is_use": true
-                },
-                {
-                    "show_name": "入库长度",
-                    "ctr_type": "普通输入",
-                    "is_use": true
-                },
-                {
-                    "show_name": "库存类别",
-                    "ctr_type": "下拉列表",
-                    "option_value": "正常销售_自用_不合格_已切完",
-                    "is_use": true
-                },
-                {
-                    "show_name": "备注",
-                    "ctr_type": "普通输入",
-                    "is_use": true
-                }];
+                    {
+                        "show_name": "状态",
+                        "ctr_type": "普通输入",
+                        "is_use": true
+                    },
+                    {
+                        "show_name": "炉号",
+                        "ctr_type": "普通输入",
+                        "is_use": true
+                    },
+                    {
+                        "show_name": "入库长度",
+                        "ctr_type": "普通输入",
+                        "is_use": true
+                    },
+                    {
+                        "show_name": "库存类别",
+                        "ctr_type": "下拉列表",
+                        "option_value": "正常销售_自用_不合格_已切完",
+                        "is_use": true
+                    },
+                    {
+                        "show_name": "备注",
+                        "ctr_type": "普通输入",
+                        "is_use": true
+                    }];
 
                 let form = "<form>";
                 for (let name of fields) {
@@ -781,8 +749,7 @@ let page_productset = function () {
                         }
                     });
             }
-        }
-        else {
+        } else {
             let inputs = document.querySelectorAll('.fields-out input[type=checkbox]');
             let names = "";
             inputs.forEach(input => {

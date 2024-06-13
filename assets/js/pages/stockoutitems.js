@@ -14,7 +14,7 @@ let page_stockoutitems = function () {
         post_data: {
             id: "",
             name: '',
-            sort: "日期 DESC, 单号 DESC, 顺序",
+            sort: "日期 DESC, 单号 DESC, pi.顺序",
             rec: row_num,
         },
         edit: false,
@@ -33,11 +33,11 @@ let page_stockoutitems = function () {
             "长度": "products.整数字段1",
             "数量": "数量",
             "重量": "库存下限",
-            "备注": "pout_items.备注"
+            "备注": "pi.备注"
         },
 
+        blank_cells: 16,
         row_fn: row_fn,
-        blank_row_fn: blank_row_fn,
     };
 
     init_data.post_data.cate = `${date1}${SPLITER}${date2}`;

@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
@@ -298,7 +299,7 @@ pub async fn home_statis(db: web::Data<Pool>, id: Identity) -> HttpResponse {
             f_map4["发货完成"],
             NOT_DEL_SQL,
             NOT_DEL_SQL,
-            NOT_DEL_SQL, 
+            NOT_DEL_SQL,
             NOT_DEL_SQL,
             NOT_DEL_SQL,
         );
@@ -485,28 +486,13 @@ pub async fn get_stockin_items(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'OR LOWER(documents.{}) LIKE '%{}%'
-                 OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name,
-                f_map2["物料号"],
-                name,
-                name,
-                name,
-                f_map2["状态"],
-                name,
-                f_map2["执行标准"],
-                name,
-                f_map2["生产厂家"],
-                name,
-                f_map2["炉号"],
-                name,
-                f_map["到货日期"],
-                name,
-                f_map["入库日期"],
-                name,
-                name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                    OR LOWER(node_name) LIKE '%{}%'  OR LOWER(规格型号) LIKE '%{}%'
+                    OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                    OR LOWER(products.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
+                    OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, f_map2["物料号"], name, name, name, f_map2["状态"], name, f_map2["执行标准"],
+                name, f_map2["生产厂家"], name, f_map["到货日期"], name, f_map["入库日期"], name, name
             )
         } else {
             "".to_owned()
@@ -531,22 +517,9 @@ pub async fn get_stockin_items(
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != '' {}
             ORDER BY {} OFFSET {} LIMIT {}"#,
-            f_map["到货日期"],
-            f_map["入库日期"],
-            f_map2["物料号"],
-            f_map2["状态"],
-            f_map2["炉号"],
-            f_map2["入库长度"],
-            f_map2["执行标准"],
-            f_map2["生产厂家"],
-            f_map2["理论重量"],
-            post_data.sort,
-            query_date,
-            query_field,
-            NOT_DEL_SQL,
-            post_data.sort,
-            skip,
-            post_data.rec
+            f_map["到货日期"], f_map["入库日期"], f_map2["物料号"], f_map2["状态"], f_map2["炉号"],
+            f_map2["入库长度"], f_map2["执行标准"], f_map2["生产厂家"], f_map2["理论重量"],
+            post_data.sort, query_date, query_field, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -574,35 +547,9 @@ pub async fn get_stockin_items(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1,
-                SPLITER,
-                f2,
-                SPLITER,
-                f3,
-                SPLITER,
-                f4,
-                SPLITER,
-                f5,
-                SPLITER,
-                f6,
-                SPLITER,
-                f7,
-                SPLITER,
-                f8,
-                SPLITER,
-                f9,
-                SPLITER,
-                f10,
-                SPLITER,
-                f11,
-                SPLITER,
-                f12,
-                SPLITER,
-                f13,
-                SPLITER,
-                f14,
-                SPLITER,
-                f15
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER, f6, SPLITER,
+                f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER, f11, SPLITER, f12, SPLITER,
+                f13, SPLITER, f14, SPLITER, f15
             );
 
             products.push(product);
@@ -659,18 +606,8 @@ pub async fn get_stockout_items(
                 OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
                 OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR
                 LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name,
-                name,
-                name,
-                name,
-                f_map2["状态"],
-                name,
-                name,
-                f_map["合同编号"],
-                name,
-                f_map["客户"],
-                name,
-                name
+                name, name, name, name, f_map2["状态"], name, name, f_map["合同编号"], name,
+                f_map["客户"], name, name
             )
         } else {
             "".to_owned()
@@ -697,19 +634,9 @@ pub async fn get_stockout_items(
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {} {} {} and documents.文本字段10 != '' {} ORDER BY {} OFFSET {} LIMIT {}"#,
-            f_map["客户"],
-            f_map["合同编号"],
-            f_map["销售单号"],
-            f_map2["状态"],
-            f_map2["炉号"],
-            post_data.sort,
-            limit,
-            query_date,
-            query_field,
-            NOT_DEL_SQL,
-            post_data.sort,
-            skip,
-            post_data.rec
+            f_map["客户"], f_map["合同编号"], f_map["销售单号"], f_map2["状态"], f_map2["炉号"],
+            post_data.sort, limit, query_date, query_field, NOT_DEL_SQL, post_data.sort,
+            skip, post_data.rec
         );
 
         // println!("{}", sql);
@@ -737,37 +664,9 @@ pub async fn get_stockout_items(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1,
-                SPLITER,
-                f2,
-                SPLITER,
-                f3,
-                SPLITER,
-                f4,
-                SPLITER,
-                f5,
-                SPLITER,
-                f16,
-                SPLITER,
-                f6,
-                SPLITER,
-                f7,
-                SPLITER,
-                f8,
-                SPLITER,
-                f9,
-                SPLITER,
-                f10,
-                SPLITER,
-                f11,
-                SPLITER,
-                f12,
-                SPLITER,
-                f13,
-                SPLITER,
-                f14,
-                SPLITER,
-                f15
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER, f16, SPLITER,
+                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER, f11, SPLITER,
+                f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
             );
 
             products.push(product);
@@ -818,7 +717,7 @@ pub async fn get_trans_items(
 
         let query_field = if name != "" {
             //注意前导空格
-            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name,)
+            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name, )
         } else {
             "".to_owned()
         };
@@ -834,13 +733,14 @@ pub async fn get_trans_items(
 
         let sql = format!(
             r#"select d.日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
-            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价,
-            长度, 数量, 重量, case when di.商品id<>'4_111' then 单价*重量 else 单价*数量 end as 金额,
-            ROW_NUMBER () OVER (ORDER BY {}) as 序号, di.备注
-            from document_items di 
-            join documents d on d.单号 = di.单号id 
-            join tree t on t.num = di.商品id
-            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {} ORDER BY {} OFFSET {} LIMIT {}"#,
+            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格型号 规格, p.文本字段2 状态,
+            p.文本字段4 炉号, 单价, 长度, 数量, 重量, 金额, ROW_NUMBER () OVER (ORDER BY {}) as 序号, di.备注
+            from document_fh di
+            join documents d on d.单号 = di.单号id
+            join products p on p.物料号 = di.物料号
+            join tree t on t.num = p.商品id
+            where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {}
+            ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, query_date, query_field, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
         );
 
@@ -865,45 +765,15 @@ pub async fn get_trans_items(
             let f13: i32 = row.get("长度");
             let f14: i32 = row.get("数量");
             let f15: f32 = row.get("重量");
-            let f16_1: f64 = row.get("金额");
+            let f16_1: f32 = row.get("金额");
             let f16: String = format!("{:.2}", f16_1);
             let f17: &str = row.get("备注");
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1,
-                SPLITER,
-                f2,
-                SPLITER,
-                f3,
-                SPLITER,
-                f4,
-                SPLITER,
-                f5,
-                SPLITER,
-                f6,
-                SPLITER,
-                f7,
-                SPLITER,
-                f8,
-                SPLITER,
-                f9,
-                SPLITER,
-                f10,
-                SPLITER,
-                f11,
-                SPLITER,
-                f12,
-                SPLITER,
-                f13,
-                SPLITER,
-                f14,
-                SPLITER,
-                f15,
-                SPLITER,
-                f16,
-                SPLITER,
-                f17,
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f4, SPLITER, f5, SPLITER, f6, SPLITER,
+                f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER, f11, SPLITER, f12, SPLITER,
+                f13, SPLITER, f14, SPLITER, f15, SPLITER, f16, SPLITER, f17,
             );
 
             products.push(product);
@@ -1145,29 +1015,16 @@ pub async fn stockout_excel(
 
         let f_map = map_fields(db.clone(), "出库单据").await;
         let f_map2 = map_fields(db.clone(), "商品规格").await;
-        // let limits = get_limits(user, f_map).await;
 
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
-                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
-                OR LOWER(documents.备注) LIKE '%{}%')"#,
-                name,
-                name,
-                name,
-                name,
-                f_map2["状态"],
-                name,
-                f_map2["炉号"],
-                name,
-                name,
-                f_map["合同编号"],
-                name,
-                f_map["客户"],
-                name,
-                name
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(di.物料号) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%'
+                OR LOWER(规格型号) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                OR LOWER(documents.日期) LIKE '%{}%' OR LOWER(documents.{}) LIKE '%{}%'
+                OR LOWER(documents.{}) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
+                name, name, name, name, f_map2["状态"], name, name, f_map["合同编号"], name,
+                f_map["客户"], name, name
             )
         } else {
             "".to_owned()
@@ -1183,12 +1040,15 @@ pub async fn stockout_excel(
         };
 
         let sql = format!(
-            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号, split_part(node_name,' ',2) as 名称, 物料号,
-                 split_part(node_name,' ',1) as 材质, 规格型号 规格, products.{} 状态, products.{} 炉号, 长度::text, 数量::text, 重量::text,
-                 pout_items.备注, ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号
+            r#"select documents.日期, documents.{} 公司名称, documents.{} 合同号, 单号,
+                split_part(node_name,' ',2) as 名称, di.物料号, split_part(node_name,' ',1) as 材质,
+                规格型号 规格, products.{} 状态, products.{} 炉号, di.长度::text, pout_items.数量::text,
+                pout_items.重量::text, pout_items.备注,
+                ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号
             from pout_items
+            join document_items di on di.id = pout_items.销售id
             join documents on pout_items.单号id = documents.单号
-            join products on pout_items.物料号 = products.物料号
+            join products on di.物料号 = products.物料号
             join customers on documents.客商id = customers.id
             join tree on tree.num = products.商品id
             where {}{} and documents.文本字段10 != '' {} order by documents.日期 DESC"#,
@@ -1334,7 +1194,7 @@ pub async fn trans_item_excel(
 
         let query_field = if name != "" {
             //注意前导空格
-            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name,)
+            format!(r#" AND LOWER(d.文本字段5) LIKE '%{}%'"#, name, )
         } else {
             "".to_owned()
         };
@@ -1349,14 +1209,14 @@ pub async fn trans_item_excel(
         };
 
         let sql = format!(
-            r#"select d.日期 发货日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号, d.文本字段6 销售单号, 
-            split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质, 规格, 状态, 炉号, 单价::text, 长度::text, 
-            数量::text, 重量::text, case when di.商品id<>'4_111' then (round((单价*重量)::numeric,2))::text 
-            else (round((单价*数量)::numeric,2))::text end as 金额, 
-            di.备注, ROW_NUMBER () OVER (ORDER BY d.日期 DESC, di.单号id DESC, 顺序)::text as 序号
-            from document_items di 
-            join documents d on d.单号 = di.单号id 
-            join tree t on t.num = di.商品id
+            r#"select d.日期 发货日期, d.文本字段5 客户名称, d.文本字段3 合同号, di.单号id 发货单号,
+            d.文本字段6 销售单号, split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
+            规格型号 规格, p.文本字段2 状态, p.文本字段4 炉号, 单价::text, 长度::text, 数量::text, 重量::text,
+            金额::text, di.备注, ROW_NUMBER () OVER (ORDER BY d.日期 DESC, di.单号id DESC, di.顺序)::text 序号
+            from document_fh di
+            join documents d on d.单号 = di.单号id
+            join products p on p.物料号 = di.物料号
+            join tree t on t.num = p.商品id
             where {} {} and d.类别 = '运输发货' and d.文本字段10 != '' {}"#,
             query_date, query_field, NOT_DEL_SQL
         );
@@ -1507,8 +1367,9 @@ pub async fn fetch_business(
         let query_field = if name != "" {
             //注意前导空格
             format!(
-                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR LOWER(node_name) LIKE '%{}%' OR
-                LOWER(documents.文本字段6) LIKE '%{}%' OR LOWER(规格) LIKE '%{}%' OR LOWER(状态) LIKE '%{}%' OR
+                r#" AND (LOWER(单号) LIKE '%{}%' OR LOWER(documents.类别) LIKE '%{}%' OR
+                LOWER(node_name) LIKE '%{}%' OR LOWER(documents.文本字段6) LIKE '%{}%' OR
+                LOWER(规格型号) LIKE '%{}%' OR LOWER(products.文本字段2) LIKE '%{}%' OR
                 LOWER(customers.名称) LIKE '%{}%' OR LOWER(documents.备注) LIKE '%{}%')"#,
                 name, name, name, name, name, name, name, name
             )
@@ -1526,13 +1387,15 @@ pub async fn fetch_business(
         };
 
         let sql = format!(
-            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额, 
-                 split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质, 
-                 规格, 状态, 长度, 数量, 单价, 重量, documents.备注,
-                 ROW_NUMBER () OVER (ORDER BY {}) as 序号 from document_items
+            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别,
+                应结金额, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
+                规格型号 规格, products.文本字段2 状态, 长度, 数量, 单价, 重量, documents.备注,
+                ROW_NUMBER () OVER (ORDER BY {}) 序号
+            from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
-            join tree on tree.num = document_items.商品id
+            join products on document_items.物料号 = products.物料号
+            join tree on tree.num = products.商品id
             where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}
             ORDER BY {} OFFSET {} LIMIT {}"#,
             post_data.sort, limits, query_field, query_date, NOT_DEL_SQL, post_data.sort, skip, post_data.rec
@@ -1564,48 +1427,21 @@ pub async fn fetch_business(
 
             let product = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                f1,
-                SPLITER,
-                f2,
-                SPLITER,
-                f3,
-                SPLITER,
-                f31,
-                SPLITER,
-                f4,
-                SPLITER,
-                f5,
-                SPLITER,
-                f6,
-                SPLITER,
-                f7,
-                SPLITER,
-                f8,
-                SPLITER,
-                f9,
-                SPLITER,
-                f10,
-                SPLITER,
-                f11,
-                SPLITER,
-                f12,
-                SPLITER,
-                f13,
-                SPLITER,
-                f14,
-                SPLITER,
-                f15
+                f1, SPLITER, f2, SPLITER, f3, SPLITER, f31, SPLITER, f4, SPLITER, f5, SPLITER,
+                f6, SPLITER, f7, SPLITER, f8, SPLITER, f9, SPLITER, f10, SPLITER, f11, SPLITER,
+                f12, SPLITER, f13, SPLITER, f14, SPLITER, f15
             );
 
             products.push(product);
         }
 
         let count_sql = format!(
-            r#"select count(单号) as 记录数, COALESCE(sum(case when 重量=0 and 理重=0 then 单价*数量
-               else 单价*重量 end), 0) as 金额 from document_items
+            r#"select count(单号) as 记录数, sum(金额) as 金额
+            from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
-            join tree on tree.num = document_items.商品id
+            join products on document_items.物料号 = products.物料号
+            join tree on tree.num = products.商品id
             where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}"#,
             limits, query_field, query_date, NOT_DEL_SQL
         );
@@ -1613,7 +1449,7 @@ pub async fn fetch_business(
         let rows = &conn.query(count_sql.as_str(), &[]).await.unwrap();
 
         let mut count: i64 = 0;
-        let mut money: f64 = 0f64;
+        let mut money: f32 = 0f32;
 
         for row in rows {
             count = row.get("记录数");
@@ -1666,12 +1502,15 @@ pub async fn business_excel(
         };
 
         let sql = format!(
-            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 as 合同编号, documents.类别, 应结金额::text, split_part(node_name,' ',2) as 名称,
-                 split_part(node_name,' ',1) as 材质, 规格, 状态, 长度::text, 数量::text, 单价::text, 重量::text, documents.备注,
-                 ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text as 序号 from document_items
+            r#"select 日期, 单号, customers.名称 客户名称, documents.文本字段6 合同编号, documents.类别,
+                 应结金额::text, split_part(node_name,' ',2) 名称, split_part(node_name,' ',1) 材质,
+                 规格型号 规格, products.文本字段2 状态, 长度::text, 数量::text, 单价::text, 重量::text,
+                 documents.备注, ROW_NUMBER () OVER (ORDER BY documents.日期 DESC)::text 序号
+            from document_items
             join documents on documents.单号 = document_items.单号id
             join customers on documents.客商id = customers.id
-            join tree on tree.num = document_items.商品id
+            join products on document_items.物料号 = products.物料号
+            join tree on tree.num = products.商品id
             where {} documents.文本字段10 != '' and customers.类别='客户' {}{} {}
             ORDER BY documents.日期 DESC"#,
             limits, query_field, query_date, NOT_DEL_SQL

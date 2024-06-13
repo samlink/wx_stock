@@ -460,8 +460,8 @@ pub async fn get_items_out(
         let sql = &format!(
             r#"SELECT di.物料号 || '　' || p.文本字段4  || '{}' || split_part(node_name,' ',2) || '　' ||
                 split_part(node_name,' ',1) || '　' || p.规格型号 || '　' || p.文本字段2 || '　' ||
-                长度 || '　' || 数量 || '　' || di.备注 ||  '{}' || 数量 - coalesce(pi.已出, 0) || '{}' || id || '{}' ||
-                出库状态 as item
+                长度 || '　' || 数量 || '　' || di.备注 ||  '{}' || 数量 - coalesce(pi.已出, 0)
+                 || '{}' || id || '{}' || 出库状态 as item
             from document_items di
             LEFT JOIN (
                 select 销售id, sum(数量) 已出 from pout_items pi

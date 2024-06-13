@@ -5,14 +5,6 @@ let page_businessquery = function () {
     //执行日期实例------------------------------------------------
     service.set_date();
 
-    //填充表格空行-------------------------------------------------
-    // let blank_rows = "";
-    // for (let i = 0; i < row_num; i++) {
-    //     blank_rows += blank_row_fn();
-    // }
-
-    // document.querySelector('.table-container tbody').innerHTML = blank_rows;
-
     let date1 = document.querySelector('#search-date1').value;
     let date2 = document.querySelector('#search-date2').value;
 
@@ -37,7 +29,7 @@ let page_businessquery = function () {
             "单据金额": "应结金额",
             "商品名称": "split_part(node_name,' ',2)",
             "材质": "split_part(node_name,' ',1)",
-            "规格": "规格",
+            "规格": "规格型号",
             "状态": "documents.文本字段2",
             "长度": "长度",
             "数量": "数量",
@@ -45,9 +37,8 @@ let page_businessquery = function () {
             "重量": "重量",
             "备注": "documents.备注"
         },
-
+        blank_cells: 16,
         row_fn: row_fn,
-        blank_row_fn: blank_row_fn,
     };
 
     tool_table.table_init(init_data);
@@ -71,11 +62,6 @@ let page_businessquery = function () {
         return `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td><td>${row[4]}</td><td>${row[5]}</td>
             <td>${row[6]}</td><td>${row[7]}</td><td>${row[8]}</td><td>${row[9]}</td><td>${row[10]}</td>
             <td>${row[11]}</td><td>${row[12]}</td><td>${row[13]}</td><td>${row[14]}</td><td>${row[15]}</td></tr>`;
-    }
-
-    function blank_row_fn() {
-        return `<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
-            <td></td><td></td><td></td><td></td><td></td><td></td></tr>`;
     }
 
     // 导出数据

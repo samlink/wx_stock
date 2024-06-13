@@ -432,44 +432,7 @@ let page_transport = function () {
                 edit_table.build_items_table(data);
 
                 let trs = document.querySelectorAll('.table-items .has-input');
-
-                let lus_arr = [];
-                for (let tr of trs) {
-                    let lu = tr.querySelector('.炉号');
-                    if (lu.textContent.trim() != '') {
-                        // 不可换行
-                        let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
-                        lus_arr.push(da);
-                    } else {
-                        break;
-                    }
-                }
-
-                // console.log(lus_arr);
-
-                if (lus_arr.length > 0) {
-                    fetch("/fetch_lu", {
-                        method: 'post',
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(lus_arr),
-                    })
-                        .then(response => response.json())
-                        .then(content => {
-                            for (let tr of trs) {
-                                let lu = tr.querySelector('.炉号');
-                                if (!lu) break;
-                                for (let cont of content) {
-                                    let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
-                                    if (cont.indexOf(da) != -1) {
-                                        lu.innerHTML = `<a href="${cont}" title="点击下载质保书">${lu.textContent.trim()}</a>`;
-                                        break;
-                                    }
-                                }
-                            }
-                        })
-                }
+                service.get_lu(trs);
             });
     }
 
