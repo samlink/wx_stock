@@ -312,18 +312,15 @@ pub async fn material_auto_sotckout(
         let sql = &format!(
             r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' ||
                 split_part(node_name,' ',1) || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                products.{} || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                case when (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
-                 0 else (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end AS label
+                products.{} || '{}' || products.{} || '{}' || products.{} || '{}' || 库存长度 label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
-                LEFT JOIN cut_length() as foo
-                    ON products.物料号 = foo.物料号
+                LEFT JOIN length_weight() foo ON products.物料号 = foo.物料号
                 WHERE LOWER(products.{}) LIKE '%{}%' AND documents.文本字段10 <> '' {} LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["执行标准"], SPLITER, f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER, f_map["库存长度"],
-            f_map["库存长度"], f_map["物料号"], search.s, NOT_DEL_SQL
+            f_map["执行标准"], SPLITER, f_map["炉号"], SPLITER, f_map["生产厂家"], SPLITER,
+            f_map["物料号"], search.s, NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -344,19 +341,18 @@ pub async fn material_auto_kt(
     if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let sql = &format!(
-            r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' || split_part(node_name,' ',1)
-                || '{}' || products.{} || '{}' || products.{} || '{}' ||
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer AS label
+            r#"SELECT num as id, products.{} || '{}' || split_part(node_name,' ',2) || '{}' ||
+                split_part(node_name,' ',1) || '{}' || products.{} || '{}' || products.{}
+                || '{}' || 库存长度 AS label
                 FROM products
                 JOIN tree ON products.商品id = tree.num
                 JOIN documents ON 单号id = 单号
-                LEFT JOIN cut_length() as foo
+                LEFT JOIN length_weight() foo
                 ON products.物料号 = foo.物料号
-                WHERE LOWER(products.{}) LIKE '%{}%' AND products.{} != '是' AND 
-                (products.{}-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >0 AND                
+                WHERE LOWER(products.{}) LIKE '%{}%' AND 库存状态 <> '已切完' AND 库存长度 > 10 AND
                 documents.文本字段10 !='' {} LIMIT 10"#,
             f_map["物料号"], SPLITER, SPLITER, SPLITER, f_map["规格"], SPLITER, f_map["状态"], SPLITER,
-            f_map["库存长度"], f_map["物料号"], search.s.to_lowercase(), f_map["切完"], f_map["库存长度"], NOT_DEL_SQL
+            f_map["物料号"], search.s.to_lowercase(), NOT_DEL_SQL
         );
 
         // println!("{}", sql);
@@ -802,9 +798,14 @@ pub async fn save_material_ck(
         transaction.execute(doc_sql.as_str(), &[]).await.unwrap();
 
         // 单据明细
-        if dh != "新单据" {
+        if dh != "新单据" && fields_cate == "出库单据" {
             transaction
                 .execute("DELETE FROM pout_items WHERE 单号id=$1", &[&dh])
+                .await
+                .unwrap();
+        } else if dh != "新单据" {
+            transaction
+                .execute("DELETE FROM document_tc WHERE 单号id=$1", &[&dh])
                 .await
                 .unwrap();
         }
@@ -821,9 +822,9 @@ pub async fn save_material_ck(
                 )
             } else {
                 format!(
-                    r#"INSERT INTO pout_items (单号id, 物料号, 长度, 数量, 重量, 理重, 备注, 顺序)
-                     VALUES('{}', '{}', {}, {}, {}, {}, '{}', {})"#,
-                    dh, value[1], value[2], 1, value[3], value[4], value[5], value[0]
+                    r#"INSERT INTO document_tc (id, 单号id, 物料号, 长度, 理重, 备注, 顺序)
+                     VALUES('{}', '{}', '{}', {}, {}, '{}', {})"#,
+                    id, dh, value[1], value[2], value[3], value[4], value[0]
                 )
             };
 
@@ -1041,7 +1042,7 @@ pub async fn fetch_document_items_rk(
     }
 }
 
-///获取出库单据明细
+///获取出库单据明细 - 销售出库
 #[post("/fetch_document_items_ck")]
 pub async fn fetch_document_items_ck(
     db: web::Data<Pool>,
@@ -1068,52 +1069,84 @@ pub async fn fetch_document_items_ck(
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
         let mut document_items: Vec<String> = Vec::new();
-        if data.cate != "库存调出" {
-            for row in rows {
-                let name: String = row.get("名称");
-                let cz: String = row.get("材质");
-                let gg: String = row.get("规格");
-                let status: String = row.get("状态");
-                let lu: String = row.get("炉号");
-                let long: i32 = row.get("长度");
-                let mount: i32 = row.get("数量");
-                let allong: i32 = row.get("总长度");
-                let num: String = row.get("物料号");
-                let weight: f32 = row.get("重量");
-                let theory: f32 = row.get("理重");
-                let note: String = row.get("备注");
-                let m_id: String = row.get("商品id");
-                let s_id: f32 = row.get("单价");
-                let d_id: String = row.get("销售id");
-                let item = format!(
-                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                    name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long,
-                    SPLITER, mount, SPLITER, allong, SPLITER, num, SPLITER, weight, SPLITER, theory,
-                    SPLITER, note, SPLITER, m_id, SPLITER, s_id, SPLITER, d_id
-                );
+        for row in rows {
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
+            let lu: String = row.get("炉号");
+            let long: i32 = row.get("长度");
+            let mount: i32 = row.get("数量");
+            let allong: i32 = row.get("总长度");
+            let num: String = row.get("物料号");
+            let weight: f32 = row.get("重量");
+            let theory: f32 = row.get("理重");
+            let note: String = row.get("备注");
+            let m_id: String = row.get("商品id");
+            let s_id: f32 = row.get("单价");
+            let d_id: String = row.get("销售id");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long,
+                SPLITER, mount, SPLITER, allong, SPLITER, num, SPLITER, weight, SPLITER, theory,
+                SPLITER, note, SPLITER, m_id, SPLITER, s_id, SPLITER, d_id
+            );
 
-                document_items.push(item);
-            }
-        } else {
-            for row in rows {
-                let name: String = row.get("名称");
-                let cz: String = row.get("材质");
-                let gg: String = row.get("规格");
-                let status: String = row.get("状态");
-                let long: i32 = row.get("长度");
-                let num: String = row.get("物料号");
-                let weight: f32 = row.get("重量");
-                let theory: f32 = row.get("理重");
-                let note: String = row.get("备注");
-                let m_id: String = row.get("商品id");
-                let item = format!(
-                    "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                    num, SPLITER, name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, long,
-                    SPLITER, weight, SPLITER, theory, SPLITER, note, SPLITER, m_id, SPLITER
-                );
+            document_items.push(item);
+        }
 
-                document_items.push(item);
-            }
+        HttpResponse::Ok().json(document_items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取出库单据明细 - 调整出库
+#[post("/fetch_document_items_tc")]
+pub async fn fetch_document_items_tc(
+    db: web::Data<Pool>,
+    data: web::Json<DocumentDh>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
+        let conn = db.get().await.unwrap();
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        let sql = format!(
+            r#"select split_part(node_name,' ', 2) 名称, split_part(node_name,' ', 1) 材质,
+                    {} 规格, {} 状态, {} 炉号, di.长度, pi.数量, (di.长度*pi.数量)::integer as 总长度,
+                    di.物料号, pi.重量, pi.理重, pi.备注, 商品id, 单价, 销售id
+                FROM pout_items pi
+                join document_items di on di.id = pi.销售id
+                JOIN products ON products.物料号 = di.物料号
+                JOIN tree ON 商品id = tree.num
+                WHERE pi.单号id = '{}' ORDER BY pi.顺序"#,
+            f_map["规格"], f_map["状态"], f_map["炉号"], data.dh
+        );
+
+        // println!("{}", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut document_items: Vec<String> = Vec::new();
+
+        for row in rows {
+            let name: String = row.get("名称");
+            let cz: String = row.get("材质");
+            let gg: String = row.get("规格");
+            let status: String = row.get("状态");
+            let long: i32 = row.get("长度");
+            let num: String = row.get("物料号");
+            let weight: f32 = row.get("重量");
+            let theory: f32 = row.get("理重");
+            let note: String = row.get("备注");
+            let m_id: String = row.get("商品id");
+            let item = format!(
+                "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+                num, SPLITER, name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, long,
+                SPLITER, weight, SPLITER, theory, SPLITER, note, SPLITER, m_id, SPLITER
+            );
+
+            document_items.push(item);
         }
 
         HttpResponse::Ok().json(document_items)

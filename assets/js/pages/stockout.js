@@ -124,14 +124,14 @@ let page_stockout = function () {
             type: "autocomplete",
             editable: true,
             is_save: true,
-            default: ""
+            default: "",
+            no_button: true,
         },
         { name: "名称", width: 60, class: "名称", type: "普通输入", editable: false, is_save: false, default: "" },
         { name: "材质", width: 60, class: "材质", type: "普通输入", editable: false, is_save: false, default: "" },
         { name: "规格", width: 60, class: "规格", type: "普通输入", editable: false, is_save: false, default: "" },
         { name: "状态", width: 80, class: "状态", type: "普通输入", editable: false, is_save: false, default: "" },
         { name: "出库长度", width: 30, class: "长度", type: "普通输入", editable: true, is_save: true, default: "" },
-        { name: "实际重量", width: 30, class: "实际重量", type: "普通输入", editable: true, is_save: true, default: "" },
         { name: "理论重量", width: 30, class: "理论重量", type: "普通输入", editable: false, is_save: true, default: "" },
         {
             name: "备注",
@@ -413,10 +413,6 @@ let page_stockout = function () {
                     return false;
                 } else if (!row.querySelector('.长度').value) {
                     row.querySelector('.长度').value = 0;
-                }
-
-                if (row.querySelector('.实际重量').textContent.trim() == "") {
-                    row.querySelector('.实际重量').textContent = 0;
                 }
             }
         }
