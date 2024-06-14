@@ -1,4 +1,3 @@
-use std::fmt::format;
 use crate::service::*;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
@@ -471,7 +470,6 @@ pub async fn save_document(
     if user.name != "" {
         let mut conn = db.get().await.unwrap();
         let doc_data: Vec<&str> = data.document.split(SPLITER).collect();
-        let mut dh = doc_data[1].to_owned();
 
         let fields_cate = if data.rights.contains("采购") {
             "采购单据"
@@ -730,9 +728,9 @@ pub async fn fetch_trans_items(
             let note: String = row.get("备注");
             let item = format!(
                 "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, long, SPLITER,
-                num, SPLITER, theory, SPLITER, weight, SPLITER, price, SPLITER, money, SPLITER,
-                note, SPLITER, m_id, SPLITER, m_cate
+                name, SPLITER, cz, SPLITER, gg, SPLITER, status, SPLITER, lu, SPLITER, 
+                long, SPLITER, num, SPLITER, theory, SPLITER, weight, SPLITER, price, 
+                SPLITER, money, SPLITER, note, SPLITER, m_id, SPLITER, m_cate
             );
 
             document_items.push(item)

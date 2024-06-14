@@ -1,4 +1,5 @@
 #![allow(deprecated)]
+
 use crate::service::*;
 use actix_identity::Identity;
 use actix_multipart::Multipart;
@@ -40,18 +41,20 @@ pub async fn fetch_product(
         let f_map = map_fields(db.clone(), "商品规格").await;
         // 区域限制
         let mut area = "".to_owned();
-        let mut done = "".to_owned();
+        let done = "".to_owned();
         if !user.rights.contains("跨区查库存") {
             area = format!(r#"AND products.{}='{}'"#, f_map["区域"], user.area);
         }
 
         let fields = get_fields(db.clone(), "商品规格").await;
 
-        let sql_fields = "SELECT products.物料号 as id, products.商品id, node_name, products.物料号, 规格型号, products.文本字段2,
-                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2, 
-                            COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,库位,products.文本字段6,
-                            case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
-                            COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
+        let sql_fields = "SELECT products.物料号 as id, products.商品id, node_name,
+            products.物料号, 规格型号, products.文本字段2, products.文本字段3,products.文本字段5,
+            products.文本字段4,出售价格,products.整数字段1, COALESCE(foo.切分次数,0) 整数字段2,
+            COALESCE(foo.库存长度,0) 整数字段3, COALESCE(foo.理论重量,0) 库存下限, products.文本字段8,
+            库位,products.文本字段6,
+            case when COALESCE(库存类别,'')<>'锁定' then 库存状态 else 库存类别 end 库存状态,products.备注,
+            COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
 
         let sql = format!(
             r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
@@ -108,7 +111,8 @@ pub async fn fetch_product(
         // let products = build_string_from_base(rows, fields);
 
         let sql2 = format!(
-            r#"SELECT count(products.物料号) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
+            r#"SELECT count(products.物料号) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度,
+                COALESCE(sum(理论重量),0) 库存重量
                 FROM products
                 {}
                 JOIN documents on 单号id = 单号
@@ -278,8 +282,8 @@ pub async fn fetch_filter_items(
             filter: post_data.filter.clone(),
             filter_name: "".to_owned(),
         };
-        let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-            build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql,
+            filter_sql, lock_join_sql) = build_sql_search(db.clone(), f_data).await;
 
         let mut items: Vec<String> = Vec::new();
 
@@ -348,14 +352,16 @@ pub async fn update_product(
         };
 
         let sql = format!(
-            r#"UPDATE products SET 文本字段2='{}', 文本字段4='{}', 整数字段1={}, 库存状态='{}', 备注='{}' WHERE 物料号='{}'"#,
+            r#"UPDATE products SET 文本字段2='{}', 文本字段4='{}', 整数字段1={}, 库存状态='{}', 备注='{}'
+                WHERE 物料号='{}'"#,
             product[3], product[4], product[5], product[6], product[7], product[0]
         );
 
         let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
 
         let sql = format!(
-            r#"UPDATE products SET 库存下限 = 库存下限*(整数字段1::real/整数字段3::real), 整数字段3 = {} WHERE 物料号='{}'"#,
+            r#"UPDATE products SET 库存下限 = 库存下限*(整数字段1::real/整数字段3::real), 整数字段3 = {}
+                WHERE 物料号='{}'"#,
             product[5], product[0]
         );
 
@@ -413,7 +419,8 @@ pub async fn product_auto(
         let sql = &format!(
             r#"SELECT id, 规格型号 AS label FROM products
                JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> {}'' LIMIT 10"#,
+               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> {}''
+               LIMIT 10"#,
             search.cate,
             search.s.to_lowercase(), NOT_DEL_SQL
         );
@@ -433,6 +440,7 @@ pub struct ProductName {
     filter: String,
     search: String,
 }
+
 #[derive(Deserialize, Debug)]
 struct FieldsData {
     width: f32,
@@ -585,8 +593,8 @@ pub async fn product_out(
             filter_name: "".to_owned(),
         };
 
-        let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-            build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql,
+            filter_sql, lock_join_sql) = build_sql_search(db.clone(), f_data).await;
 
         let sql = format!(
             r#"{} from products 
@@ -599,7 +607,7 @@ pub async fn product_out(
         );
 
         // println!("{}\n", sql);
-        
+
         let conn = db.get().await.unwrap();
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
@@ -694,7 +702,7 @@ pub async fn product_datain(db: web::Data<Pool>, p_id: String, id: Identity) -> 
                 }
 
                 init += r#"商品id, 单号id) VALUES("#; // 单号id 是与 documents 单据库的“单号”关联的外键，需有值。这里的值是初始建库时，
-                                                      // 手工 insert into 的单号，所有的数据导入，均以此单号为键
+                // 手工 insert into 的单号，所有的数据导入，均以此单号为键
                 for j in 0..total_rows {
                     let mut sql = init.clone();
 
