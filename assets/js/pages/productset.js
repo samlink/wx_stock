@@ -613,7 +613,7 @@ let page_productset = function () {
                             <div class="form-label">
                                 <label>${name.show_name}</label>
                             </div>
-                            <input class="form-control input-sm has-value" type="text" value="${value}" ${dis}>
+                            <input class="form-control input-sm has-value ${name.show_name}" type="text" value="${value}" ${dis}>
                         </div>`;
                     } else {
                         let show_value = chosed.querySelector(`.${name.show_name}`).textContent;
@@ -641,6 +641,52 @@ let page_productset = function () {
 
                 global.row_id = id;
                 document.querySelector('.modal-body').innerHTML = form;
+
+                // 上传炉号质保单
+                let lu_button_html = `<button class="btn btn-info btn-sm zhibao_button">质保书</button><input type="file" id="lu_upload" accept="application/pdf" hidden="hidden"/>`;
+                let lu_input = document.querySelector('.modal-body .炉号');
+                lu_input.style.width = "230px";
+                lu_input.insertAdjacentHTML('afterend', lu_button_html);
+
+                let lu_button = document.querySelector('.modal-body .zhibao_button');
+                lu_button.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (lu_input.value.trim() == "") {
+                        notifier.show('炉号不能为空', 'danger');
+                        return false;
+                    }
+                    lu_upload.click();
+                });
+
+                //上传 pdf 文件
+                lu_upload.addEventListener('change', () => {
+                    let focused = document.querySelector('.table-product .focus');
+                    let lh = `${focused.querySelector('.材质').textContent.trim()}_${focused.querySelector('.规格').textContent.trim()}_${focused.querySelector('.炉号').textContent.trim()}__${focused.querySelector('.生产厂家').textContent.trim()}`;
+
+                    lu_button.disabled = true;
+                    const fd = new FormData();
+                    fd.append('file', lu_upload.files[0]);
+                    fetch(`/pdf_in`, {
+                        method: 'POST',
+                        body: fd,
+                    })
+                        .then(res => res.json())
+                        .then(content => {
+                            fetch(`/pdf_in_save`, {
+                                method: 'post',
+                                headers: {
+                                    "Content-Type": "application/json",
+                                },
+                                body: JSON.stringify(lh)
+                            })
+                                .then(response => response.json())
+                                .then(content => {
+                                    notifier.show('质保书成功保存', 'success');
+                                    lu_button.disabled = "";
+                                });
+                        });
+                });
+
                 document.querySelector('.modal-title').textContent = "编辑物料 - " + global.product_name;
                 document.querySelector('.modal-dialog').style.cssText = "max-width: 500px;";
                 document.querySelector('.modal').style.display = "block";
