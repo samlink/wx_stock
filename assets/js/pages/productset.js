@@ -391,22 +391,5 @@ let page_productset = function () {
         }
     }, false);
 
-    // // 筛选当前库存
-    // document.querySelector('#p-select').addEventListener('change', () => {
-    //     let post_data = {
-    //         id: document.querySelector('#product-id').textContent.trim(),
-    //         name: document.querySelector('#search-input').value,
-    //         cate: document.querySelector('#p-select').value,
-    //         page: 1,
-    //     };
-    //
-    //     Object.assign(tool_table.table_data().post_data, post_data);
-    //     tool_table.fetch_table((content) => {
-    //         make_filter();
-    //         add_lu_link();
-    //         show_stat(content);
-    //     });
-    // });
-
     // ------------------------------- 过滤部分结束 --------------------------------
 }();
