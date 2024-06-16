@@ -2895,37 +2895,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "73b4b750c782965c211b42f022f59af1fbceabdd026623714f104152f1ec149f"
 
 [[package]]
-name = "sales"
-version = "0.1.0"
-dependencies = [
- "actix-files",
- "actix-identity",
- "actix-multipart",
- "actix-web",
- "async-recursion",
- "calamine",
- "config",
- "deadpool-postgres",
- "dotenv",
- "futures 0.3.19",
- "image",
- "mime",
- "postgres",
- "rand 0.7.3",
- "regex",
- "reqwest",
- "ructe",
- "rust-crypto",
- "rust-pinyin",
- "serde",
- "serde_json",
- "time 0.1.43",
- "tokio-postgres",
- "uuid 0.8.2",
- "xlsxwriter",
-]
-
-[[package]]
 name = "schannel"
 version = "0.1.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3995,6 +3964,37 @@ checksum = "d59cefebd0c892fa2dd6de581e937301d8552cb44489cdff035c6187cb63fa5e"
 dependencies = [
  "winapi 0.2.8",
  "winapi-build",
+]
+
+[[package]]
+name = "wx-stock"
+version = "0.1.0"
+dependencies = [
+ "actix-files",
+ "actix-identity",
+ "actix-multipart",
+ "actix-web",
+ "async-recursion",
+ "calamine",
+ "config",
+ "deadpool-postgres",
+ "dotenv",
+ "futures 0.3.19",
+ "image",
+ "mime",
+ "postgres",
+ "rand 0.7.3",
+ "regex",
+ "reqwest",
+ "ructe",
+ "rust-crypto",
+ "rust-pinyin",
+ "serde",
+ "serde_json",
+ "time 0.1.43",
+ "tokio-postgres",
+ "uuid 0.8.2",
+ "xlsxwriter",
 ]
 
 [[package]]

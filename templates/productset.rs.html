@@ -1,18 +1,14 @@
 @use super::base_html;
 @use crate::service::UserData;
 @use super::statics::*;
-@(user: UserData)
+@()
 
 @:base_html({
 <div class="product-set">
-    <div class="top-title"><span><i class="fa fa-retweet"></i> 仓储管理 </span>
-        <span class="t1"><i class="fa fa-angle-double-right"></i> 库存状态 </span>
-        <p id="help-info" title="帮助信息"><img></p>
-    </div>
     <div class="product-content has-bak">
         <div class="tree-show">
             <div class="autocomplete table-top">
-                <input type="text" class="form-control search-input" id="auto_input" placeholder="商品搜索">
+                <input type="text" class="form-control search-input" id="auto_input" placeholder="名称搜索">
                 <button id="auto_search" class="btn btn-info btn-sm"><img src="/assets/img/zoom.png" width=24></button>
             </div>
             <div class="tree-title">商品分类　</div>
@@ -32,33 +28,13 @@
         <div id="product-show">
             <div class="table-top">
                 <div class="product-select">
-                    <select class="select-sm " id="p-select">
-                        <option value="正常销售" selected>正常销售</option>
-                        <option value="销售锁定">销售锁定</option>
-                        <option value="自用库">自用库</option>
-                        <option value="不合格品">不合格品</option>
-                        <option value="已切完">已切完</option>
-                    </select>
-                    <input type="text" class="form-control search-input" id="search-input" placeholder="联合搜索">
+                    <input type="text" class="form-control search-input" id="search-input" placeholder="材料搜索">
                     <button class="btn btn-info btn-sm" id="serach-button">搜索</button>
                     <span id="product-name"></span><span id="product-id"></span>                    
                 </div>
                 <div class="info-show">
                 </div>
                 <div class="table-tools">
-                    <div class="table-edit">
-                        <button class="btn btn-info btn-sm hide" id="add-button">增加</button>
-                        <button class="btn btn-info btn-sm" id="find-button">查阅出库</button>
-                        <button class="btn btn-info btn-sm" id="all-button">全部属性</button>
-                        <button class="btn btn-info btn-sm" id="edit-button">编辑物料</button>
-                    </div>
-                    <div class="data-button">
-                        <input type="file" id="choose_file2" class="hide" accept="xls,xlsx" />
-                        <button class="btn btn-info btn-sm hide" id="data-update">批量更新</button>
-                        <input type="file" id="choose_file" class="hide" accept="xls,xlsx" />
-                        <button class="btn btn-info btn-sm hide" id="data-in">批量导入</button>
-                        <button class="btn btn-info btn-sm" id="data-out">导出数据</button>
-                    </div>
                 </div>
             </div>
 
@@ -115,4 +91,4 @@
 </div>
 <script src="/static/@tools_service_js.name"></script>
 <script src="/assets/js/pages/productset.js"></script>
-}, user.show.clone())
+})

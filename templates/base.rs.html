@@ -1,6 +1,6 @@
 @use time::now;
 @use super::statics::*;
-@(content: Content, user: String)
+@(content: Content)
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -9,7 +9,7 @@
     <link rel="shortcut icon" type="favicon" href="/assets/img/logo_blue.png"/>
     <link rel="stylesheet" href="/assets/plugins/font-awesome/css/font-awesome.min.css">
     <link rel="stylesheet" type="text/css" href="/static/@sales_css.name"/>
-    <title id='title-show'>仓储销售</title>
+    <title id='title-show'>库存查询</title>
 </head>
 
 <body>
@@ -17,183 +17,16 @@
     <div id="logo">
         <a href="/">
             <img src="/assets/img/logo_blue.png" width="24px"/>
-            <span id="title">原料业务管理系统</span></a>
+            <span id="title">五星(天津)石油装备有限公司</span>
+        </a>
     </div>
-    <div id="menu">
-        <ul class="menu-ul">
-            <li class="menu-li" id="goods-in">
-                <a class="menu-link" href="javascript:"><i class="nav-icon fa fa-plus-square"></i><span
-                        class="menu-text">采购管理</span></a>
-                <div class="sub-menu">
-                    <b class="caret fa fa-caret-up"></b>
-                    <ul class="sub-ul">
-                        <li class="nav-item"><a class="nav-link" href="/sale/new"><span
-                                class="nav-text">采购计划</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/sale/new"><span
-                                class="nav-text">采购合同</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/buy_in/new"><span
-                                class="nav-text">材料采购</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/sale_query?s="><span
-                                class="nav-text">计划查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/trans_query?s="><span
-                                class="nav-text">合同查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/buy_query?s="><span
-                                class="nav-text">采购查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/supplier_manage"><span
-                                class="nav-text">供应商管理</span></a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <li class="menu-li" id="sale-menu">
-                <a class="menu-link" href="javascript:"><i class="nav-icon fa fa-shopping-cart"></i><span
-                        class="menu-text">销售管理</span></a>
-                <div class="sub-menu">
-                    <b class="caret fa fa-caret-up"></b>
-                    <ul class="sub-ul">
-                        <li class="nav-item"><a class="nav-link" href="/buy_in/new"><span
-                                class="nav-text">销售报价</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/buy_in/new"><span
-                                class="nav-text">销售合同</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/sale/new"><span
-                                class="nav-text">商品销售</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/saleback/new"><span
-                                class="nav-text">销售退货</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/transport/new"><span
-                                class="nav-text">运输发货</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/kp/new"><span
-                                class="nav-text">销售开票</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/sale_query?s="><span
-                                class="nav-text">销售查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/trans_query?s="><span
-                                class="nav-text">发货查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/kp_query?s="><span
-                                class="nav-text">开票查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/customer_manage"><span
-                                class=" nav-text">客户管理</span></a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <li class="menu-li" id="goods-m">
-                <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-retweet"></i><span
-                        class="menu-text">仓储管理</span></a>
-                <div class="sub-menu">
-                    <b class="caret fa fa-caret-up"></b>
-                    <ul class="sub-ul">
-                        <li class="nav-item"><a class="nav-link" href="/product_set"><span
-                                class="nav-text">库存状态</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/material_in/new"><span
-                                class="nav-text">采购入库</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/stock_change_in/new"><span
-                                class="nav-text">调整入库</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/material_out/new"><span
-                                class="nav-text">销售出库</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/stock_change_out/new"><span
-                                class="nav-text">调整出库</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/change_query_in?s="><span
-                                class="nav-text">入库查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/change_query_out?s="><span
-                                class="nav-text">出库查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/stock_query_in?s="><span
-                                class="nav-text">调入查询</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/stock_query_out?s="><span
-                                class="nav-text">调出查询</span></a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-            <li class="menu-li" id="statics">
-                <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-table"></i><span
-                        class="menu-text">业务报表</span></a>
-                <div class="sub-menu">
-                    <b class="caret fa fa-caret-up"></b>
-                    <ul class="sub-ul">
-                        <li class="nav-item"><a class="nav-link" href="/stockin_items"><span
-                                class="nav-text">入库明细</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/stockout_items"><span
-                                class="nav-text">出库明细</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/trans_items"><span
-                                class="nav-text">发货明细</span></a></li>
-                        <li class="nav-item"><a class="nav-link" href="/business_query"><span
-                                class="nav-text">业务往来</span></a></li>
-                    </ul>
-                </div>
-            </li>
-            <li class="menu-li" id="function-set">
-                <a class="menu-link" href="javascript:;"><i class="nav-icon fa fa-wrench"></i><span
-                        class="menu-text">功能设置</span></a>
-                <div class="sub-menu">
-                    <b class="caret fa fa-caret-up"></b>
-                    <ul class="sub-ul">
-                        <li class="nav-item"><a class="nav-link" href="/user_manage"><span
-                                class="nav-text">用户设置</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" id="anti-shen" href="javascript:void(0);"><span
-                                class="nav-text">反审单据</span></a>
-                        </li>
-
-                        <li class="nav-item" hidden=""><a class="nav-link" href="/field_set"><span
-                                class="nav-text">字段设置</span></a>
-                        </li>
-                        <li class="nav-item"><a class="nav-link" href="/help"><span class="nav-text">帮助信息</span></a>
-                        </li>
-                    </ul>
-                </div>
-            </li>
-        </ul>
-
-        <div id="user">
-            <a href="/user_set" id="user-name">@user</a>
-            <a id="exit" href="/logout" title="退出"><i class="nav-icon fa fa-sign-out"></i></a>
-        </div>
+    <div id="title-name">
+        <p><i class="nav-icon fa fa-search"></i>库存查询系统</p>
     </div>
-</div>
-
-<div class="quick-buttons">
-    <button class="btn btn-info" id="quick-1"><i class="fa fa-plus-square"></i>采购</button>
-    <button class="btn btn-info" id="quick-2"><i class="fa fa-shopping-cart"></i>销售</button>
-    <button class="btn btn-info" id="quick-3"><i class="fa fa-truck"></i>发货</button>
-    <button class="btn btn-info" id="quick-9"><i class="fa fa-credit-card"></i>开票</button>
-    <button class="btn btn-info" id="quick-4"><i class="fa fa-server"></i>库存</button>
-    <button class="btn btn-info" id="quick-5"><i class="fa fa-arrow-down"></i>入库</button>
-    <button class="btn btn-info" id="quick-6"><i class="fa fa-arrow-up"></i>出库</button>
-    <button class="btn btn-info" id="quick-7"><i class="fa fa-indent"></i>入表</button>
-    <button class="btn btn-info" id="quick-8"><i class="fa fa-dedent"></i>出表</button>
-</div>
-
-<div class="roar-alert" id="roar-alert" role="alertdialog" hidden>
-    <div class="roar-alert-mask"></div>
-    <div class="roar-alert-message-body" role="alert" aria-relevant="all">
-        <div class="roar-alert-message-tbf roar-alert-message-content"></div>
-        <div class="roar-alert-message-tbf roar-alert-message-button">
-            <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-confirm"></a>
-            <a href="javascript:;" class="roar-alert-message-tbf roar-alert-message-button-cancel"></a>
-        </div>
+    <div id="go-home">
+        <a id="exit" href="#"><i class="nav-icon fa fa-home"></i>公司主页</a>
     </div>
+
 </div>
 
 <div class="modal" id="for-click-close">
@@ -223,47 +56,14 @@
     </div>
 </div>
 
-<div id="print" hidden="">
-    <div class="print-title">
-    </div>
-    <div class="print-header" style="font-size: 14;">
-        <div class="print-block" id="p-block1">
-        </div>
-        <div class="print-block" id="p-block2">
-        </div>
-        <div class="print-block" id="p-block3">
-        </div>
-        <div class="print-block" id="p-block4">
-        </div>
-    </div>
-    <div class="table-container print-table">
-        <table>
-            <thead>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
-    </div>
-    <div class="print-foot" style="font-size: 14;">
-        <div class="print-block" id="p-block5">
-        </div>
-        <div class="print-block" id="p-block6">
-        </div>
-        <div class="print-block" id="p-block7">
-        </div>
-        <div class="print-block" id="p-block8">
-        </div>
-    </div>
-    <div class="print-note" style="font-size: 14;"></div>
-</div>
 
 <div class="content">
     @:content()
 </div>
 
 <footer>
-    <p><span id="my-company">天津炬瓴科技有限公司</span> &#169; @now().strftime("%Y").unwrap().to_string()
-        授权 五星(天津)石油装备有限公司 使用 </p>
+    <p><span id="my-company">五星(天津)石油装备有限公司</span> &#169; @now().strftime("%Y").unwrap().to_string()
+    </p>
 </footer>
 
 <script src="/static/@general_js.name"></script>
