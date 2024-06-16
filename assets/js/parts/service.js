@@ -800,8 +800,22 @@ var service = function () {
                 name: '',
                 sort: "products.物料号 ASC",
                 rec: row_num,
-                cate: '',
+                cate: '正常销售',
+                page: 1,
                 filter: '',
+            },
+            header_names: {
+                "名称": "split_part(node_name,' ',2)",
+                "材质": "split_part(node_name,' ',1)",
+                "物料号": "products.物料号",
+                "规格": "规格型号",
+                "状态": "products.文本字段2",
+                "执行标准": "products.文本字段3",
+                "生产厂家": "products.文本字段5",
+                "炉号": "products.文本字段4",
+                "库存长度": "COALESCE(foo.库存长度,0)",
+                "库存重量": "COALESCE(foo.理论重量,0)",
+                "备注": "products.备注",
             },
             edit: false,
 
@@ -809,95 +823,72 @@ var service = function () {
             row_fn: table_row,
         };
 
-        fetch(`/fetch_fields`, {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                name: "商品规格"
-            }),
-        })
-            .then(response => response.json())
-            .then(content => {
-                if (content != -1) {
-                    table_fields = content[0].filter((item) => {
-                        return item.is_show;
-                    });
+        let custom_fields = [
+            {name: '序号', width: 2},
+            {name: '名称', width: 4},
+            {name: '材质', width: 4},
+            {name: '物料号', width: 4},
+            {name: '规格', width: 4},
+            {name: '状态', width: 4},
+            {name: '执行标准', width: 6},
+            {name: '生产厂家', width: 4},
+            {name: '炉号', width: 5},
+            {name: '库存长度', width: 3},
+            {name: '库存重量', width: 3},
+            {name: '备注', width: 5},
+        ];
+        let table = document.querySelector('.table-product');
+        let header = build_table_header(table, custom_fields, "", "", "products");
+        table.querySelector('thead tr').innerHTML = header.th_row;
 
-                    let table = document.querySelector('.table-product');
-                    let header = build_table_header(table, [{name: '序号', width: 3}, {name: '名称', width: 4}, {name: '材质', width: 6}], table_fields, "", "products");
-                    table.querySelector('thead tr').innerHTML = header.th_row;
-                    // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
-
-                    init_data.header_names = header.header_names;
-                    // init_data.header_names["编号"] = "id";
-                    init_data.header_names["名称"] = "split_part(node_name,' ',2)";
-                    init_data.header_names["材质"] = "split_part(node_name,' ',1)";
-
-                    // 自动计算得出的字段, 需用相关的计算公式进行排序, 不可直接使用原字段
-                    init_data.header_names["库存长度"] = "库存长度";
-                    init_data.header_names["切分"] = "切分次数";
-                    init_data.header_names["理论重量"] = "理论重量";
-
-                    tool_table.table_init(init_data);
-
-                    let post_data = {
-                        cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "正常销售",
-                        page: 1,
-                    }
-
-                    Object.assign(tool_table.table_data().post_data, post_data);
-                    tool_table.fetch_table((content) => {
-                        if (cb) {
-                            cb(table);
-                        }
-                        if (more) {
-                            more();
-                        }
-                        if (more2) {
-                            more2(content);
-                        }
-                    });
-                }
-            });
-
-        function table_row(tr) {
-            let rec = tr.split(SPLITER);
-            let name = rec[rec.length - 4].split(' ');
-            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td><td class='name'>${name[1]}</td><td class='材质'>${name[0]}</td>`;
-            let row_build = build_row_from_string(rec, row, table_fields);
-            let rows = row_build.replace("</tr>", `<td class = "名称">${rec[rec.length - 4]}</td>
-                                    <td class = "商品id">${rec[rec.length - 3]}</td><td class = "link">${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
-
-            return rows;
-        }
-
-        document.querySelector('#serach-button').addEventListener('click', function () {
-            search_table();
+        tool_table.table_init(init_data);
+        tool_table.fetch_table((content) => {
+            if (cb) {
+                cb(table);
+            }
+            if (more) {
+                more();
+            }
+            if (more2) {
+                more2(content);
+            }
         });
+    };
 
-        function search_table() {
-            let search = document.querySelector('#search-input').value;
-            Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
-
-            //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
-            let table = document.querySelector('.table-product');
-            tool_table.fetch_table((content) => {
-                if (cb) {
-                    cb(table);
-                }
-                if (more) {
-                    more();
-                }
-                if (more2) {
-                    more2(content);
-                }
-            });
-        }
+    function table_row(tr) {
+        let rec = tr.split(SPLITER);
+        let name = rec[1].split(" ");
+        let row = `<tr><td>${rec[0]}</td><td>${name[1]}</td><td>${name[0]}</td><td>${rec[2]}</td><td>${rec[3]}</td>
+                            <td>${rec[4]}</td><td title="${rec[5]}">${rec[5]}</td><td>${rec[6]}</td><td title="${rec[7]}">${rec[7]}</td>
+                            <td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
+        return row;
     }
 
-    //出入库时，获取单据列表
+    document.querySelector('#serach-button').addEventListener('click', function () {
+        search_table();
+    });
+
+    function search_table() {
+        let search = document.querySelector('#search-input').value;
+        Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
+
+        //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
+        let table = document.querySelector('.table-product');
+        tool_table.fetch_table((content) => {
+            if (cb) {
+                cb(table);
+            }
+            if (more) {
+                more();
+            }
+            if (more2) {
+                more2(content);
+            }
+        });
+    }
+
+
+//出入库时，获取单据列表
     let get_materials_docs = function (url, cate, build_func) {
         fetch(url, {
             method: 'post',
@@ -938,7 +929,7 @@ var service = function () {
             });
     }
 
-    // 业务报表设置起始日期
+// 业务报表设置起始日期
     let set_date = function () {
         let date1 = document.querySelector('#search-date1');
         let date2 = document.querySelector('#search-date2');
@@ -1027,7 +1018,7 @@ var service = function () {
     let get_data = function () {
         return table_fields;
     }
-    // 作废单据设为只读
+// 作废单据设为只读
     let fei_readonly = function (fei_bool, container) {
         if (fei_bool == "true") {
             setTimeout(() => {
@@ -1044,7 +1035,7 @@ var service = function () {
         }
     }
 
-    /// 获取炉号
+/// 获取炉号
     let get_lu = function (trs) {
         let lus_arr = [];
         for (let tr of trs) {
@@ -1113,4 +1104,5 @@ var service = function () {
         fei_readonly: fei_readonly,
         get_lu: get_lu,
     }
-}();
+}
+();
