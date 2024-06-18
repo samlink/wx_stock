@@ -3,7 +3,6 @@
 @(content: Content)
 <!DOCTYPE html>
 <html lang="zh-CN">
-
 <head>
     <meta charset="utf-8">
     <link rel="shortcut icon" type="favicon" href="/assets/img/logo_blue.png"/>
@@ -11,7 +10,6 @@
     <link rel="stylesheet" type="text/css" href="/static/@sales_css.name"/>
     <title id='title-show'>库存查询</title>
 </head>
-
 <body>
 <div class="header">
     <div id="logo">
@@ -24,24 +22,20 @@
         <p><i class="nav-icon fa fa-search"></i>库存查询系统</p>
     </div>
     <div id="go-home">
-        <a id="exit" href="#"><i class="nav-icon fa fa-home"></i>公司主页</a>
+        <a id="exit" href="http://www.wxpetro.com" target="_blank"><i class="nav-icon fa fa-home"></i>公司主页</a>
     </div>
-
 </div>
 
 <div class="modal" id="for-click-close">
     <div class="modal-dialog" id="modal-drag">
         <div class="modal-content">
-
             <div class="modal-header">
                 <p class="modal-title"></p>
                 <button type="button" class="top-close close">
                     <span>&times;</span>
                 </button>
             </div>
-
             <div class="modal-body"></div>
-
             <div class="modal-footer">
                 <div id="modal-info"></div>
                 <button type="button" class="btn btn-info" id="modal-sumit-button">
@@ -51,11 +45,9 @@
                     返回
                 </button>
             </div>
-
         </div>
     </div>
 </div>
-
 
 <div class="content">
     @:content()
@@ -65,8 +57,5 @@
     <p><span id="my-company">五星(天津)石油装备有限公司</span> &#169; @now().strftime("%Y").unwrap().to_string()
     </p>
 </footer>
-
-<!--<script src="/static/@general_js.name"></script>-->
 </body>
-
 </html>
