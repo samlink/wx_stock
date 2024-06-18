@@ -215,7 +215,6 @@ var service = function () {
         }
     }
 
-
     return {
         build_table_header: build_table_header,
         build_product_table: build_product_table,
