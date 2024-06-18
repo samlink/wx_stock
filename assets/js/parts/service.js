@@ -73,7 +73,7 @@ var service = function () {
         };
     }
 
-         //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用，从 cb 开始都是回调函数
+    //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用，从 cb 开始都是回调函数
     let build_product_table = function (row_num, cb, more, more2) {
         let init_data = {
             container: '.table-product',
@@ -141,9 +141,11 @@ var service = function () {
     function table_row(tr) {
         let rec = tr.split(SPLITER);
         let name = rec[1].split(" ");
-        let row = `<tr><td>${rec[0]}</td><td>${name[1]}</td><td>${name[0]}</td><td>${rec[2]}</td><td>${rec[3]}</td>
-                            <td>${rec[4]}</td><td title="${rec[5]}">${rec[5]}</td><td>${rec[6]}</td><td title="${rec[7]}">${rec[7]}</td>
-                            <td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
+        let row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
+            <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
+            <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家">${rec[6]}</td>
+            <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
+
         return row;
     }
 
@@ -170,21 +172,27 @@ var service = function () {
         });
     }
 
-/// 获取炉号
-    let get_lu = function (trs) {
+    /// 获取炉号
+    let get_lu = function (tem_trs) {
+        let trs = [];
+        tem_trs.forEach(tr => {
+            if (tr.querySelector('.炉号')) {
+                trs.push(tr);
+            }
+        });
+
+        console.log(tem_trs);
+        console.log(trs);
+
         let lus_arr = [];
         for (let tr of trs) {
             let lu = tr.querySelector('.炉号');
-            if (lu && lu.textContent.trim() != '' && lu.textContent.trim() != '--') {
+            if (lu.textContent.trim() != '' && lu.textContent.trim() != '--') {
                 // 不可换行
                 let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
                 lus_arr.push(da);
-            } else {
-                break;
             }
         }
-
-        // console.log(lus_arr);
 
         if (lus_arr.length > 0) {
             fetch("/fetch_lu", {
@@ -198,7 +206,6 @@ var service = function () {
                 .then(content => {
                     for (let tr of trs) {
                         let lu = tr.querySelector('.炉号');
-                        if (!lu) break;
                         for (let cont of content) {
                             let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
                             if (cont.indexOf(da) != -1) {
@@ -210,6 +217,7 @@ var service = function () {
                 })
         }
     }
+
 
     return {
         build_table_header: build_table_header,
