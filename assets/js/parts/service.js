@@ -181,9 +181,6 @@ var service = function () {
             }
         });
 
-        console.log(tem_trs);
-        console.log(trs);
-
         let lus_arr = [];
         for (let tr of trs) {
             let lu = tr.querySelector('.炉号');
