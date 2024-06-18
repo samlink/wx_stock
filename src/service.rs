@@ -1,26 +1,15 @@
 use actix_files as fs;
 use actix_identity::Identity;
-use actix_multipart::Multipart;
 use actix_web::Either;
 use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
-use futures::TryStreamExt;
-use image::imageops::FilterType;
-use image::GenericImageView;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
-use time::now;
 
 pub static SPLITER: &str = "<`*_*`>";
 pub static NOT_DEL_SQL: &str =" and 作废 = false";
-
-//自动完成搜索字符串
-#[derive(Deserialize)]
-pub struct Search {
-    pub s: String,
-}
 
 #[derive(Deserialize)]
 pub struct SearchCate {
@@ -28,11 +17,6 @@ pub struct SearchCate {
     pub cate: String,
 }
 
-#[derive(Deserialize)]
-pub struct SearchPlus {
-    pub s: String,
-    pub ss: String,
-}
 
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
@@ -89,63 +73,6 @@ pub struct FieldsData {
     pub all_edit: bool,
 }
 
-// 自动生成单号
-pub async fn get_dh(db: web::Data<Pool>, doc_data: &str) -> String {
-    let conn = db.get().await.unwrap();
-    let dh_pre = if doc_data == "材料采购" {
-        "CG"
-    } else if doc_data == "采购退货" {
-        "CT"
-    } else if doc_data == "商品销售" {
-        "XS"
-    } else if doc_data == "销售退货" {
-        "XT"
-    } else if doc_data == "采购入库" {
-        "RK"
-    } else if doc_data == "销售出库" {
-        "CK"
-    } else if doc_data == "运输发货" {
-        "FH"
-    } else if doc_data == "调整入库" {
-        "TR"
-    } else if doc_data == "销售开票" {
-        "KP"
-    } else {
-        "TC"
-    };
-
-    let date_string = now().strftime("%Y-%m-%d").unwrap().to_string();
-    let local: Vec<&str> = date_string.split("-").collect();
-    let y = local[0];
-    let date = format!("{}{}{}-", dh_pre, &y[2..4], local[1]); //按月
-
-    //获取尾号
-    let sql = format!(
-        "SELECT COALESCE(max(单号),'0') as 单号 FROM documents WHERE 单号 like '{}%'",
-        dh_pre
-    );
-
-    let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-    let mut dh_first = "".to_owned();
-
-    for row in rows {
-        dh_first = row.get("单号");
-    }
-
-    let keep = 3usize; // 单号位数
-    let len = dh_first.len();
-    let mut num = 1i32;
-    if dh_first != "0" {
-        if let Some(n) = dh_first.get(len - keep..len) {
-            if dh_first == format!("{}{}", date, n) {
-                num = n.parse::<i32>().unwrap() + 1;
-            }
-        }
-    }
-
-    return format!("{}{:0pad$}", date, num, pad = keep);
-}
 
 ///下载文件服务
 #[get("/download/{filename:.*}")]
@@ -241,69 +168,6 @@ pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
     HttpResponse::Ok().json(data)
 }
 
-///获取一条空记录，用于无数据表格初始化
-#[post("/fetch_blank")]
-pub async fn fetch_blank() -> HttpResponse {
-    let v: Vec<i32> = Vec::new();
-    HttpResponse::Ok().json((v, 0, 0))
-}
-
-///获取一条空记录
-#[get("/fetch_nothing")]
-pub async fn fetch_nothing() -> HttpResponse {
-        HttpResponse::Ok().json(1)
-}
-
-//上传文件保存
-pub async fn save_file(mut payload: Multipart) -> Result<String, Error> {
-    let path = "./upload/upload_in.xlsx".to_owned();
-    while let Some(mut field) = payload.try_next().await? {
-        let filepath = path.clone();
-        let mut f = web::block(|| std::fs::File::create(filepath)).await??;
-        while let Some(chunk) = field.try_next().await? {
-            f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
-        }
-    }
-    Ok(path)
-}
-
-pub async fn save_pic(mut payload: Multipart, path: String) -> Result<String, Error> {
-    while let Some(mut field) = payload.try_next().await? {
-        let filepath = path.clone();
-        let mut f = web::block(|| std::fs::File::create(filepath)).await??;
-
-        while let Some(chunk) = field.try_next().await? {
-            f = web::block(move || f.write_all(&chunk).map(|_| f)).await??;
-        }
-    }
-    Ok(path)
-}
-
-//缩小图片
-pub fn smaller(path: String, path2: String) -> String {
-    let img = image::open(path).unwrap();
-    let (width, height) = img.dimensions();
-    let r = if height < width { 200 } else { 800 };
-    let scaled = img.resize(100, r, FilterType::Lanczos3);
-    let path3 = format!("{}min.jpg", path2);
-    scaled.save(path3.clone()).unwrap();
-    path3
-}
-
-//获取编辑用的显示字段 is_show
-pub async fn get_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
-                    FROM tableset WHERE table_name=$1 AND is_show=true ORDER BY show_order"#,
-            &[&table_name],
-        )
-        .await
-        .unwrap();
-
-    return_fields(rows)
-}
 
 //映射使用的字段 is_use
 pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
@@ -324,240 +188,6 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
     }
 
     f_map
-}
-
-// 获取查询单据的权限
-pub async fn get_limits(user: &UserData) -> String {
-    let mut limits = "".to_owned();
-    if user.duty == "主管" {
-        limits = format!("documents.文本字段7 = '{}' AND", user.area); // 文本字段7 为 区域
-    } else if user.duty == "库管" {
-        limits = format!(
-            "documents.文本字段7 = '{}' AND 经办人 = '{}' AND",
-            user.area, user.name
-        ); // 文本字段7 为 区域
-    } else if user.duty == "销售" {
-        limits = format!("经办人 = '{}' AND", user.name);
-    }
-
-    limits
-}
-
-//获取出入库用的显示字段 is_show
-pub async fn get_inout_fields(db: web::Data<Pool>, table_name: &str) -> Vec<FieldsData> {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, inout_width as show_width, all_edit
-                FROM tableset WHERE table_name=$1 AND inout_show=true ORDER BY inout_order"#,
-            &[&table_name],
-        )
-        .await
-        .unwrap();
-
-    return_fields(rows)
-}
-
-//返回字段数组，内部辅助函数
-fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
-    let mut fields: Vec<FieldsData> = Vec::new();
-    for row in rows {
-        let data = FieldsData {
-            field_name: row.get("field_name"),
-            show_name: row.get("show_name"),
-            data_type: row.get("data_type"),
-            ctr_type: row.get("ctr_type"),
-            option_value: row.get("option_value"),
-            default_value: row.get("default_value"),
-            show_width: row.get("show_width"),
-            all_edit: row.get("all_edit"),
-        };
-
-        fields.push(data);
-    }
-
-    fields
-}
-
-//从数据库读取数据后，按显示字段，组合成字符串数组。返回给前端
-pub fn build_string_from_base(
-    rows: &Vec<tokio_postgres::Row>,
-    fields: Vec<FieldsData>,
-) -> Vec<String> {
-    let mut products = Vec::new();
-    for row in rows {
-        let mut product = "".to_owned();
-        let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
-        product += &format!("{}{}", num, SPLITER);
-        let num: i64 = row.get("序号");
-        product += &format!("{}{}", num, SPLITER);
-
-        product += &simple_string_from_base(row, &fields);
-
-        products.push(product);
-    }
-    products    
-}
-
-//将数据库查询结果字段组合成字符串，即是内部辅助函数，也可外部调用
-pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsData>) -> String {
-    let mut product = "".to_owned();
-    for f in fields {
-        if f.data_type == "文本" {
-            let s: String = row.get(&*f.field_name);
-            let s1 = if s != "" { s } else { " ".to_owned() };
-            product += &format!("{}{}", s1, SPLITER);
-        } else if f.data_type == "整数" {
-            let num: i32 = row.get(&*f.field_name);
-            product += &format!("{}{}", num, SPLITER);
-        } else if f.data_type == "实数" {
-            let num: f64 = row.get(&*f.field_name);
-            product += &format!("{}{}", num, SPLITER);
-        } else {
-            let op: Vec<&str> = f.option_value.split("_").collect();
-            let b: bool = row.get(&*f.field_name);
-            let val = if b == true { op[0] } else { op[1] };
-            product += &format!("{}{}", val, SPLITER);
-        }
-    }
-
-    product
-}
-
-//从前端传过来字符串数组，按显示字段，组合成 update 语句。供更新数据用
-//参数：n 是字段名数组的偏移量
-pub fn build_sql_for_update(
-    field_names: Vec<&str>,
-    mut sql: String,
-    fields: Vec<FieldsData>,
-    n: usize,
-) -> String {
-    for i in 0..fields.len() {
-        if fields[i].data_type == "文本" {
-            sql += &format!("{}='{}',", fields[i].field_name, field_names[i + n]);
-        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-            sql += &format!("{}={},", fields[i].field_name, field_names[i + n]);
-        } else {
-            let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + n] == op[0] || field_names[i + n] == "true" {
-                true
-            } else {
-                false
-            };
-            sql += &format!("{}={},", fields[i].field_name, val);
-        }
-    }
-    sql
-}
-
-//从前端传过来字符串数组，按显示字段，组合成 insert 语句。供追加数据用
-//参数：n 是字段名数组的偏移量，即从第 n 个元素算起，才是自定义字段
-pub fn build_sql_for_insert(
-    field_names: Vec<&str>,
-    mut sql: String,
-    fields: Vec<FieldsData>,
-    n: usize,
-) -> String {
-    for i in 0..fields.len() {
-        if fields[i].data_type == "文本" {
-            sql += &format!("'{}',", field_names[i + n]);
-        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-            sql += &format!("{},", field_names[i + n]);
-        } else {
-            let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + n] == op[0] || field_names[i + n] == "true" {
-                true
-            } else {
-                false
-            };
-            sql += &format!("{},", val);
-        }
-    }
-    sql
-}
-
-//将显示字段拼接成导出 excel 用的查询语句
-pub fn build_sql_for_excel(mut sql: String, fields: &Vec<FieldsData>, table: String) -> String {
-    for f in fields {
-        if f.data_type == "文本" {
-            sql += &format!("{}.{},", table, f.field_name);
-        } else if f.data_type == "整数" || f.data_type == "实数" {
-            sql += &format!("cast({}.{} as VARCHAR),", table, f.field_name);
-        } else {
-            let op: Vec<&str> = f.option_value.split("_").collect();
-            sql += &format!(
-                "case when {}.{} then '{}' else '{}' end as {},",
-                table, f.field_name, op[0], op[1], f.field_name
-            );
-        }
-    }
-    sql
-}
-
-/// 单据保存使用，返回单号 和 插入语句
-pub async fn get_doc_sql(db: web::Data<Pool>, user: UserData, doc_data: Vec<&str>, table_name: &str) -> (String, String) {
-    let f_map = map_fields(db.clone(), table_name).await;
-    let fields = get_inout_fields(db.clone(), table_name).await;
-    let mut dh = doc_data[1].to_owned();
-    let mut doc_sql;
-    // 更新单据信息
-    if dh == "新单据" {
-        dh = get_dh(db.clone(), doc_data[0]).await;
-
-        let mut init = "INSERT INTO documents (单号,".to_owned();
-        for f in &fields {
-            init += &format!("{},", &*f.field_name);
-        }
-
-        init += &format!(
-            "客商id,类别,{},{}) VALUES('{}',",
-            f_map["经办人"], f_map["区域"], dh
-        );
-
-        doc_sql = build_sql_for_insert(doc_data.clone(), init, fields, 4);
-        doc_sql += &format!(
-            "{},'{}','{}', '{}')",
-            doc_data[2], doc_data[0], doc_data[3], user.area
-        );
-    } else {
-        let init = "UPDATE documents SET ".to_owned();
-        doc_sql = build_sql_for_update(doc_data.clone(), init, fields, 4);
-        doc_sql += &format!(
-            "客商id={}, 类别='{}', {}='{}', {}='{}' WHERE 单号='{}'",
-            doc_data[2], doc_data[0], f_map["经办人"], doc_data[3], f_map["区域"], user.area, dh
-        );
-    }
-    (dh, doc_sql)
-}
-
-//各个功能页面获取帮助信息
-#[post("/fetch_help")]
-pub async fn fetch_help(
-    db: web::Data<Pool>,
-    data: web::Json<String>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let conn = db.get().await.unwrap();
-        let mut information: Vec<String> = Vec::new();
-
-        let sql = format!(
-            "SELECT tips FROM help WHERE page_name='{}' ORDER BY show_order",
-            data
-        );
-
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-        for row in rows {
-            let info: String = row.get("tips");
-            information.push(info);
-        }
-
-        HttpResponse::Ok().json(information)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
 }
 
 //获取环境文件中的起始日期

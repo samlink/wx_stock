@@ -1,15 +1,10 @@
 #![allow(deprecated)]
-
 use crate::service::*;
 use actix_identity::Identity;
-use actix_multipart::Multipart;
 use actix_web::{get, post, web, HttpResponse};
-use calamine::{open_workbook, Reader, Xlsx};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::HashMap;
-use xlsxwriter::{prelude::FormatAlignment, *};
 
 #[derive(Deserialize, Serialize)]
 pub struct Product {
@@ -35,12 +30,9 @@ pub async fn fetch_product(
         build_sql_search(db.clone(), f_data).await;
 
     let skip = (post_data.page - 1) * post_data.rec;
-    let f_map = map_fields(db.clone(), "商品规格").await;
     // 区域限制
-    let mut area = "".to_owned();
+    let area = "".to_owned();
     let done = "".to_owned();
-
-    let fields = get_fields(db.clone(), "商品规格").await;
 
     let sql_fields = "SELECT node_name, products.物料号, 规格型号, products.文本字段2 状态,
             products.物料号, products.文本字段3 执行标准, products.文本字段5 生产厂家, products.文本字段4 炉号,
@@ -347,11 +339,11 @@ pub struct ProductName {
     search: String,
 }
 
-#[derive(Deserialize, Debug)]
-struct FieldsData {
-    width: f32,
-    field: &'static str,
-}
+// #[derive(Deserialize, Debug)]
+// struct FieldsData {
+//     width: f32,
+//     field: &'static str,
+// }
 
 ///获取炉号质保书
 #[post("/fetch_lu")]
