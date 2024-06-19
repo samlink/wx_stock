@@ -29,15 +29,6 @@ var tool_tree = function () {
                     toggle[i].classList.remove("item");
                     toggle[i].classList.add("item-down");
                     toggle[i].parentNode.querySelector(".nested").classList.add("active");                  
-
-                    // 需要打开收敛时用
-                    // toggle[i].addEventListener('click', function (event) {
-                    //     if (event.target.tagName !== 'INPUT') {
-                    //         this.parentNode.querySelector(".nested").classList.toggle("active");
-                    //         this.classList.toggle("item-down");
-                    //         this.classList.toggle("item");
-                    //     }
-                    // });
                 }
 
                 if (typeof func == "function") {
