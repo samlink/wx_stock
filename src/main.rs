@@ -56,7 +56,6 @@ async fn main() -> std::io::Result<()> {
             .service(field_set::fetch_fields2)
             .service(product::product_auto)
             .service(product::fetch_product)
-            // .service(product::fetch_statistic)
             .service(product::product_auto)
             .service(product::fetch_lu)
             .service(product::fetch_filter_items)            
