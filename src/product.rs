@@ -76,7 +76,7 @@ pub async fn fetch_product(
             post_data.rec
         );
 
-        println!("{}\n", sql);
+        // println!("{}\n", sql);
 
         let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
