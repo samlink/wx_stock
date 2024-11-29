@@ -171,30 +171,6 @@ pub async fn change_pass(
     }
 }
 
-///设置手机号
-#[post("/phone_number")]
-pub async fn phone_number(
-    db: web::Data<Pool>,
-    user: web::Json<Phone>,
-    id: Identity,
-) -> HttpResponse {
-    let user_get = get_user(db.clone(), id).await;
-    if user_get.username != "" {
-        let conn = db.get().await.unwrap();
-        let _ = &conn
-            .execute(
-                r#"UPDATE users SET phone=$1 WHERE name=$2"#,
-                &[&user.phone_number, &user_get.username],
-            )
-            .await
-            .unwrap();
-
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(0)
-    }
-}
-
 ///找回密码
 #[post("/forget_pass")]
 pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResponse {
