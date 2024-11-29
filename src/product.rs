@@ -147,29 +147,12 @@ async fn build_sql_search(
 
     // 构建搜索字符串
     let mut conditions = "".to_owned();
-    if post_data.name != "" {
-        let post = post_data.name.to_lowercase();
-        let name: Vec<&str> = post.split(" ").collect();
-        for na in name {
-            conditions += &format!(
-                r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
-                   LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
-                   OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
-                "#,
-                f_map["物料号"],
-                na,
-                f_map["规格"],
-                na,
-                f_map["生产厂家"],
-                na,
-                f_map["区域"],
-                na,
-                f_map["切完"],
-                na,
-                f_map["备注"],
-                na,
-            );
-        }
+    if post_data.name.trim() != "" {
+        let post = post_data.name.trim().to_lowercase();
+        conditions = format!(
+            r#"AND LOWER(products.{}) LIKE '%{}%'"#,
+            f_map["规格"], post
+        );
     }
 
     // 构建 filter 字符串
