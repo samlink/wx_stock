@@ -73,70 +73,109 @@ var service = function () {
         };
     }
 
-    //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用，从 cb 开始都是回调函数
-    let build_product_table = function (row_num, cb, more, more2) {
+    //创建商品规格型号表，供“商品设置”以及出入库输入时的商品查找使用
+    let build_product_table = function (row_num, cb, more) {
         let init_data = {
             container: '.table-product',
-            url: '/fetch_product',
+            url: `/fetch_product`,
             post_data: {
                 id: "",
                 name: '',
-                sort: "products.文本字段1 ASC",
+                // sort: "products.文本字段1 ASC",
                 rec: row_num,
-                cate: '正常销售',
-                page: 1,
+                cate: '',
                 filter: '',
-            },
-            header_names: {
-                "名称": "split_part(node_name,' ',2)",
-                "材质": "split_part(node_name,' ',1)",
-                "物料号": "products.文本字段1",
-                "规格": "规格型号",
-                "状态": "products.文本字段2",
-                "执行标准": "products.文本字段3",
-                "生产厂家": "products.文本字段5",
-                "炉号": "products.文本字段4",
-                "库存长度": "COALESCE(foo.库存长度,0)",
-                "库存重量": "COALESCE(foo.理论重量,0)",
-                "备注": "products.备注",
             },
             edit: false,
 
-            blank_cells: 18,
             row_fn: table_row,
+            blank_row_fn: blank_row,
         };
 
-        let custom_fields = [
-            {name: '序号', width: 2},
-            {name: '名称', width: 4},
-            {name: '材质', width: 4},
-            {name: '物料号', width: 4},
-            {name: '规格', width: 4},
-            {name: '状态', width: 4},
-            {name: '执行标准', width: 6},
-            {name: '生产厂家', width: 4},
-            {name: '炉号', width: 5},
-            {name: '库存长度', width: 3},
-            {name: '库存重量', width: 3},
-            {name: '备注', width: 5},
-        ];
-        let table = document.querySelector('.table-product');
-        let header = build_table_header(table, custom_fields, "", "", "products");
-        table.querySelector('thead tr').innerHTML = header.th_row;
+        fetch(`/fetch_fields`, {
+            method: 'post',
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                name: "商品规格"
+            }),
+        })
+            .then(response => response.json())
+            .then(content => {
+                if (content != -1) {
+                    table_fields = content[0].filter((item) => {
+                        return item.is_show;
+                    });
 
-        tool_table.table_init(init_data);
-        tool_table.fetch_table((content) => {
-            if (cb) {
-                cb(table);
-            }
-            if (more) {
-                more();
-            }
-            if (more2) {
-                more2(content);
-            }
+                    let table = document.querySelector('.table-product');
+                    let header = build_table_header(table, [{ name: '序号', width: 3 }], table_fields, "", "products");
+                    table.querySelector('thead tr').innerHTML = header.th_row;
+                    // table.querySelector('thead tr th:nth-child(2)').setAttribute('hidden', 'true');
+
+                    init_data.header_names = header.header_names;
+                    init_data.header_names["编号"] = "id";
+
+                    // 自动计算得出的字段, 需用相关的计算公式进行排序, 不可直接使用原字段
+                    init_data.header_names["库存长度"] = "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2";
+                    init_data.header_names["切分"] = "COALESCE(切分次数,0)";
+                    init_data.header_names["理论重量"] = "库存下限-COALESCE(理重合计,0)";
+
+                    tool_table.table_init(init_data);
+
+                    let post_data = {
+                        cate: document.querySelector('#p-select') ? document.querySelector('#p-select').value : "现有库存",
+                        page: 1,
+                    }
+
+                    Object.assign(tool_table.table_data().post_data, post_data);
+                    tool_table.fetch_table(() => {
+                        if (cb) {
+                            cb(table);
+                        }
+                        if (more) {
+                            more();
+                        }
+                    });
+                }
+            });
+
+        function table_row(tr) {
+            let rec = tr.split(SPLITER);
+            let row = `<tr><td>${rec[1]}</td><td hidden>${rec[0]}</td>`;
+            let row_build = build_row_from_string(rec, row, table_fields);
+            let rows = row_build.replace("</tr>", `<td class = "名称">${rec[rec.length - 4]}</td>
+                                        <td class = "商品id">${rec[rec.length - 3]}</td><td class = "link">${rec[rec.length - 2]}</td></tr>`);  //将商品id和名称加入
+
+            return rows;
+        }
+
+        function blank_row() {
+            let row = "<tr><td></td><td></td>";
+            return build_blank_from_fields(row, table_fields);
+        }
+
+        document.querySelector('#serach-button').addEventListener('click', function () {
+            search_table();
         });
-    };
+
+        function search_table() {
+            let search = document.querySelector('#search-input').value;
+            Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
+
+            //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
+            let table = document.querySelector('.table-product');
+            tool_table.fetch_table(() => {
+                if (cb) {
+                    cb(table);
+                }
+                if (more) {
+                    more();
+                }
+            });
+        }
+
+    }
 
     function table_row(tr) {
         let rec = tr.split(SPLITER);
@@ -155,7 +194,7 @@ var service = function () {
 
     function search_table() {
         let search = document.querySelector('#search-input').value;
-        Object.assign(tool_table.table_data().post_data, {name: search, page: 1});
+        Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
 
         //加cb回调函数，是为了在出入库商品搜索时，加上行的双击事件
         let table = document.querySelector('.table-product');

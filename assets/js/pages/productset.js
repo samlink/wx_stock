@@ -31,16 +31,15 @@ let page_productset = function () {
             };
 
             Object.assign(tool_table.table_data().post_data, post_data);
-            tool_table.fetch_table((content) => {
+            tool_table.fetch_table(() => {
                 make_filter();
                 add_lu_link();
-                show_stat(content);
             });
         }
     }
 
     tool_tree.tree_init(tree_data);
-    tool_tree.fetch_tree(stem_click);
+    tool_tree.fetch_tree(open_node);
 
     let input = document.querySelector('#auto_input');
 
@@ -56,62 +55,39 @@ let page_productset = function () {
 
     //商品规格表格数据 -------------------------------------------------------------------
 
-    service.build_product_table(row_num, make_filter, add_lu_link, show_stat);
-
-    // 点击树的 stem 显示统计信息
-    function show_statistic(cate) {
-        fetch("/fetch_statistic", {
-            method: 'post',
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: cate,
-        })
-            .then(response => response.json())
-            .then(content => {
-                let obj = {
-                    "3": "圆钢",
-                    "4": "无缝钢管",
-                };
-
-                document.querySelector('.info-show').textContent = `${obj[cate]}长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
-            });
-    }
-
-    // 显示统计信息，作为 fetch_table 的回调函数
-    function show_stat(content) {
-        document.querySelector('.info-show').textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
-    }
-
-    // 点击树的 stem
-    function stem_click() {
-        let all_stem = document.querySelectorAll('.item-down');
-        all_stem.forEach(stem => {
-            stem.addEventListener('click', function () {
-                let cate = this.textContent.trim() == "圆钢" ? "3" : "4";
-                show_statistic(cate);
-            });
-        })
-    }
+    service.build_product_table(row_num, make_filter, add_lu_link);
 
     // 给炉号加入连接, 同时给入库单号加入连接
     function add_lu_link() {
         let trs = document.querySelectorAll('.table-product tbody tr');
-        service.get_lu(trs);
 
         for (let tr of trs) {
+            // 炉号连接            
+            if (tr.querySelector(".炉号")) {
+                let lu = `${tr.querySelector('.名称').textContent.trim().split(' ')[0]}_${tr.querySelector('.规格').textContent.trim()}_${tr.querySelector('.炉号').textContent.trim()}`;
+                fetch("/fetch_lu", {
+                    method: 'post',
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(lu),
+                })
+                    .then(response => response.json())
+                    .then(content => {
+                        if (content != "" && content != -1) {
+                            tr.querySelector('.炉号').innerHTML = `<a href="${content}" title="点击下载质保书">${tr.querySelector('.炉号').textContent.trim()}</a>`
+                        }
+                    })
+            }
+            else {
+                continue;
+            }
+
             // 入库单号连接
             let rk = tr.querySelector('.入库单号');
             if (rk && rk.textContent.trim() != "KT202312-01") {
                 let url = rk.textContent.trim().startsWith("RK") ? "/material_in/" : "/stock_change_in/";
                 rk.innerHTML = `<a href="${url}${rk.textContent.trim()}" title="点击查阅单据">${rk.textContent.trim()}</a>`;
-            }
-
-            // 设置锁定行颜色
-            let lb = tr.querySelector('.库存类别');
-            let p = document.querySelector('#p-select');
-            if (p && p.value != "销售锁定" && lb && lb.textContent.trim() == '锁定') {
-                tr.classList.add('red');
             }
         }
     }
