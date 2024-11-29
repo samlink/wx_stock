@@ -81,7 +81,7 @@ var service = function () {
             post_data: {
                 id: "",
                 name: '',
-                sort: "products.物料号 ASC",
+                sort: "products.文本字段1 ASC",
                 rec: row_num,
                 cate: '正常销售',
                 page: 1,
@@ -90,7 +90,7 @@ var service = function () {
             header_names: {
                 "名称": "split_part(node_name,' ',2)",
                 "材质": "split_part(node_name,' ',1)",
-                "物料号": "products.物料号",
+                "物料号": "products.文本字段1",
                 "规格": "规格型号",
                 "状态": "products.文本字段2",
                 "执行标准": "products.文本字段3",

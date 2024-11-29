@@ -4,7 +4,6 @@ use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 
 #[derive(Deserialize, Serialize)]
 pub struct Product {
@@ -16,122 +15,134 @@ pub struct Product {
 pub async fn fetch_product(
     db: web::Data<Pool>,
     post_data: web::Json<TablePagerExt>,
+    id: Identity,
 ) -> HttpResponse {
-    let conn = db.get().await.unwrap();
-    let f_data = FilterData {
-        id: post_data.id.clone(),
-        name: post_data.name.clone(),
-        cate: post_data.cate.clone(),
-        filter: post_data.filter.clone(),
-        filter_name: "".to_owned(),
-    };
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
+        let conn = db.get().await.unwrap();
+        let f_data = FilterData {
+            id: post_data.id.clone(),
+            name: post_data.name.clone(),
+            cate: post_data.cate.clone(),
+            filter: post_data.filter.clone(),
+            filter_name: "".to_owned(),
+        };
 
-    let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-        build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql, filter_sql) =
+            build_sql_search(db.clone(), f_data).await;
 
-    let skip = (post_data.page - 1) * post_data.rec;
-    // 区域限制
-    let area = "".to_owned();
-    let done = "".to_owned();
+        // println!("{}", filter_sql);
 
-    let sql_fields = "SELECT node_name, products.物料号, 规格型号, products.文本字段2 状态,
-            products.物料号, products.文本字段3 执行标准, products.文本字段5 生产厂家, products.文本字段4 炉号,
-            COALESCE(foo.库存长度,0) 库存长度, COALESCE(foo.理论重量,0) 库存重量, products.备注,".to_owned();
+        let skip = (post_data.page - 1) * post_data.rec;
+        let f_map = map_fields(db.clone(), "商品规格").await;
+        // 区域限制
+        let area = "".to_owned();
+        let mut done = "".to_owned();
 
-    let sql = format!(
-        r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
-            {}
+        if post_data.cate == "销售单据" {
+            done = format!("AND products.{}='否'", f_map["切完"]);
+        }
+
+        let fields = get_fields(db.clone(), "商品规格").await;
+
+        let sql_fields = "SELECT products.文本字段1 as id, products.商品id, node_name, products.文本字段1, 规格型号, products.文本字段2,
+                            products.文本字段3,products.文本字段5,products.文本字段4,出售价格,products.整数字段1,
+                            COALESCE(出库次数,0)::integer as 整数字段2,
+                            case when (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer <0 then
+                            0 else (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer end
+                            as 整数字段3,
+                            case when 库存下限-COALESCE(理重合计,0)<0.1 then 0 else round((库存下限-COALESCE(理重合计,0))::numeric,2)::float8 end as 库存下限,
+                            products.文本字段8,库位,products.文本字段6,products.文本字段7,products.备注,COALESCE(质保书,'') as 质保书, 单号id,".to_owned();
+
+        let sql = format!(
+            r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
-            LEFT JOIN length_weight() as foo
-            ON products.物料号 = foo.物料号
-            WHERE {} {} {} {} {} {} {} and products.物料号 <> '锯口费'
+            LEFT JOIN cut_length() as foo
+            ON products.文本字段1 = foo.物料号
+            WHERE {} {} {} {} {} {} AND documents.文本字段10 <>''
             ORDER BY {} OFFSET {} LIMIT {}"#,
-        sql_fields,
-        post_data.sort,
-        lock_join_sql,
-        product_sql,
-        done,
-        area,
-        conditions,
-        now_sql,
-        filter_sql,
-        NOT_DEL_SQL,
-        post_data.sort,
-        skip,
-        post_data.rec
-    );
-
-    // println!("{}\n", sql);
-
-    let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-
-    let mut products = Vec::new();
-    for row in rows {
-        let product = format!("{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
-                              row.get::<&str, i64>("序号"), SPLITER,
-                              row.get::<&str, &str>("node_name"), SPLITER,
-                              row.get::<&str, &str>("物料号"), SPLITER,
-                              row.get::<&str, &str>("规格型号"), SPLITER,
-                              row.get::<&str, &str>("状态"), SPLITER,
-                              row.get::<&str, &str>("执行标准"), SPLITER,
-                              row.get::<&str, &str>("生产厂家"), SPLITER,
-                              row.get::<&str, &str>("炉号"), SPLITER,
-                              row.get::<&str, i32>("库存长度"), SPLITER,
-                              row.get::<&str, f64>("库存重量"), SPLITER,
-                              row.get::<&str, &str>("备注"), SPLITER
+            sql_fields,
+            post_data.sort,
+            product_sql,
+            done,
+            area,
+            conditions,
+            now_sql,
+            filter_sql,
+            post_data.sort,
+            skip,
+            post_data.rec
         );
 
-        products.push(product);
+        println!("{}\n", sql);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+        let mut products = Vec::new();
+        for row in rows {
+            let mut product = "".to_owned();
+            let num: &str = row.get("id"); //字段顺序已与前端配合一致，后台不可自行更改
+            product += &format!("{}{}", num, SPLITER);
+
+            let num: i64 = row.get("序号");
+            product += &format!("{}{}", num, SPLITER);
+
+            product += &simple_string_from_base(row, &fields);
+
+            let p_name: &str = row.get("node_name");
+            product += &format!("{}{}", p_name, SPLITER);
+
+            let p_id: &str = row.get("商品id");
+            product += &format!("{}{}", p_id, SPLITER);
+
+            let zhi: &str = row.get("质保书");
+            product += &format!("{}{}", zhi, SPLITER);
+
+            products.push(product);
+        }
+
+        // let products = build_string_from_base(rows, fields);
+
+        let sql2 = format!(
+            r#"SELECT count(products.文本字段1) as 记录数 FROM products
+            JOIN documents on 单号id = 单号
+            LEFT JOIN cut_length() as foo
+            ON products.文本字段1 = foo.物料号
+            WHERE {} {} {} {} {} AND documents.文本字段10 <>''"#,
+            product_sql, area, conditions, now_sql, filter_sql
+        );
+
+        let rows = &conn.query(sql2.as_str(), &[]).await.unwrap();
+
+        let mut count: i64 = 0;
+        for row in rows {
+            count = row.get("记录数");
+        }
+        let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+        HttpResponse::Ok().json((products, count, pages))
+    } else {
+        HttpResponse::Ok().json(-1)
     }
-
-    let sql2 = format!(
-        r#"SELECT count(products.物料号) as 记录数, COALESCE(sum(库存长度)/1000, 0) 库存长度,
-                COALESCE(sum(理论重量),0) 库存重量
-                FROM products
-                {}
-                JOIN documents on 单号id = 单号
-                LEFT JOIN length_weight() as foo
-                ON products.物料号 = foo.物料号
-                WHERE {} {} {} {} {} {}"#,
-        lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
-    );
-
-    let row = &conn.query_one(sql2.as_str(), &[]).await.unwrap();
-
-    let count: i64 = row.get("记录数");
-    let long: i64 = row.get("库存长度");
-    let w: f64 = row.get("库存重量");
-    let weight = format!("{:.0}", w);
-    let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
-
-    HttpResponse::Ok().json((products, count, pages, long, weight))
 }
 
 async fn build_sql_search(
     db: web::Data<Pool>,
     post_data: FilterData,
-) -> (String, String, String, String, String) {
+) -> (String, String, String, String) {
     let f_map = map_fields(db.clone(), "商品规格").await;
 
-    // where 条件第一个 sql, 其他 sql 跟在其后
     let product_sql = if post_data.id == "" {
         "true".to_owned()
     } else {
         format!("products.商品id = '{}'", post_data.id)
     };
 
-    let now_sql = if post_data.cate == "正常销售" {
-        " AND (库存状态='' and 库存长度 > 10 OR products.物料号 = '锯口费')"
-    } else if post_data.cate == "已切完" {
-        " AND (库存状态='已切完' OR 库存状态 = '' and 库存长度 <= 10 and products.物料号 <> '锯口费')"
-    } else if post_data.cate == "自用库" {
-        " AND 库存状态='自用'"
-    } else if post_data.cate == "不合格品" {
-        " AND 库存状态='不合格'"
+    let now_sql = if post_data.cate == "现有库存" {
+        " AND (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer >= 10 AND products.文本字段7 <> '是'"
     } else {
-        ""
+        " AND ((products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer < 10 OR products.文本字段7 = '是') AND products.规格型号 <> '-'"
     };
 
     // 构建搜索字符串
@@ -141,11 +152,21 @@ async fn build_sql_search(
         let name: Vec<&str> = post.split(" ").collect();
         for na in name {
             conditions += &format!(
-                r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
+                r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%' OR
+                   LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%'
+                   OR LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
                 "#,
+                f_map["物料号"],
+                na,
                 f_map["规格"],
                 na,
-                f_map["状态"],
+                f_map["生产厂家"],
+                na,
+                f_map["区域"],
+                na,
+                f_map["切完"],
+                na,
+                f_map["备注"],
                 na,
             );
         }
@@ -160,25 +181,16 @@ async fn build_sql_search(
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
+            .replace(
+                "库存长度",
+                "products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2",
+            )
             .replace("炉号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
     }
 
-    // join 语句，非 where 条件
-    let lock_join_sql = if now_sql == "" {
-        "join sale_records() sale on products.物料号 = sale.物料号".to_owned()
-    } else {
-        "".to_owned()
-    };
-
-    (
-        product_sql,
-        conditions,
-        now_sql.to_owned(),
-        filter_sql,
-        lock_join_sql,
-    )
+    (product_sql, conditions, now_sql.to_owned(), filter_sql)
 }
 
 #[derive(Deserialize)]
@@ -188,45 +200,6 @@ pub struct FilterData {
     name: String,
     cate: String,
     filter: String,
-}
-
-///获取表头统计信息
-#[post("/fetch_statistic")]
-pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
-        let conn = db.get().await.unwrap();
-
-        let cate_sql = if cate == "all" {
-            "true".to_owned()
-        } else {
-            format!("tree.num like '{}%'", cate)
-        };
-
-        let sql = format!(
-            r#"select COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
-            from products p
-            join tree on tree.num = p.商品id
-            left join length_weight() foo on foo.物料号 = p.物料号  
-            where {} and 库存状态='' and COALESCE(库存长度,0) > 10"#,
-            cate_sql
-        );
-
-        let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
-
-        let long: i64 = row.get("库存长度");
-        let w: f64 = row.get("库存重量");
-        let weight = format!("{:.0}", w);
-
-        let data = json!({
-            "库存长度": long,
-            "库存重量": weight
-        });
-
-        HttpResponse::Ok().json(data)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
 }
 
 ///获取 filter items
@@ -247,20 +220,20 @@ pub async fn fetch_filter_items(
             filter: post_data.filter.clone(),
             filter_name: "".to_owned(),
         };
-        let (product_sql, conditions, now_sql,
-            filter_sql, lock_join_sql) = build_sql_search(db.clone(), f_data).await;
+        let (product_sql, conditions, now_sql, filter_sql) =
+            build_sql_search(db.clone(), f_data).await;
 
         let mut items: Vec<String> = Vec::new();
 
         if post_data.filter_name == "库存长度" {
             let sql = format!(
-                r#"SELECT DISTINCT 库存长度 FROM products 
-                    {}
-                    LEFT JOIN length_weight() as foo
-                    ON products.物料号 = foo.物料号
+                r#"SELECT DISTINCT (products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::integer
+                    as 库存长度 FROM products 
+                    LEFT JOIN cut_length() as foo
+                    ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
-                lock_join_sql, product_sql, conditions, now_sql, filter_sql,
+                product_sql, conditions, now_sql, filter_sql,
             );
 
             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
@@ -272,14 +245,12 @@ pub async fn fetch_filter_items(
             }
         } else {
             let sql = format!(
-                r#"SELECT DISTINCT {} FROM products
-                    {}
-                    LEFT JOIN length_weight() as foo
-                    ON products.物料号 = foo.物料号
+                r#"SELECT DISTINCT {} FROM products 
+                    LEFT JOIN cut_length() as foo
+                    ON products.文本字段1 = foo.物料号
                     where {} {} {} {}
                     ORDER BY {}"#,
                 f_map[post_data.filter_name.as_str()],
-                lock_join_sql,
                 product_sql,
                 conditions,
                 now_sql,
@@ -294,6 +265,46 @@ pub async fn fetch_filter_items(
         }
 
         HttpResponse::Ok().json(items)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///编辑更新产品
+#[post("/update_product")]
+pub async fn update_product(
+    db: web::Data<Pool>,
+    p: web::Json<Product>,
+    id: Identity,
+) -> HttpResponse {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
+        let conn = db.get().await.unwrap();
+        let fields = get_fields(db.clone(), "商品规格").await;
+
+        let product: Vec<&str> = p.data.split(SPLITER).collect();
+        let init = r#"UPDATE products SET "#.to_owned();
+
+        let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
+
+        sql += &format!(
+            r#"商品id='{}' WHERE 文本字段1='{}'"#,
+            product[1], product[0]
+        );
+
+        // let pat : Regex = Regex::new(r"库存下限=\d+(\.\d+)?,").unwrap();
+        // let sql2 = pat.replace(&sql, "");
+
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        let sql = format!(
+            r#"UPDATE products SET 整数字段3 = 整数字段1 WHERE 文本字段1='{}'"#,
+            product[0]
+        );
+
+        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
+
+        HttpResponse::Ok().json(1)
     } else {
         HttpResponse::Ok().json(-1)
     }
@@ -317,10 +328,9 @@ pub async fn product_auto(
         let sql = &format!(
             r#"SELECT id, 规格型号 AS label FROM products
                JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> {}''
-               LIMIT 10"#,
+               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
             search.cate,
-            search.s.to_lowercase(), NOT_DEL_SQL
+            search.s.to_lowercase()
         );
 
         autocomplete(db, sql).await
@@ -333,38 +343,67 @@ pub async fn product_auto(
 pub struct ProductName {
     id: String,
     name: String,
-    fields: String,
-    cate: String,
-    filter: String,
-    search: String,
+    done: String,
 }
 
-// #[derive(Deserialize, Debug)]
-// struct FieldsData {
-//     width: f32,
-//     field: &'static str,
-// }
+#[derive(Deserialize, Serialize)]
+struct PoutItem {
+    dh: String,
+    cate: String,
+    date: String,
+    long: i32,
+    all_long: i32,
+    num: i32,
+    weight: f32,
+    note: String,
+}
 
-///获取炉号质保书
-#[post("/fetch_lu")]
-pub async fn fetch_lu(
-    db: web::Data<Pool>,
-    lh: web::Json<Vec<String>>,
-    id: Identity,
-) -> HttpResponse {
+///获取物料出库明细
+#[post("/fetch_pout_items")]
+pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
     let user = get_user(db.clone(), id).await;
     if user.username != "" {
         let conn = db.get().await.unwrap();
-        let mut lu_arr = Vec::new();
-        for lu in lh.iter() {
-            let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lu);
-            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-            for row in rows {
-                let value: String = row.get("质保书");
-                lu_arr.push(value);
-            }
+
+        let sql = format!("select 单号id, 类别, 日期, 长度, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
+                                join documents on 单号 = 单号id
+                                where 物料号 = '{}' and 文本字段10 <> '' order by 单号id desc", data);
+
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut date = Vec::new();
+        for row in rows {
+            let da = PoutItem {
+                dh: row.get("单号id"),
+                cate: row.get("类别"),
+                date: row.get("日期"),
+                long: row.get("长度"),
+                all_long: row.get("总长"),
+                num: row.get("数量"),
+                weight: row.get("重量"),
+                note: row.get("备注"),
+            };
+            date.push(da);
         }
-        HttpResponse::Ok().json(lu_arr)
+
+        HttpResponse::Ok().json(date)
+    } else {
+        HttpResponse::Ok().json(-1)
+    }
+}
+
+///获取炉号质保书
+#[post("/fetch_lu")]
+pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) -> HttpResponse {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
+        let conn = db.get().await.unwrap();
+        let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lh);
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        let mut bao = "";
+        for row in rows {
+            bao = row.get("质保书");
+        }
+        HttpResponse::Ok().json(bao)
     } else {
         HttpResponse::Ok().json(-1)
     }

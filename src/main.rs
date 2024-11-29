@@ -51,12 +51,14 @@ async fn main() -> std::io::Result<()> {
             .service(html::user_set)
             .service(tree::tree)
             .service(tree::tree_auto)
+
             .service(product::product_auto)
             .service(product::fetch_product)
-            .service(product::fetch_statistic)
+            // .service(product::fetch_statistic)
             .service(product::product_auto)
             .service(product::fetch_lu)
             .service(product::fetch_filter_items)
+            
             .service(user_set::login)
             .service(user_set::logout)
             .service(user_set::forget_pass)
