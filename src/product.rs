@@ -193,8 +193,8 @@ pub struct FilterData {
 ///获取表头统计信息
 #[post("/fetch_statistic")]
 pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id, "".to_owned()).await;
-    if user.name != "" {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
         let conn = db.get().await.unwrap();
 
         let cate_sql = if cate == "all" {
@@ -236,8 +236,8 @@ pub async fn fetch_filter_items(
     post_data: web::Json<FilterData>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "".to_owned()).await;
-    if user.name != "" {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let conn = db.get().await.unwrap();
         let f_data = FilterData {
@@ -352,8 +352,8 @@ pub async fn fetch_lu(
     lh: web::Json<Vec<String>>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "".to_owned()).await;
-    if user.name != "" {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
         let conn = db.get().await.unwrap();
         let mut lu_arr = Vec::new();
         for lu in lh.iter() {

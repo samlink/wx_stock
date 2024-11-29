@@ -1,7 +1,7 @@
-use actix_files as fs;
+// use actix_files as fs;
 use actix_identity::Identity;
-use actix_web::Either;
-use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
+// use actix_web::Either;
+use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
@@ -20,15 +20,9 @@ pub struct SearchCate {
 
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
-    pub name: String,
-    pub duty: String,
-    pub phone: String,
-    pub area: String,
+    pub username: String,
+    pub company: String,
     pub get_pass: i32,
-    pub rights: String,
-    pub confirm: bool,
-    pub theme: String,
-    pub show: String,
 }
 
 //表格分页、搜索和分类参数
@@ -74,24 +68,6 @@ pub struct FieldsData {
 }
 
 
-///下载文件服务
-#[get("/download/{filename:.*}")]
-pub async fn serve_download(
-    req: HttpRequest,
-    db: web::Data<Pool>,
-    id: Identity,
-) -> Either<Result<fs::NamedFile, Error>, Result<&'static str, Error>> {
-    let user = get_user(db, id, "导出数据".to_owned()).await;
-    if user.name != "" {
-        let path = req.match_info().query("filename");
-        Either::Left(Ok(
-            fs::NamedFile::open(format!("./download/{}", path)).unwrap()
-        ))
-    } else {
-        Either::Right(Ok("你没有权限下载该文件"))
-    }
-}
-
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
 where
@@ -104,28 +80,21 @@ where
 
 ///获取用户信息
 /// right 如果是空串 "", 则不检查权限
-pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserData {
+pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
     let mut user = UserData {
-        name: "".to_owned(),
-        duty: "".to_owned(),
-        phone: "".to_owned(),
-        area: "".to_owned(),
+        username: "".to_owned(),
+        company: "".to_owned(),
         get_pass: 0,
-        rights: "".to_owned(),
-        confirm: false,
-        theme: "".to_owned(),
-        show: "".to_owned(),
     };
 
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
-        let right = format!("%{}%", right);
         let rows = &conn
             .query(
-                r#"SELECT name, duty, phone, area, 6-get_pass as get_pass, rights, confirm, theme 
-                FROM users WHERE name=$1 AND confirm=true AND rights LIKE $2"#,
-                &[&user_name, &right],
+                r#"SELECT username, 名称, 6-get_pass as get_pass 
+                FROM customers WHERE username=$1"#,
+                &[&user_name],
             )
             .await
             .unwrap();
@@ -134,14 +103,9 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity, right: String) -> UserD
             user
         } else {
             for row in rows {
-                user.name = row.get("name");
-                user.duty = row.get("duty");
-                user.phone = row.get("phone");
-                user.area = row.get("area");
+                user.username = row.get("username");
+                user.company = row.get("名称");
                 user.get_pass = row.get("get_pass");
-                user.rights = row.get("rights");
-                user.confirm = row.get("confirm");
-                user.theme = row.get("theme");
             }
             user
         }

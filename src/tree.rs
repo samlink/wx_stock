@@ -113,8 +113,8 @@ pub async fn tree_drag(
     tree_id: web::Json<TreeId>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id, "库存设置".to_owned()).await;
-    if user.name != "" {
+    let user = get_user(db.clone(), id).await;
+    if user.username != "" {
         let conn = db.get().await.unwrap();
         let _ = &conn
             .execute(

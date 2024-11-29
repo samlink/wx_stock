@@ -10,7 +10,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
 pub struct User {
-    area: String,
     name: String,
     password: String,
 }
@@ -56,33 +55,6 @@ fn md5(password: String, salt: &str) -> String {
     hasher.result_str()
 }
 
-/// 用户注册
-#[post("/logon")]
-pub async fn logon(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> HttpResponse {
-    let conn: Client = db.get().await.unwrap();
-    let rows = &conn
-        .query(r#"SELECT name FROM users Where name=$1"#, &[&user.name])
-        .await
-        .unwrap();
-
-    if !rows.is_empty() {
-        HttpResponse::Ok().json(0)
-    } else {
-        let md5_pass = md5(user.password.clone(), SALT);
-
-        let _ = &conn
-            .execute(
-                r#"INSERT INTO users (area, name, password) VALUES($1, $2, $3)"#,
-                &[&user.area, &user.name, &md5_pass],
-            )
-            .await
-            .unwrap();
-
-        id.remember(user.name.clone());
-        HttpResponse::Ok().json(user.name.clone())
-    }
-}
-
 /// 用户登录
 #[post("/login")]
 pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> HttpResponse {
@@ -90,7 +62,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
     let rows = &conn
         .query(
-            r#"SELECT confirm, failed FROM users Where name=$1"#,
+            r#"SELECT failed FROM customers Where username=$1"#,
             &[&user.name],
         )
         .await
@@ -98,15 +70,11 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
     if !rows.is_empty() {
         let mut failed = -1i32;
-        let mut confirmed = false;
         for row in rows {
             failed = row.get("failed");
-            confirmed = row.get("confirm");
         }
 
-        if !confirmed {
-            HttpResponse::Ok().json(-2)
-        } else if failed >= MAX_FAILED {
+        if failed >= MAX_FAILED {
             HttpResponse::Ok().json(MAX_FAILED)
         } else {
             let md5_pass = md5(user.password.clone(), SALT);
@@ -114,20 +82,23 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 
             let rows = &conn
                 .query(
-                    r#"SELECT name FROM users Where name=$1 AND password=$2 AND (area=$3 OR duty ='总经理');"#,
-                    &[&user.name, &md5_pass, &user.area],
+                    r#"SELECT username FROM customers Where username=$1 AND password=$2;"#,
+                    &[&user.name, &md5_pass],
                 )
                 .await
                 .unwrap();
 
             if !rows.is_empty() {
                 for row in rows {
-                    name = row.get("name");
+                    name = row.get("username");
                 }
 
                 // let encrypted_data = encrypt(name.as_bytes(), KEY, IV).ok().unwrap(); //将 name 用 aes 加密保存到前端存储
                 let _ = &conn
-                    .execute(r#"UPDATE users SET failed=0 WHERE name=$1"#, &[&user.name])
+                    .execute(
+                        r#"UPDATE customers SET failed=0 WHERE username=$1"#,
+                        &[&user.name],
+                    )
                     .await
                     .unwrap();
 
@@ -138,7 +109,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
                 failed += 1;
                 let _ = &conn
                     .execute(
-                        r#"UPDATE users SET failed=$1 WHERE name=$2"#,
+                        r#"UPDATE customers SET failed=$1 WHERE username=$2"#,
                         &[&failed, &user.name],
                     )
                     .await
@@ -156,7 +127,9 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 #[get("/logout")]
 pub async fn logout(id: Identity) -> HttpResponse {
     id.forget();
-    HttpResponse::Found().append_header(("location", "/login")).finish()
+    HttpResponse::Found()
+        .append_header(("location", "/login"))
+        .finish()
 }
 
 ///更改用户密码
@@ -166,15 +139,15 @@ pub async fn change_pass(
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
-    let user_get = get_user(db.clone(), id, "".to_owned()).await;
-    if user_get.name != "" {
+    let user_get = get_user(db.clone(), id).await;
+    if user_get.username != "" {
         let conn = db.get().await.unwrap();
         let salt_pass = md5(user.old_pass.clone(), SALT);
 
         let rows = &conn
             .query(
                 r#"SELECT name FROM users Where name=$1 AND password=$2"#,
-                &[&user_get.name.clone(), &salt_pass],
+                &[&user_get.username.clone(), &salt_pass],
             )
             .await
             .unwrap();
@@ -186,7 +159,7 @@ pub async fn change_pass(
             let _ = &conn
                 .execute(
                     r#"UPDATE users SET password=$1 WHERE name=$2"#,
-                    &[&new_pass, &user_get.name],
+                    &[&new_pass, &user_get.username],
                 )
                 .await
                 .unwrap();
@@ -205,13 +178,13 @@ pub async fn phone_number(
     user: web::Json<Phone>,
     id: Identity,
 ) -> HttpResponse {
-    let user_get = get_user(db.clone(), id, "".to_owned()).await;
-    if user_get.name != "" {
+    let user_get = get_user(db.clone(), id).await;
+    if user_get.username != "" {
         let conn = db.get().await.unwrap();
         let _ = &conn
             .execute(
                 r#"UPDATE users SET phone=$1 WHERE name=$2"#,
-                &[&user.phone_number, &user_get.name],
+                &[&user.phone_number, &user_get.username],
             )
             .await
             .unwrap();

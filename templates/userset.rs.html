@@ -14,13 +14,13 @@
                 <div class="form-label">
                     <label>用户名：</label>
                 </div>
-                <input class="form-control no-border" type="text" value="@user.name" readonly>
+                <input class="form-control no-border" type="text" value="@user.username" readonly>
             </div>
             <div class="form-group" id="phone-num">
                 <div class="form-label">
                     <label for="phone">手机号：</label>
                 </div>
-                <input class="form-control" type="text" id="phone" placeholder="手机号用于找回密码" value="@user.phone">
+                <input class="form-control" type="text" id="phone" placeholder="手机号用于找回密码" value="">
                 <button class="btn btn-info" type="submit" id="phone-button">提交</button>
             </div>
             <div class="form-group">
@@ -34,7 +34,6 @@
                     <label>工作权限：</label>
                 </div>
                 <div id="rights">
-                    @user.rights
                 </div>
             </div>
         </form>
@@ -66,4 +65,4 @@
 </div>
 <script src="/static/@tools_service_js.name"></script>
 <script src="/static/@userset_js.name"></script>
-}, user.show.clone())
+}, user.company.clone())

@@ -58,7 +58,6 @@ async fn main() -> std::io::Result<()> {
             .service(product::fetch_lu)
             .service(product::fetch_filter_items)
             .service(user_set::login)
-            .service(user_set::logon)
             .service(user_set::logout)
             .service(user_set::forget_pass)
             .service(user_set::change_pass)
