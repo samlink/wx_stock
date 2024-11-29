@@ -42,7 +42,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(Data::new(pool.clone()))
             .wrap(IdentityService::new(
                 CookieIdentityPolicy::new(&[6; 32])
-                    .name("auth-sales")
+                    .name("auth-guest")
                     .max_age(Duration::days(30)) //30天
                     .secure(false),
             ))
