@@ -5,39 +5,6 @@
 
 @:base_html({
 <div class="user-set">
-    <div id="user-edit">
-        <div class="title"><i class="fa fa-id-card-o"></i><span>用户资料</span></div>
-        <p id="help-info" hidden><img></p>
-
-        <form>
-            <div class="form-group">
-                <div class="form-label">
-                    <label>用户名：</label>
-                </div>
-                <input class="form-control no-border" type="text" value="@user.username" readonly>
-            </div>
-            <div class="form-group" id="phone-num">
-                <div class="form-label">
-                    <label for="phone">手机号：</label>
-                </div>
-                <input class="form-control" type="text" id="phone" placeholder="手机号用于找回密码" value="">
-                <button class="btn btn-info" type="submit" id="phone-button">提交</button>
-            </div>
-            <div class="form-group">
-                <div class="form-label">
-                    <label>密码找回：</label>
-                </div>
-                <input class="form-control no-border" type="text" value="@user.get_pass 次机会" readonly>
-            </div>
-            <div class="form-group" id="show-rights">
-                <div class="form-label">
-                    <label>工作权限：</label>
-                </div>
-                <div id="rights">
-                </div>
-            </div>
-        </form>
-    </div>
     <div id="password-set">
         <div class="title"><i class="fa fa-key"></i><span>修改密码</span></div>
         <form>

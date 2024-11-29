@@ -146,7 +146,7 @@ pub async fn change_pass(
 
         let rows = &conn
             .query(
-                r#"SELECT name FROM users Where name=$1 AND password=$2"#,
+                r#"SELECT username FROM customers Where username=$1 AND password=$2"#,
                 &[&user_get.username.clone(), &salt_pass],
             )
             .await
@@ -158,7 +158,7 @@ pub async fn change_pass(
             let new_pass = md5(user.new_pass.clone(), SALT);
             let _ = &conn
                 .execute(
-                    r#"UPDATE users SET password=$1 WHERE name=$2"#,
+                    r#"UPDATE customers SET password=$1 WHERE username=$2"#,
                     &[&new_pass, &user_get.username],
                 )
                 .await

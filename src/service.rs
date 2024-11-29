@@ -8,12 +8,6 @@ use std::io::{self, Write};
 
 pub static SPLITER: &str = "<`*_*`>";
 
-#[derive(Deserialize)]
-pub struct SearchCate {
-    pub s: String,
-    pub cate: String,
-}
-
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
     pub username: String,
@@ -110,25 +104,6 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
     }
 }
 
-//自动完成
-pub async fn autocomplete(db: web::Data<Pool>, sql: &str) -> HttpResponse {
-    let conn = db.get().await.unwrap();
-    let rows = &conn.query(sql, &[]).await.unwrap();
-
-    let mut data = Vec::new();
-    for row in rows {
-        let message = Message {
-            id: row.get("id"),
-            label: row.get("label"),
-        };
-
-        data.push(message);
-    }
-
-    HttpResponse::Ok().json(data)
-}
-
-
 //映射使用的字段 is_use
 pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
     let conn = db.get().await.unwrap();
@@ -209,32 +184,6 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
     }
 
     product
-}
-
-//从前端传过来字符串数组，按显示字段，组合成 update 语句。供更新数据用
-//参数：n 是字段名数组的偏移量
-pub fn build_sql_for_update(
-    field_names: Vec<&str>,
-    mut sql: String,
-    fields: Vec<FieldsData>,
-    n: usize,
-) -> String {
-    for i in 0..fields.len() {
-        if fields[i].data_type == "文本" {
-            sql += &format!("{}='{}',", fields[i].field_name, field_names[i + n]);
-        } else if fields[i].data_type == "实数" || fields[i].data_type == "整数" {
-            sql += &format!("{}={},", fields[i].field_name, field_names[i + n]);
-        } else {
-            let op: Vec<&str> = fields[i].option_value.split("_").collect();
-            let val = if field_names[i + n] == op[0] || field_names[i + n] == "true" {
-                true
-            } else {
-                false
-            };
-            sql += &format!("{}={},", fields[i].field_name, val);
-        }
-    }
-    sql
 }
 
 //获取环境文件中的起始日期

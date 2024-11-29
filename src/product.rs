@@ -253,11 +253,3 @@ pub async fn fetch_filter_items(
     }
 }
 
-
-#[derive(Deserialize, Serialize)]
-pub struct ProductName {
-    id: String,
-    name: String,
-    done: String,
-}
-
