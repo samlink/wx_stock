@@ -1,7 +1,10 @@
-use crate::service::r2s;
+use crate::service::{get_user, r2s};
 use actix_web::http::header::ContentType;
-use actix_web::{get, web::Path, HttpResponse};
+use actix_web::{get, web, web::Path, HttpRequest, HttpResponse};
 // use serde::Deserialize;
+use actix_identity::Identity;
+use deadpool_postgres::Pool;
+use dotenv::dotenv;
 use templates::statics::StaticFile;
 
 include!(concat!(env!("OUT_DIR"), "/templates.rs")); //templates.rs 是通过 build.rs 自动生成的文件, 该文件包含了静态文件对象和所有模板函数
@@ -20,9 +23,42 @@ pub async fn static_file(path: Path<String>) -> HttpResponse {
     }
 }
 
-///商品设置
+fn goto_login() -> HttpResponse {
+    HttpResponse::Found()
+        .append_header(("location", format!("/{}", "login")))
+        .finish()
+}
+
+///登录
+#[get("/login")]
+pub async fn login(_req: HttpRequest) -> HttpResponse {
+    dotenv().ok();
+    let comany = dotenv::var("company").unwrap();
+    let html = r2s(|o| login_html(o, comany));
+    HttpResponse::Ok().content_type("text/html").body(html)
+}
+
+///用户自己设置
+#[get("/user_set")]
+pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let mut user = get_user(db, id, "".to_owned()).await;
+    if user.name != "" {
+        // user.show = name_show(&user);
+        user.show = "北京码行技术有限公司".to_owned();
+        let html = r2s(|o| userset_html(o, user));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}
+
 #[get("/")]
-pub async fn home() -> HttpResponse {
+pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(db, id, "".to_owned()).await;
+    if user.name != "" {
         let html = r2s(|o| productset_html(o));
         HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
 }

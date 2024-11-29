@@ -9,6 +9,7 @@ mod html;
 mod product;
 mod service;
 mod tree;
+mod user_set;
 
 #[derive(Deserialize)]
 struct Config {
@@ -46,6 +47,8 @@ async fn main() -> std::io::Result<()> {
                     .secure(false),
             ))
             .service(html::home)
+            .service(html::login)
+            .service(html::user_set)
             .service(tree::tree)
             .service(tree::tree_auto)
             .service(product::product_auto)
@@ -54,6 +57,12 @@ async fn main() -> std::io::Result<()> {
             .service(product::product_auto)
             .service(product::fetch_lu)
             .service(product::fetch_filter_items)
+            .service(user_set::login)
+            .service(user_set::logon)
+            .service(user_set::logout)
+            .service(user_set::forget_pass)
+            .service(user_set::change_pass)
+            .service(user_set::phone_number)
             .service(web::resource("static/{name}").to(html::static_file))
             .service(fs::Files::new("/assets", "assets"))
             .service(fs::Files::new("/upload", "../sales/upload"))
