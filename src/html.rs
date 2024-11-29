@@ -56,7 +56,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(db, id, "".to_owned()).await;
     if user.name != "" {
-        let html = r2s(|o| productset_html(o));
+        let html = r2s(|o| productset_html(o, user.name));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()

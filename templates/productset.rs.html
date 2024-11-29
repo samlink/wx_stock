@@ -1,6 +1,6 @@
 @use super::base_html;
 @use super::statics::*;
-@()
+@(user: String)
 
 @:base_html({
 <div class="product-set">
@@ -91,4 +91,4 @@
 <script src="/static/@tools_service_js.name"></script>
 <script src="/assets/js/parts/service.js"></script>
 <script src="/assets/js/pages/productset.js"></script>
-})
+}, user)
