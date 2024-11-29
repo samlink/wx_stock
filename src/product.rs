@@ -1,7 +1,7 @@
 #![allow(deprecated)]
 use crate::service::*;
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 
@@ -253,74 +253,6 @@ pub async fn fetch_filter_items(
     }
 }
 
-///编辑更新产品
-#[post("/update_product")]
-pub async fn update_product(
-    db: web::Data<Pool>,
-    p: web::Json<Product>,
-    id: Identity,
-) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
-        let conn = db.get().await.unwrap();
-        let fields = get_fields(db.clone(), "商品规格").await;
-
-        let product: Vec<&str> = p.data.split(SPLITER).collect();
-        let init = r#"UPDATE products SET "#.to_owned();
-
-        let mut sql = build_sql_for_update(product.clone(), init, fields, 2);
-
-        sql += &format!(
-            r#"商品id='{}' WHERE 文本字段1='{}'"#,
-            product[1], product[0]
-        );
-
-        // let pat : Regex = Regex::new(r"库存下限=\d+(\.\d+)?,").unwrap();
-        // let sql2 = pat.replace(&sql, "");
-
-        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
-
-        let sql = format!(
-            r#"UPDATE products SET 整数字段3 = 整数字段1 WHERE 文本字段1='{}'"#,
-            product[0]
-        );
-
-        let _ = &conn.execute(sql.as_str(), &[]).await.unwrap();
-
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Message {
-    id: i32,
-    label: String,
-}
-
-//自动完成
-#[get("/product_auto")]
-pub async fn product_auto(
-    db: web::Data<Pool>,
-    search: web::Query<SearchCate>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let sql = &format!(
-            r#"SELECT id, 规格型号 AS label FROM products
-               JOIN documents ON 单号id = 单号
-               WHERE 商品id='{}' AND LOWER(规格型号) LIKE '%{}%' AND documents.文本字段10 <> '' LIMIT 10"#,
-            search.cate,
-            search.s.to_lowercase()
-        );
-
-        autocomplete(db, sql).await
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
 
 #[derive(Deserialize, Serialize)]
 pub struct ProductName {
@@ -329,65 +261,3 @@ pub struct ProductName {
     done: String,
 }
 
-#[derive(Deserialize, Serialize)]
-struct PoutItem {
-    dh: String,
-    cate: String,
-    date: String,
-    long: i32,
-    all_long: i32,
-    num: i32,
-    weight: f32,
-    note: String,
-}
-
-///获取物料出库明细
-#[post("/fetch_pout_items")]
-pub async fn fetch_pout_items(db: web::Data<Pool>, data: String, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
-        let conn = db.get().await.unwrap();
-
-        let sql = format!("select 单号id, 类别, 日期, 长度, 数量, 长度*数量 as 总长, 重量, pout_items.备注 from pout_items
-                                join documents on 单号 = 单号id
-                                where 物料号 = '{}' and 文本字段10 <> '' order by 单号id desc", data);
-
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut date = Vec::new();
-        for row in rows {
-            let da = PoutItem {
-                dh: row.get("单号id"),
-                cate: row.get("类别"),
-                date: row.get("日期"),
-                long: row.get("长度"),
-                all_long: row.get("总长"),
-                num: row.get("数量"),
-                weight: row.get("重量"),
-                note: row.get("备注"),
-            };
-            date.push(da);
-        }
-
-        HttpResponse::Ok().json(date)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
-
-///获取炉号质保书
-#[post("/fetch_lu")]
-pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<String>, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
-        let conn = db.get().await.unwrap();
-        let sql = format!(r#"select 质保书 from lu where 炉号 like '{}%'"#, lh);
-        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-        let mut bao = "";
-        for row in rows {
-            bao = row.get("质保书");
-        }
-        HttpResponse::Ok().json(bao)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}

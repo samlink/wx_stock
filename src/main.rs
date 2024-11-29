@@ -9,7 +9,6 @@ mod html;
 mod product;
 mod service;
 mod tree;
-mod field_set;
 mod user_set;
 
 #[derive(Deserialize)]
@@ -52,12 +51,7 @@ async fn main() -> std::io::Result<()> {
             .service(html::user_set)
             .service(tree::tree)
             .service(tree::tree_auto)
-            .service(field_set::fetch_fields)
-            .service(field_set::fetch_fields2)
-            .service(product::product_auto)
             .service(product::fetch_product)
-            .service(product::product_auto)
-            .service(product::fetch_lu)
             .service(product::fetch_filter_items)            
             .service(user_set::login)
             .service(user_set::logout)
