@@ -1,7 +1,7 @@
 #!/bin/sh
 site=39.106.229.26
 username=sam
-filename=sales
+filename=wx-stock
 
 cd ./target/release
 
