@@ -25,7 +25,7 @@ pub async fn static_file(path: Path<String>) -> HttpResponse {
 
 fn goto_login() -> HttpResponse {
     HttpResponse::Found()
-        .append_header(("location", format!("/{}", "login")))
+        .append_header(("location", format!("/stock/{}", "login")))
         .finish()
 }
 
