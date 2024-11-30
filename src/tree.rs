@@ -30,7 +30,10 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
 
     let rows = &conn
         .query(
-            r##"SELECT node_name, num, pnum FROM tree WHERE pnum=$1 AND not_use=false order by num"##, //查询字段名称与结构名称对应
+            r##"SELECT node_name, num, pnum FROM tree 
+            WHERE pnum=$1 AND node_name not like '%锯口费%' 
+                AND node_name not like '%(WT)%' AND not_use=false 
+            order by orders"##, 
             &[&num],
         )
         .await
