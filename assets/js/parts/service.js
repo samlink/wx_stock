@@ -77,7 +77,7 @@ var service = function () {
     let build_product_table = function (row_num, cb, more) {
         let init_data = {
             container: '.table-product',
-            url: `/fetch_product`,
+            url: `/stock/fetch_product`,
             post_data: {
                 id: "",
                 name: '',

@@ -15,7 +15,7 @@ var tool_tree = function () {
 
     //从数据库获取 tree 数据
     var fetch_tree = function (func) {
-        fetch(`/tree`)
+        fetch(`/stock/tree`)
             .then(response => response.json())
             .then(data => {
                 var tree = document.querySelector('#tree');

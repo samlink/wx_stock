@@ -22,7 +22,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
 
     let MAX_FAILED = 6;
 
-    fetch(`/login`, {
+    fetch(`/stock/login`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",
@@ -45,7 +45,7 @@ document.querySelector('#login-button').addEventListener('click', function (even
                 notifier.show('帐户被锁定，请联系管理员', 'danger');
             }
             else {
-                window.location = `/`;
+                window.location = `/stock/`;
             }
         });
 });
@@ -64,7 +64,7 @@ document.querySelector('#forget-pass').addEventListener('click', function () {
         password: ""
     }
 
-    fetch(`/forget_pass`, {
+    fetch(`/stock/forget_pass`, {
         method: 'post',
         headers: {
             "Content-Type": "application/json",

@@ -20,7 +20,7 @@ let page_userset = function () {
             new_pass: new_pass
         }
 
-        fetch(`/change_pass`, {
+        fetch(`/stock/change_pass`, {
             method: 'post',
             headers: {
                 "Content-Type": "application/json",

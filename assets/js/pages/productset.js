@@ -42,7 +42,7 @@ let page_productset = function () {
 
     let input = document.querySelector('#auto_input');
 
-    let auto_comp = new AutoInput(input, "", `/tree_auto`, () => {
+    let auto_comp = new AutoInput(input, "", `/stock/tree_auto`, () => {
         tool_tree.tree_search(input.value);
     });
 
@@ -104,7 +104,7 @@ let page_productset = function () {
                     filter: filter_sql,
                 };
 
-                fetch('/fetch_filter_items', {
+                fetch('/stock/fetch_filter_items', {
                     method: 'post',
                     headers: {
                         "Content-Type": "application/json",
