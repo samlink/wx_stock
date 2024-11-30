@@ -34,12 +34,6 @@
         align-items: center;
     }
 
-    // .form-label {
-    //     display: inline-block;
-    //     width: 110px;
-    //     text-align: right;
-    // }
-
     #show-rights {
         display: flex;
         align-items: flex-start;
@@ -50,9 +44,11 @@
         margin-left: 15px;
     }
 }
+
 #password-set {
     button {
-        margin-left: 185px;
+        display: block;
+        margin: auto;
     }
 }
 
