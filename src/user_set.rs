@@ -178,7 +178,7 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
 
     let rows = &conn
         .query(
-            r#"SELECT name, phone, get_pass, failed FROM users Where name=$1 AND confirm=true"#,
+            r#"SELECT username, get_pass, failed FROM customers Where username=$1"#,
             &[&user.name],
         )
         .await
@@ -188,20 +188,16 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
         HttpResponse::Ok().json(-1)
     } else {
         let mut user_name = "".to_owned();
-        let mut phone = "".to_owned();
         let mut get_pass = 0i32;
         let mut failed = 0i32;
 
         for row in rows {
-            user_name = row.get("name");
-            phone = row.get("phone");
+            user_name = row.get("username");
             get_pass = row.get("get_pass");
             failed = row.get("failed");
         }
 
-        if phone == "" {
-            HttpResponse::Ok().json(-2)
-        } else if get_pass >= MAX_PASS {
+        if get_pass >= MAX_PASS {
             HttpResponse::Ok().json(-3)
         } else if failed >= MAX_FAILED {
             HttpResponse::Ok().json(-4)
@@ -219,7 +215,7 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
 
             let _ = &conn
                 .execute(
-                    r#"UPDATE users SET password=$1, get_pass=$3 WHERE name=$2"#,
+                    r#"UPDATE customers SET password=$1, get_pass=$3 WHERE username=$2"#,
                     &[&salt_pass, &user_name, &get_pass],
                 )
                 .await
@@ -227,7 +223,7 @@ pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResp
 
             let send = SendMessage {
                 apikey: "011a9a2b503aa72978bd77ec4577a675".to_owned(),
-                mobile: phone,
+                mobile: user_name,
                 text: "【鼎传码行】密码已重置，新的密码为：".to_owned()
                     + &new_pass
                     + " ，请及时操作",
