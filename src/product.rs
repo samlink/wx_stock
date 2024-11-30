@@ -62,7 +62,7 @@ pub async fn fetch_product(
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
             WHERE {} {} {} {} {} {} AND documents.文本字段10 <>'' AND products.文本字段1 <> '锯口费'
-                AND products.文本字段1 not like '%WT'
+                AND products.文本字段1 not like 'WT%'
             ORDER BY {} OFFSET {} LIMIT {}"#,
             sql_fields,
             post_data.sort,
