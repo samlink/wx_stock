@@ -124,7 +124,14 @@ pub async fn fetch_product(
         for row in rows {
             count = row.get("记录数");
         }
+
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
+
+        let sql3 = format!(r#"INSERT INTO records (id) VALUES({}) ON CONFLICT (id) DO 
+            UPDATE SET visit = current_timestamp"#, post_data.user);
+
+        conn.execute(sql3.as_str(), &[]).await.unwrap();
+
         HttpResponse::Ok().json((products, count, pages))
     } else {
         HttpResponse::Ok().json(-1)

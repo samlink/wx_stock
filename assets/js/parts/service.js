@@ -85,6 +85,7 @@ var service = function () {
                 rec: row_num,
                 cate: '现有库存',
                 filter: '',
+                user: document.querySelector("#user-id").textContent.trim(),
             },
             header_names: {
                 "名称": "split_part(node_name,' ',2)",

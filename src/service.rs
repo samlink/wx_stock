@@ -11,6 +11,7 @@ pub static SPLITER: &str = "<`*_*`>";
 
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
+    pub id: i32,
     pub username: String,
     pub company: String,
     pub get_pass: i32,
@@ -36,6 +37,7 @@ pub struct TablePagerExt {
     pub rec: i32,
     pub cate: String,
     pub filter: String,
+    pub user: String,
 }
 
 //自动完成使用
@@ -69,9 +71,9 @@ where
 }
 
 ///获取用户信息
-/// right 如果是空串 "", 则不检查权限
 pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
     let mut user = UserData {
+        id: 0,
         username: "".to_owned(),
         company: "".to_owned(),
         get_pass: 0,
@@ -82,7 +84,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
         let conn = db.get().await.unwrap();
         let rows = &conn
             .query(
-                r#"SELECT username, 名称, 6-get_pass as get_pass 
+                r#"SELECT id, username, 名称, 6-get_pass as get_pass 
                 FROM customers WHERE username=$1"#,
                 &[&user_name],
             )
@@ -93,6 +95,7 @@ pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
             user
         } else {
             for row in rows {
+                user.id = row.get("id");
                 user.username = row.get("username");
                 user.company = row.get("名称");
                 user.get_pass = row.get("get_pass");
