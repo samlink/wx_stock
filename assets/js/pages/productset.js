@@ -283,4 +283,47 @@ let page_productset = function () {
             document.querySelector('.filter-container').style.display = "none";
         }
     }, false);
+
+    // 导出数据
+    document.querySelector('#data-out').addEventListener('click', function () {
+        if (global.product_name != "") {
+            let data = {
+                id: document.querySelector('#product-id').textContent.trim(),
+                name: document.querySelector('#product-name').textContent.trim(),
+                search: document.querySelector('#search-input').value.trim(),
+                filter: get_filter(),
+            };
+
+            fetch(`/stock/product_out`, {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    if (content != -1) {
+                        download_file(`/stock/download/${content}.xlsx`);
+                        notifier.show('成功导出至 Excel 文件', 'success');
+                    } else {
+                        notifier.show('权限不够，操作失败', 'danger');
+                    }
+                });
+        } else {
+            notifier.show('请先选择商品', 'danger');
+        }
+    });
+
+    function get_filter() {
+        let filter = `AND (`;
+
+        // 构建过滤器（查询字符串）
+        for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
+            filter += `${value} AND (`;
+        }
+
+        filter = filter.slice(0, -6);
+        return filter;
+    }
 }();

@@ -139,7 +139,7 @@ var service = function () {
             let row = `<tr><td class="序号">${rec[1]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
                 <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
                 <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家">${rec[6]}</td>
-                <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[11]}</td><td>${rec[12]}</td><td>${rec[13]}</td></tr>`;
+                <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[11]}</td><td>${rec[12]}</td><td>${rec[17]}</td></tr>`;
 
             return row;
         }

@@ -1,5 +1,6 @@
+use actix_files as fs;
 use actix_identity::Identity;
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
 use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
@@ -45,7 +46,7 @@ pub struct Message {
 }
 
 //存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct FieldsData {
     pub field_name: String,
     pub show_name: String,
@@ -56,7 +57,6 @@ pub struct FieldsData {
     pub show_width: f32,
     pub all_edit: bool,
 }
-
 
 ///模板转换成网页字符串
 pub fn r2s<Call>(call: Call) -> String
@@ -184,6 +184,31 @@ pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsDat
     }
 
     product
+}
+
+//将显示字段拼接成导出 excel 用的查询语句
+pub fn build_sql_for_excel(mut sql: String, fields: &Vec<&FieldsData>, table: String) -> String {
+    for f in fields {
+        if f.data_type == "文本" {
+            sql += &format!("{}.{},", table, f.field_name);
+        } else if f.data_type == "整数" || f.data_type == "实数" {
+            sql += &format!("cast({}.{} as VARCHAR),", table, f.field_name);
+        } else {
+            let op: Vec<&str> = f.option_value.split("_").collect();
+            sql += &format!(
+                "case when {}.{} then '{}' else '{}' end as {},",
+                table, f.field_name, op[0], op[1], f.field_name
+            );
+        }
+    }
+    sql
+}
+
+///下载文件服务
+#[get("/download/{filename:.*}")]
+pub async fn serve_download(req: HttpRequest) -> Result<fs::NamedFile, Error> {
+    let path = req.match_info().query("filename");
+    Ok(fs::NamedFile::open(format!("./download/{}", path)).unwrap())
 }
 
 //获取环境文件中的起始日期

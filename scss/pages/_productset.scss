@@ -74,9 +74,16 @@
         }
     }
 
+    #serach-button {
+        width: 60px;
+    }
+
+    #data-out {
+        width: 80px;
+    }
+
     .data-button {
         margin-left: 100px;
-        margin-right: 20px;
         min-width: 300px;
 
         button {
@@ -86,6 +93,7 @@
 
     #product-name {
         font-weight: bold;
+        width: 200px;
         position: relative;
         margin-left: 30px;
         top: 0;

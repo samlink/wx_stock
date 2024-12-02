@@ -55,10 +55,12 @@ async fn main() -> std::io::Result<()> {
                     .service(tree::tree_auto)
                     .service(product::fetch_product)
                     .service(product::fetch_filter_items)
+                    .service(product::product_out)
                     .service(user_set::login)
                     .service(user_set::logout)
                     .service(user_set::forget_pass)
                     .service(user_set::change_pass)
+                    .service(service::serve_download)
                     .service(web::resource("static/{name}").to(html::static_file))
                     .service(fs::Files::new("/assets", "assets"))
                     .service(fs::Files::new("/upload", "../sales/upload")),
