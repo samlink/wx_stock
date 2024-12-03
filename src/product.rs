@@ -272,8 +272,6 @@ pub struct ProductName {
 //导出数据
 #[post("/product_out")]
 pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -> HttpResponse {
-    println!("{:?}",product);
-
     let needs = vec![
         "文本字段1",
         "规格型号",
@@ -344,7 +342,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             .replace("库存长度", "(products.整数字段3-COALESCE(长度合计,0)-COALESCE(切分次数,0)*2)::text");
     }
 
-    println!("{}", filter_sql);
+    // println!("{}", filter_sql);
 
     let init = r#"SELECT "#.to_owned();
     let mut sql = build_sql_for_excel(init, &fields, "products".to_owned());
@@ -353,7 +351,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
         r#"1 FROM products JOIN documents ON 单号id = 单号
             LEFT JOIN cut_length() as foo
             ON products.文本字段1 = foo.物料号
-            WHERE 商品id='{}' {} {} {} AND documents.文本字段10 <> '' ORDER BY products.文本字段1"#, 
+            WHERE 商品id='{}' {} {} {} AND documents.文本字段10 <> '' ORDER BY 规格型号"#, 
         product.id, now_sql, search_sql, filter_sql
     );
 
