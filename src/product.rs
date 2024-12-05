@@ -127,8 +127,7 @@ pub async fn fetch_product(
 
         let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
-        let sql3 = format!(r#"INSERT INTO records (id) VALUES({}) ON CONFLICT (id) DO 
-            UPDATE SET visit = current_timestamp"#, post_data.user);
+        let sql3 = format!(r#"INSERT INTO records (user_id) VALUES({})"#, post_data.user);
 
         conn.execute(sql3.as_str(), &[]).await.unwrap();
 
