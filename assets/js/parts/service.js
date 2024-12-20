@@ -1,6 +1,4 @@
 var service = function () {
-    var table_fields;
-
     /**
      * 根据显示字段创建表头
      * @param {} table_container 表格容器
@@ -77,7 +75,7 @@ var service = function () {
     let build_product_table = function (row_num, cb, more, more2) {
         let init_data = {
             container: '.table-product',
-            url: '/stock/fetch_product',
+            url: `/stock/fetch_product`,
             post_data: {
                 id: "",
                 name: '',
@@ -136,6 +134,28 @@ var service = function () {
                 more2(content);
             }
         });
+
+        document.querySelector('#serach-button').addEventListener('click', function () {
+            search_table();
+        });
+
+        function search_table() {
+            let search = document.querySelector('#search-input').value;
+            Object.assign(tool_table.table_data().post_data, { name: search, page: 1 });
+
+            let table = document.querySelector('.table-product');
+            tool_table.fetch_table((content) => {
+                if (cb) {
+                    cb(table);
+                }
+                if (more) {
+                    more();
+                }
+                if (more2) {
+                    more2(content);
+                }
+            });
+        }
     };
 
     function table_row(tr) {
@@ -148,7 +168,6 @@ var service = function () {
 
         return row;
     }
-
 
     return {
         build_table_header: build_table_header,

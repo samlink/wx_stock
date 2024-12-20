@@ -38,7 +38,7 @@ pub struct TablePagerExt {
     pub rec: i32,
     pub cate: String,
     pub filter: String,
-    pub user: String,
+    // pub user: String,
 }
 
 //自动完成使用
