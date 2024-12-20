@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::io::{self, Write};
 
 pub static SPLITER: &str = "<`*_*`>";
+pub static NOT_DEL_SQL: &str =" and 作废 = false";
 
 #[derive(Deserialize, Serialize)]
 pub struct UserData {
@@ -165,29 +166,29 @@ fn return_fields(rows: &Vec<tokio_postgres::Row>) -> Vec<FieldsData> {
 }
 
 //将数据库查询结果字段组合成字符串，即是内部辅助函数，也可外部调用
-pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsData>) -> String {
-    let mut product = "".to_owned();
-    for f in fields {
-        if f.data_type == "文本" {
-            let s: String = row.get(&*f.field_name);
-            let s1 = if s != "" { s } else { " ".to_owned() };
-            product += &format!("{}{}", s1, SPLITER);
-        } else if f.data_type == "整数" {
-            let num: i32 = row.get(&*f.field_name);
-            product += &format!("{}{}", num, SPLITER);
-        } else if f.data_type == "实数" {
-            let num: f64 = row.get(&*f.field_name);
-            product += &format!("{}{}", num, SPLITER);
-        } else {
-            let op: Vec<&str> = f.option_value.split("_").collect();
-            let b: bool = row.get(&*f.field_name);
-            let val = if b == true { op[0] } else { op[1] };
-            product += &format!("{}{}", val, SPLITER);
-        }
-    }
+// pub fn simple_string_from_base(row: &tokio_postgres::Row, fields: &Vec<FieldsData>) -> String {
+//     let mut product = "".to_owned();
+//     for f in fields {
+//         if f.data_type == "文本" {
+//             let s: String = row.get(&*f.field_name);
+//             let s1 = if s != "" { s } else { " ".to_owned() };
+//             product += &format!("{}{}", s1, SPLITER);
+//         } else if f.data_type == "整数" {
+//             let num: i32 = row.get(&*f.field_name);
+//             product += &format!("{}{}", num, SPLITER);
+//         } else if f.data_type == "实数" {
+//             let num: f64 = row.get(&*f.field_name);
+//             product += &format!("{}{}", num, SPLITER);
+//         } else {
+//             let op: Vec<&str> = f.option_value.split("_").collect();
+//             let b: bool = row.get(&*f.field_name);
+//             let val = if b == true { op[0] } else { op[1] };
+//             product += &format!("{}{}", val, SPLITER);
+//         }
+//     }
 
-    product
-}
+//     product
+// }
 
 //将显示字段拼接成导出 excel 用的查询语句
 pub fn build_sql_for_excel(mut sql: String, fields: &Vec<&FieldsData>, table: String) -> String {

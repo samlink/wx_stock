@@ -54,6 +54,7 @@ async fn main() -> std::io::Result<()> {
                     .service(tree::tree)
                     .service(tree::tree_auto)
                     .service(product::fetch_product)
+                    .service(product::fetch_statistic)
                     .service(product::fetch_filter_items)
                     .service(product::product_out)
                     .service(user_set::login)
