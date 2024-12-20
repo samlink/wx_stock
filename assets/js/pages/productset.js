@@ -36,6 +36,11 @@ let page_productset = function () {
                 // add_lu_link();
                 show_stat(content);
             });
+
+            // 清除状态
+            document.querySelectorAll('.filter_button').forEach(button => {
+                button.classList.remove('red');
+            });
         }
     }
 
@@ -83,15 +88,15 @@ let page_productset = function () {
         document.querySelector('.info-show').textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
     }
 
-    // 点击树的 stem
+    // 点击树的茎 stem
     function stem_click() {
         let all_stem = document.querySelectorAll('.item-down');
         all_stem.forEach(stem => {
             stem.addEventListener('click', function () {
                 let cate = this.textContent.trim() == "圆钢" ? "3" : "4";
                 show_statistic(cate);
-            });
-        })
+            })
+        });
     }
 
     // 导出数据
