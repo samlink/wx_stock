@@ -5,7 +5,6 @@ use crypto::digest::Digest;
 use crypto::md5::Md5;
 use deadpool_postgres::{Client, Pool};
 // use dotenv::dotenv;
-use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -44,7 +43,6 @@ pub struct SendMessage {
 }
 
 static SALT: &str = "samlink82";
-static MAX_PASS: i32 = 6;
 static MAX_FAILED: i32 = 6;
 
 ///获取 md5 码
@@ -128,7 +126,7 @@ pub async fn login(db: web::Data<Pool>, user: web::Json<User>, id: Identity) -> 
 pub async fn logout(id: Identity) -> HttpResponse {
     id.forget();
     HttpResponse::Found()
-        .append_header(("location", "/login"))
+        .append_header(("location", "/stock/login"))
         .finish()
 }
 
@@ -171,72 +169,3 @@ pub async fn change_pass(
     }
 }
 
-///找回密码
-#[post("/forget_pass")]
-pub async fn forget_pass(db: web::Data<Pool>, user: web::Json<User>) -> HttpResponse {
-    let conn = db.get().await.unwrap();
-
-    let rows = &conn
-        .query(
-            r#"SELECT username, get_pass, failed FROM customers Where username=$1"#,
-            &[&user.name],
-        )
-        .await
-        .unwrap();
-
-    if rows.is_empty() {
-        HttpResponse::Ok().json(-1)
-    } else {
-        let mut user_name = "".to_owned();
-        let mut get_pass = 0i32;
-        let mut failed = 0i32;
-
-        for row in rows {
-            user_name = row.get("username");
-            get_pass = row.get("get_pass");
-            failed = row.get("failed");
-        }
-
-        if get_pass >= MAX_PASS {
-            HttpResponse::Ok().json(-3)
-        } else if failed >= MAX_FAILED {
-            HttpResponse::Ok().json(-4)
-        } else {
-            let words = "abcdefghijklmnpqrstuvwxyz123456789";
-            let mut new_pass = "".to_owned();
-
-            for _n in 1..5 {
-                let num = rand::thread_rng().gen_range(0, 34);
-                new_pass.push_str(&words[num..num + 1]);
-            }
-
-            let salt_pass = md5(new_pass.clone(), SALT);
-            get_pass += 1;
-
-            let _ = &conn
-                .execute(
-                    r#"UPDATE customers SET password=$1, get_pass=$3 WHERE username=$2"#,
-                    &[&salt_pass, &user_name, &get_pass],
-                )
-                .await
-                .unwrap();
-
-            let send = SendMessage {
-                apikey: "011a9a2b503aa72978bd77ec4577a675".to_owned(),
-                mobile: user_name,
-                text: "【鼎传码行】密码已重置，新的密码为：".to_owned()
-                    + &new_pass
-                    + " ，请及时操作",
-            };
-
-            let client = reqwest::Client::new();
-            let _res = client
-                .post("https://sms.yunpian.com/v2/sms/single_send.json")
-                .form(&send)
-                .send()
-                .unwrap();
-
-            HttpResponse::Ok().json(MAX_PASS - get_pass)
-        }
-    }
-}

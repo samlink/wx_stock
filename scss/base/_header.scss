@@ -76,7 +76,9 @@
         text-shadow: none;
         text-decoration: none;
         white-space: nowrap;
-        transition: background-color 150ms, color 150ms;
+        transition:
+            background-color 150ms,
+            color 150ms;
     }
 }
 
@@ -88,7 +90,10 @@
     position: absolute;
     margin-left: 15px;
     margin-top: -13px;
-    transition: transform 150ms, color 150ms, -webkit-transform 150ms;
+    transition:
+        transform 150ms,
+        color 150ms,
+        -webkit-transform 150ms;
 }
 
 .sub-menu {
@@ -105,7 +110,10 @@
     border-radius: 0.375rem;
     // animation: 1s navItemHidden;
     z-index: 9999;
-    transition: margin 150ms, opacity 150ms, visibility 0ms;
+    transition:
+        margin 150ms,
+        opacity 150ms,
+        visibility 0ms;
     transition-delay: 600ms, 600ms, 750ms;
     background-color: white;
 }
@@ -211,9 +219,10 @@
     }
 }
 
-#exit {
+#change-pwd {
     font-size: 16px;
     margin-left: 4px;
+    margin-right: 30px;    
     color: $menu-hover-color;
 
     &:hover {
@@ -222,6 +231,10 @@
             color: $menu-hover-color;
         }
     }
+}
+
+#logout {
+    font-size: 17px;
 }
 
 .show-chosed {

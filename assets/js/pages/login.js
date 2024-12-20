@@ -50,45 +50,4 @@ document.querySelector('#login-button').addEventListener('click', function (even
         });
 });
 
-//找回密码
-document.querySelector('#forget-pass').addEventListener('click', function () {
-    let name = document.querySelector('#login-name').value.trim();
-    if (name == "") {
-        notifier.show('用户名不能为空', 'danger');
-        return false;
-    }
-
-    var user = {
-        area: "",
-        name: name,
-        password: ""
-    }
-
-    fetch(`/stock/forget_pass`, {
-        method: 'post',
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify(user),
-    })
-        .then(res => res.json())
-        .then(data => {
-            if (data == -1) {
-                notifier.show('用户不存在或待确认', 'danger');
-            }
-            else if (data == -2) {
-                notifier.show('用户没有预留手机号', 'danger');
-            }
-            else if (data == -3) {
-                notifier.show('找回密码机会已用完', 'danger');
-            }
-            else if (data == -4) {
-                notifier.show('帐户被锁定，请联系管理员', 'danger');
-            }
-            else {
-                notifier.show('新密码已发送至预留手机号', 'success');
-                setTimeout(() => notifier.show('还有 ' + data + ' 次找回密码的机会', 'info'), 500);
-            }
-        });
-});
 
