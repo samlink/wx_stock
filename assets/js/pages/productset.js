@@ -102,6 +102,7 @@ let page_productset = function () {
                 name: document.querySelector('#product-name').textContent.trim(),
                 search: document.querySelector('#search-input').value.trim(),
                 filter: get_filter(),
+                cate: "正常销售",
             };
 
             fetch(`/stock/product_out`, {

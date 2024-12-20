@@ -6,6 +6,8 @@ use dotenv::dotenv;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
+use tokio_postgres::Row;
+use xlsxwriter::{prelude::FormatAlignment, Format, Workbook};
 
 pub static SPLITER: &str = "<`*_*`>";
 pub static NOT_DEL_SQL: &str =" and 作废 = false";
@@ -206,6 +208,69 @@ pub fn build_sql_for_excel(mut sql: String, fields: &Vec<&FieldsData>, table: St
         }
     }
     sql
+}
+
+#[derive(Deserialize, Serialize)]
+pub struct Fields {
+    pub name: &'static str,
+    pub width: i32,
+}
+
+/// ### 导出到 Excel
+/// ```
+/// // sql 语句中的字段名称与 fields 中的 name 一致
+/// let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+/// // 注意最后一句无逗号
+/// let f_str = r#"[
+///     {"name": "序号", "width": 6},
+///     {"name": "名称", "width": 12},
+///     {"name": "长度", "width": 10},
+///     {"name": "备注", "width": 15}
+/// ]"#;
+/// let fields = serde_json::from_str(f_str).unwrap();
+/// out_excel("入库明细表", fields, rows.as_ref());
+/// ```
+pub fn out_excel(name: &str, fields: Vec<Fields>, rows: &Vec<Row>) {
+    let file_name = format!("./download/{}.xlsx", name);
+    let wb = Workbook::new(&file_name).unwrap();
+    let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+
+    let mut n = 0;
+    for f in &fields {
+        sheet
+            .write_string(
+                0,
+                n,
+                &f.name,
+                Some(
+                    &Format::new()
+                        .set_align(FormatAlignment::CenterAcross)
+                        .set_bold(),
+                ),
+            )
+            .unwrap();
+        sheet.set_column(n, n, f.width.into(), None).unwrap();
+        n += 1;
+    }
+
+    let mut n = 1u32;
+    for row in rows {
+        let mut m = 0u16;
+        for f in &fields {
+            sheet
+                .write_string(
+                    n,
+                    m,
+                    row.get(&*f.name),
+                    Some(&Format::new().set_align(FormatAlignment::Center)),
+                )
+                .unwrap();
+            m += 1;
+        }
+        n += 1;
+    }
+
+    wb.close().unwrap();
 }
 
 ///下载文件服务
