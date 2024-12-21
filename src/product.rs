@@ -122,7 +122,7 @@ pub async fn fetch_product(
             INSERT INTO visits (user_id, visit_date, num)
             VALUES ({}, to_char(now(), 'YYYY-MM-DD'), 1)
             ON CONFLICT (user_id, visit_date)
-            DO UPDATE SET num = visits.num + 1;
+            DO UPDATE SET num = visits.num + 1, last_visit = now();
     "#, post_data.user);
 
     conn.execute(sql3.as_str(), &[]).await.unwrap();
