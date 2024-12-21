@@ -84,6 +84,7 @@ var service = function () {
                 cate: '正常销售',
                 page: 1,
                 filter: '',
+                user: document.querySelector("#user-id").textContent.trim(),
             },
             header_names: {
                 "名称": "split_part(node_name,' ',2)",

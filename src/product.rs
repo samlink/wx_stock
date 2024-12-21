@@ -118,6 +118,15 @@ pub async fn fetch_product(
     let weight = format!("{:.0}", w);
     let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
+    let sql3 = format!(r#"
+            INSERT INTO visits (user_id, visit_date, num)
+            VALUES ({}, to_char(now(), 'YYYY-MM-DD'), 1)
+            ON CONFLICT (user_id, visit_date)
+            DO UPDATE SET num = visits.num + 1;
+    "#, post_data.user);
+
+    conn.execute(sql3.as_str(), &[]).await.unwrap();
+
     HttpResponse::Ok().json((products, count, pages, long, weight))
 }
 
