@@ -1,4 +1,3 @@
-use crate::service::get_user;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use async_recursion::async_recursion;
@@ -116,8 +115,8 @@ pub async fn tree_drag(
     tree_id: web::Json<TreeId>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let _ = &conn
             .execute(

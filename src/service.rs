@@ -73,7 +73,7 @@ where
 }
 
 ///获取用户信息
-pub async fn get_user(db: web::Data<Pool>, id: Identity) -> UserData {
+pub async fn get_user(db: &web::Data<Pool>, id: Identity) -> UserData {
     let mut user = UserData {
         id: 0,
         username: "".to_owned(),

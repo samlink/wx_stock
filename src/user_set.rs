@@ -1,4 +1,3 @@
-use crate::service::get_user;
 use actix_identity::Identity;
 use actix_web::{get, post, web, HttpResponse};
 use crypto::digest::Digest;
@@ -137,15 +136,15 @@ pub async fn change_pass(
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
-    let user_get = get_user(db.clone(), id).await;
-    if user_get.username != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());    
+    if user_name != "" {
         let conn = db.get().await.unwrap();
         let salt_pass = md5(user.old_pass.clone(), SALT);
 
         let rows = &conn
             .query(
                 r#"SELECT username FROM customers Where username=$1 AND password=$2"#,
-                &[&user_get.username.clone(), &salt_pass],
+                &[&user_name, &salt_pass],
             )
             .await
             .unwrap();
@@ -157,7 +156,7 @@ pub async fn change_pass(
             let _ = &conn
                 .execute(
                     r#"UPDATE customers SET password=$1 WHERE username=$2"#,
-                    &[&new_pass, &user_get.username],
+                    &[&new_pass, &user_name],
                 )
                 .await
                 .unwrap();

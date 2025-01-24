@@ -202,8 +202,8 @@ async fn build_sql_search(
 ///获取表头统计信息
 #[post("/fetch_statistic")]
 pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let conn = db.get().await.unwrap();
 
         let cate_sql = if cate == "all" {
@@ -254,8 +254,8 @@ pub async fn fetch_filter_items(
     post_data: web::Json<FilterData>,
     id: Identity,
 ) -> HttpResponse {
-    let user = get_user(db.clone(), id).await;
-    if user.username != "" {
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name != "" {
         let f_map = map_fields(db.clone(), "商品规格").await;
         let conn = db.get().await.unwrap();
         let f_data = FilterData {

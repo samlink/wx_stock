@@ -41,7 +41,7 @@ pub async fn login(_req: HttpRequest) -> HttpResponse {
 ///用户自己设置
 #[get("/user_set")]
 pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db, id).await;
+    let user = get_user(&db, id).await;
     if user.username != "" {
         let html = r2s(|o| userset_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
@@ -52,7 +52,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 
 #[get("/")]
 pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
-    let user = get_user(db, id).await;
+    let user = get_user(&db, id).await;
     if user.username != "" {
         let html = r2s(|o| productset_html(o, user.id.to_string()));
         HttpResponse::Ok().content_type("text/html").body(html)
