@@ -199,3 +199,9 @@ pub async fn serve_download(req: HttpRequest) -> Result<fs::NamedFile, Error> {
     let path = req.match_info().query("filename");
     Ok(fs::NamedFile::open(format!("./download/{}", path)).unwrap())
 }
+
+///反馈
+#[get("/answer")]
+pub async fn answer() -> String {
+    "ok".to_owned()
+}

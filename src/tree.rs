@@ -1,5 +1,5 @@
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{get, web, HttpResponse};
 use async_recursion::async_recursion;
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
@@ -109,25 +109,3 @@ pub struct TreeId {
     pub num: String,
 }
 
-#[post("/tree_drag")]
-pub async fn tree_drag(
-    db: web::Data<Pool>,
-    tree_id: web::Json<TreeId>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-    if user_name != "" {
-        let conn = db.get().await.unwrap();
-        let _ = &conn
-            .execute(
-                r#"UPDATE tree SET pnum = $2 WHERE num = $1"#,
-                &[&tree_id.num, &tree_id.pnum],
-            )
-            .await
-            .unwrap();
-
-        HttpResponse::Ok().json(1)
-    } else {
-        HttpResponse::Ok().json(-1)
-    }
-}
