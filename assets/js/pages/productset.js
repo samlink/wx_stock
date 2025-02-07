@@ -85,7 +85,8 @@ let page_productset = function () {
 
     // 显示统计信息，作为 fetch_table 的回调函数
     function show_stat(content) {
-        document.querySelector('.info-show').textContent = `长度合计：${content[3]} 米，重量合计：${content[4]} KG`;
+        let long = content[3] == 0 && content[4] != 0 ? "< 1" : content[3];
+        document.querySelector('.info-show').textContent = `长度合计：${long} 米，重量合计：${content[4]} KG`;
     }
 
     // 点击树的茎 stem
