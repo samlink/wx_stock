@@ -367,6 +367,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
         {"name": "状态", "width": 20},
         {"name": "执行标准", "width": 25},
         {"name": "生产厂家", "width": 15},
+        {"name": "炉号", "width": 15},
         {"name": "库存长度", "width": 15},
         {"name": "库存重量", "width": 15},
         {"name": "备注", "width": 20}
