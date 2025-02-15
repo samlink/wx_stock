@@ -6,7 +6,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::io::{self, Write};
 use tokio_postgres::Row;
-use xlsxwriter::{prelude::FormatAlignment, Format, Workbook};
+// use xlsxwriter::{prelude::FormatAlignment, Format, Workbook};
+use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 
 pub static SPLITER: &str = "<`*_*`>";
 pub static NOT_DEL_SQL: &str = " and 作废 = false";
@@ -152,24 +153,16 @@ pub struct Fields {
 /// ```
 pub fn out_excel(name: &str, fields: Vec<Fields>, rows: &Vec<Row>) {
     let file_name = format!("./download/{}.xlsx", name);
-    let wb = Workbook::new(&file_name).unwrap();
-    let mut sheet = wb.add_worksheet(Some("数据")).unwrap();
+    let mut wb = Workbook::new();
+    let sheet = wb.add_worksheet().set_name("数据").unwrap();
+
+    let format = Format::new().set_align(FormatAlign::Center).set_bold();
+    let format2 = Format::new().set_align(FormatAlign::Center);
 
     let mut n = 0;
     for f in &fields {
-        sheet
-            .write_string(
-                0,
-                n,
-                &f.name,
-                Some(
-                    &Format::new()
-                        .set_align(FormatAlignment::CenterAcross)
-                        .set_bold(),
-                ),
-            )
-            .unwrap();
-        sheet.set_column(n, n, f.width.into(), None).unwrap();
+        sheet.write_with_format(0, n, f.name, &format).unwrap();
+        sheet.set_column_width(n, f.width).unwrap();
         n += 1;
     }
 
@@ -177,20 +170,16 @@ pub fn out_excel(name: &str, fields: Vec<Fields>, rows: &Vec<Row>) {
     for row in rows {
         let mut m = 0u16;
         for f in &fields {
+            let name: &str = row.get(&*f.name);
             sheet
-                .write_string(
-                    n,
-                    m,
-                    row.get(&*f.name),
-                    Some(&Format::new().set_align(FormatAlignment::Center)),
-                )
+                .write_with_format(n, m, name, &format2)
                 .unwrap();
             m += 1;
         }
         n += 1;
     }
 
-    wb.close().unwrap();
+    wb.save(file_name).unwrap();
 }
 
 ///下载文件服务
