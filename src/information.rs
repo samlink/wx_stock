@@ -2,7 +2,7 @@ use actix_web::{get, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde_json::json;
 
-///获取表头统计信息
+///获取公告信息
 #[get("/fetch_information")]
 pub async fn fetch_information(db: web::Data<Pool>) -> HttpResponse {
     let conn = db.get().await.unwrap();

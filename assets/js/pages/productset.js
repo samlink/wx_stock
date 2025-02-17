@@ -1,4 +1,9 @@
 let page_productset = function () {
+
+    if (!getCookie("wxok")) {
+        window.location.href = "/";
+    }
+
     let global = {
         row_id: 0,
         edit: 0,
