@@ -12,14 +12,14 @@ pub async fn fetch_information(db: web::Data<Pool>) -> HttpResponse {
             where show = true"#,
     );
 
-    let row = &conn.query_one(sql.as_str(), &[]).await.unwrap();
+    let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
 
-    if row.is_empty() {
+    if rows.len() == 0 {
         return HttpResponse::Ok().json(-1);
     }
 
-    let title: String = row.get("标题");
-    let content: String = row.get("内容");
+    let title: String = rows[0].get("标题");
+    let content: String = rows[0].get("内容");
 
     let data = json!({
         "title": title,
