@@ -1,5 +1,5 @@
-// const lang = localStorage.getItem('language') || 'zh';
-const lang = 'en';
+const lang = localStorage.getItem('language') || 'zh';
+
 document.querySelector('#title-show').textContent = lang === 'zh' ? '客户服务' : 'Customer Service';
 document.querySelector('#title').textContent = lang === 'zh' ? '客户服务系统' : 'Customer Service System';
 document.querySelector('#logon a').textContent = lang === 'zh' ? '公司主页' : 'Home';
