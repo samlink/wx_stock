@@ -1,13 +1,15 @@
 use actix_files as fs;
 use actix_identity::Identity;
-use actix_web::{get, web, Error, HttpRequest};
+use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
 use deadpool_postgres::Pool;
+use dotenv::dotenv;
+use reqwest::Client;
+use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::collections::HashMap;
 use std::io::{self, Write};
 use tokio_postgres::Row;
-// use xlsxwriter::{prelude::FormatAlignment, Format, Workbook};
-use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 
 pub static SPLITER: &str = "<`*_*`>";
 pub static NOT_DEL_SQL: &str = " and 作废 = false";
@@ -171,9 +173,7 @@ pub fn out_excel(name: &str, fields: Vec<Fields>, rows: &Vec<Row>) {
         let mut m = 0u16;
         for f in &fields {
             let name: &str = row.get(&*f.name);
-            sheet
-                .write_with_format(n, m, name, &format2)
-                .unwrap();
+            sheet.write_with_format(n, m, name, &format2).unwrap();
             m += 1;
         }
         n += 1;
@@ -193,4 +193,48 @@ pub async fn serve_download(req: HttpRequest) -> Result<fs::NamedFile, Error> {
 #[get("/answer")]
 pub async fn answer() -> String {
     "ok".to_owned()
+}
+
+#[post("/translate")]
+pub async fn translate(data: String) -> HttpResponse {
+    HttpResponse::Ok().json(trans(&data).await)
+}
+
+// 翻译中文为英文
+async fn trans(chinese_text: &str) -> String {
+    dotenv().ok();
+    let api_key = dotenv::var("api_key").unwrap();
+    let client = Client::new();
+
+    let request_body = json!({
+        // "model": "google/gemini-2.0-flash-exp:free",
+        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "messages": [
+            {
+                "role": "system",
+                "content": "你是一个翻译助手，请将输入的中文翻译成英文。只需返回英文即可，无需其他解释。遇到标点符号，请照原样翻译"
+            },
+            {
+                "role": "user",
+                "content": chinese_text
+            }
+        ]
+    });
+
+    let response = client
+        .post("https://openrouter.ai/api/v1/chat/completions")
+        .header("Authorization", format!("Bearer {}", api_key))
+        .header("Content-Type", "application/json")
+        .json(&request_body)
+        .send()
+        .await
+        .unwrap();
+
+    let response_json: serde_json::Value = response.json().await.unwrap();
+
+    let translated_text = response_json["choices"][0]["message"]["content"]
+        .as_str()
+        .unwrap_or("翻译失败");
+
+    translated_text.to_owned()
 }

@@ -88,33 +88,33 @@ var service = function () {
                 filter: '',
                 user: document.querySelector("#user-id").textContent.trim(),
             },
-            header_names: lang == "zh" ? 
-            {
-                "名称": "split_part(node_name,' ',2)",
-                "材质": "split_part(node_name,' ',1)",
-                "物料号": "products.物料号",
-                "规格": "规格型号",
-                "状态": "products.文本字段2",
-                "执行标准": "products.文本字段3",
-                "生产厂家": "products.文本字段5",
-                "炉号": "products.文本字段4",
-                "库存长度": "COALESCE(foo.库存长度,0)",
-                "库存重量": "COALESCE(foo.理论重量,0)",
-                "备注": "products.备注",
-            } :
-            {
-                "Name": "split_part(node_name,' ',2)",
-                "Material": "split_part(node_name,' ',1)",
-                "Part_No.": "products.物料号",
-                "Specification": "规格型号",
-                "Status": "products.文本字段2",
-                "Standard": "products.文本字段3",
-                "Manufacturer": "products.文本字段5",
-                "Heat_No.": "products.文本字段4",
-                "Length": "COALESCE(foo.库存长度,0)",
-                "Weight": "COALESCE(foo.理论重量,0)",
-                "Remarks": "products.备注",
-            },
+            header_names: lang == "zh" ?
+                {
+                    "名称": "split_part(node_name,' ',2)",
+                    "材质": "split_part(node_name,' ',1)",
+                    "物料号": "products.物料号",
+                    "规格": "规格型号",
+                    "状态": "products.文本字段2",
+                    "执行标准": "products.文本字段3",
+                    "生产厂家": "products.文本字段5",
+                    "炉号": "products.文本字段4",
+                    "库存长度": "COALESCE(foo.库存长度,0)",
+                    "库存重量": "COALESCE(foo.理论重量,0)",
+                    "备注": "products.备注",
+                } :
+                {
+                    "Name": "split_part(node_name,' ',2)",
+                    "Material": "split_part(node_name,' ',1)",
+                    "Part_No.": "products.物料号",
+                    "Specification": "规格型号",
+                    "Status": "products.文本字段2",
+                    "Standard": "products.文本字段3",
+                    "Manufacturer": "products.文本字段5",
+                    "Heat_No.": "products.文本字段4",
+                    "Length": "COALESCE(foo.库存长度,0)",
+                    "Weight": "COALESCE(foo.理论重量,0)",
+                    "Remarks": "products.备注",
+                },
             edit: false,
 
             blank_cells: 18,
@@ -191,12 +191,62 @@ var service = function () {
     };
 
     function table_row(tr) {
-        let rec = tr.split(SPLITER);
-        let name = rec[1].split(" ");
-        let row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
+        let row;
+        if (lang == "zh") {
+            let rec = tr.split(SPLITER);
+            let name = rec[1].split(" ");
+            row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
                 <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
                 <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家">${rec[6]}</td>
                 <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
+        } else {
+            tr = tr.replace("圆钢", "Bar")
+                .replace("无缝钢管", "Pipe")
+                .replace("套管接箍料", "Casing Coupling")
+                .replace("调质", "Q&T")
+                .replace("固溶", "Solution")
+                .replace("时效", "Aging")
+                .replace("热轧", "Hot Rolled")
+                .replace("锻造态", "As-Forged")
+                .replace("锻造", "Forged")
+                .replace("未正火", "Untreated")
+                .replace("正回火", "Double Tempering")
+                .replace("未调", "Non-Q&T")
+                .replace("挤压", "Extruded")
+                .replace("退火", "Annealed")
+                .replace("态", "State")
+                .replace("固熔酸洗", "Solution Treatment and Pickling")
+                .replace("其他", "Others")
+
+                .replace("中航上大", "AVIC Shangda")
+                .replace("上大", "AVIC Shangda")
+                .replace("靖江特殊刚", "Jingjiang Special Steel")
+                .replace("烟台华新", "Yantai Huaxin")
+                .replace("江阴兴澄", "Jiangyin Xingcheng")
+                .replace("抚钢", "Fushun Special Steel")
+                .replace("达利普", "Dalipu")
+                .replace("本钢钢铁", "Hot Rolled")
+                .replace("锻造态", "As-Forged")
+                .replace("锻造", "Forged")
+                .replace("未正火", "Untreated")
+                .replace("正回火", "Double Tempering")
+                .replace("未调", "Non-Q&T")
+                .replace("挤压", "Extruded")
+                .replace("退火", "Annealed")
+                .replace("态", "State")
+                .replace("固熔酸洗", "Solution Treatment and Pickling")
+                .replace("其他", "Others")
+                
+                ;
+
+            let rec = tr.split(SPLITER);
+            let name = rec[1].split(" ");
+            row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
+                    <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
+                    <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家"></td>
+                    <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td>
+                    <td>${rec[9]}</td><td class="备注"></td></tr>`;
+        }
 
         return row;
     }

@@ -96,10 +96,6 @@ var tool_table = function () {
                         count++;
                     }
 
-                    // for (let i = 0; i < table_data.post_data.rec - count; i++) {
-                    //     rows += table_data.blank_row_fn();
-                    // }
-                    
                     // 写入空行
                     for (let i = 0; i < table_data.post_data.rec - count; i++) {
                         let row = '<tr>';
@@ -114,7 +110,7 @@ var tool_table = function () {
                     table_data.total_pages.textContent = content[2];
                     table_data.page_input.value = table_data.post_data.page;
 
-                    //此处时最新加入的，可选的一个信息提示
+                    //此处是最新加入的，可选的一个信息提示
                     if (table_data.other_info && content[3]) {
                         table_data.other_info.textContent = content[3];
                     }
@@ -151,6 +147,34 @@ var tool_table = function () {
                     if (typeof cb == "function") {
                         cb_function = cb;
                         cb(content);
+                    }
+
+                    // 处理英文状态
+                    if (localStorage.getItem('language') == 'en') {
+                        let chinese = "";
+                        for (let tr of content[0]) {
+                            let rec = tr.split(SPLITER);
+                            chinese += rec[6] + "," + rec[10] + ";";
+                        }
+
+                        if (chinese != "") {
+                            fetch('/stock/translate', {
+                                method: 'post',
+                                body: chinese,
+                            })
+                                .then(response => response.json())
+                                .then(content => {
+                                    let english = content.split(';');
+                                    let rows = table_data.body.querySelectorAll('tr');
+                                    for (let i = 0; i < english.length - 1; i++) {
+                                        let rec = english[i].split(',');
+                                        rows[i].querySelector('.生产厂家').textContent = rec[0];
+                                        rows[i].querySelector('.生产厂家').title = rec[0];
+                                        rows[i].querySelector('.备注').textContent = rec[1];
+                                        rows[i].querySelector('.备注').title = rec[1];
+                                    }
+                                });
+                        }
                     }
                 }
                 else {
