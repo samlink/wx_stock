@@ -17,6 +17,7 @@ let mess3 = lang === 'zh' ? '等待管理员确认' : 'Waiting for administrator
 let mess4 = lang === 'zh' ? '密码错误' : 'Wrong password';
 let mess5 = lang === 'zh' ? '还有 ' : 'There are ';
 let mess6 = lang === 'zh' ? ' 次机会' : ' chances';
+let mess8 = lang === 'zh' ? '还有 1 次机会 ' : 'There is only one chance left';
 let mess7 = lang === 'zh' ? '帐户被锁定，请联系管理员' : 'Account locked, please co1ntact administrator';
 
 //登录按钮
@@ -55,7 +56,11 @@ document.querySelector('#login-button').addEventListener('click', function (even
             }
             else if (data != 0 && data < MAX_FAILED) {
                 notifier.show(mess4, 'danger');
-                setTimeout(() => notifier.show(mess5 + data + mess6, 'warning'), 500);
+                if (data == 1) {
+                    setTimeout(() => notifier.show(mess8, 'warning'), 500);
+                } else {
+                    setTimeout(() => notifier.show(mess5 + data + mess6, 'warning'), 500);
+                }
             }
             else if (data == 0 || data >= MAX_FAILED) {
                 notifier.show(mess7, 'danger');
