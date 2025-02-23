@@ -147,6 +147,7 @@ let page_productset = function () {
                 search: document.querySelector('#search-input').value.trim(),
                 filter: get_filter(),
                 cate: "正常销售",
+                lang: lang,
             };
 
             fetch(`/stock/product_out`, {

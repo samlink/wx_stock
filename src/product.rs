@@ -118,12 +118,15 @@ pub async fn fetch_product(
     let weight = format!("{:.0}", w);
     let pages = (count as f64 / post_data.rec as f64).ceil() as i32;
 
-    let sql3 = format!(r#"
+    let sql3 = format!(
+        r#"
             INSERT INTO visits (user_id, visit_date, num)
             VALUES ({}, to_char(now(), 'YYYY-MM-DD'), 1)
             ON CONFLICT (user_id, visit_date)
             DO UPDATE SET num = visits.num + 1, last_visit = now();
-    "#, post_data.user);
+    "#,
+        post_data.user
+    );
 
     conn.execute(sql3.as_str(), &[]).await.unwrap();
 
@@ -324,6 +327,7 @@ pub struct ProductName {
     cate: String,
     filter: String,
     search: String,
+    lang: String,
 }
 
 //导出数据
@@ -375,7 +379,40 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
 
     let fields: Vec<Fields> = serde_json::from_str(f_str).unwrap();
 
-    out_excel(product.name.as_str(), fields, rows.as_ref());
+    if product.lang == "zh" {
+        out_excel(
+            product.name.as_str(),
+            &fields,
+            &fields,
+            rows.as_ref(),
+            product.lang.as_str(),
+        );
+    } else {
+        let t_str = r#"[
+            {"name": "No.", "width": 6},
+            {"name": "Name", "width": 15},
+            {"name": "Material", "width": 15},
+            {"name": "Part_No.", "width": 15},
+            {"name": "Specification", "width": 15},
+            {"name": "Status", "width": 20},
+            {"name": "Standard", "width": 25},
+            {"name": "Manufacturer", "width": 15},
+            {"name": "Heat_No.", "width": 15},
+            {"name": "Length", "width": 15},
+            {"name": "Weight", "width": 15},
+            {"name": "Remarks", "width": 20}
+        ]"#;
+
+        let en_title: Vec<Fields> = serde_json::from_str(t_str).unwrap();
+        
+        out_excel(
+            product.name.as_str(),
+            &en_title,
+            &fields,
+            rows.as_ref(),
+            product.lang.as_str(),
+        );
+    }
 
     HttpResponse::Ok().json(&product.name)
 }
