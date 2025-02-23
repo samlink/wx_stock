@@ -207,8 +207,7 @@ async fn trans(chinese_text: &str) -> String {
     let client = Client::new();
 
     let request_body = json!({
-        // "model": "google/gemini-2.0-flash-exp:free",
-        "model": "google/gemini-2.0-flash-lite-preview-02-05:free",
+        "model": "google/gemini-2.0-flash-exp:free",
         "messages": [
             {
                 "role": "system",

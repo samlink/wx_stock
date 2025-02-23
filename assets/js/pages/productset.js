@@ -166,7 +166,7 @@ let page_productset = function () {
                     }
                 });
         } else {
-            notifier.show(lang == "zh" ? '请先选择商品': 'Please select a product first', 'danger');
+            notifier.show(lang == "zh" ? '请先选择商品' : 'Please select a product first', 'danger');
         }
     });
 
@@ -181,9 +181,20 @@ let page_productset = function () {
             }
         }
 
-        let has_filter = lang == "zh" ?
-         ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'] :
-         ['Specification', 'Status', 'Standard', 'Manufacturer', 'Heat_No.', 'Length', '区域'];
+        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
+
+        let eng_map;
+        if (lang != "zh") {
+            has_filter = ['Specification', 'Status', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
+            eng_map = {
+                'Specification': '规格',
+                'Status': '状态',
+                'Standard': '执行标准',
+                'Manufacturer': '生产厂家',
+                'Furnace': '炉号',
+                'Length': '库存长度'
+            }
+        }
 
         ths.forEach(th => {
             if (has_filter.indexOf(th.textContent) != -1) {
@@ -206,7 +217,7 @@ let page_productset = function () {
                 let cate = "正常销售";
                 let id = document.querySelector('#product-id').textContent.trim();
 
-                document.querySelector('#filter-name').textContent = na;
+                document.querySelector('#filter-name').textContent = lang == "zh" ? na : eng_map[na];
 
                 let filter_sql = "";
                 if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
@@ -223,7 +234,7 @@ let page_productset = function () {
                     id: id,
                     name: search,
                     cate: cate,
-                    filter_name: na,
+                    filter_name: lang == 'zh' ? na : eng_map[na],
                     filter: filter_sql,
                 };
 
@@ -240,12 +251,20 @@ let page_productset = function () {
                         let n = 0;
                         for (let row of content) {
                             if (row.trim() == "" && n == 0) {
-                                row = "(空白)";
+                                row = lang == "zh" ? "(空白)" : "(Blank)";
                                 n++;
                             } else if (row.trim() == "" && n == 1) {
                                 continue;
                             }
 
+                            if (post_data.filter_name == "状态" && lang == "en") {
+                                row = service.status_to_en(row);
+                            }
+
+                            if (post_data.filter_name == "生产厂家" && lang == "en") {
+                                row = service.factor_to_en(row);
+                            }
+                             
                             html += `
                                 <label class="check-radio">
                                     <input class="form-check" type="checkbox">
@@ -286,6 +305,9 @@ let page_productset = function () {
 
         let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
         let filter_name = document.querySelector('#filter-name').textContent
+
+        // console.log(filter_name);
+        
         let f_sql = "", check_now = "";
 
         // 全选状态
@@ -311,7 +333,15 @@ let page_productset = function () {
         }
 
         checked.forEach(ch => {
-            const ch_name = ch.parentNode.textContent.trim();
+            let ch_name = ch.parentNode.textContent.trim();
+            if (filter_name == "状态" && lang == "en") {
+                ch_name = service.status_to_zh(ch_name);
+            }
+
+            if (filter_name == "生产厂家" && lang == "en") {
+                ch_name = service.factor_to_zh(ch_name);
+            }
+
             if (ch.checked) {
                 f_sql += `${filter_name} = '${ch_name}' OR `;
                 check_now += `<${ch_name}>, `;   // 与 过滤器原始值 格式一致
