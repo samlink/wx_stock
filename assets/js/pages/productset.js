@@ -4,6 +4,31 @@ let page_productset = function () {
     //     window.location.href = "/";
     // }
 
+    // const lang = localStorage.getItem('language') || 'zh';
+    const lang = "en";
+    if (lang == "en") {
+        document.querySelector('#auto_input').placeholder = 'Name search';
+        document.querySelector('.tree-title').textContent = 'Product category　';
+        document.querySelector('#search-input').placeholder = 'Specification search';
+        document.querySelector('#serach-button').textContent = 'Search';
+        document.querySelector('#data-out').textContent = 'Export data';
+        document.querySelector('#first').title = 'First page';
+        document.querySelector('#pre').title = 'Previous page';
+        document.querySelector('#aft').title = 'Next page';
+        document.querySelector('#last').title = 'Last page';
+        document.querySelector('.page-info').innerHTML = lang == 'zh' ?
+            `<span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                <span>页，共</span><span id="pages"></span><span>页</span>` :
+            `<span>Page</span><input type="text" class="form-control" id="page-input" value="1">
+                <span>of</span><span id="pages"></span><span>pages</span>`;
+        document.querySelector('.table-info').innerHTML = lang == 'zh' ?
+            `共 <span id="total-records"></span> 条记录` : `Total <span id="total-records"></span> records`;
+
+        document.querySelector('.all-choose').textContent = 'Check all';
+        document.querySelector('#f-ok').textContent = 'OK';
+        document.querySelector('#f-cancel').textContent = 'Cancel';
+    }
+
     let global = {
         row_id: 0,
         edit: 0,

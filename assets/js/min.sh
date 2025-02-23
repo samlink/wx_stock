@@ -4,6 +4,7 @@ terser ./parts/proto_tools.js ./parts/tools.js ./parts/alert.js ./parts/notifier
         -c -o ../../static/tools_service.js
 
 terser ./pages/login.js -c -o ../../static/login.js
+terser ./pages/base.js -c -o ../../static/base.js
 terser ./pages/productset.js -c -o ../../static/productset.js
 terser ./pages/userset.js -c -o ../../static/userset.js
 
