@@ -1,12 +1,12 @@
 use actix_files as fs;
 use actix_identity::Identity;
-use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
+use actix_web::{get, web, Error, HttpRequest};
 use deadpool_postgres::Pool;
-use dotenv::dotenv;
-use reqwest::Client;
+// use dotenv::dotenv;
+// use reqwest::Client;
 use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+// use serde_json::json;
 use std::collections::HashMap;
 use std::io::{self, Write};
 use tokio_postgres::Row;
