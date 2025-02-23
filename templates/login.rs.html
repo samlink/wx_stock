@@ -9,37 +9,37 @@
     <meta name="viewport" content="initial-scale=1">
     <link rel="shortcut icon" type="favicon" href="/stock/assets/img/logo_blue.png" />
     <link rel="stylesheet" type="text/css" href="/stock/static/@login_css.name" />
-    <title id='title-show'>客户服务</title>
+    <title id='title-show'></title>
 </head>
 
 <body>
     <div class="top">
         <div id="logo">
             <img src="/stock/assets/img/logo_blue.png" />
-            <span id="title">客户服务系统</span>
+            <span id="title"></span>
         </div>
-        <div class="menu-log" id="logon"><a href="http://www.wxpetro.com/">公司主页</a></div>
+        <div class="menu-log" id="logon"><a href="http://www.wxpetro.com/"></a></div>
     </div>
     <div class="main">
         <div id="login-form" class="log-show">
             <form>
                 <div class="form-group">
-                    <label for="uname">用户名</label>
-                    <input class="form-control" type="text" placeholder="请输入用户名" name="uname" id="login-name" required>
+                    <label for="uname" id="label-name"></label>
+                    <input class="form-control" type="text" placeholder="" name="uname" id="login-name" required>
                 </div>
                 <div class="form-group">
-                    <label for="psw">密码</label>
-                    <input class="form-control" type="password" placeholder="请输入密码" name="psw" id="login-pass" required>
+                    <label for="psw" id="label-pass"></label>
+                    <input class="form-control" type="password" placeholder="" name="psw" id="login-pass" required>
                 </div>
 
                 <div class="form-group to-center">
-                    <button type="submit" id="login-button">登录</button>
+                    <button type="submit" id="login-button"></button>
                 </div>
             </form>
         </div>
 
         <footer>
-            <p><span id="my-company">五星（天津）石油装备有限公司</span> &#169; @now().strftime("%Y").unwrap().to_string()</p>
+            <p><span id="my-company"></span> &#169; @now().strftime("%Y").unwrap().to_string()</p>
         </footer>
     </div>
     <script src="/stock/static/@tools_service_js.name"></script>
