@@ -215,159 +215,107 @@ var service = function () {
         return row;
     }
 
+    let status_map = new Map([
+        ["圆钢", "Bar"],
+        ["无缝钢管", "Pipe"],
+        ["套管接箍料", "Casing Coupling"],
+        ["调质", "Q&T"],
+        ["固溶", "Solution"],
+        ["时效", "Aging"],
+        ["热轧", "Hot Rolled"],
+        ["锻造态", "As-Forged"],
+        ["锻造", "Forged"],
+        ["未正火", "Untreated"],
+        ["正回火", "Double Tempering"],
+        ["未调", "Non-Q&T"],
+        ["挤压", "Extruded"],
+        ["退火", "Annealed"],
+        ["态", "State"],
+        ["固熔酸洗", "Solution Treatment and Pickling"],
+        ["号钢", "Steel"],
+        ["双", 'Double'],
+        ["非标", "Non-standard"],
+        ["其他", "Others"]
+    ]);
+
+    let factor_map = new Map([
+        ["中航上大", "AVIC Shangda"],
+        ["上大", "Shangda"],
+        ["靖江特殊钢", "Jingjiang Special Steel"],
+        ["烟台华新", "Yantai Huaxin"],
+        ["江阴兴澄", "Jiangyin Xingcheng"],
+        ["抚顺特钢", "Fushun Special Steel"],
+        ["抚钢", "Fugang"],
+        ["达利普", "Dalipu"],
+        ["本钢钢铁", "Benxi Steel"],
+        ["本钢", "Bengang"],
+        ["中兴热处理", "Zhongxing Heat Treatment"],
+        ["天津钢管制造", "Tianjin Pipe Manufacturing"],
+        ["衡钢", "Hengyang Steel"],
+        ["新兴铸管", "Xinxing Ductile Iron Pipes"],
+        ["劝诚特钢", "Quancheng Special Steel"],
+        ["劝诚", "Quancheng"],
+        ["重庆重材", "Chongqing Heavy Materials"],
+        ["取芯材", "Coring Material"],
+        ["上海沪崎金属", "Shanghai Huzaki Metal"],
+        ["湖北新冶钢", "Hubei Xinye"],
+        ["冶钢", "Yegang"],
+        ["浙江华东", "Zhejiang Huadong"],
+        ["威亚塑料", "Weiya Plastics"],
+        ["重庆钢铁", "Chongqing Steel"],
+        ["宝山钢铁", "Baosteel"],
+        ["宝钢特种", "Baosteel Special"],
+        ["山东海鑫达", "Haixinda"],
+        ["海鑫达", "Haixinda"],
+        ["石钢", "Shigang"],
+        ["东北轻合金", "Northeast Light Alloy"],
+        ["大冶特殊钢", "Daye Special Steel"],
+        ["大冶特殊", "Daye Special"],
+        ["大冶特钢", "Daye Spec Steel"],
+        ["青海国鑫铝业", "Qinghai Guoxin Aluminum"],
+        ["山东中正钢管", "Shandong Zhongzheng Steel Pipe"],
+        ["大无缝", "Da Wufeng"],
+        ["莱钢", "Laiwu Steel"],
+        ["上海朝展金属", "Shanghai Chaozhan Metal"],
+        ["江苏常宝", "Jiangsu Changbao"],
+        ["常宝", "Changbao"],
+        ["衡阳华菱", "Hengyang Hualing"],
+        ["威晟", "Weisheng"],
+        ["鑫禹泽", "Xinyuze"],
+        ["西宁特钢", "Xining Special Steel"],
+        ["大钢", "Dagang"],
+        ["上海祥巨金属", "Shanghai Xiangju Metal"],
+        ["北满", "Beiman"],
+        ["兴澄特钢+浩运", "Xingcheng Special Steel"],
+        ["钢管", "Pipe"],
+        ["圆钢", "Bar"]
+    ]);
+
     let status_to_en = function (tr) {
-        tr = tr.replace("圆钢", "Bar")
-            .replace("无缝钢管", "Pipe")
-            .replace("套管接箍料", "Casing Coupling")
-            .replace("调质", "Q&T")
-            .replace("固溶", "Solution")
-            .replace("时效", "Aging")
-            .replace("热轧", "Hot Rolled")
-            .replace("锻造态", "As-Forged")
-            .replace("锻造", "Forged")
-            .replace("未正火", "Untreated")
-            .replace("正回火", "Double Tempering")
-            .replace("未调", "Non-Q&T")
-            .replace("挤压", "Extruded")
-            .replace("退火", "Annealed")
-            .replace("态", "State")
-            .replace("固熔酸洗", "Solution Treatment and Pickling")
-            .replace("号钢", "Steel")
-            .replace("双", 'Double')
-            .replace("非标", "Non-standard")
-            .replace("其他", "Others");
+        status_map.forEach((key, value) => {
+            tr = tr.replace(value, key);
+        });
         return tr;
     }
 
     let status_to_zh = function (tr) {
-        tr = tr.replace("Bar", "圆钢")
-            .replace("Pipe", "无缝钢管")
-            .replace("Casing Coupling", "套管接箍料")
-            .replace("Q&T", "调质")
-            .replace("Solution", "固溶")
-            .replace("Aging", "时效")
-            .replace("Hot Rolled", "热轧")
-            .replace("As-Forged", "锻造态")
-            .replace("Forged", "锻造")
-            .replace("Untreated", "未正火")
-            .replace("Double Tempering", "正回火")
-            .replace("Non-Q&T", "未调")
-            .replace("Extruded", "挤压")
-            .replace("Annealed", "退火")
-            .replace("State", "态")
-            .replace("Solution Treatment and Pickling", "固熔酸洗")
-            .replace("Steel", "号钢")
-            .replace('Double', "双")
-            .replace("Non-standard", "非标")
-            .replace("Others", "其他");
+        status_map.forEach((key, value) => {
+            tr = tr.replace(key, value);
+        });
         return tr;
     }
 
     let factor_to_en = function (tr) {
-        tr = tr.replace("中航上大", "AVIC Shangda")
-            .replace("上大", "Shangda")
-            .replace("靖江特殊钢", "Jingjiang Special Steel")
-            .replace("烟台华新", "Yantai Huaxin")
-            .replace("江阴兴澄", "Jiangyin Xingcheng")
-            .replace("抚顺特钢", "Fushun Special Steel")
-            .replace("抚钢", "Fugang")
-            .replace("达利普", "Dalipu")
-            .replace("本钢钢铁", "Benxi Steel")
-            .replace("本钢", "Bengang")
-            .replace("中兴热处理", "Zhongxing Heat Treatment")
-            .replace("天津钢管制造", "Tianjin Pipe Manufacturing")
-            .replace("衡钢", "Hengyang Steel")
-            .replace("新兴铸管", "Xinxing Ductile Iron Pipes")
-            .replace("劝诚特钢", "Quancheng Special Steel")
-            .replace("劝诚", "Quancheng")
-            .replace("重庆重材", "Chongqing Heavy Materials")
-            .replace("取芯材", "Coring Material")
-            .replace("上海沪崎金属", "Shanghai Huzaki Metal")
-            .replace("湖北新冶钢", "Hubei Xinye")
-            .replace("冶钢", "Yegang")
-            .replace("浙江华东", "Zhejiang Huadong")
-            .replace("威亚塑料", "Weiya Plastics")
-            .replace("重庆钢铁", "Chongqing Steel")
-            .replace("宝山钢铁", "Baosteel")
-            .replace("宝钢特种", "Baosteel Special")
-            .replace("山东海鑫达", "Haixinda")
-            .replace("海鑫达", "Haixinda")
-            .replace("石钢", "Shigang")
-            .replace("东北轻合金", "Northeast Light Alloy")
-            .replace("大冶特殊钢", "Daye Special Steel")
-            .replace("大冶特殊", "Daye Special")
-            .replace("大冶特钢", "Daye Spec Steel")
-            .replace("青海国鑫铝业", "Qinghai Guoxin Aluminum")
-            .replace("山东中正钢管", "Shandong Zhongzheng Steel Pipe")
-            .replace("大无缝", "Da Wufeng")
-            .replace("莱钢", "Laiwu Steel")
-            .replace("上海朝展金属", "Shanghai Chaozhan Metal")
-            .replace("江苏常宝", "Jiangsu Changbao")
-            .replace("常宝", "Changbao")
-            .replace("衡阳华菱", "Hengyang Hualing")
-            .replace("威晟", "Weisheng")
-            .replace("鑫禹泽", "Xinyuze")
-            .replace("西宁特钢", "Xining Special Steel")
-            .replace("大钢", "Dagang")
-            .replace("上海祥巨金属", "Shanghai Xiangju Metal")
-            .replace("北满", "Beiman")
-            .replace("兴澄特钢+浩运", "Xingcheng Special Steel")
-            .replace("钢管", "Pipe")
-            .replace("圆钢", "Bar");
+        factor_map.forEach((key, value) => {
+            tr = tr.replace(value, key);
+        });
         return tr;
     }
 
     let factor_to_zh = function (tr) {
-        tr = tr.replace("中航上大", "AVIC Shangda")
-            .replace("上大", "Shangda")
-            .replace("靖江特殊钢", "Jingjiang Special Steel")
-            .replace("烟台华新", "Yantai Huaxin")
-            .replace("江阴兴澄", "Jiangyin Xingcheng")
-            .replace("抚顺特钢", "Fushun Special Steel")
-            .replace("抚钢", "Fugang")
-            .replace("达利普", "Dalipu")
-            .replace("本钢钢铁", "Benxi Steel")
-            .replace("本钢", "Bengang")
-            .replace("中兴热处理", "Zhongxing Heat Treatment")
-            .replace("天津钢管制造", "Tianjin Pipe Manufacturing")
-            .replace("衡钢", "Hengyang Steel")
-            .replace("新兴铸管", "Xinxing Ductile Iron Pipes")
-            .replace("劝诚特钢", "Quancheng Special Steel")
-            .replace("劝诚", "Quancheng")
-            .replace("重庆重材", "Chongqing Heavy Materials")
-            .replace("取芯材", "Coring Material")
-            .replace("上海沪崎金属", "Shanghai Huzaki Metal")
-            .replace("湖北新冶钢", "Hubei Xinye")
-            .replace("冶钢", "Yegang")
-            .replace("浙江华东", "Zhejiang Huadong")
-            .replace("威亚塑料", "Weiya Plastics")
-            .replace("重庆钢铁", "Chongqing Steel")
-            .replace("宝山钢铁", "Baosteel")
-            .replace("宝钢特种", "Baosteel Special")
-            .replace("山东海鑫达", "Haixinda")
-            .replace("海鑫达", "Haixinda")
-            .replace("石钢", "Shigang")
-            .replace("东北轻合金", "Northeast Light Alloy")
-            .replace("大冶特殊钢", "Daye Special Steel")
-            .replace("大冶特殊", "Daye Special")
-            .replace("大冶特钢", "Daye Spec Steel")
-            .replace("青海国鑫铝业", "Qinghai Guoxin Aluminum")
-            .replace("山东中正钢管", "Shandong Zhongzheng Steel Pipe")
-            .replace("大无缝", "Da Wufeng")
-            .replace("莱钢", "Laiwu Steel")
-            .replace("上海朝展金属", "Shanghai Chaozhan Metal")
-            .replace("江苏常宝", "Jiangsu Changbao")
-            .replace("常宝", "Changbao")
-            .replace("衡阳华菱", "Hengyang Hualing")
-            .replace("威晟", "Weisheng")
-            .replace("鑫禹泽", "Xinyuze")
-            .replace("西宁特钢", "Xining Special Steel")
-            .replace("大钢", "Dagang")
-            .replace("上海祥巨金属", "Shanghai Xiangju Metal")
-            .replace("北满", "Beiman")
-            .replace("兴澄特钢+浩运", "Xingcheng Special Steel")
-            .replace("钢管", "Pipe")
-            .replace("圆钢", "Bar");
+        factor_map.forEach((key, value) => {
+            tr = tr.replace(key, value);
+        });
         return tr;
     }
 

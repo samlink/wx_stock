@@ -171,6 +171,8 @@ let page_productset = function () {
     });
 
     // ------------------------------------ 过滤部分开始--------------------------------------------
+    // 表头过滤按钮中英文对照
+    let eng_map;
 
     // 建立过滤器, 作为创建表格后的回调函数
     function make_filter() {
@@ -183,7 +185,6 @@ let page_productset = function () {
 
         let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
 
-        let eng_map;
         if (lang != "zh") {
             has_filter = ['Specification', 'Status', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
             eng_map = {
@@ -213,11 +214,13 @@ let page_productset = function () {
                 filter.style.display = "block";
 
                 let na = button.parentNode.textContent.trim();
+                na = lang == "zh" ? na : eng_map[na];
+
                 let search = document.querySelector('#search-input').value;
                 let cate = "正常销售";
                 let id = document.querySelector('#product-id').textContent.trim();
 
-                document.querySelector('#filter-name').textContent = lang == "zh" ? na : eng_map[na];
+                document.querySelector('#filter-name').textContent = na;
 
                 let filter_sql = "";
                 if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
@@ -234,7 +237,7 @@ let page_productset = function () {
                     id: id,
                     name: search,
                     cate: cate,
-                    filter_name: lang == 'zh' ? na : eng_map[na],
+                    filter_name: na,
                     filter: filter_sql,
                 };
 
@@ -264,7 +267,7 @@ let page_productset = function () {
                             if (post_data.filter_name == "生产厂家" && lang == "en") {
                                 row = service.factor_to_en(row);
                             }
-                             
+
                             html += `
                                 <label class="check-radio">
                                     <input class="form-check" type="checkbox">
@@ -285,7 +288,21 @@ let page_productset = function () {
                         }
 
                         for (let ch of filter.querySelectorAll('.form-check')) {
-                            if (now_select.indexOf(`<${ch.parentNode.textContent.trim()}>`) != -1) {
+                            let na = ch.parentNode.textContent.trim();
+
+                            if (na == "(Blank)") {
+                                na = "(空白)";
+                            }
+
+                            if (post_data.filter_name == "状态" && lang == "en") {
+                                na = service.status_to_zh(na);
+                            }
+
+                            if (post_data.filter_name == "生产厂家" && lang == "en") {
+                                na = service.factor_to_zh(na);
+                            }
+
+                            if (now_select.indexOf(`<${na}>`) != -1) {
                                 ch.checked = true;
                             }
                         }
@@ -307,7 +324,7 @@ let page_productset = function () {
         let filter_name = document.querySelector('#filter-name').textContent
 
         // console.log(filter_name);
-        
+
         let f_sql = "", check_now = "";
 
         // 全选状态
@@ -334,6 +351,14 @@ let page_productset = function () {
 
         checked.forEach(ch => {
             let ch_name = ch.parentNode.textContent.trim();
+            
+            console.log(ch_name);
+            
+
+            if (ch_name == "(Blank)") {
+                ch_name = "(空白)";
+            }
+
             if (filter_name == "状态" && lang == "en") {
                 ch_name = service.status_to_zh(ch_name);
             }
@@ -341,6 +366,9 @@ let page_productset = function () {
             if (filter_name == "生产厂家" && lang == "en") {
                 ch_name = service.factor_to_zh(ch_name);
             }
+
+            console.log(ch_name);
+
 
             if (ch.checked) {
                 f_sql += `${filter_name} = '${ch_name}' OR `;
@@ -413,6 +441,11 @@ let page_productset = function () {
     function make_red() {
         document.querySelectorAll('.filter_button').forEach(button => {
             let name = button.parentNode.textContent.trim();
+
+            if (lang == "en") {
+                name = eng_map[name];
+            }
+
             let has = false;
             for (let item of global.filter_sqls) {
                 if (item.name == name) {

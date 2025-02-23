@@ -195,45 +195,45 @@ pub async fn answer() -> String {
     "ok".to_owned()
 }
 
-#[post("/translate")]
-pub async fn translate(data: String) -> HttpResponse {
-    HttpResponse::Ok().json(trans(&data).await)
-}
+// #[post("/translate")]
+// pub async fn translate(data: String) -> HttpResponse {
+//     HttpResponse::Ok().json(trans(&data).await)
+// }
 
-// 翻译中文为英文
-async fn trans(chinese_text: &str) -> String {
-    dotenv().ok();
-    let api_key = dotenv::var("api_key").unwrap();
-    let client = Client::new();
+// // 翻译中文为英文
+// async fn trans(chinese_text: &str) -> String {
+//     dotenv().ok();
+//     let api_key = dotenv::var("api_key").unwrap();
+//     let client = Client::new();
 
-    let request_body = json!({
-        "model": "google/gemini-2.0-flash-exp:free",
-        "messages": [
-            {
-                "role": "system",
-                "content": "你是一个翻译助手，请将输入的中文翻译成英文。只需返回英文即可，无需其他解释。遇到标点符号，请照原样翻译"
-            },
-            {
-                "role": "user",
-                "content": chinese_text
-            }
-        ]
-    });
+//     let request_body = json!({
+//         "model": "google/gemini-2.0-flash-exp:free",
+//         "messages": [
+//             {
+//                 "role": "system",
+//                 "content": "你是一个翻译助手，请将输入的中文翻译成英文。只需返回英文即可，无需其他解释。遇到标点符号，请照原样翻译"
+//             },
+//             {
+//                 "role": "user",
+//                 "content": chinese_text
+//             }
+//         ]
+//     });
 
-    let response = client
-        .post("https://openrouter.ai/api/v1/chat/completions")
-        .header("Authorization", format!("Bearer {}", api_key))
-        .header("Content-Type", "application/json")
-        .json(&request_body)
-        .send()
-        .await
-        .unwrap();
+//     let response = client
+//         .post("https://openrouter.ai/api/v1/chat/completions")
+//         .header("Authorization", format!("Bearer {}", api_key))
+//         .header("Content-Type", "application/json")
+//         .json(&request_body)
+//         .send()
+//         .await
+//         .unwrap();
 
-    let response_json: serde_json::Value = response.json().await.unwrap();
+//     let response_json: serde_json::Value = response.json().await.unwrap();
 
-    let translated_text = response_json["choices"][0]["message"]["content"]
-        .as_str()
-        .unwrap_or("翻译失败");
+//     let translated_text = response_json["choices"][0]["message"]["content"]
+//         .as_str()
+//         .unwrap_or("翻译失败");
 
-    translated_text.to_owned()
-}
+//     translated_text.to_owned()
+// }
