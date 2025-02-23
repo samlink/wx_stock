@@ -58,6 +58,8 @@
                                 width="12px"></button>
                         <p class="seperator"></p>
                         <span class="page-info">
+                            <span>第</span><input type="text" class="form-control" id="page-input" value="1">
+                            <span>页，共</span><span id="pages"></span><span>页</span>
                         </span>
                         <p class="seperator"></p>
                         <button class="page-button btn" id="aft" title="后一页"><img src="/stock/assets/img/forward2.png"
@@ -66,9 +68,7 @@
                                 width="12px"></button>
                     </div>
 
-                    <div class="table-info">
-                        
-                    </div>
+                    <div class="table-info"> 共 <span id="total-records"></span> 条记录 </div>
 
                 </div>
             </div>

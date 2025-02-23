@@ -1,5 +1,3 @@
-// import { SPLITER, getLeft, getTop } from '../parts/tools.mjs';
-
 class AutoInput {
     constructor(input, cate, url, cb, width) {
         this.input = input;
@@ -15,6 +13,7 @@ class AutoInput {
         var input = this.input;
         var cb = this.cb;
         var width = this.width;
+        const lang = localStorage.getItem('language') || 'zh';
 
         input.addEventListener("input", () => {
             var a, b, i;
@@ -40,6 +39,13 @@ class AutoInput {
                 .then(response => response.json())
                 .then(function (arr) {
                     if (arr != -1 && arr.length > 0) {
+                        if (lang == "en") {
+                            arr.forEach(element => {
+                                element.label = element.label
+                                .replace("圆钢", "Bar").replace("铜镍锡合金", "CNTin-Alloy ")
+                                .replace("无缝钢管", "Pipe").replace("套管接箍料", "Casing Coupling");
+                            });
+                        }
                         a = document.createElement("DIV");
                         a.setAttribute("id", "autocomplete-list");
                         a.setAttribute("class", "autocomplete-items");

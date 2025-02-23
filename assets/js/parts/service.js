@@ -1,4 +1,6 @@
 var service = function () {
+    const lang = localStorage.getItem('language') || 'zh';
+
     /**
      * 根据显示字段创建表头
      * @param {} table_container 表格容器
@@ -86,7 +88,8 @@ var service = function () {
                 filter: '',
                 user: document.querySelector("#user-id").textContent.trim(),
             },
-            header_names: {
+            header_names: lang == "zh" ? 
+            {
                 "名称": "split_part(node_name,' ',2)",
                 "材质": "split_part(node_name,' ',1)",
                 "物料号": "products.物料号",
@@ -98,6 +101,19 @@ var service = function () {
                 "库存长度": "COALESCE(foo.库存长度,0)",
                 "库存重量": "COALESCE(foo.理论重量,0)",
                 "备注": "products.备注",
+            } :
+            {
+                "Name": "split_part(node_name,' ',2)",
+                "Material": "split_part(node_name,' ',1)",
+                "Part_No.": "products.物料号",
+                "Specification": "规格型号",
+                "Status": "products.文本字段2",
+                "Standard": "products.文本字段3",
+                "Manufacturer": "products.文本字段5",
+                "Heat_No.": "products.文本字段4",
+                "Length": "COALESCE(foo.库存长度,0)",
+                "Weight": "COALESCE(foo.理论重量,0)",
+                "Remarks": "products.备注",
             },
             edit: false,
 
@@ -105,20 +121,35 @@ var service = function () {
             row_fn: table_row,
         };
 
-        let custom_fields = [
-            { name: '序号', width: 2 },
-            { name: '名称', width: 4 },
-            { name: '材质', width: 4 },
-            { name: '物料号', width: 4 },
-            { name: '规格', width: 4 },
-            { name: '状态', width: 4 },
-            { name: '执行标准', width: 6 },
-            { name: '生产厂家', width: 4 },
-            { name: '炉号', width: 5 },
-            { name: '库存长度', width: 3 },
-            { name: '库存重量', width: 3 },
-            { name: '备注', width: 5 },
-        ];
+        let custom_fields = lang == "zh" ?
+            [
+                { name: '序号', width: 2 },
+                { name: '名称', width: 4 },
+                { name: '材质', width: 4 },
+                { name: '物料号', width: 4 },
+                { name: '规格', width: 4 },
+                { name: '状态', width: 4 },
+                { name: '执行标准', width: 6 },
+                { name: '生产厂家', width: 4 },
+                { name: '炉号', width: 5 },
+                { name: '库存长度', width: 3 },
+                { name: '库存重量', width: 3 },
+                { name: '备注', width: 5 },
+            ] :
+            [
+                { name: 'No.', width: 2 },
+                { name: 'Name', width: 4 },
+                { name: 'Material', width: 4 },
+                { name: 'Part_No.', width: 4 },
+                { name: 'Specification', width: 4 },
+                { name: 'Status', width: 4 },
+                { name: 'Standard', width: 6 },
+                { name: 'Manufacturer', width: 4 },
+                { name: 'Heat_No.', width: 5 },
+                { name: 'Length', width: 3 },
+                { name: 'Weight', width: 3 },
+                { name: 'Remarks', width: 5 }
+            ];
         let table = document.querySelector('.table-product');
         let header = build_table_header(table, custom_fields, "", "", "products");
         table.querySelector('thead tr').innerHTML = header.th_row;

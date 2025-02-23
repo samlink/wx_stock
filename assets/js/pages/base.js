@@ -1,5 +1,4 @@
-// const lang = localStorage.getItem('language') || 'zh';
-const lang = "en";
+const lang = localStorage.getItem('language') || 'zh';
 if (lang == "en") {
     document.querySelector('#title-show').textContent = 'Inventory Inquiry';
     document.querySelector('#title').textContent = 'Five Star (Tianjin) Petroleum Equipment Co., Ltd.';

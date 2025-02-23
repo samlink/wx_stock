@@ -12,23 +12,38 @@ var tool_tree = function () {
 
     var selected_node, menu, zhezhao;
     var input_html = '<input type="text" id="input_node" value="新节点">';
+    
+    const lang = localStorage.getItem('language') || 'zh';
 
     //从数据库获取 tree 数据
     var fetch_tree = function (func) {
         fetch(`/stock/tree`)
             .then(response => response.json())
             .then(data => {
+                if (lang == "en") {
+                    data[0].node_name = "Bar";
+                    data[1].node_name = "Pipe";
+
+                    data[0].children.forEach(element => {
+                        element.node_name = element.node_name.replace("圆钢", "Bar").replace("铜镍锡合金", "CNTin-Alloy ");
+                    });
+
+                    data[1].children.forEach(element => {
+                        element.node_name = element.node_name.replace("无缝钢管", "Pipe").replace("套管接箍料", "Casing Coupling");
+                    });
+                }
+
                 var tree = document.querySelector('#tree');
                 tree.innerHTML = "";
                 gener_tree(tree, data);
 
-                var toggle = document.querySelectorAll(".item");                
+                var toggle = document.querySelectorAll(".item");
 
                 for (let i = 0; i < toggle.length; i++) {
                     // 直接打开节点
                     toggle[i].classList.remove("item");
                     toggle[i].classList.add("item-down");
-                    toggle[i].parentNode.querySelector(".nested").classList.add("active");                  
+                    toggle[i].parentNode.querySelector(".nested").classList.add("active");
                 }
 
                 if (typeof func == "function") {

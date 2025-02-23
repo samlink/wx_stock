@@ -4,8 +4,7 @@ let page_productset = function () {
     //     window.location.href = "/";
     // }
 
-    // const lang = localStorage.getItem('language') || 'zh';
-    const lang = "en";
+    const lang = localStorage.getItem('language') || 'zh';
     if (lang == "en") {
         document.querySelector('#auto_input').placeholder = 'Name search';
         document.querySelector('.tree-title').textContent = 'Product category　';
@@ -16,13 +15,10 @@ let page_productset = function () {
         document.querySelector('#pre').title = 'Previous page';
         document.querySelector('#aft').title = 'Next page';
         document.querySelector('#last').title = 'Last page';
-        document.querySelector('.page-info').innerHTML = lang == 'zh' ?
-            `<span>第</span><input type="text" class="form-control" id="page-input" value="1">
-                <span>页，共</span><span id="pages"></span><span>页</span>` :
+        document.querySelector('.page-info').innerHTML =
             `<span>Page</span><input type="text" class="form-control" id="page-input" value="1">
                 <span>of</span><span id="pages"></span><span>pages</span>`;
-        document.querySelector('.table-info').innerHTML = lang == 'zh' ?
-            `共 <span id="total-records"></span> 条记录` : `Total <span id="total-records"></span> records`;
+        document.querySelector('.table-info').innerHTML = `Total <span id="total-records"></span> records`;
 
         document.querySelector('.all-choose').textContent = 'Check all';
         document.querySelector('#f-ok').textContent = 'OK';
@@ -104,19 +100,26 @@ let page_productset = function () {
         })
             .then(response => response.json())
             .then(content => {
-                let obj = {
+                let obj = lang == "zh" ? {
                     "3": "圆钢",
                     "4": "无缝钢管",
+                } : {
+                    "3": "Bar",
+                    "4": "Pipe",
                 };
 
-                document.querySelector('.info-show').textContent = `${obj[cate]}长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG`;
+                document.querySelector('.info-show').textContent = lang == "zh" ?
+                    `${obj[cate]}长度合计：${content.库存长度} 米，重量合计：${content.库存重量} KG` :
+                    `Total length of ${obj[cate]}: ${content.库存长度} meters, total weight: ${content.库存重量} KG`;
             });
     }
 
     // 显示统计信息，作为 fetch_table 的回调函数
     function show_stat(content) {
         let long = content[3] == 0 && content[4] != 0 ? "< 1" : content[3];
-        document.querySelector('.info-show').textContent = `长度合计：${long} 米，重量合计：${content[4]} KG`;
+        document.querySelector('.info-show').textContent = lang == "zh" ?
+            `长度合计：${long} 米，重量合计：${content[4]} KG` :
+            `Total length: ${long} meters, total weight: ${content[4]} KG`;
     }
 
     // 点击树的茎 stem
@@ -124,7 +127,12 @@ let page_productset = function () {
         let all_stem = document.querySelectorAll('.item-down');
         all_stem.forEach(stem => {
             stem.addEventListener('click', function () {
-                let cate = this.textContent.trim() == "圆钢" ? "3" : "4";
+                let cate;
+                if (lang == "zh") {
+                    cate = this.textContent.trim() == "圆钢" ? "3" : "4";
+                } else {
+                    cate = this.textContent.trim() == "Bar" ? "3" : "4";
+                }
                 show_statistic(cate);
             })
         });
@@ -152,13 +160,13 @@ let page_productset = function () {
                 .then(content => {
                     if (content != -1) {
                         download_file(`/stock/download/${content}.xlsx`);
-                        notifier.show('成功导出至 Excel 文件', 'success');
+                        notifier.show(lang == "zh" ? '成功导出至 Excel 文件' : 'Successfully exported to Excel file', 'success');
                     } else {
-                        notifier.show('权限不够，操作失败', 'danger');
+                        notifier.show(lang == "zh" ? '权限不够，操作失败' : 'Permissions dinied, operation failed', 'danger');
                     }
                 });
         } else {
-            notifier.show('请先选择商品', 'danger');
+            notifier.show(lang == "zh" ? '请先选择商品': 'Please select a product first', 'danger');
         }
     });
 
