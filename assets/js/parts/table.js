@@ -154,7 +154,7 @@ var tool_table = function () {
                         let chinese = "";
                         for (let tr of content[0]) {
                             let rec = tr.split(SPLITER);
-                            chinese += rec[6] + "," + rec[10] + ";";
+                            chinese += rec[10] + ";";
                         }
 
                         if (chinese != "") {
@@ -167,11 +167,8 @@ var tool_table = function () {
                                     let english = content.split(';');
                                     let rows = table_data.body.querySelectorAll('tr');
                                     for (let i = 0; i < english.length - 1; i++) {
-                                        let rec = english[i].split(',');
-                                        rows[i].querySelector('.生产厂家').textContent = rec[0];
-                                        rows[i].querySelector('.生产厂家').title = rec[0];
-                                        rows[i].querySelector('.备注').textContent = rec[1];
-                                        rows[i].querySelector('.备注').title = rec[1];
+                                        rows[i].querySelector('.备注').textContent = english[i]; 
+                                        rows[i].querySelector('.备注').title = english[i];
                                     }
                                 });
                         }

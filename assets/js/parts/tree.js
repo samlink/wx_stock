@@ -12,7 +12,7 @@ var tool_tree = function () {
 
     var selected_node, menu, zhezhao;
     var input_html = '<input type="text" id="input_node" value="新节点">';
-    
+
     const lang = localStorage.getItem('language') || 'zh';
 
     //从数据库获取 tree 数据
@@ -25,7 +25,9 @@ var tool_tree = function () {
                     data[1].node_name = "Pipe";
 
                     data[0].children.forEach(element => {
-                        element.node_name = element.node_name.replace("圆钢", "Bar").replace("铜镍锡合金", "CNTin-Alloy ");
+                        element.node_name = element.node_name.replace("圆钢", "Bar")
+                            .replace("铜镍锡合金", "CNTin-Alloy ")
+                            .replace("号钢", "Steel");
                     });
 
                     data[1].children.forEach(element => {

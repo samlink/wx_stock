@@ -216,6 +216,7 @@ var service = function () {
                 .replace("退火", "Annealed")
                 .replace("态", "State")
                 .replace("固熔酸洗", "Solution Treatment and Pickling")
+                .replace("号钢", "Steel")
                 .replace("其他", "Others")
 
                 .replace("中航上大", "AVIC Shangda")
@@ -223,27 +224,58 @@ var service = function () {
                 .replace("靖江特殊刚", "Jingjiang Special Steel")
                 .replace("烟台华新", "Yantai Huaxin")
                 .replace("江阴兴澄", "Jiangyin Xingcheng")
+                .replace("抚顺特钢", "Fushun Special Steel")
                 .replace("抚钢", "Fushun Special Steel")
                 .replace("达利普", "Dalipu")
-                .replace("本钢钢铁", "Hot Rolled")
-                .replace("锻造态", "As-Forged")
-                .replace("锻造", "Forged")
-                .replace("未正火", "Untreated")
-                .replace("正回火", "Double Tempering")
-                .replace("未调", "Non-Q&T")
-                .replace("挤压", "Extruded")
-                .replace("退火", "Annealed")
-                .replace("态", "State")
-                .replace("固熔酸洗", "Solution Treatment and Pickling")
-                .replace("其他", "Others")
-                
-                ;
+                .replace("本钢钢铁", "Benxi Steel")
+                .replace("本钢", "Benxi Steel")
+                .replace("本钢/中兴热处理", "Benxi Steel")
+                .replace("天津钢管制造", "Tianjin Pipe Manufacturing")
+                .replace("衡钢", "Hengyang Steel")
+                .replace("新兴铸管", "Xinxing Ductile Iron Pipes")
+                .replace("劝诚特钢", "Quancheng Special Steel")
+                .replace("劝诚", "Quancheng Special Steel")
+                .replace("重庆重材", "Chongqing Heavy Materials")
+                .replace("取芯材", "Coring Material")
+                .replace("上海沪崎金属", "Shanghai Huzaki Metal")
+                .replace("冶钢", "Yegang")
+                .replace("其他浙江华东", "Zhejiang Huadong")
+                .replace("威亚塑料", "Weiya Plastics")
+                .replace("重庆钢铁", "Chongqing Steel")
+                .replace("宝山钢铁", "Baosteel")
+                .replace("宝钢特种", "Baosteel")
+                .replace("湖北新冶钢", "Hubei Xinye")
+                .replace("山东海鑫达", "Haixinda")
+                .replace("海鑫达", "Haixinda")
+                .replace("石钢", "Shigang")
+                .replace("东北轻合金", "Northeast Light Alloy")
+                .replace("大冶特殊钢", "Daye Special Steel")
+                .replace("大冶特殊", "Daye Special Steel")
+                .replace("大冶特钢", "Daye Special Steel")
+                .replace("青海国鑫铝业", "Qinghai Guoxin Aluminum")
+                .replace("冶钢-圆钢", "Yegang-Bar")
+                .replace("山东中正钢管", "Shandong Zhongzheng Steel Pipe")
+                .replace("大无缝", "Da Wufeng")
+                .replace("莱钢", "Laiwu Steel")
+                .replace("冶钢-钢管", "Yegang-Pipe")
+                .replace("上海朝展金属", "Shanghai Chaozhan Metal")
+                .replace("江苏常宝", "Jiangsu Changbao")
+                .replace("常宝", "Jiangsu Changbao")
+                .replace("衡阳华菱", "Hengyang Hualing")
+                .replace("威晟", "Weisheng")
+                .replace("鑫禹泽", "Xinyuze")
+                .replace("西宁特钢", "Xining Special Steel")
+                .replace("大钢", "Dagang")
+                .replace("上海祥巨金属", "Shanghai Xiangju Metal")
+                .replace("北满", "Beiman")
+                .replace("兴澄特钢+浩运", "Xingcheng Special Steel")
+                .replace("圆钢", "Bar");
 
             let rec = tr.split(SPLITER);
             let name = rec[1].split(" ");
             row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
                     <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
-                    <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家"></td>
+                    <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家" title="${rec[6]}">${rec[6]}</td>
                     <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td>
                     <td>${rec[9]}</td><td class="备注"></td></tr>`;
         }
