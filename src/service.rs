@@ -255,18 +255,18 @@ fn status_to_en(status: &str) -> String {
         ("其他", "Others"),
     ];
 
-    let status_map: HashMap<_, _> = pairs.into_iter().collect();
-    let mut st = status.to_owned();
+    // let status_map: HashMap<_, _> = pairs.into_iter().collect();
+    let mut result = status.to_owned();
 
-    for (key, value) in &status_map {
-        st = st.replace(key, value);
+    for (key, value) in pairs.iter() {
+        result = result.replace(key, value);
     }
 
-    st
+    result
 }
 
 fn factor_to_en(status: &str) -> String {
-    let pairs2 = vec![
+    let pairs = vec![
         ("中航上大", "AVIC Shangda"),
         ("上大", "Shangda"),
         ("靖江特殊钢", "Jingjiang Special Steel"),
@@ -319,15 +319,13 @@ fn factor_to_en(status: &str) -> String {
         ("圆钢", "Bar"),
     ];
 
-    let factor_map: HashMap<_, _> = pairs2.into_iter().collect();
+    let mut result = status.to_owned();
 
-    let mut st = status.to_owned();
-
-    for (key, value) in &factor_map {
-        st = st.replace(key, value);
+    for (key, value) in pairs.iter() {
+        result = result.replace(key, value);
     }
 
-    st
+    result
 }
 
 ///下载文件服务
