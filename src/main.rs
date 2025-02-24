@@ -63,7 +63,7 @@ async fn main() -> std::io::Result<()> {
                     .service(user_set::change_pass)
                     .service(service::serve_download)
                     .service(service::answer)
-                    // .service(service::translate)
+                    .service(service::translate)
                     .service(information::fetch_information)
                     .service(web::resource("static/{name}").to(html::static_file))
                     .service(fs::Files::new("/assets", "assets"))

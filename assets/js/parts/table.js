@@ -149,30 +149,30 @@ var tool_table = function () {
                         cb(content);
                     }
 
-                    // // 处理英文状态，翻译备注，暂不能用
-                    // if (localStorage.getItem('language') == 'en') {
-                    //     let chinese = "";
-                    //     for (let tr of content[0]) {
-                    //         let rec = tr.split(SPLITER);
-                    //         chinese += rec[10] + ";";
-                    //     }
+                    // 处理英文状态，翻译备注
+                    if (localStorage.getItem('language') == 'en') {
+                        let chinese = "";
+                        for (let tr of content[0]) {
+                            let rec = tr.split(SPLITER);
+                            chinese += rec[10] + ";";
+                        }
 
-                    //     if (chinese != "") {
-                    //         fetch('/stock/translate', {
-                    //             method: 'post',
-                    //             body: chinese,
-                    //         })
-                    //             .then(response => response.json())
-                    //             .then(content => {
-                    //                 let english = content.split(';');
-                    //                 let rows = table_data.body.querySelectorAll('tr');
-                    //                 for (let i = 0; i < english.length - 1; i++) {
-                    //                     rows[i].querySelector('.备注').textContent = english[i]; 
-                    //                     rows[i].querySelector('.备注').title = english[i];
-                    //                 }
-                    //             });
-                    //     }
-                    // }
+                        if (chinese != "") {
+                            fetch('/stock/translate', {
+                                method: 'post',
+                                body: chinese,
+                            })
+                                .then(response => response.json())
+                                .then(content => {
+                                    let english = content.split(';');
+                                    let rows = table_data.body.querySelectorAll('tr');
+                                    for (let i = 0; i < english.length - 1; i++) {
+                                        rows[i].querySelector('.备注').textContent = english[i];
+                                        rows[i].querySelector('.备注').title = english[i];
+                                    }
+                                });
+                        }
+                    }
                 }
                 else {
                     alert("无此操作权限");

@@ -1,4 +1,4 @@
-localStorage.setItem('language', 'en');
+// localStorage.setItem('language', 'en');
 
 const lang = localStorage.getItem('language') || 'zh';
 
