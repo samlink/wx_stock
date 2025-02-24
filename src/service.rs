@@ -255,7 +255,6 @@ fn status_to_en(status: &str) -> String {
         ("其他", "Others"),
     ];
 
-    // let status_map: HashMap<_, _> = pairs.into_iter().collect();
     let mut result = status.to_owned();
 
     for (key, value) in pairs.iter() {
@@ -370,8 +369,6 @@ async fn trans(chinese_text: &str) -> String {
         .unwrap();
 
     let response_json: serde_json::Value = response.json().await.unwrap();
-
-    // println!("{:?}", response_json);
 
     let translated_text = response_json["choices"][0]["message"]["content"]
         .as_str()
