@@ -1,5 +1,3 @@
-// localStorage.setItem('language', 'en');
-
 const lang = localStorage.getItem('language') || 'zh';
 
 document.querySelector('#title-show').textContent = lang === 'zh' ? '客户服务' : 'Customer Service';
