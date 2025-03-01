@@ -33,8 +33,8 @@ fn goto_login() -> HttpResponse {
 #[get("/login")]
 pub async fn login(_req: HttpRequest) -> HttpResponse {
     dotenv().ok();
-    let comany = dotenv::var("company").unwrap();
-    let html = r2s(|o| login_html(o, comany));
+    // let comany = dotenv::var("company").unwrap();
+    let html = r2s(|o| login_html(o));
     HttpResponse::Ok().content_type("text/html").body(html)
 }
 
