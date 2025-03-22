@@ -1,8 +1,8 @@
 let page_productset = function () {
 
-    // if (!getCookie("wxok")) {
-    //     window.location.href = "/";
-    // }
+    if (!getCookie("wxok")) {
+        window.location.href = "/";
+    }
 
     const lang = localStorage.getItem('language') || 'zh';
     if (lang == "en") {
