@@ -129,6 +129,7 @@ var tool_tree = function () {
                 leaf.parentNode.previousElementSibling.classList.add('item-down');
                 tree_change(leaf.parentNode);
                 find_root(leaf.parentNode);
+                leaf.parentNode.prepend(leaf);
             }
         }
     }

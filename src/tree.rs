@@ -8,6 +8,7 @@ use serde::{Deserialize, Serialize};
 struct TreeNode {
     node_name: String,
     num: String,
+    show: bool,
     children: Vec<TreeNode>,
 }
 
@@ -29,9 +30,8 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
 
     let rows = &conn
         .query(
-            r##"SELECT node_name, num, pnum FROM tree 
-            WHERE pnum=$1 AND node_name not like '%锯口费%' 
-                AND node_name not like '%(WT)%' AND not_use=false 
+            r##"SELECT node_name, num, pnum, show FROM tree 
+            WHERE pnum=$1 AND show=true AND not_use=false 
             order by orders"##, 
             &[&num],
         )
@@ -43,6 +43,7 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
             let node = TreeNode {
                 node_name: row.get(0),
                 num: row.get(1),
+                show: row.get(3),
                 children: get_tree(db.clone(), row.get(1)).await,
             };
 
