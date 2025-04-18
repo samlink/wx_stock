@@ -181,7 +181,7 @@ async fn build_sql_search(
             .replace("状态", "products.文本字段2")
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
-            .replace("炉号", "products.文本字段4")
+            .replace("炉批号", "products.文本字段4")
             .replace("区域", "products.文本字段6")
             .replace("(空白)", "");
     }
@@ -346,7 +346,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
 
     let sql = format!(
         r#"select products.物料号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格型号 规格, products.文本字段2 状态, products.文本字段3 执行标准, products.文本字段4 炉号, 
+                规格型号 规格, products.文本字段2 状态, products.文本字段3 执行标准, products.文本字段4 炉批号, 
                 products.文本字段5 生产厂家, COALESCE(foo.库存长度,0)::text 库存长度, COALESCE(foo.理论重量,0)::text 库存重量,
                 (ROW_NUMBER () OVER (ORDER BY 规格型号))::text as 序号, products.备注 from products
             {} JOIN tree ON products.商品id = tree.num
@@ -371,7 +371,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
         {"name": "状态", "width": 20},
         {"name": "执行标准", "width": 25},
         {"name": "生产厂家", "width": 15},
-        {"name": "炉号", "width": 15},
+        {"name": "炉批号", "width": 15},
         {"name": "库存长度", "width": 15},
         {"name": "库存重量", "width": 15},
         {"name": "备注", "width": 20}

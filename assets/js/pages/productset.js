@@ -184,7 +184,7 @@ let page_productset = function () {
             }
         }
 
-        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉号', '库存长度', '区域'];
+        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度', '区域'];
 
         if (lang != "zh") {
             has_filter = ['Specification', 'Status', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
@@ -193,7 +193,7 @@ let page_productset = function () {
                 'Status': '状态',
                 'Standard': '执行标准',
                 'Manufacturer': '生产厂家',
-                'Furnace': '炉号',
+                'Furnace': '炉批号',
                 'Length': '库存长度'
             }
         }
