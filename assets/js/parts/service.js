@@ -98,7 +98,7 @@ var service = function () {
                     "执行标准": "products.文本字段3",
                     "生产厂家": "products.文本字段5",
                     "炉批号": "products.文本字段4",
-                    "库存长度": "COALESCE(foo.库存长度,0)",
+                    "库存长度_mm": "COALESCE(foo.库存长度,0)",
                     "库存重量": "COALESCE(foo.理论重量,0)",
                     "备注": "products.备注",
                 } :
@@ -132,9 +132,9 @@ var service = function () {
                 { name: '执行标准', width: 6 },
                 { name: '生产厂家', width: 4 },
                 { name: '炉批号', width: 5 },
-                { name: '库存长度', width: 3 },
+                { name: '库存长度_mm', width: 4 },
                 { name: '库存重量', width: 3 },
-                { name: '备注', width: 5 },
+                { name: '备注', width: 4 },
             ] :
             [
                 { name: 'No.', width: 2 },
