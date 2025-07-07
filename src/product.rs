@@ -46,7 +46,7 @@ pub async fn fetch_product(
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN length_weight() as foo
             ON products.物料号 = foo.物料号
-            WHERE {} {} {} {} {} {} {} and products.物料号 <> '锯口费'
+            WHERE {} {} {} {} {} {} {} and products.物料号 <> '锯口费' and documents.文本字段10 !=''
             ORDER BY {} OFFSET {} LIMIT {}"#,
         sql_fields,
         post_data.sort,
@@ -106,7 +106,7 @@ pub async fn fetch_product(
                 JOIN documents on 单号id = 单号
                 LEFT JOIN length_weight() as foo
                 ON products.物料号 = foo.物料号
-                WHERE {} {} {} {} {} {}"#,
+                WHERE {} {} {} {} {} {} and products.物料号 <> '锯口费' and documents.文本字段10 !=''"#,
         lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
     );
 
