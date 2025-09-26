@@ -22,17 +22,6 @@ pub struct UserData {
     pub get_pass: i32,
 }
 
-//表格分页、搜索和分类参数
-#[derive(Deserialize, Serialize)]
-pub struct TablePager {
-    pub id: String,
-    pub name: String,
-    pub page: i32,
-    pub sort: String,
-    pub rec: i32,
-    pub cate: String,
-}
-
 #[derive(Deserialize, Serialize)]
 pub struct TablePagerExt {
     pub id: String,
@@ -43,26 +32,6 @@ pub struct TablePagerExt {
     pub cate: String,
     pub filter: String,
     pub user: String,
-}
-
-//自动完成使用
-#[derive(Deserialize, Serialize)]
-pub struct Message {
-    pub id: String,
-    pub label: String,
-}
-
-//存放显示字段信息：字段名称，显示名称，数据类型，可选值，显示宽度
-#[derive(Deserialize, Serialize, Debug)]
-pub struct FieldsData {
-    pub field_name: String,
-    pub show_name: String,
-    pub data_type: String,
-    pub ctr_type: String,
-    pub option_value: String,
-    pub default_value: String,
-    pub show_width: f32,
-    pub all_edit: bool,
 }
 
 ///模板转换成网页字符串

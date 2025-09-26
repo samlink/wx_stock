@@ -28,7 +28,8 @@
         overflow-y: auto;
 
         label {
-            // display: flex;
+            display: flex;
+            align-items: center;
             margin-bottom: 3px;
             &:hover {
                 background-color: $table-hover-color;

@@ -7,7 +7,7 @@ edition = "2021"
 build = "src/build.rs"
 
 [build-dependencies]
-ructe ={ version= "0.17", features = ["mime03"]}
+ructe = { git = "https://github.com/samlink/ructe.git" }
 
 [dependencies]
 time = "0.1"

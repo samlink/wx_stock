@@ -58,14 +58,11 @@ var tool_table = function () {
         if (table_data.header) {
             for (let th of table_data.header.children) {
                 th.addEventListener('click', function (e) {
-                    if (!resize && !table_data.edit && this.textContent != "序号") {
-                        for (let t of table_data.header.children) {
-                            t.textContent = t.textContent.split(' ')[0];
-                        }
-
+                    let head = this.textContent.trim(); 
+                    if (!resize && !table_data.edit && table_data.header_names.hasOwnProperty(head)) {
                         let order = table_data.post_data.sort.indexOf('ASC') !== -1 ? 'DESC' : 'ASC';
-                        let arrow = table_data.post_data.sort.indexOf('ASC') !== -1 ? '▼' : '▲';
-                        let sort = table_data.header_names[this.textContent] + " " + order;
+                        // let arrow = table_data.post_data.sort.indexOf('ASC') !== -1 ? '▼' : '▲';
+                        let sort = table_data.header_names[head] + " " + order;
                         // this.textContent = this.textContent + " " + arrow;
 
                         Object.assign(table_data.post_data, { page: 1, sort: sort });

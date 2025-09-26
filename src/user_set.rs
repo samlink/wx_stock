@@ -13,32 +13,9 @@ pub struct User {
 }
 
 #[derive(Deserialize, Serialize)]
-pub struct UserTheme {
-    name: String,
-    theme: String,
-}
-
-#[derive(Deserialize, Serialize)]
 pub struct ChangePass {
     old_pass: String,
     new_pass: String,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Phone {
-    phone_number: String,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct Theme {
-    name: String,
-}
-
-#[derive(Deserialize, Serialize)]
-pub struct SendMessage {
-    apikey: String,
-    mobile: String,
-    text: String,
 }
 
 static SALT: &str = "samlink82";

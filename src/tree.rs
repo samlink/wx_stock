@@ -104,9 +104,3 @@ pub async fn tree_auto(
     }
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct TreeId {
-    pub pnum: String,
-    pub num: String,
-}
-

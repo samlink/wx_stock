@@ -1,5 +1,5 @@
 use crate::service::{get_user, r2s};
-use actix_web::http::header::ContentType;
+// use actix_web::http::header::ContentType;
 use actix_web::{get, web, web::Path, HttpRequest, HttpResponse};
 // use serde::Deserialize;
 use actix_identity::Identity;
@@ -14,7 +14,6 @@ pub async fn static_file(path: Path<String>) -> HttpResponse {
     let name = &path.into_inner();
     if let Some(data) = StaticFile::get(name) {
         HttpResponse::Ok()
-            .insert_header(ContentType(data.mime.clone()))
             .body(data.content)
     } else {
         HttpResponse::NotFound()

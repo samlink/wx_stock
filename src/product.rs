@@ -6,11 +6,6 @@ use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Deserialize, Serialize)]
-pub struct Product {
-    pub data: String,
-}
-
 ///获取商品
 #[post("/fetch_product")]
 pub async fn fetch_product(

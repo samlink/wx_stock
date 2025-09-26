@@ -98,7 +98,7 @@ var service = function () {
                     "执行标准": "products.文本字段3",
                     "生产厂家": "products.文本字段5",
                     "炉批号": "products.文本字段4",
-                    "库存长度_mm": "COALESCE(foo.库存长度,0)",
+                    "库存长度 mm": "COALESCE(foo.库存长度,0)",
                     "库存重量": "COALESCE(foo.理论重量,0)",
                     "备注": "products.备注",
                 } :
@@ -110,7 +110,7 @@ var service = function () {
                     "Condition": "products.文本字段2",
                     "Standard": "products.文本字段3",
                     "Manufacturer": "products.文本字段5",
-                    "Heat_No.": "products.文本字段4",
+                    "Heat No.": "products.文本字段4",
                     "Length (mm)": "COALESCE(foo.库存长度,0)",
                     "Weight (Kg)": "COALESCE(foo.理论重量,0)",
                     "Remarks": "products.备注",
@@ -145,7 +145,7 @@ var service = function () {
                 { name: 'Condition', width: 4 },
                 { name: 'Standard', width: 6 },
                 { name: 'Manufacturer', width: 4 },
-                { name: 'Heat_No.', width: 5 },
+                { name: 'Heat No.', width: 5 },
                 { name: 'Length (mm)', width: 3 },
                 { name: 'Weight (Kg)', width: 3 },
                 { name: 'Remarks', width: 5 }
