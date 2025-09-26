@@ -104,7 +104,7 @@ pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String
 
 #[derive(Deserialize, Serialize)]
 pub struct Fields {
-    pub name: &'static str,
+    pub name: String,
     pub width: i32,
 }
 
@@ -140,13 +140,13 @@ pub fn out_excel(
 
     if lang == "zh" {
         for f in fields {
-            sheet.write_with_format(0, n, f.name, &format).unwrap();
+            sheet.write_with_format(0, n, &f.name, &format).unwrap();
             sheet.set_column_width(n, f.width).unwrap();
             n += 1;
         }
     } else {
         for f in title {
-            sheet.write_with_format(0, n, f.name, &format).unwrap();
+            sheet.write_with_format(0, n, &f.name, &format).unwrap();
             sheet.set_column_width(n, f.width).unwrap();
             n += 1;
         }
@@ -157,7 +157,7 @@ pub fn out_excel(
         for row in rows {
             let mut m = 0u16;
             for f in fields {
-                let name: &str = row.get(&*f.name);
+                let name: &str = row.get(f.name.as_str());
                 sheet.write_with_format(n, m, name, &format2).unwrap();
                 m += 1;
             }
@@ -167,7 +167,7 @@ pub fn out_excel(
         for row in rows {
             let mut m = 0u16;
             for f in fields {
-                let mut name: String = row.get(&*f.name);
+                let mut name: String = row.get(f.name.as_str());
 
                 // println!("name: {}, fields: {}", name, f.name);
 

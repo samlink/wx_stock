@@ -383,23 +383,31 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             product.lang.as_str(),
         );
     } else {
-        let t_str = r#"[
-            {"name": "No.", "width": 6},
-            {"name": "Name", "width": 15},
-            {"name": "Material", "width": 15},
-            {"name": "Part_No.", "width": 15},
-            {"name": "Specification", "width": 15},
-            {"name": "Status", "width": 20},
-            {"name": "Standard", "width": 25},
-            {"name": "Manufacturer", "width": 15},
-            {"name": "Heat_No.", "width": 15},
-            {"name": "Length", "width": 15},
-            {"name": "Weight", "width": 15},
-            {"name": "Remarks", "width": 20}
-        ]"#;
+        let p_type = if product.id.starts_with('3') {
+            "Dia. (mm)"
+        } else {
+            "OD*WT (mm)"
+        };
+        let t_str = format!(
+            r#"[
+            {{"name": "No.", "width": 6}},
+            {{"name": "Type", "width": 15}},
+            {{"name": "Material", "width": 15}},
+            {{"name": "Stock No.", "width": 15}},
+            {{"name": "{}", "width": 15}},
+            {{"name": "Condition", "width": 20}},
+            {{"name": "Standard", "width": 25}},
+            {{"name": "Manufacturer", "width": 15}},
+            {{"name": "Heat No.", "width": 15}},
+            {{"name": "Length (mm)", "width": 15}},
+            {{"name": "Weight (Kg)", "width": 15}},
+            {{"name": "Remarks", "width": 20}}
+        ]"#,
+            p_type
+        );
 
-        let en_title: Vec<Fields> = serde_json::from_str(t_str).unwrap();
-        
+        let en_title: Vec<Fields> = serde_json::from_str(&t_str).unwrap();
+
         out_excel(
             product.name.as_str(),
             &en_title,

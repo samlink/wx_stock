@@ -353,7 +353,7 @@ let page_productset = function () {
         checked.forEach(ch => {
             let ch_name = ch.parentNode.textContent.trim();
             
-            console.log(ch_name);
+            // console.log(ch_name);
             
 
             if (ch_name == "(Blank)") {
@@ -368,7 +368,7 @@ let page_productset = function () {
                 ch_name = service.factor_to_zh(ch_name);
             }
 
-            console.log(ch_name);
+            // console.log(ch_name);
 
 
             if (ch.checked) {
