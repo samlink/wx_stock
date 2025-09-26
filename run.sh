@@ -1,5 +1,4 @@
 #!/bin/sh
-cd assets/js
-./min.sh
-cd ../..
+
+./scripts/build.sh
 cargo run
