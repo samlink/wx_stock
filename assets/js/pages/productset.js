@@ -184,17 +184,17 @@ let page_productset = function () {
             }
         }
 
-        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度', '区域'];
+        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'];
 
         if (lang != "zh") {
-            has_filter = ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
+            has_filter = ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
             eng_map = {
                 'Dia./OD*WT mm': '规格',
                 'Condition': '状态',
                 'Standard': '执行标准',
                 'Manufacturer': '生产厂家',
-                'Furnace': '炉批号',
-                'Length': '库存长度'
+                'Heat No.': '炉批号',
+                'Length (mm)': '库存长度'
             }
         }
 

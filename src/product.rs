@@ -177,7 +177,7 @@ async fn build_sql_search(
             .replace("执行标准", "products.文本字段3")
             .replace("生产厂家", "products.文本字段5")
             .replace("炉批号", "products.文本字段4")
-            .replace("区域", "products.文本字段6")
+            .replace("库存长度 (mm)", "库存长度")
             .replace("(空白)", "");
     }
 
@@ -268,7 +268,7 @@ pub async fn fetch_filter_items(
 
         let mut items: Vec<String> = Vec::new();
 
-        if post_data.filter_name == "库存长度" {
+        if post_data.filter_name.contains("库存长度") {
             let sql = format!(
                 r#"SELECT DISTINCT 库存长度 FROM products 
                     {}

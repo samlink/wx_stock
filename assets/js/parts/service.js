@@ -98,8 +98,8 @@ var service = function () {
                     "执行标准": "products.文本字段3",
                     "生产厂家": "products.文本字段5",
                     "炉批号": "products.文本字段4",
-                    "库存长度 mm": "COALESCE(foo.库存长度,0)",
-                    "库存重量": "COALESCE(foo.理论重量,0)",
+                    "库存长度 (mm)": "COALESCE(foo.库存长度,0)",
+                    "库存重量 (Kg)": "COALESCE(foo.理论重量,0)",
                     "备注": "products.备注",
                 } :
                 {
@@ -132,8 +132,8 @@ var service = function () {
                 { name: '执行标准', width: 6 },
                 { name: '生产厂家', width: 4 },
                 { name: '炉批号', width: 5 },
-                { name: '库存长度_mm', width: 4 },
-                { name: '库存重量', width: 3 },
+                { name: '库存长度 (mm)', width: 4 },
+                { name: '库存重量 (Kg)', width: 3 },
                 { name: '备注', width: 4 },
             ] :
             [
@@ -243,7 +243,7 @@ var service = function () {
         ["上大", "Shangda"],
         ["靖江特殊钢", "Jingjiang Special Steel"],
         ["烟台华新", "Yantai Huaxin"],
-        ["江阴兴澄", "Jiangyin Xingcheng"],
+        ["江阴兴澄特种钢", "Jiangyin Xingcheng"],
         ["抚顺特钢", "Fushun Special Steel"],
         ["抚钢", "Fugang"],
         ["达利普", "Dalipu"],
@@ -287,6 +287,10 @@ var service = function () {
         ["上海祥巨金属", "Shanghai Xiangju Metal"],
         ["北满", "Beiman"],
         ["兴澄特钢+浩运", "Xingcheng Special Steel"],
+        ["博威合金材料", "Baowei Alloy"],
+        ["山东汇通", "Shandong Huitong"],
+        ["湖南华菱钢铁", "Hunan Hualing Steel"],
+        ["贝来钢管", "Beilai Tube"],
         ["钢管", "Pipe"],
         ["圆钢", "Bar"]
     ]);
