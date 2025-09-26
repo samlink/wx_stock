@@ -103,16 +103,16 @@ var service = function () {
                     "备注": "products.备注",
                 } :
                 {
-                    "Name": "split_part(node_name,' ',2)",
+                    "Type": "split_part(node_name,' ',2)",
                     "Material": "split_part(node_name,' ',1)",
-                    "Part_No.": "products.物料号",
-                    "Specification": "规格型号",
-                    "Status": "products.文本字段2",
+                    "Stock No.": "products.物料号",
+                    "Dia./OD*WT mm": "规格型号",
+                    "Condition": "products.文本字段2",
                     "Standard": "products.文本字段3",
                     "Manufacturer": "products.文本字段5",
                     "Heat_No.": "products.文本字段4",
-                    "Length": "COALESCE(foo.库存长度,0)",
-                    "Weight": "COALESCE(foo.理论重量,0)",
+                    "Length (mm)": "COALESCE(foo.库存长度,0)",
+                    "Weight (Kg)": "COALESCE(foo.理论重量,0)",
                     "Remarks": "products.备注",
                 },
             edit: false,
@@ -138,16 +138,16 @@ var service = function () {
             ] :
             [
                 { name: 'No.', width: 2 },
-                { name: 'Name', width: 4 },
+                { name: 'Type', width: 4 },
                 { name: 'Material', width: 4 },
-                { name: 'Part_No.', width: 4 },
-                { name: 'Specification', width: 4 },
-                { name: 'Status', width: 4 },
+                { name: 'Stock No.', width: 4 },
+                { name: 'Dia./OD*WT mm', width: 4 },
+                { name: 'Condition', width: 4 },
                 { name: 'Standard', width: 6 },
                 { name: 'Manufacturer', width: 4 },
                 { name: 'Heat_No.', width: 5 },
-                { name: 'Length', width: 3 },
-                { name: 'Weight', width: 3 },
+                { name: 'Length (mm)', width: 3 },
+                { name: 'Weight (Kg)', width: 3 },
                 { name: 'Remarks', width: 5 }
             ];
         let table = document.querySelector('.table-product');

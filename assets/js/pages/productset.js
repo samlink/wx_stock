@@ -187,10 +187,10 @@ let page_productset = function () {
         let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度', '区域'];
 
         if (lang != "zh") {
-            has_filter = ['Specification', 'Status', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
+            has_filter = ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Furnace', 'Length', 'Area'];
             eng_map = {
-                'Specification': '规格',
-                'Status': '状态',
+                'Dia./OD*WT mm': '规格',
+                'Condition': '状态',
                 'Standard': '执行标准',
                 'Manufacturer': '生产厂家',
                 'Furnace': '炉批号',
