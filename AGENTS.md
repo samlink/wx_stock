@@ -189,29 +189,6 @@ cargo build --release
 # 上传部署
 sh put.sh  # 上传到 FreeBSD 服务器
 ```
-
-## 性能优化指南
-
-### 1. 数据库优化
-
-**索引策略：**
-```sql
--- 常用查询字段添加索引
-CREATE INDEX idx_products_material ON products(物料号);
-CREATE INDEX idx_tree_pnum ON tree(pnum);
-CREATE INDEX idx_documents_date ON documents(日期);
-```
-
-**查询优化：**
-```sql
--- 使用 LIMIT 限制返回结果
-SELECT * FROM products WHERE name LIKE '%钢管%' LIMIT 50;
-
--- 使用 EXISTS 代替 IN 子查询
-SELECT * FROM products p 
-WHERE EXISTS (SELECT 1 FROM tree t WHERE t.num = p.分类编号);
-```
-
 ## 代码规范和最佳实践
 
 ### 1. Rust 代码规范
