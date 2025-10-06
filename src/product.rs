@@ -39,7 +39,7 @@ pub async fn fetch_product(
             JOIN documents on 单号id = 单号
             JOIN tree on tree.num = products.商品id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
-            LEFT JOIN length_weight() as foo
+            LEFT JOIN mv_length_weight as foo
             ON products.物料号 = foo.物料号
             WHERE {} {} {} {} {} {} {} and products.物料号 <> '锯口费' and documents.文本字段10 !=''
             ORDER BY {} OFFSET {} LIMIT {}"#,
@@ -99,7 +99,7 @@ pub async fn fetch_product(
                 FROM products
                 {}
                 JOIN documents on 单号id = 单号
-                LEFT JOIN length_weight() as foo
+                LEFT JOIN mv_length_weight as foo
                 ON products.物料号 = foo.物料号
                 WHERE {} {} {} {} {} {} and products.物料号 <> '锯口费' and documents.文本字段10 !=''"#,
         lock_join_sql, product_sql, area, conditions, now_sql, filter_sql, NOT_DEL_SQL
@@ -214,7 +214,7 @@ pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) ->
             r#"select COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
             from products p
             join tree on tree.num = p.商品id
-            left join length_weight() foo on foo.物料号 = p.物料号  
+            left join mv_length_weight foo on foo.物料号 = p.物料号  
             where {} and 库存状态='' and COALESCE(库存长度,0) > 10"#,
             cate_sql
         );
@@ -272,7 +272,7 @@ pub async fn fetch_filter_items(
             let sql = format!(
                 r#"SELECT DISTINCT 库存长度 FROM products 
                     {}
-                    LEFT JOIN length_weight() as foo
+                    LEFT JOIN mv_length_weight as foo
                     ON products.物料号 = foo.物料号
                     where {} {} {} {}
                     ORDER BY 库存长度"#,
@@ -290,7 +290,7 @@ pub async fn fetch_filter_items(
             let sql = format!(
                 r#"SELECT DISTINCT {} FROM products
                     {}
-                    LEFT JOIN length_weight() as foo
+                    LEFT JOIN mv_length_weight as foo
                     ON products.物料号 = foo.物料号
                     where {} {} {} {}
                     ORDER BY {}"#,
@@ -346,7 +346,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
                 (ROW_NUMBER () OVER (ORDER BY 规格型号))::text as 序号, products.备注 from products
             {} JOIN tree ON products.商品id = tree.num
             join documents d on d.单号 = products.单号id
-            LEFT JOIN length_weight() as foo
+            LEFT JOIN mv_length_weight as foo
             ON products.物料号 = foo.物料号
             where {} {} {} {} {}"#,
         lock_join_sql, product_sql, conditions, now_sql, filter_sql, NOT_DEL_SQL
