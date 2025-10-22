@@ -154,22 +154,11 @@ api_key=your_api_key
 ./scripts/build.sh --force
 ```
 
-### 生产环境构建
+### 生产环境构建并发布
 - 先将 login.js 文件的最上面两句注释掉
 ```bash
-# 构建 Release 版本
-cargo build --release
-
-# 构建前端资源 （可选）
-./scripts/build.sh --force
+./build.sh
 ```
-
-### 部署
-```bash
-# 上传到 FreeBSD 服务器
-sh put.sh
-```
-- 远程服务器对应目录：wxstock
 
 ### 启动 
 - 本地测试：http://127.0.0.1:8087/stock/

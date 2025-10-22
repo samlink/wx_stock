@@ -1,0 +1,17 @@
+[target.x86_64-unknown-freebsd]
+linker = "/usr/local/bin/freebsd-ld-wrapper"
+ar = "/usr/bin/llvm-ar"
+rustflags = [
+    "-C", "target-feature=+crt-static",
+    "-C", "link-arg=-static",
+]
+
+[env]
+# 设置 C 编译器的 sysroot，但不影响 Rust 的 sysroot
+CC_x86_64_unknown_freebsd = "/usr/local/bin/x86_64-unknown-freebsd-clang"
+CXX_x86_64_unknown_freebsd = "/usr/local/bin/x86_64-unknown-freebsd-clang++"
+# OpenSSL 配置
+X86_64_UNKNOWN_FREEBSD_OPENSSL_DIR = "/opt/freebsd-sysroot/usr"
+X86_64_UNKNOWN_FREEBSD_OPENSSL_INCLUDE_DIR = "/opt/freebsd-sysroot/usr/include"
+X86_64_UNKNOWN_FREEBSD_OPENSSL_LIB_DIR = "/opt/freebsd-sysroot/usr/lib"
+OPENSSL_STATIC = "1"
