@@ -1,12 +1,12 @@
 use actix_identity::Identity;
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{post, web, HttpResponse};
 use deadpool_postgres::Pool;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 #[derive(Deserialize)]
 pub struct AddToCartRequest {
-    user_id: String,
+    user_id: i32,
     material_number: String,
 }
 

@@ -123,14 +123,14 @@ class CartManager {
             this.animationController.playButtonFeedback(buttonElement);
 
             // 发送API请求
-            const response = await fetch('/stock/cart/add', {
+            const response = await fetch('/stock/add_to_cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
+                    user_id: Number(document.querySelector('#user-id').textContent.trim()),
                     material_number: materialNumber,
-                    quantity: 1
                 })
             });
 
@@ -257,12 +257,12 @@ class CartManager {
      */
     async getCartCount() {
         try {
-            const response = await fetch('/stock/cart/count', {
+            const response = await fetch('/stock/get_cart_count', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: document.querySelector('#user_id').textContent.trim() })
+                body: JSON.stringify({ user_id: document.querySelector('#user-id').textContent.trim() })
             });
 
             if (response.ok) {

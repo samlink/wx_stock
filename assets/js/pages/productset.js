@@ -559,17 +559,14 @@ let page_productset = function () {
     // ------------------------------- 过滤部分结束 --------------------------------
 
     // 初始化购物车（在页面加载完成后）
-    document.addEventListener('DOMContentLoaded', function() {
-        // 延迟初始化购物车，确保所有依赖都已加载
-        setTimeout(initializeCart, 100);
-    });
-
-    // 如果DOM已经加载完成，直接初始化
+    // 移除重复的DOM事件监听器，只保留一个初始化逻辑
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function() {
+            // 延迟初始化购物车，确保所有依赖都已加载
             setTimeout(initializeCart, 100);
         });
     } else {
+        // DOM已经加载完成，直接初始化
         setTimeout(initializeCart, 100);
     }
 }();
