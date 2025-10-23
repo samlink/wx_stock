@@ -77,7 +77,7 @@ build_single_sass() {
 
     if [ "$FORCE_BUILD" = "1" ] || needs_rebuild_sass "$source" "$target"; then
         echo "构建 $name..."
-        sass --style=compressed "$source" "$target"
+        sass --style=compressed "$source" "$target" --no-source-map
         echo "✓ $name 构建完成"
     else
         echo "⏭ $name 无需重新构建"
