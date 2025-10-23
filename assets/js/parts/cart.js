@@ -263,7 +263,7 @@ class CartManager {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ user_id: document.querySelector('#user-id').textContent.trim() })
+                body: JSON.stringify({ user_id: Number(document.querySelector('#user-id').textContent.trim()) })
             });
 
             if (response.ok) {

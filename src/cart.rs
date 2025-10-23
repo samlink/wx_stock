@@ -12,7 +12,7 @@ pub struct AddToCartRequest {
 
 #[derive(Deserialize)]
 pub struct UserRequest {
-    user_id: String,
+    user_id: i32,
 }
 
 #[derive(Serialize)]

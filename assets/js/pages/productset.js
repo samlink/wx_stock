@@ -396,9 +396,9 @@ let page_productset = function () {
 
         checked.forEach(ch => {
             let ch_name = ch.parentNode.textContent.trim();
-            
+
             // console.log(ch_name);
-            
+
 
             if (ch_name == "(Blank)") {
                 ch_name = "(空白)";
@@ -558,10 +558,8 @@ let page_productset = function () {
 
     // ------------------------------- 过滤部分结束 --------------------------------
 
-    // 初始化购物车（在页面加载完成后）
-    // 移除重复的DOM事件监听器，只保留一个初始化逻辑
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // 延迟初始化购物车，确保所有依赖都已加载
             setTimeout(initializeCart, 100);
         });
