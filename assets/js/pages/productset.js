@@ -4,6 +4,9 @@ let page_productset = function () {
         window.location.href = "/";
     }
 
+    // 初始化购物车管理器
+    let cartManager = null;
+
     const lang = localStorage.getItem('language') || 'zh';
     if (lang == "en") {
         document.querySelector('#auto_input').placeholder = 'Name search';
@@ -35,6 +38,46 @@ let page_productset = function () {
         filter_sqls: [],
     }
 
+    // 初始化购物车功能
+    async function initializeCart() {
+        try {
+            cartManager = new CartManager();
+            await cartManager.init();
+            console.log('Shopping cart initialized successfully');
+        } catch (error) {
+            console.error('Failed to initialize shopping cart:', error);
+        }
+    }
+
+    // 购物车表格刷新回调
+    function onTableRefresh() {
+        // 表格刷新后，购物车按钮事件监听器会自动工作（使用事件委托）
+        // 这里可以添加其他需要在表格刷新后执行的购物车相关逻辑
+        if (cartManager) {
+            // 确保购物车UI状态正确
+            cartManager.updateCartDisplay(cartManager.getCurrentCount());
+        }
+    }
+
+    // 获取购物车管理器实例（供其他模块使用）
+    function getCartManager() {
+        return cartManager;
+    }
+
+    // 刷新购物车数量（供外部调用）
+    async function refreshCartCount() {
+        if (cartManager) {
+            await cartManager.getCartCount();
+            cartManager.updateCartDisplay(cartManager.getCurrentCount());
+        }
+    }
+
+    // 将购物车相关函数暴露到全局作用域（如果需要）
+    if (typeof window !== 'undefined') {
+        window.getCartManager = getCartManager;
+        window.refreshCartCount = refreshCartCount;
+    }
+
     //配置自动完成和树的显示 ---------------------------------------------------
 
     let tree_height = document.querySelector('.tree-container').clientHeight;
@@ -61,6 +104,7 @@ let page_productset = function () {
                 make_filter();
                 // add_lu_link();
                 show_stat(content);
+                onTableRefresh();
             });
 
             // 清除状态
@@ -87,7 +131,7 @@ let page_productset = function () {
 
     //商品规格表格数据 -------------------------------------------------------------------
 
-    service.build_product_table(row_num, make_filter, '', show_stat);
+    service.build_product_table(row_num, make_filter, onTableRefresh, show_stat);
 
     // 点击树的 stem 显示统计信息
     function show_statistic(cate) {
@@ -433,6 +477,7 @@ let page_productset = function () {
             make_filter();
             // add_lu_link();
             show_stat(content);
+            onTableRefresh();
         });
 
         make_red();
@@ -512,4 +557,19 @@ let page_productset = function () {
     }, false);
 
     // ------------------------------- 过滤部分结束 --------------------------------
+
+    // 初始化购物车（在页面加载完成后）
+    document.addEventListener('DOMContentLoaded', function() {
+        // 延迟初始化购物车，确保所有依赖都已加载
+        setTimeout(initializeCart, 100);
+    });
+
+    // 如果DOM已经加载完成，直接初始化
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(initializeCart, 100);
+        });
+    } else {
+        setTimeout(initializeCart, 100);
+    }
 }();

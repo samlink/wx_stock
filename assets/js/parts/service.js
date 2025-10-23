@@ -123,6 +123,7 @@ var service = function () {
 
         let custom_fields = lang == "zh" ?
             [
+                { name: '', width: 2 },
                 { name: '序号', width: 2 },
                 { name: '名称', width: 4 },
                 { name: '材质', width: 4 },
@@ -137,6 +138,7 @@ var service = function () {
                 { name: '备注', width: 4 },
             ] :
             [
+                { name: '', width: 2 },
                 { name: 'No.', width: 2 },
                 { name: 'Type', width: 4 },
                 { name: 'Material', width: 4 },
@@ -195,7 +197,7 @@ var service = function () {
         if (lang == "zh") {
             let rec = tr.split(SPLITER);
             let name = rec[1].split(" ");
-            row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
+            row = `<tr><td class="add-to-cart"><button class="btn-add-cart" data-material="${rec[2]}" title="添加到购物车"><i class="fa fa-plus"></i></button></td><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
                 <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
                 <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家">${rec[6]}</td>
                 <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
@@ -205,7 +207,7 @@ var service = function () {
 
             let rec = tr.split(SPLITER);
             let name = rec[1].split(" ");
-            row = `<tr><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
+            row = `<tr><td class="add-to-cart"><button class="btn-add-cart" data-material="${rec[2]}" title="Add to Cart"><i class="fa fa-plus"></i></button></td><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
                     <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
                     <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家" title="${rec[6]}">${rec[6]}</td>
                     <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td>

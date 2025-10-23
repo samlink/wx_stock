@@ -198,6 +198,9 @@
 
 #go-home {
     margin-right: 50px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
 }
 
 #user {
@@ -217,6 +220,12 @@
         font-weight: bold;
         color: $menu-hover-color;
     }
+}
+
+#shopping-cart {
+    font-size: 16px;
+    color: white;
+    margin-right: 20px;
 }
 
 #change-pwd {
@@ -240,6 +249,43 @@
 .show-chosed {
     font-weight: bold;
     color: $menu-hover-color;
+}
+
+// Shopping cart styles
+.cart-container {
+    position: relative;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    
+    .nav-icon {
+        font-size: 18px;
+        color: white;
+        transition: color 150ms;
+        
+        &:hover {
+            color: $menu-hover-color;
+        }
+    }
+}
+
+.cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: #ff4444;
+    color: white;
+    border-radius: 50%;
+    min-width: 18px;
+    height: 18px;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .top-title {
