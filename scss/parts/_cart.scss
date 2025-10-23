@@ -6,18 +6,29 @@
     position: relative;
     cursor: pointer;
     transition: all 0.3s ease;
-    
+
     &:hover {
         transform: translateY(-1px);
         opacity: 0.8;
     }
 }
 
+// 包裹购物车图标用于定位角标
+.cart-icon-wrapper {
+    position: relative;
+    display: inline-block;
+}
+.cart-icon-wrapper .nav-icon {
+    margin-left: 0 !important;
+}
+
+
+
 // 购物车数量角标 (base.rs.html 中的 #cart-count)
 #cart-count {
     position: absolute;
-    top: -8px;
-    right: -8px;
+    top: -10px;
+    left: -6px;
     background-color: #dc3545;
     color: white;
     border-radius: 50%;
@@ -28,9 +39,10 @@
     justify-content: center;
     font-size: 11px;
     font-weight: bold;
-    line-height: 1;
+    line-height: 18px;
+    padding: 0;
     z-index: 1;
-    
+
     // 数量增加动画
     &.cart-count-animate {
         animation: cartCountPulse 0.6s ease-out;
@@ -51,34 +63,34 @@
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 14px;
-    
+
     &:hover {
         background-color: #007bff;
         color: white;
         transform: scale(1.1);
     }
-    
+
     &:active,
     &.btn-clicked {
         transform: scale(0.95);
     }
-    
+
     // 加载状态
     &.loading {
         opacity: 0.6;
         cursor: not-allowed;
-        
+
         &:hover {
             background: none;
             color: #007bff;
             transform: none;
         }
     }
-    
+
     &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
-        
+
         &:hover {
             background: none;
             color: #007bff;
@@ -184,23 +196,23 @@
     .cart-icon-container {
         margin-left: 5px;
     }
-    
+
     .cart-icon {
         padding: 6px 10px;
-        
+
         i {
             font-size: 14px;
         }
     }
-    
-    .cart-badge {
-        min-width: 18px;
-        height: 18px;
-        font-size: 11px;
-        top: -6px;
-        right: -6px;
-    }
-    
+
+    // #cart-countge {
+    //     min-width: 18px;
+    //     height: 18px;
+    //     font-size: 11px;
+    //     top: -6px;
+    //     right: -6px;
+    // }
+
     .btn-add-cart {
         width: 24px;
         height: 24px;
@@ -213,7 +225,7 @@
     .cart-icon {
         border: 2px solid currentColor;
     }
-    
+
     .btn-add-cart {
         border-width: 2px;
     }
@@ -223,13 +235,13 @@
 @media (prefers-reduced-motion: reduce) {
     .cart-icon,
     .btn-add-cart,
-    .cart-badge,
+    #cart-countge,
     .cart-fly-item {
         transition: none;
         animation: none;
     }
-    
-    .cart-badge.cart-count-animate {
+
+    #cart-countge.cart-count-animate {
         animation: none;
     }
 }

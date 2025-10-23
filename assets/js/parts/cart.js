@@ -245,7 +245,8 @@ class CartManager {
 
         if (count > 0) {
             cartBadge.textContent = count;
-            cartBadge.style.display = 'inline-block';
+            // 使用 flex 以便数字在圆内完全居中
+            cartBadge.style.display = 'flex';
         } else {
             cartBadge.style.display = 'none';
         }
