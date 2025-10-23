@@ -28,6 +28,12 @@ pub struct CartCountResponse {
 }
 
 #[derive(Serialize)]
+pub struct CartMaterialsResponse {
+    materials: Vec<String>,
+    count: i32,
+}
+
+#[derive(Serialize)]
 pub struct CartItem {
     material_number: String,
     quantity: i32,
@@ -130,6 +136,52 @@ pub async fn get_cart_count(
             })
         }
         Err(_) => HttpResponse::Ok().json(CartCountResponse { count: 0 }),
+    }
+}
+
+/// 获取购物车物料号列表
+#[post("/get_cart_materials")]
+pub async fn get_cart_materials(
+    db: web::Data<Pool>,
+    request: web::Json<UserRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "materials": [],
+            "count": 0
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 获取购物车物料号列表
+    let materials_result = conn
+        .query(
+            "SELECT material_number FROM shopping_cart WHERE user_id = $1 ORDER BY added_at DESC",
+            &[&request.user_id],
+        )
+        .await;
+
+    match materials_result {
+        Ok(rows) => {
+            let mut materials = Vec::new();
+            for row in rows {
+                materials.push(row.get("material_number"));
+            }
+            
+            let count = materials.len() as i32;
+            HttpResponse::Ok().json(CartMaterialsResponse {
+                materials,
+                count,
+            })
+        }
+        Err(_) => HttpResponse::Ok().json(CartMaterialsResponse {
+            materials: vec![],
+            count: 0,
+        }),
     }
 }
 

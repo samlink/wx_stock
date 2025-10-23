@@ -57,6 +57,16 @@
       background-color: $table-focus-color;
     }
 
+    // 购物车高亮样式
+    .cart-item-highlight {
+      background-color: #fdfbe3 !important; // 浅蓝色背景
+      border-left: 4px solid #2196f3 !important; // 左侧蓝色边框
+      
+      &:hover {
+        background-color: #fbf7bb !important; // 悬停时更深的蓝色
+      }
+    }
+
     input {
       text-align: center;
     }

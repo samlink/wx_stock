@@ -56,6 +56,9 @@ let page_productset = function () {
         if (cartManager) {
             // 确保购物车UI状态正确
             cartManager.updateCartDisplay(cartManager.getCurrentCount());
+            
+            // 高亮显示在购物车中的表格条目
+            cartManager.highlightCartItems();
         }
     }
 

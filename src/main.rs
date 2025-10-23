@@ -64,6 +64,7 @@ async fn main() -> std::io::Result<()> {
                     .service(user_set::change_pass)
                     .service(cart::add_to_cart)
                     .service(cart::get_cart_count)
+                    .service(cart::get_cart_materials)
                     .service(cart::get_cart_items)
                     .service(service::serve_download)
                     .service(service::answer)

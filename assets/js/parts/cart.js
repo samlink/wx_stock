@@ -5,6 +5,7 @@
 class CartManager {
     constructor() {
         this.cartCount = 0;
+        this.cartMaterials = []; // 购物车中的物料号数组
         this.isLoading = false;
         this.lang = localStorage.getItem('language') || 'zh';
         this.animationController = new AnimationController();
@@ -38,8 +39,8 @@ class CartManager {
      */
     async init() {
         try {
-            // 获取当前购物车数量
-            await this.getCartCount();
+            // 获取当前购物车物料号列表和数量
+            await this.getCartMaterials();
 
             // 初始化购物车UI
             this.initCartUI();
@@ -47,7 +48,8 @@ class CartManager {
             // 绑定事件监听器
             this.bindEventListeners();
 
-            console.log('CartManager initialized successfully');
+            this.highlightCartItems();
+
         } catch (error) {
             console.error('Failed to initialize CartManager:', error);
         }
@@ -139,6 +141,11 @@ class CartManager {
             if (response.ok && result.success) {
                 // 成功添加
                 this.cartCount = result.cart_count || this.cartCount + 1;
+                
+                // 更新物料号列表
+                if (!this.cartMaterials.includes(materialNumber)) {
+                    this.cartMaterials.push(materialNumber);
+                }
 
                 // 播放飞行动画
                 const cartIcon = document.querySelector('#shopping-cart');
@@ -154,6 +161,9 @@ class CartManager {
                 if (cartBadge) {
                     this.animationController.playCountAnimation(cartBadge);
                 }
+
+                // 重新高亮显示表格条目
+                this.highlightCartItems();
 
                 // 显示成功消息
                 notifier.show(
@@ -253,8 +263,41 @@ class CartManager {
     }
 
     /**
-     * 获取购物车数量
-     * Get cart count
+     * 获取购物车物料号列表和数量
+     * Get cart materials and count
+     */
+    async getCartMaterials() {
+        try {
+            const response = await fetch('/stock/get_cart_materials', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ user_id: Number(document.querySelector('#user-id').textContent.trim()) })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                this.cartMaterials = result.materials || [];
+                this.cartCount = result.count || 0;
+                return { materials: this.cartMaterials, count: this.cartCount };
+            } else {
+                console.warn('Failed to get cart materials:', response.status);
+                this.cartMaterials = [];
+                this.cartCount = 0;
+                return { materials: [], count: 0 };
+            }
+        } catch (error) {
+            console.error('Error getting cart materials:', error);
+            this.cartMaterials = [];
+            this.cartCount = 0;
+            return { materials: [], count: 0 };
+        }
+    }
+
+    /**
+     * 获取购物车数量（保留向后兼容）
+     * Get cart count (for backward compatibility)
      */
     async getCartCount() {
         try {
@@ -286,6 +329,71 @@ class CartManager {
      */
     getCurrentCount() {
         return this.cartCount;
+    }
+
+    /**
+     * 获取当前购物车物料号列表
+     * Get current cart materials
+     */
+    getCurrentMaterials() {
+        return this.cartMaterials;
+    }
+
+    /**
+     * 高亮显示表格中在购物车中的条目
+     * Highlight table rows that are in cart
+     */
+    highlightCartItems() {
+        if (!this.cartMaterials || this.cartMaterials.length === 0) {
+            return;
+        }
+
+        // 查找所有表格行
+        const tableRows = document.querySelectorAll('.table-container tbody tr');
+
+        tableRows.forEach(row => {
+            const materialCell = row.querySelector('.物料号');
+            
+            if (materialCell) {
+                const materialNumber = materialCell.textContent.trim();            
+                // 检查是否在购物车中
+                if (this.cartMaterials.includes(materialNumber)) {
+                    row.classList.add('cart-item-highlight');
+                    
+                    // 添加购物车图标指示
+                    const actionCell = row.querySelector('td:last-child');
+                    if (actionCell && !actionCell.querySelector('.cart-indicator')) {
+                        const indicator = document.createElement('span');
+                        indicator.className = 'cart-indicator';
+                        indicator.innerHTML = '<i class="fa fa-shopping-cart" style="color: #007bff; margin-left: 5px;"></i>';
+                        actionCell.appendChild(indicator);
+                    }
+                } else {
+                    row.classList.remove('cart-item-highlight');
+                    
+                    // 移除购物车图标指示
+                    const indicator = row.querySelector('.cart-indicator');
+                    if (indicator) {
+                        indicator.remove();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 清除所有高亮显示
+     * Clear all highlights
+     */
+    clearHighlights() {
+        const highlightedRows = document.querySelectorAll('.cart-item-highlight');
+        highlightedRows.forEach(row => {
+            row.classList.remove('cart-item-highlight');
+            const indicator = row.querySelector('.cart-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        });
     }
 
     /**
