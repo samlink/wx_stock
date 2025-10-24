@@ -1,0 +1,183 @@
+@use super::base_html;
+@use super::statics::*;
+@(user: String)
+
+@:base_html({
+<div class="myorders-page">
+    <div class="myorders-content has-bak">
+        <div class="myorders-header">
+            <h2 class="myorders-title">
+                <i class="fa fa-list-alt"></i>
+                我的订单
+            </h2>
+            <div class="myorders-actions">
+                <button class="btn btn-primary" id="refresh-orders-btn">
+                    <i class="fa fa-refresh"></i>
+                    刷新
+                </button>
+            </div>
+        </div>
+
+        <div class="myorders-main">
+            <!-- 左侧订单列表区域 -->
+            <div class="orders-list-section">
+                <div class="orders-list-header">
+                    <h3>订单列表</h3>
+                    <div class="loading-indicator" id="orders-loading" style="display: none;">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        加载中...
+                    </div>
+                </div>
+                
+                <div class="orders-list-container" id="orders-list-container">
+                    <div class="orders-list" id="orders-list">
+                        <!-- 订单列表项将在这里动态加载 -->
+                        <!-- 订单项模板结构示例：
+                        <div class="order-item" data-order-id="ORD-20241024123456-123">
+                            <div class="order-item-header">
+                                <div class="order-number">
+                                    <span class="order-label">订单号：</span>
+                                    <span class="order-value">ORD-20241024123456-123</span>
+                                </div>
+                                <div class="order-status">
+                                    <span class="status-badge status-pending">待处理</span>
+                                </div>
+                            </div>
+                            <div class="order-item-body">
+                                <div class="order-date">
+                                    <i class="fa fa-calendar"></i>
+                                    <span>2024-10-24 12:34:56</span>
+                                </div>
+                                <div class="order-stats">
+                                    <span class="stat-item">
+                                        <i class="fa fa-cube"></i>
+                                        <span>5件商品</span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        -->
+                    </div>
+                    
+                    <!-- 空状态提示 -->
+                    <div class="empty-state" id="empty-orders" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fa fa-inbox"></i>
+                        </div>
+                        <p class="empty-message">暂无订单</p>
+                        <p class="empty-description">您还没有提交过任何订单</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右侧订单明细区域 -->
+            <div class="order-details-section">
+                <div class="order-details-header">
+                    <h3 id="order-details-title">订单明细</h3>
+                    <div class="loading-indicator" id="details-loading" style="display: none;">
+                        <i class="fa fa-spinner fa-spin"></i>
+                        加载中...
+                    </div>
+                </div>
+
+                <div class="order-details-container">
+                    <!-- 默认提示状态 -->
+                    <div class="default-state" id="default-details-state">
+                        <div class="default-icon">
+                            <i class="fa fa-hand-pointer-o"></i>
+                        </div>
+                        <p class="default-message">请选择订单查看明细</p>
+                        <p class="default-description">点击左侧订单列表中的订单项查看详细信息</p>
+                    </div>
+
+                    <!-- 订单基本信息 -->
+                    <div class="order-info" id="order-info" style="display: none;">
+                        <div class="order-basic-info">
+                            <div class="info-item">
+                                <span class="info-label">订单号：</span>
+                                <span class="info-value" id="order-id-display"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">订单日期：</span>
+                                <span class="info-value" id="order-date-display"></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">订单状态：</span>
+                                <span class="info-value status-badge" id="order-status-display"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 订单明细表格 -->
+                    <div class="order-details-table-container" id="order-details-table" style="display: none;">
+                        <div class="table-container table-order-details">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th width="4%">序号</th>
+                                        <th>商品名称</th>
+                                        <th>物料号</th>
+                                        <th>规格型号</th>
+                                        <th>状态</th>
+                                        <th width="15%">执行标准</th>
+                                        <th>生产厂家</th>
+                                        <th>炉批号</th>
+                                        <th>库存长度(mm)</th>
+                                        <th>库存重量(kg)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="order-details-tbody">
+                                    <!-- 订单明细商品列表将在这里动态加载 -->
+                                    <!-- 商品明细行模板结构示例：
+                                    <tr class="order-item-row">
+                                        <td class="item-index">1</td>
+                                        <td class="item-name">钢管</td>
+                                        <td class="item-material">MAT001</td>
+                                        <td class="item-spec">φ108×4</td>
+                                        <td class="item-status">现货</td>
+                                        <td class="item-standard">GB/T8162</td>
+                                        <td class="item-manufacturer">宝钢</td>
+                                        <td class="item-heat">H123456</td>
+                                        <td class="item-length">6000</td>
+                                        <td class="item-weight">125.50</td>
+                                    </tr>
+                                    -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <!-- 表格为空时的提示 -->
+                        <div class="empty-table-state" id="empty-details" style="display: none;">
+                            <div class="empty-icon">
+                                <i class="fa fa-exclamation-circle"></i>
+                            </div>
+                            <p class="empty-message">订单明细加载失败</p>
+                            <p class="empty-description">请刷新页面重试</p>
+                        </div>
+                    </div>
+
+                    <!-- 订单汇总信息 -->
+                    <div class="order-summary" id="order-summary" style="display: none;">
+                        <div class="summary-info">
+                            <div class="summary-item">
+                                <span class="summary-label">商品总数：</span>
+                                <span class="summary-value" id="order-total-items">0</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">总长度：</span>
+                                <span class="summary-value" id="order-total-length">0 mm</span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label">总重量：</span>
+                                <span class="summary-value" id="order-total-weight">0.00 kg</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/stock/static/@tools_service_js.name"></script>
+}, user)

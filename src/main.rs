@@ -12,6 +12,7 @@ mod tree;
 mod user_set;
 mod information;
 mod cart;
+mod orders;
 
 #[derive(Deserialize)]
 struct Config {
@@ -54,6 +55,7 @@ async fn main() -> std::io::Result<()> {
                     .service(html::login)
                     .service(html::user_set)
                     .service(html::cart)
+                    .service(html::myorders)
                     .service(tree::tree)
                     .service(tree::tree_auto)
                     .service(product::fetch_product)
@@ -72,6 +74,8 @@ async fn main() -> std::io::Result<()> {
                     .service(cart::update_cart_quantity)
                     .service(cart::clear_cart)
                     .service(cart::submit_order)
+                    .service(orders::get_user_orders)
+                    .service(orders::get_order_details)
                     .service(service::serve_download)
                     .service(service::answer)
                     .service(service::translate)
