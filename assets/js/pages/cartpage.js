@@ -12,9 +12,9 @@ let page_cart = function () {
     // 全局变量
     let cartData = {
         items: [],
-        totalCount: 0,
-        totalQuantity: 0,
-        totalPrice: 0.0
+        total_count: 0,
+        total_length: 0,
+        total_weight: 0.0
     };
 
     let currentDeleteItem = null;
@@ -26,8 +26,8 @@ let page_cart = function () {
         zh: {
             cartTitle: '购物车',
             totalItems: '商品总数：',
-            totalQuantity: '总数量：',
-            totalPrice: '总金额：',
+            totalLength: '总长度：',
+            totalWeight: '总重量：',
             submitOrder: '提交订购',
             clearCart: '清空购物车',
             refresh: '刷新',
@@ -35,6 +35,8 @@ let page_cart = function () {
             confirmDeleteMsg: '确定要从购物车中删除这个商品吗？',
             confirmClear: '确认清空',
             confirmClearMsg: '确定要清空整个购物车吗？此操作不可撤销。',
+            confirmSubmit: '确认提交订单',
+            confirmSubmitMsg: '确定要提交这个订单吗？',
             orderSuccess: '订单提交成功',
             orderSuccessMsg: '您的订单已成功提交！',
             orderNumber: '订单号：',
@@ -58,8 +60,8 @@ let page_cart = function () {
         en: {
             cartTitle: 'Shopping Cart',
             totalItems: 'Total Items:',
-            totalQuantity: 'Total Quantity:',
-            totalPrice: 'Total Price:',
+            totalLength: 'Total Length:',
+            totalWeight: 'Total Weight:',
             submitOrder: 'Submit Order',
             clearCart: 'Clear Cart',
             refresh: 'Refresh',
@@ -67,6 +69,8 @@ let page_cart = function () {
             confirmDeleteMsg: 'Are you sure you want to remove this item from cart?',
             confirmClear: 'Confirm Clear',
             confirmClearMsg: 'Are you sure you want to clear the entire cart? This action cannot be undone.',
+            confirmSubmit: 'Confirm Submit Order',
+            confirmSubmitMsg: 'Are you sure you want to submit this order?',
             orderSuccess: 'Order Submitted Successfully',
             orderSuccessMsg: 'Your order has been submitted successfully!',
             orderNumber: 'Order Number:',
@@ -93,12 +97,29 @@ let page_cart = function () {
     function initPage() {
         // 设置页面标题
         document.title = texts[lang].cartTitle;
-        
+
         // 绑定事件监听器
         bindEventListeners();
-        
+
         // 加载购物车数据
         loadCartData();
+
+        // 确保角标在页面加载时正确显示
+        initCartBadge();
+    }
+
+    // 初始化购物车角标
+    function initCartBadge() {
+        // 确保角标在购物车页面始终可见（如果有商品）
+        const cartBadge = document.querySelector('#cart-count');
+        if (cartBadge && cartBadge.style.display === 'none') {
+            // 如果角标被隐藏，但我们在购物车页面，需要根据实际数据显示
+            setTimeout(() => {
+                if (cartData.total_count > 0) {
+                    updateCartBadge(cartData.total_count);
+                }
+            }, 100);
+        }
     }
 
     // 绑定事件监听器
@@ -115,7 +136,7 @@ let page_cart = function () {
 
         // 提交订单按钮
         document.getElementById('submit-order-btn').addEventListener('click', () => {
-            submitOrder();
+            showSubmitConfirmModal();
         });
 
         // 删除确认对话框
@@ -146,6 +167,19 @@ let page_cart = function () {
             hideClearConfirmModal();
         });
 
+        // 确认提交订单对话框
+        document.getElementById('cancel-submit').addEventListener('click', () => {
+            hideSubmitConfirmModal();
+        });
+
+        document.getElementById('confirm-submit').addEventListener('click', () => {
+            submitOrder();
+        });
+
+        document.getElementById('close-submit-modal').addEventListener('click', () => {
+            hideSubmitConfirmModal();
+        });
+
         // 订单成功对话框
         document.getElementById('close-success-modal').addEventListener('click', () => {
             hideOrderSuccessModal();
@@ -173,7 +207,7 @@ let page_cart = function () {
     // 加载购物车数据
     async function loadCartData() {
         if (isLoading) return;
-        
+
         try {
             isLoading = true;
             showLoadingState();
@@ -193,6 +227,8 @@ let page_cart = function () {
                 cartData = data;
                 renderCartTable();
                 updateSummary();
+                // 确保角标显示正确
+                updateCartBadge(cartData.total_count || 0);
             } else {
                 console.error('Failed to load cart data:', response.status);
                 notifier.show(texts[lang].serverError, 'danger', 4000);
@@ -209,7 +245,7 @@ let page_cart = function () {
     // 渲染购物车表格
     function renderCartTable() {
         const tbody = document.getElementById('cart-items-tbody');
-        
+
         if (cartData.items.length === 0) {
             tbody.innerHTML = `
                 <tr>
@@ -228,20 +264,20 @@ let page_cart = function () {
         cartData.items.forEach((item, index) => {
             html += `
                 <tr data-material="${item.material_number}">
-                    <td>${index + 1}</td>
+                    <td width="4%">${index + 1}</td>
                     <td>${item.product_name}</td>
                     <td>${item.material_number}</td>
                     <td>${item.specification}</td>
                     <td>${item.status}</td>
-                    <td>${item.standard}</td>
+                    <td width="15%">${item.standard}</td>
                     <td>${item.manufacturer}</td>
                     <td>${item.heat_number}</td>
                     <td>${item.stock_length}</td>
                     <td>${item.stock_weight.toFixed(2)}</td>
-                    <td>${item.added_at}</td>
+                    <td width="12%">${item.added_at}</td>
                     <td>
                         <button class="btn btn-sm btn-danger" 
-                                onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}')">
+                                onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.specification}')">
                             <i class="fa fa-trash"></i>
                             删除
                         </button>
@@ -251,7 +287,7 @@ let page_cart = function () {
         });
 
         tbody.innerHTML = html;
-        
+
         // 修复表头对齐问题
         fixTableHeaderAlignment();
     }
@@ -261,19 +297,19 @@ let page_cart = function () {
         const table = document.querySelector('.table-cart table');
         const thead = table.querySelector('thead');
         const tbody = table.querySelector('tbody');
-        
+
         if (!thead || !tbody) return;
-        
+
         // 获取表体的滚动条宽度
         const scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
-        
+
         // 调整表头宽度以匹配表体宽度
         if (scrollbarWidth > 0) {
             thead.style.width = `calc(100% - ${scrollbarWidth}px)`;
         } else {
             thead.style.width = '100%';
         }
-        
+
         // 监听滚动条变化
         const resizeObserver = new ResizeObserver(() => {
             const newScrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
@@ -283,23 +319,24 @@ let page_cart = function () {
                 thead.style.width = '100%';
             }
         });
-        
+
         resizeObserver.observe(tbody);
     }
 
 
     // 显示删除确认对话框
-    function showDeleteConfirmModal(materialNumber, productName) {
+    function showDeleteConfirmModal(materialNumber, productName, productSize) {
         currentDeleteItem = materialNumber;
-        
+
         const itemInfo = document.getElementById('delete-item-info');
         itemInfo.innerHTML = `
             <div class="item-details">
                 <strong>商品名称：</strong>${productName}<br>
+                <strong>规格型号：</strong>${productSize}<br>
                 <strong>物料号：</strong>${materialNumber}
             </div>
         `;
-        
+
         document.getElementById('confirm-delete-modal').style.display = 'block';
     }
 
@@ -331,10 +368,31 @@ let page_cart = function () {
         document.getElementById('order-success-modal').style.display = 'none';
     }
 
+    // 显示确认提交订单对话框
+    function showSubmitConfirmModal() {
+        if (cartData.items.length === 0) {
+            notifier.show(texts[lang].noItems, 'warning', 3000);
+            return;
+        }
+
+        // 更新确认对话框中的汇总信息
+        document.getElementById('submit-total-items').textContent = cartData.total_count || 0;
+        document.getElementById('submit-total-length').textContent = `${cartData.total_length || 0} mm`;
+        document.getElementById('submit-total-weight').textContent = `${(cartData.total_weight || 0).toFixed(2)} kg`;
+        
+        document.getElementById('confirm-submit-modal').style.display = 'block';
+    }
+
+    // 隐藏确认提交订单对话框
+    function hideSubmitConfirmModal() {
+        document.getElementById('confirm-submit-modal').style.display = 'none';
+    }
+
     // 隐藏所有模态框
     function hideAllModals() {
         hideDeleteConfirmModal();
         hideClearConfirmModal();
+        hideSubmitConfirmModal();
         hideOrderSuccessModal();
     }
 
@@ -343,7 +401,6 @@ let page_cart = function () {
         if (isLoading) return;
 
         try {
-            isLoading = true;
             hideDeleteConfirmModal();
 
             const response = await fetch('/stock/remove_from_cart', {
@@ -360,20 +417,31 @@ let page_cart = function () {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success) {
-                    // 重新加载购物车数据
-                    await loadCartData();
+                    // 先更新角标动画（减1）
+                    const currentCount = cartData.total_count || 0;
+                    if (currentCount > 1) {
+                        animateCartBadgeDecrease(currentCount - 1);
+                    } else {
+                        // 如果删除后购物车为空，使用清空动画
+                        animateCartBadgeClear();
+                    }
+
+                    // 延迟重新加载购物车数据，让动画完成
+                    setTimeout(async () => {
+                        await loadCartData();
+                    }, 200);
+
                     notifier.show(texts[lang].itemRemoved, 'success', 2000);
                 } else {
                     notifier.show(result.message || texts[lang].operationFailed, 'danger', 4000);
                 }
             } else {
+                console.error('Remove item failed with status:', response.status);
                 notifier.show(texts[lang].serverError, 'danger', 4000);
             }
         } catch (error) {
             console.error('Error removing item:', error);
             notifier.show(texts[lang].networkError, 'danger', 4000);
-        } finally {
-            isLoading = false;
         }
     }
 
@@ -382,7 +450,6 @@ let page_cart = function () {
         if (isLoading) return;
 
         try {
-            isLoading = true;
             hideClearConfirmModal();
 
             const response = await fetch('/stock/clear_cart', {
@@ -398,20 +465,25 @@ let page_cart = function () {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success) {
-                    // 重新加载购物车数据
-                    await loadCartData();
+                    // 先隐藏角标（清空动画）
+                    animateCartBadgeClear();
+
+                    // 延迟重新加载购物车数据，让动画完成
+                    setTimeout(async () => {
+                        await loadCartData();
+                    }, 350);
+
                     notifier.show(texts[lang].cartCleared, 'success', 2000);
                 } else {
                     notifier.show(result.message || texts[lang].operationFailed, 'danger', 4000);
                 }
             } else {
+                console.error('Clear cart failed with status:', response.status);
                 notifier.show(texts[lang].serverError, 'danger', 4000);
             }
         } catch (error) {
             console.error('Error clearing cart:', error);
             notifier.show(texts[lang].networkError, 'danger', 4000);
-        } finally {
-            isLoading = false;
         }
     }
 
@@ -419,13 +491,9 @@ let page_cart = function () {
     async function submitOrder() {
         if (isLoading) return;
 
-        if (cartData.items.length === 0) {
-            notifier.show(texts[lang].noItems, 'warning', 3000);
-            return;
-        }
-
         try {
             isLoading = true;
+            hideSubmitConfirmModal();
             showLoadingState();
 
             const orderItems = cartData.items.map(item => ({
@@ -447,12 +515,17 @@ let page_cart = function () {
             if (response.ok) {
                 const result = await response.json();
                 if (result.success) {
+                    // 先隐藏角标（订单提交成功，购物车清空）
+                    animateCartBadgeClear();
+
                     // 显示订单成功对话框
                     showOrderSuccessModal(result.order_id);
                     notifier.show(texts[lang].orderSubmitted, 'success', 3000);
-                    
-                    // 重新加载购物车数据（应该为空）
-                    await loadCartData();
+
+                    // 延迟重新加载购物车数据，让动画完成
+                    setTimeout(async () => {
+                        await loadCartData();
+                    }, 350);
                 } else {
                     notifier.show(result.message || texts[lang].operationFailed, 'danger', 4000);
                 }
@@ -470,9 +543,63 @@ let page_cart = function () {
 
     // 更新汇总信息
     function updateSummary() {
-        document.getElementById('total-items').textContent = cartData.total_count;
-        document.getElementById('total-quantity').textContent = cartData.total_quantity;
-        document.getElementById('total-price').textContent = `¥${cartData.total_price.toFixed(2)}`;
+        document.getElementById('total-items').textContent = cartData.total_count || 0;
+        document.getElementById('total-length').textContent = `${cartData.total_length || 0} mm`;
+        document.getElementById('total-weight').textContent = `${(cartData.total_weight || 0).toFixed(2)} kg`;
+
+        // 更新顶部购物车角标
+        updateCartBadge(cartData.total_count || 0);
+    }
+
+    // 更新购物车角标
+    function updateCartBadge(count) {
+        const cartBadge = document.querySelector('#cart-count');
+        if (!cartBadge) return;
+
+        if (count > 0) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = 'flex';
+        } else {
+            cartBadge.style.display = 'none';
+        }
+    }
+
+    // 角标减少动画
+    function animateCartBadgeDecrease(newCount) {
+        const cartBadge = document.querySelector('#cart-count');
+        if (!cartBadge) return;
+
+        // 添加动画类
+        cartBadge.classList.add('cart-count-animate');
+
+        // 更新数字
+        setTimeout(() => {
+            if (newCount > 0) {
+                cartBadge.textContent = newCount;
+            } else {
+                cartBadge.style.display = 'none';
+            }
+        }, 150);
+
+        // 移除动画类
+        setTimeout(() => {
+            cartBadge.classList.remove('cart-count-animate');
+        }, 600);
+    }
+
+    // 角标清空动画
+    function animateCartBadgeClear() {
+        const cartBadge = document.querySelector('#cart-count');
+        if (!cartBadge) return;
+
+        // 添加清空动画类
+        cartBadge.classList.add('cart-count-clear');
+
+        // 隐藏角标
+        setTimeout(() => {
+            cartBadge.style.display = 'none';
+            cartBadge.classList.remove('cart-count-clear');
+        }, 300);
     }
 
     // 显示加载状态
@@ -504,7 +631,7 @@ let page_cart = function () {
     } else {
         initPage();
     }
-    
+
     // 监听窗口大小变化，重新调整表头对齐
     window.addEventListener('resize', () => {
         setTimeout(fixTableHeaderAlignment, 100);

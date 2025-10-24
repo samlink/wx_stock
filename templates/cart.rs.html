@@ -11,11 +11,11 @@
                 购物车
             </h2>
             <div class="cart-actions">
-                <button class="btn btn-warning btn-sm" id="clear-cart-btn">
+                <button class="btn btn-warning" id="clear-cart-btn">
                     <i class="fa fa-trash"></i>
                     清空购物车
                 </button>
-                <button class="btn btn-primary btn-sm" id="refresh-cart-btn">
+                <button class="btn btn-primary" id="refresh-cart-btn">
                     <i class="fa fa-refresh"></i>
                     刷新
                 </button>
@@ -27,17 +27,17 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>序号</th>
+                            <th width="4%">序号</th>
                             <th>商品名称</th>
                             <th>物料号</th>
                             <th>规格型号</th>
                             <th>状态</th>
-                            <th>执行标准</th>
+                            <th width="15%">执行标准</th>
                             <th>生产厂家</th>
                             <th>炉批号</th>
                             <th>库存长度(mm)</th>
                             <th>库存重量(kg)</th>
-                            <th>添加时间</th>
+                            <th width="12%">添加时间</th>
                             <th>操作</th>
                         </tr>
                     </thead>
@@ -55,12 +55,12 @@
                     <span class="summary-value" id="total-items">0</span>
                 </div>
                 <div class="summary-item">
-                    <span class="summary-label">总数量：</span>
-                    <span class="summary-value" id="total-quantity">0</span>
+                    <span class="summary-label">总长度：</span>
+                    <span class="summary-value" id="total-length">0 mm</span>
                 </div>
-                <div class="summary-item total-price">
-                    <span class="summary-label">总金额：</span>
-                    <span class="summary-value" id="total-price">¥0.00</span>
+                <div class="summary-item">
+                    <span class="summary-label">总重量：</span>
+                    <span class="summary-value" id="total-weight">0.00 kg</span>
                 </div>
             </div>
             <div class="summary-actions">
@@ -103,6 +103,37 @@
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="cancel-clear">取消</button>
                 <button class="btn btn-danger" id="confirm-clear">清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认提交订单对话框 -->
+    <div class="modal" id="confirm-submit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认提交订单</h3>
+                <button class="modal-close" id="close-submit-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要提交这个订单吗？</p>
+                <div class="order-summary" id="submit-order-info">
+                    <div class="summary-row">
+                        <span class="label">商品总数：</span>
+                        <span class="value" id="submit-total-items">0</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">总长度：</span>
+                        <span class="value" id="submit-total-length">0 mm</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="label">总重量：</span>
+                        <span class="value" id="submit-total-weight">0.00 kg</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-submit">取消</button>
+                <button class="btn btn-success" id="confirm-submit">确认提交</button>
             </div>
         </div>
     </div>

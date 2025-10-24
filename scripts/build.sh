@@ -107,7 +107,7 @@ build_javascript() {
     build_single_js "./pages/login.js" "../../static/login.js" "login.js"
     build_single_js "./pages/base.js" "../../static/base.js" "base.js"
     build_single_js "./pages/productset.js" "../../static/productset.js" "productset.js"
-    build_single_js "./pages/cart.js" "../../static/cart_page.js" "cart_page.js"
+    build_single_js "./pages/cartpage.js" "../../static/cart_page.js" "cart_page.js"
     build_single_js "./parts/cart.js" "../../static/cart.js" "cart.js"
     build_single_js "./pages/userset.js" "../../static/userset.js" "userset.js"
     

@@ -67,8 +67,8 @@ pub struct CartDetailItem {
 pub struct CartDetailResponse {
     items: Vec<CartDetailItem>,
     total_count: i32,
-    total_quantity: i32,
-    total_price: f64,
+    total_length: i32,
+    total_weight: f64,
 }
 
 #[derive(Deserialize)]
@@ -309,8 +309,8 @@ pub async fn get_cart_detail(
         return HttpResponse::Unauthorized().json(json!({
             "items": [],
             "total_count": 0,
-            "total_quantity": 0,
-            "total_price": 0.0
+            "total_length": 0,
+            "total_weight": 0.0
         }));
     }
 
@@ -346,19 +346,22 @@ pub async fn get_cart_detail(
     match items_result {
         Ok(rows) => {
             let mut items = Vec::new();
-            let mut total_quantity = 0;
-            let mut total_price = 0.0;
+            let mut total_length = 0;
+            let mut total_weight = 0.0;
 
             for row in rows {
                 let quantity: i32 = row.get("quantity");
                 let unit_price: f64 = row.get("unit_price");
                 let total_item_price = unit_price * quantity as f64;
+                let stock_length: i32 = row.get("stock_length");
+                let stock_weight: f64 = row.get("stock_weight");
                 
                 let added_at: std::time::SystemTime = row.get("added_at");
                 let datetime: chrono::DateTime<chrono::Utc> = added_at.into();
                 
-                total_quantity += quantity;
-                total_price += total_item_price;
+                // 计算总长度和总重量（基于数量）
+                total_length += stock_length * quantity;
+                total_weight += stock_weight * quantity as f64;
 
                 items.push(CartDetailItem {
                     material_number: row.get("material_number"),
@@ -368,8 +371,8 @@ pub async fn get_cart_detail(
                     standard: row.get("standard"),
                     manufacturer: row.get("manufacturer"),
                     heat_number: row.get("heat_number"),
-                    stock_length: row.get("stock_length"),
-                    stock_weight: row.get("stock_weight"),
+                    stock_length,
+                    stock_weight,
                     unit_price,
                     quantity,
                     total_price: total_item_price,
@@ -379,16 +382,16 @@ pub async fn get_cart_detail(
 
             HttpResponse::Ok().json(CartDetailResponse {
                 total_count: items.len() as i32,
-                total_quantity,
-                total_price,
+                total_length,
+                total_weight,
                 items,
             })
         }
         Err(_) => HttpResponse::Ok().json(CartDetailResponse {
             items: vec![],
             total_count: 0,
-            total_quantity: 0,
-            total_price: 0.0,
+            total_length: 0,
+            total_weight: 0.0,
         }),
     }
 }
