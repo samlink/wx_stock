@@ -498,7 +498,6 @@ let page_cart = function () {
 
             const orderItems = cartData.items.map(item => ({
                 material_number: item.material_number,
-                quantity: item.quantity
             }));
 
             const response = await fetch('/stock/submit_order', {

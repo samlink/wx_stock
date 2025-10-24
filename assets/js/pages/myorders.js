@@ -283,16 +283,7 @@ let page_myorders = function () {
             const statusText = this.getOrderStatusText(orderData.status);
 
             let html = `
-                <div class="order-details">
-                    <div class="order-info">
-                        <h3>${texts[lang].orderDetails}</h3>
-                        <div class="order-meta">
-                            <span class="order-id">${texts[lang].orderNumber}: ${orderData.order_id}</span>
-                            <span class="order-date">${texts[lang].orderDate}: ${this.formatDate(orderData.created_at)}</span>
-                            <span class="order-status ${statusClass}">${texts[lang].orderStatus}: ${statusText}</span>
-                        </div>
-                    </div>
-                    
+                <div class="order-details">                  
                     <div class="order-items-table">
                         <table class="table">
                             <thead>

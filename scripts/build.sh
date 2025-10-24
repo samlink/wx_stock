@@ -110,6 +110,7 @@ build_javascript() {
     build_single_js "./pages/cartpage.js" "../../static/cart_page.js" "cart_page.js"
     build_single_js "./parts/cart.js" "../../static/cart.js" "cart.js"
     build_single_js "./pages/userset.js" "../../static/userset.js" "userset.js"
+    build_single_js "./pages/myorders.js" "../../static/myorders.js" "myorders.js"
     
     # 回到项目根目录
     cd ../../

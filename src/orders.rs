@@ -44,9 +44,7 @@ pub struct OrderDetailItem {
     heat_number: String,
     stock_length: i32,
     stock_weight: f64,
-    unit_price: f64,
     quantity: i32,
-    total_price: f64,
 }
 
 #[derive(Serialize)]
@@ -94,13 +92,6 @@ fn create_not_found_response(message: &str) -> HttpResponse {
     }))
 }
 
-fn create_forbidden_response() -> HttpResponse {
-    HttpResponse::Forbidden().json(json!({
-        "success": false,
-        "message": "权限不足"
-    }))
-}
-
 /// 获取用户订单列表
 #[post("/get_user_orders")]
 pub async fn get_user_orders(
@@ -116,27 +107,6 @@ pub async fn get_user_orders(
 
     let conn = db.get().await.unwrap();
 
-    // 验证用户权限 - 确保用户只能查看自己的订单
-    let user_check_result = conn
-        .query_opt(
-            "SELECT id FROM customers WHERE id = $1 AND username = $2",
-            &[&request.user_id, &user_name],
-        )
-        .await;
-
-    match user_check_result {
-        Ok(Some(_)) => {
-            // 用户验证通过，继续查询订单
-        }
-        Ok(None) => {
-            return create_forbidden_response();
-        }
-        Err(e) => {
-            eprintln!("用户权限验证失败: {}", e);
-            return create_error_response("权限验证失败");
-        }
-    }
-
     // 查询用户订单列表，包含订单基本信息和统计数据
     let orders_result = conn
         .query(
@@ -145,10 +115,10 @@ pub async fn get_user_orders(
                 o.created_at,
                 o.status,
                 COUNT(oi.id) as item_count,
-                COALESCE(SUM(COALESCE(mv.理论重量, 0) * oi.quantity), 0) as total_weight
+                SUM(COALESCE(mv.理论重量, 0)) as total_weight
             FROM orders o
-            LEFT JOIN order_items oi ON o.order_id = oi.order_id
-            LEFT JOIN products p ON oi.material_number = p.物料号
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN products p ON oi.material_number = p.物料号
             LEFT JOIN mv_length_weight mv ON p.物料号 = mv.物料号
             WHERE o.user_id = $1
             GROUP BY o.order_id, o.created_at, o.status
@@ -204,25 +174,22 @@ pub async fn get_order_details(
 
     let conn = db.get().await.unwrap();
 
-    // 验证订单权限 - 确保用户只能查看自己的订单
-    let order_check_result = conn
+    // 先查询订单头信息（确保订单属于该用户）
+    let order_info_res = conn
         .query_opt(
-            r#"SELECT o.order_id, o.created_at, o.status 
-               FROM orders o 
-               JOIN customers c ON o.user_id = c.id 
-               WHERE o.order_id = $1 AND o.user_id = $2 AND c.username = $3"#,
-            &[&request.order_id, &request.user_id, &user_name],
+            r#"SELECT order_id, created_at, status FROM orders WHERE order_id = $1 AND user_id = $2"#,
+            &[&request.order_id, &request.user_id],
         )
         .await;
 
-    let order_info = match order_check_result {
+    let order_info_row = match order_info_res {
         Ok(Some(row)) => row,
         Ok(None) => {
-            return create_not_found_response("订单不存在或无权限访问");
+            return create_not_found_response("未找到该订单或无权访问");
         }
         Err(e) => {
-            eprintln!("订单权限验证失败: {}", e);
-            return create_error_response("订单权限验证失败");
+            eprintln!("查询订单头失败: {}", e);
+            return create_error_response("查询订单头失败");
         }
     };
 
@@ -231,8 +198,6 @@ pub async fn get_order_details(
         .query(
             r#"SELECT 
                 oi.material_number,
-                oi.quantity,
-                p.物料号,
                 split_part(t.node_name, ' ', 2) as product_name,
                 p.规格型号 as specification,
                 p.文本字段2 as status,
@@ -240,14 +205,12 @@ pub async fn get_order_details(
                 p.文本字段5 as manufacturer,
                 p.文本字段4 as heat_number,
                 COALESCE(mv.库存长度, 0) as stock_length,
-                COALESCE(mv.理论重量, 0) as stock_weight,
-                COALESCE(mv.理论重量, 0) * 0.1 as unit_price
+                COALESCE(mv.理论重量, 0) as stock_weight
             FROM order_items oi
             JOIN products p ON oi.material_number = p.物料号
             JOIN tree t ON p.商品id = t.num
             LEFT JOIN mv_length_weight mv ON p.物料号 = mv.物料号
-            WHERE oi.order_id = $1
-            ORDER BY oi.created_at ASC"#,
+            WHERE oi.order_id = $1"#,
             &[&request.order_id],
         )
         .await;
@@ -260,10 +223,8 @@ pub async fn get_order_details(
             let mut total_weight = 0.0;
 
             for row in rows {
-                let quantity: i32 = row.get("quantity");
-                let unit_price: f64 = row.get("unit_price");
+                let quantity: i32 = 1;
                 let stock_weight: f64 = row.get("stock_weight");
-                let total_item_price = unit_price * quantity as f64;
                 let total_item_weight = stock_weight * quantity as f64;
 
                 total_items += 1;
@@ -280,19 +241,17 @@ pub async fn get_order_details(
                     heat_number: row.get("heat_number"),
                     stock_length: row.get("stock_length"),
                     stock_weight,
-                    unit_price,
                     quantity,
-                    total_price: total_item_price,
                 });
             }
 
-            let created_at: std::time::SystemTime = order_info.get("created_at");
+            let created_at: std::time::SystemTime = order_info_row.get("created_at");
             let datetime: chrono::DateTime<chrono::Utc> = created_at.into();
 
             let order_details = OrderDetails {
-                order_id: order_info.get("order_id"),
+                order_id: order_info_row.get("order_id"),
                 created_at: datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
-                status: order_info.get("status"),
+                status: order_info_row.get("status"),
                 items,
                 summary: OrderSummaryInfo {
                     total_items,

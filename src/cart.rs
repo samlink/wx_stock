@@ -84,16 +84,15 @@ pub struct UpdateCartQuantityRequest {
     quantity: i32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct SubmitOrderRequest {
     user_id: i32,
     items: Vec<OrderItem>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct OrderItem {
     material_number: String,
-    quantity: i32,
 }
 
 #[derive(Serialize)]
@@ -228,12 +227,9 @@ pub async fn get_cart_materials(
             for row in rows {
                 materials.push(row.get("material_number"));
             }
-            
+
             let count = materials.len() as i32;
-            HttpResponse::Ok().json(CartMaterialsResponse {
-                materials,
-                count,
-            })
+            HttpResponse::Ok().json(CartMaterialsResponse { materials, count })
         }
         Err(_) => HttpResponse::Ok().json(CartMaterialsResponse {
             materials: vec![],
@@ -355,10 +351,10 @@ pub async fn get_cart_detail(
                 let total_item_price = unit_price * quantity as f64;
                 let stock_length: i32 = row.get("stock_length");
                 let stock_weight: f64 = row.get("stock_weight");
-                
+
                 let added_at: std::time::SystemTime = row.get("added_at");
                 let datetime: chrono::DateTime<chrono::Utc> = added_at.into();
-                
+
                 // 计算总长度和总重量（基于数量）
                 total_length += stock_length * quantity;
                 total_weight += stock_weight * quantity as f64;
@@ -475,7 +471,11 @@ pub async fn update_cart_quantity(
     let update_result = conn
         .execute(
             "UPDATE shopping_cart SET quantity = $1 WHERE user_id = $2 AND material_number = $3",
-            &[&request.quantity, &request.user_id, &request.material_number],
+            &[
+                &request.quantity,
+                &request.user_id,
+                &request.material_number,
+            ],
         )
         .await;
 
@@ -530,12 +530,10 @@ pub async fn clear_cart(
         .await;
 
     match clear_result {
-        Ok(_) => {
-            HttpResponse::Ok().json(json!({
-                "success": true,
-                "message": "购物车已清空"
-            }))
-        }
+        Ok(_) => HttpResponse::Ok().json(json!({
+            "success": true,
+            "message": "购物车已清空"
+        })),
         Err(e) => {
             eprintln!("清空购物车失败: {}", e);
             HttpResponse::InternalServerError().json(json!({
@@ -578,7 +576,7 @@ pub async fn submit_order(
     for item in &request.items {
         let stock_result = transaction
             .query_one(
-                "SELECT COALESCE(库存长度, 0) as stock_length FROM products p 
+                "SELECT COALESCE(foo.库存长度, 0) as stock_length FROM products p 
                  LEFT JOIN mv_length_weight foo ON p.物料号 = foo.物料号 
                  WHERE p.物料号 = $1",
                 &[&item.material_number],
@@ -588,11 +586,11 @@ pub async fn submit_order(
         match stock_result {
             Ok(row) => {
                 let stock_length: i32 = row.get("stock_length");
-                if stock_length < item.quantity {
+                if stock_length < 10 {
                     return HttpResponse::BadRequest().json(json!({
                         "success": false,
-                        "message": format!("商品 {} 库存不足，当前库存：{}，需要：{}", 
-                                          item.material_number, stock_length, item.quantity)
+                        "message": format!("商品 {} 库存不足，当前库存：{}",
+                                          item.material_number, stock_length)
                     }));
                 }
             }
@@ -606,15 +604,19 @@ pub async fn submit_order(
     }
 
     // 生成订单号
-    let order_id = format!("ORD-{}-{}", 
-                          chrono::Utc::now().format("%Y%m%d%H%M%S"),
-                          request.user_id);
+    let order_id = format!(
+        "WX-{}-{}",
+        request.user_id,
+        chrono::Utc::now().format("%Y%m%d%H%M%S")
+    );
+
+    println!("order_id: {}", order_id);
 
     // 创建订单记录
     let order_result = transaction
         .execute(
-            "INSERT INTO orders (order_id, user_id, status, created_at) VALUES ($1, $2, $3, NOW())",
-            &[&order_id, &request.user_id, &"pending"],
+            "INSERT INTO orders (order_id, user_id) VALUES ($1, $2)",
+            &[&order_id, &request.user_id],
         )
         .await;
 
@@ -627,12 +629,14 @@ pub async fn submit_order(
 
     // 创建订单详情
     for item in &request.items {
-        let detail_result = transaction
-            .execute(
-                "INSERT INTO order_items (order_id, material_number, quantity) VALUES ($1, $2, $3)",
-                &[&order_id, &item.material_number, &item.quantity],
-            )
-            .await;
+        let sql = format!(
+            "INSERT INTO order_items (order_id, material_number) VALUES ('{}', '{}')",
+            order_id, item.material_number
+        );
+
+        // println!("sql: {}", sql);
+
+        let detail_result = transaction.execute(sql.as_str(), &[]).await;
 
         if detail_result.is_err() {
             return HttpResponse::InternalServerError().json(json!({

@@ -3,14 +3,14 @@
 @(user: String)
 
 @:base_html({
-<div class="myorders-page">
-    <div class="myorders-content has-bak">
-        <div class="myorders-header">
-            <h2 class="myorders-title">
+<div class="myorders-page orders-page">
+    <div class="myorders-content orders-content has-bak">
+        <div class="myorders-header orders-header">
+            <h2 class="myorders-title orders-title">
                 <i class="fa fa-list-alt"></i>
                 我的订单
             </h2>
-            <div class="myorders-actions">
+            <div class="myorders-actions orders-actions">
                 <button class="btn btn-primary" id="refresh-orders-btn">
                     <i class="fa fa-refresh"></i>
                     刷新
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <div class="myorders-main">
+        <div class="myorders-main orders-main">
             <!-- 左侧订单列表区域 -->
             <div class="orders-list-section">
                 <div class="orders-list-header">
@@ -71,8 +71,8 @@
             </div>
 
             <!-- 右侧订单明细区域 -->
-            <div class="order-details-section">
-                <div class="order-details-header">
+            <div class="order-details-section orders-details-section">
+                <div class="order-details-header orders-details-header">
                     <h3 id="order-details-title">订单明细</h3>
                     <div class="loading-indicator" id="details-loading" style="display: none;">
                         <i class="fa fa-spinner fa-spin"></i>
@@ -80,7 +80,7 @@
                     </div>
                 </div>
 
-                <div class="order-details-container">
+                <div class="order-details-container orders-details-container">
                     <!-- 默认提示状态 -->
                     <div class="default-state" id="default-details-state">
                         <div class="default-icon">
@@ -180,4 +180,5 @@
 </div>
 
 <script src="/stock/static/@tools_service_js.name"></script>
+<script src="/stock/static/@myorders_js.name"></script>
 }, user)
