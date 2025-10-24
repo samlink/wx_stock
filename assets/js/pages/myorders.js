@@ -230,6 +230,8 @@ let page_myorders = function () {
 
             // 获取订单明细
             this.getOrderDetails(orderId);
+
+            document.querySelector('#order-details-title').textContent = texts[lang].orderDetails + ' - ' + orderId;
         }
 
         /**
@@ -612,14 +614,6 @@ let page_myorders = function () {
             if (emptyDetailsMessage) emptyDetailsMessage.textContent = texts[lang].orderDetailsLoadError;
             if (emptyDetailsDescription) emptyDetailsDescription.textContent = texts[lang].orderDetailsLoadErrorDescription;
 
-            // 更新订单基本信息标签
-            const infoLabels = document.querySelectorAll('.order-info .info-label');
-            if (infoLabels.length >= 3) {
-                infoLabels[0].textContent = texts[lang].orderNumber + '：';
-                infoLabels[1].textContent = texts[lang].orderDate + '：';
-                infoLabels[2].textContent = texts[lang].orderStatus + '：';
-            }
-
             // 更新汇总信息标签
             const summaryLabels = document.querySelectorAll('.order-summary .summary-label');
             if (summaryLabels.length >= 3) {
@@ -652,13 +646,6 @@ let page_myorders = function () {
             window.addEventListener('resize', () => {
                 this.adjustLayout();
             });
-        }
-
-        /**
-         * 处理订单项点击
-         */
-        handleOrderItemClick(orderId) {
-            this.orderManager.selectOrder(orderId);
         }
 
         /**
@@ -717,20 +704,6 @@ let page_myorders = function () {
             }, 100);
         }
 
-        /**
-         * 显示加载状态
-         */
-        showLoadingState() {
-            this.orderManager.showOrdersLoadingState();
-            this.orderManager.showDetailsLoadingState();
-        }
-
-        /**
-         * 隐藏加载状态
-         */
-        hideLoadingState() {
-            // 加载状态会在渲染时被替换
-        }
     }
 
     // 全局变量

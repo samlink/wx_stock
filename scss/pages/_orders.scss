@@ -34,7 +34,7 @@
 
         .orders-title {
             margin: 0;
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
             display: flex;
             align-items: center;
@@ -43,7 +43,7 @@
             letter-spacing: 1px;
 
             i {
-                font-size: 32px;
+                font-size: 24px;
                 color: #ffd700;
                 text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
             }
@@ -177,7 +177,7 @@
         box-shadow: 0 2px 8px rgba(0, 123, 255, 0.2);
 
         &::before {
-            content: '';
+            content: "";
             position: absolute;
             left: 0;
             top: 0;
@@ -238,46 +238,46 @@
         }
     }
 
-    .order-info {
+    .order-date {
+        font-size: 12px;
+        color: #7f8b96;
         display: flex;
-        flex-direction: column;
+        align-items: center;
         gap: 4px;
 
-        .order-date {
-            font-size: 12px;
-            color: #6c757d;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-
-            i {
-                font-size: 11px;
-            }
-        }
-
-        .order-summary {
-            font-size: 12px;
-            color: #495057;
-            display: flex;
-            justify-content: space-between;
-
-            .item-count {
-                display: flex;
-                align-items: center;
-                gap: 4px;
-
-                i {
-                    font-size: 11px;
-                    color: #6c757d;
-                }
-            }
-
-            .total-amount {
-                font-weight: 600;
-                color: #28a745;
-            }
+        i {
+            font-size: 11px;
         }
     }
+
+    // .order-info {
+    //     display: flex;
+    //     flex-direction: column;
+    //     gap: 4px;
+
+    //     .order-summary {
+    //         font-size: 12px;
+    //         color: #495057;
+    //         display: flex;
+    //         justify-content: space-between;
+
+    //         .item-count {
+    //             display: flex;
+    //             align-items: center;
+    //             gap: 4px;
+
+    //             i {
+    //                 font-size: 11px;
+    //                 color: #6c757d;
+    //             }
+    //         }
+
+    //         .total-amount {
+    //             font-weight: 600;
+    //             color: #28a745;
+    //         }
+    //     }
+    // }
 }
 
 // 空订单列表状态
@@ -324,7 +324,7 @@
     }
 }
 
-//订单明细表格样式 
+//订单明细表格样式
 .order-details-table-container {
     flex: 1;
     padding: 0;
@@ -388,27 +388,49 @@
 
                     // 订单明细表格列宽设置（11列，总和100%）
                     // 1 序号
-                    &:nth-child(1) { width: 5%; }
+                    &:nth-child(1) {
+                        width: 5%;
+                    }
                     // 2 商品名称
-                    &:nth-child(2) { width: 18%; }
+                    &:nth-child(2) {
+                        width: 8%;
+                    }
                     // 3 物料号
-                    &:nth-child(3) { width: 13%; }
+                    &:nth-child(3) {
+                        width: 10%;
+                    }
                     // 4 规格型号
-                    &:nth-child(4) { width: 12%; }
+                    &:nth-child(4) {
+                        width: 8%;
+                    }
                     // 5 状态
-                    &:nth-child(5) { width: 8%; }
+                    &:nth-child(5) {
+                        width: 10%;
+                    }
                     // 6 执行标准
-                    &:nth-child(6) { width: 10%; }
+                    &:nth-child(6) {
+                        width: 15%;
+                    }
                     // 7 生产厂家
-                    &:nth-child(7) { width: 9%; }
+                    &:nth-child(7) {
+                        width: 8%;
+                    }
                     // 8 炉批号
-                    &:nth-child(8) { width: 8%; }
+                    &:nth-child(8) {
+                        width: 10%;
+                    }
                     // 9 库存长度
-                    &:nth-child(9) { width: 7%; }
+                    &:nth-child(9) {
+                        width: 8%;
+                    }
                     // 10 库存重量
-                    &:nth-child(10) { width: 5%; }
+                    &:nth-child(10) {
+                        width: 8%;
+                    }
                     // 11 数量
-                    &:nth-child(11) { width: 5%; }
+                    &:nth-child(11) {
+                        width: 5%;
+                    }
                 }
             }
 
@@ -462,17 +484,39 @@
                         text-overflow: ellipsis;
 
                         // 对应thead的列宽（11列）
-                        &:nth-child(1) { width: 5%; }
-                        &:nth-child(2) { width: 18%; }
-                        &:nth-child(3) { width: 13%; }
-                        &:nth-child(4) { width: 12%; }
-                        &:nth-child(5) { width: 8%; }
-                        &:nth-child(6) { width: 10%; }
-                        &:nth-child(7) { width: 9%; }
-                        &:nth-child(8) { width: 8%; }
-                        &:nth-child(9) { width: 7%; }
-                        &:nth-child(10) { width: 5%; }
-                        &:nth-child(11) { width: 5%; }
+                        &:nth-child(1) {
+                            width: 5%;
+                        }
+                        &:nth-child(2) {
+                            width: 8%;
+                        }
+                        &:nth-child(3) {
+                            width: 10%;
+                        }
+                        &:nth-child(4) {
+                            width: 8%;
+                        }
+                        &:nth-child(5) {
+                            width: 10%;
+                        }
+                        &:nth-child(6) {
+                            width: 15%;
+                        }
+                        &:nth-child(7) {
+                            width: 8%;
+                        }
+                        &:nth-child(8) {
+                            width: 10%;
+                        }
+                        &:nth-child(9) {
+                            width: 8%;
+                        }
+                        &:nth-child(10) {
+                            width: 8%;
+                        }
+                        &:nth-child(11) {
+                            width: 5%;
+                        }
 
                         // 状态列样式
                         &.status-cell {
@@ -547,7 +591,7 @@
     }
 }
 
-//订单明细默认状态（未选择订单） 
+//订单明细默认状态（未选择订单）
 .order-details-placeholder {
     flex: 1;
     display: flex;
@@ -575,39 +619,6 @@
             font-size: 14px;
             color: #6c757d;
             line-height: 1.4;
-        }
-    }
-}
-
-.orders-details-section {
-    .table-cart {
-        border: 1px solid #dee2e6;
-        border-radius: 0;
-        background: #fff;
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            thead th {
-                text-align: center;
-                border: 1px solid #dee2e6;
-                font-weight: 600;
-                height: 40px;
-
-            }
-            tbody tr {
-                height: 40px;
-            }
-            tbody td {
-                text-align: center;
-                vertical-align: middle;
-                border: 1px solid #dee2e6;
-            }
-            tfoot td {
-                border: 1px solid #dee2e6;
-                font-weight: 600;
-                text-align: center;
-                height: 40px;
-            }
         }
     }
 }
@@ -791,13 +802,12 @@
                         }
                     }
 
-                    .order-info {
-
-                        .order-date,
-                        .order-summary {
-                            font-size: 11px;
-                        }
-                    }
+                    // .order-info {
+                    //     .order-date,
+                    //     .order-summary {
+                    //         font-size: 11px;
+                    //     }
+                    // }
                 }
             }
 
@@ -931,7 +941,6 @@
             border-width: 2px;
 
             table {
-
                 th,
                 td {
                     border-width: 2px;
@@ -944,7 +953,6 @@
 // 减少动画模式支持
 @media (prefers-reduced-motion: reduce) {
     .orders-page {
-
         .order-item,
         .order-details-table-container,
         .loading-icon,
