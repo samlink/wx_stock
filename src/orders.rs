@@ -8,6 +8,9 @@ use serde_json::json;
 #[derive(Deserialize)]
 pub struct UserOrdersRequest {
     user_id: i32,
+    search: Option<String>,
+    page: Option<i32>,
+    rec: Option<i32>,
 }
 
 #[derive(Deserialize)]
@@ -36,6 +39,8 @@ pub struct UserOrdersResponse {
     success: bool,
     orders: Vec<OrderSummary>,
     total_count: i32,
+    page: i32,
+    rec: i32,
 }
 
 #[derive(Serialize)]
@@ -118,10 +123,27 @@ pub async fn get_user_orders(
 
     let conn = db.get().await.unwrap();
 
-    // 查询用户订单列表，包含订单基本信息和统计数据
-    let orders_result = conn
-        .query(
-            r#"SELECT 
+    // 获取分页参数
+    let page = request.page.unwrap_or(1);
+    let rec = request.rec.unwrap_or(10);
+    let search = request.search.as_deref().unwrap_or("").trim();
+    
+    let (orders_result, total_count) = if search.is_empty() {
+        // 无搜索时的查询
+        let total_result = conn.query_one(
+            "SELECT COUNT(*) as total FROM orders o WHERE o.user_id = $1",
+            &[&request.user_id]
+        ).await;
+        let total_count = match total_result {
+            Ok(row) => row.get::<_, i64>("total"),
+            Err(_) => 0,
+        } as i32;
+
+        let skip = ((page - 1) * rec) as i64;
+        let rec_i64 = rec as i64;
+
+        let orders_result = conn.query(
+            r#"SELECT
                 o.order_id,
                 o.created_at,
                 o.status,
@@ -133,10 +155,58 @@ pub async fn get_user_orders(
             LEFT JOIN mv_length_weight mv ON p.物料号 = mv.物料号
             WHERE o.user_id = $1
             GROUP BY o.order_id, o.created_at, o.status
-            ORDER BY o.created_at DESC"#,
-            &[&request.user_id],
-        )
-        .await;
+            ORDER BY o.created_at DESC
+            OFFSET $2 LIMIT $3"#,
+            &[&request.user_id, &skip, &rec_i64]
+        ).await;
+        
+        (orders_result, total_count)
+    } else {
+        // 有搜索时的查询
+        let search_param = format!("%{}%", search);
+        let total_result = conn.query_one(
+            r#"SELECT COUNT(*) as total FROM orders o 
+               WHERE o.user_id = $1 
+               AND (o.order_id ILIKE $2 OR EXISTS (
+                   SELECT 1 FROM order_items oi2 
+                   JOIN tree t ON oi2.material_number = t.num 
+                   WHERE oi2.order_id = o.order_id AND t.node_name ILIKE $3
+               ))"#,
+            &[&request.user_id, &search_param, &search_param]
+        ).await;
+        let total_count = match total_result {
+            Ok(row) => row.get::<_, i64>("total"),
+            Err(_) => 0,
+        } as i32;
+
+        let skip = ((page - 1) * rec) as i64;
+        let rec_i64 = rec as i64;
+
+        let orders_result = conn.query(
+            r#"SELECT
+                o.order_id,
+                o.created_at,
+                o.status,
+                COUNT(oi.id) as item_count,
+                SUM(COALESCE(mv.理论重量, 0)) as total_weight
+            FROM orders o
+            JOIN order_items oi ON o.order_id = oi.order_id
+            JOIN products p ON oi.material_number = p.物料号
+            LEFT JOIN mv_length_weight mv ON p.物料号 = mv.物料号
+            WHERE o.user_id = $1
+            AND (o.order_id ILIKE $2 OR EXISTS (
+                SELECT 1 FROM order_items oi2
+                JOIN tree t ON oi2.material_number = t.num
+                WHERE oi2.order_id = o.order_id AND t.node_name ILIKE $3
+            ))
+            GROUP BY o.order_id, o.created_at, o.status
+            ORDER BY o.created_at DESC
+            OFFSET $4 LIMIT $5"#,
+            &[&request.user_id, &search_param, &search_param, &skip, &rec_i64]
+        ).await;
+        
+        (orders_result, total_count)
+    };
 
     match orders_result {
         Ok(rows) => {
@@ -159,7 +229,9 @@ pub async fn get_user_orders(
 
             HttpResponse::Ok().json(UserOrdersResponse {
                 success: true,
-                total_count: orders.len() as i32,
+                total_count,
+                page,
+                rec,
                 orders,
             })
         }

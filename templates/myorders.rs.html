@@ -23,6 +23,12 @@
             <div class="orders-list-section">
                 <div class="orders-list-header">
                     <h3>订单列表</h3>
+                    <div class="orders-search-container">
+                        <input type="text" class="form-control search-input" id="order-search-input" placeholder="搜索订单名称">
+                        <button class="btn btn-info btn-sm" id="order-search-btn">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
                     <div class="loading-indicator" id="orders-loading" style="display: none;">
                         <i class="fa fa-spinner fa-spin"></i>
                         加载中...
@@ -40,6 +46,28 @@
                         </div>
                         <p class="empty-message">暂无订单</p>
                         <p class="empty-description">您还没有提交过任何订单</p>
+                    </div>
+
+                    <!-- 翻页控件 -->
+                    <div class="orders-pagination" id="orders-pagination">
+                        <div class="table-button">
+                            <button class="page-button btn" id="orders-first" title="首页"><img src="/stock/assets/img/backward.png"
+                                    width="12px"></button>
+                            <button class="page-button btn" id="orders-pre" title="前一页"><img src="/stock/assets/img/backward2.png"
+                                    width="12px"></button>
+                            <p class="seperator"></p>
+                            <span class="page-info">
+                                <span>第</span><input type="text" class="form-control" id="orders-page-input" value="1">
+                                <span>页，共</span><span id="orders-pages"></span><span>页</span>
+                            </span>
+                            <p class="seperator"></p>
+                            <button class="page-button btn" id="orders-aft" title="后一页"><img src="/stock/assets/img/forward2.png"
+                                    width="12px"></button>
+                            <button class="page-button btn" id="orders-last" title="尾页"><img src="/stock/assets/img/forward.png"
+                                    width="12px"></button>
+                        </div>
+
+                        <div class="table-info"> 共 <span id="orders-total-records"></span> 条 </div>
                     </div>
                 </div>
             </div>

@@ -113,6 +113,27 @@ let page_myorders = function () {
             this.selectedOrderDetails = null;
             this.isLoading = false;
             this.userId = Number(document.querySelector('#user-id').textContent.trim());
+            this.currentPage = 1;
+            this.recordsPerPage = 10;
+            this.totalCount = 0;
+            this.currentSearch = "";
+            
+            // 计算每页显示条目数（基于屏幕高度）
+            this.calculateRecordsPerPage();
+        }
+
+        /**
+         * 计算每页显示条目数
+         */
+        calculateRecordsPerPage() {
+            try {
+                const ordersListHeight = window.innerHeight * 0.6; // 使用60%的视窗高度
+                const itemHeight = 56; // 每个订单项的大约高度（像素）
+                const maxRecords = Math.max(5, Math.floor(ordersListHeight / itemHeight));
+                this.recordsPerPage = Math.min(maxRecords, 20); // 限制最大20条
+            } catch (error) {
+                this.recordsPerPage = 10; // 出错时使用默认值
+            }
         }
 
         /**
@@ -130,8 +151,12 @@ let page_myorders = function () {
         /**
          * 获取用户订单列表
          */
-        async getOrdersList() {
+        async getOrdersList(resetPage = true) {
             if (this.isLoading) return;
+
+            if (resetPage) {
+                this.currentPage = 1;
+            }
 
             try {
                 this.isLoading = true;
@@ -143,7 +168,10 @@ let page_myorders = function () {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        user_id: this.userId
+                        user_id: this.userId,
+                        search: this.currentSearch,
+                        page: this.currentPage,
+                        rec: this.recordsPerPage
                     })
                 });
 
@@ -151,7 +179,9 @@ let page_myorders = function () {
                     const data = await response.json();
                     if (data.success) {
                         this.orders = data.orders || [];
+                        this.totalCount = data.total_count || 0;
                         this.renderOrdersList();
+                        this.updatePagination();
                     } else {
                         throw new Error(data.message || 'Failed to get orders');
                     }
@@ -168,6 +198,54 @@ let page_myorders = function () {
             } finally {
                 this.isLoading = false;
             }
+        }
+
+        /**
+         * 搜索订单
+         */
+        async searchOrders(searchTerm) {
+            this.currentSearch = searchTerm.trim();
+            await this.getOrdersList();
+        }
+
+        /**
+         * 跳转到指定页
+         */
+        async goToPage(page) {
+            const totalPages = Math.ceil(this.totalCount / this.recordsPerPage);
+            if (page >= 1 && page <= totalPages && page !== this.currentPage) {
+                this.currentPage = page;
+                await this.getOrdersList(false);
+            }
+        }
+
+        /**
+         * 下一页
+         */
+        async nextPage() {
+            await this.goToPage(this.currentPage + 1);
+        }
+
+        /**
+         * 上一页
+         */
+        async prevPage() {
+            await this.goToPage(this.currentPage - 1);
+        }
+
+        /**
+         * 首页
+         */
+        async firstPage() {
+            await this.goToPage(1);
+        }
+
+        /**
+         * 尾页
+         */
+        async lastPage() {
+            const totalPages = Math.ceil(this.totalCount / this.recordsPerPage);
+            await this.goToPage(totalPages);
         }
 
         /**
@@ -235,6 +313,39 @@ let page_myorders = function () {
         }
 
         /**
+         * 更新翻页控件
+         */
+        updatePagination() {
+            const totalPages = Math.ceil(this.totalCount / this.recordsPerPage);
+            
+            // 更新翻页信息
+            const pageInput = document.getElementById('orders-page-input');
+            const totalPagesSpan = document.getElementById('orders-pages');
+            const totalRecordsSpan = document.getElementById('orders-total-records');
+            
+            if (pageInput) pageInput.value = this.currentPage;
+            if (totalPagesSpan) totalPagesSpan.textContent = totalPages;
+            if (totalRecordsSpan) totalRecordsSpan.textContent = this.totalCount;
+
+            // 更新按钮状态
+            const firstBtn = document.getElementById('orders-first');
+            const prevBtn = document.getElementById('orders-pre');
+            const nextBtn = document.getElementById('orders-aft');
+            const lastBtn = document.getElementById('orders-last');
+            
+            if (firstBtn) firstBtn.disabled = this.currentPage === 1;
+            if (prevBtn) prevBtn.disabled = this.currentPage === 1;
+            if (nextBtn) nextBtn.disabled = this.currentPage === totalPages || totalPages === 0;
+            if (lastBtn) lastBtn.disabled = this.currentPage === totalPages || totalPages === 0;
+
+            // 显示/隐藏翻页控件
+            const pagination = document.getElementById('orders-pagination');
+            if (pagination) {
+                pagination.style.display = this.totalCount > this.recordsPerPage ? 'flex' : 'none';
+            }
+        }
+
+        /**
          * 渲染订单列表
          */
         renderOrdersList() {
@@ -244,9 +355,12 @@ let page_myorders = function () {
                 container.innerHTML = `
                     <div class="empty-orders">
                         <i class="fa fa-list-alt"></i>
-                        <p>${texts[lang].noOrders}</p>
+                        <p>${this.currentSearch ? '未找到匹配的订单' : texts[lang].noOrders}</p>
                     </div>
                 `;
+                // 隐藏翻页控件
+                const pagination = document.getElementById('orders-pagination');
+                if (pagination) pagination.style.display = 'none';
                 return;
             }
 
@@ -551,6 +665,9 @@ let page_myorders = function () {
                 ordersListHeader.textContent = texts[lang].ordersList;
             }
 
+            // 更新搜索框和翻页文本
+            this.updateSearchAndPaginationTexts();
+
             // 更新订单明细标题
             const orderDetailsTitle = document.querySelector('#order-details-title');
             if (orderDetailsTitle) {
@@ -562,6 +679,46 @@ let page_myorders = function () {
 
             // 更新空状态和默认状态文本
             this.updateEmptyStates();
+        }
+
+        /**
+         * 更新搜索框和翻页文本
+         */
+        updateSearchAndPaginationTexts() {
+            // 更新搜索框
+            const searchInput = document.getElementById('order-search-input');
+            if (searchInput) {
+                searchInput.placeholder = lang === 'en' ? 'Search orders' : '搜索订单名称';
+            }
+
+            // 更新翻页控件
+            const pageInfo = document.querySelector('.orders-pagination .page-info');
+            if (pageInfo) {
+                pageInfo.innerHTML = lang === 'en' 
+                    ? `<span>Page</span><input type="text" class="form-control" id="orders-page-input" value="1">
+                       <span>of</span><span id="orders-pages"></span><span>pages</span>`
+                    : `<span>第</span><input type="text" class="form-control" id="orders-page-input" value="1">
+                       <span>页，共</span><span id="orders-pages"></span><span>页</span>`;
+            }
+
+            // 更新翻页按钮标题
+            const firstBtn = document.getElementById('orders-first');
+            const prevBtn = document.getElementById('orders-pre');
+            const nextBtn = document.getElementById('orders-aft');
+            const lastBtn = document.getElementById('orders-last');
+            
+            if (firstBtn) firstBtn.title = lang === 'en' ? 'First' : '首页';
+            if (prevBtn) prevBtn.title = lang === 'en' ? 'Pre' : '前一页';
+            if (nextBtn) nextBtn.title = lang === 'en' ? 'Next' : '后一页';
+            if (lastBtn) lastBtn.title = lang === 'en' ? 'Last' : '尾页';
+
+            // 更新总记录数文本
+            const totalRecords = document.querySelector('.orders-pagination .table-info');
+            if (totalRecords) {
+                totalRecords.innerHTML = lang === 'en' 
+                    ? `Total <span id="orders-total-records"></span> records`
+                    : `共 <span id="orders-total-records"></span> 条`;
+            }
         }
 
         /**
@@ -635,6 +792,12 @@ let page_myorders = function () {
                 });
             }
 
+            // 搜索功能
+            this.bindSearchListeners();
+
+            // 翻页功能
+            this.bindPaginationListeners();
+
             // ESC键清除选择
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape') {
@@ -646,6 +809,83 @@ let page_myorders = function () {
             window.addEventListener('resize', () => {
                 this.adjustLayout();
             });
+        }
+
+        /**
+         * 绑定搜索事件监听器
+         */
+        bindSearchListeners() {
+            const searchInput = document.getElementById('order-search-input');
+            const searchBtn = document.getElementById('order-search-btn');
+
+            if (searchBtn) {
+                searchBtn.addEventListener('click', () => {
+                    this.handleSearch();
+                });
+            }
+
+            if (searchInput) {
+                // 回车键搜索
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.handleSearch();
+                    }
+                });
+
+                // 实时搜索（防抖）
+                let searchTimeout;
+                searchInput.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        this.handleSearch();
+                    }, 500);
+                });
+            }
+        }
+
+        /**
+         * 绑定翻页事件监听器
+         */
+        bindPaginationListeners() {
+            const firstBtn = document.getElementById('orders-first');
+            const prevBtn = document.getElementById('orders-pre');
+            const nextBtn = document.getElementById('orders-aft');
+            const lastBtn = document.getElementById('orders-last');
+            const pageInput = document.getElementById('orders-page-input');
+
+            if (firstBtn) {
+                firstBtn.addEventListener('click', () => this.orderManager.firstPage());
+            }
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => this.orderManager.prevPage());
+            }
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => this.orderManager.nextPage());
+            }
+            if (lastBtn) {
+                lastBtn.addEventListener('click', () => this.orderManager.lastPage());
+            }
+
+            if (pageInput) {
+                pageInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        const page = parseInt(pageInput.value, 10);
+                        if (!isNaN(page)) {
+                            this.orderManager.goToPage(page);
+                        }
+                    }
+                });
+            }
+        }
+
+        /**
+         * 处理搜索
+         */
+        async handleSearch() {
+            const searchInput = document.getElementById('order-search-input');
+            if (searchInput) {
+                await this.orderManager.searchOrders(searchInput.value);
+            }
         }
 
         /**
@@ -697,6 +937,9 @@ let page_myorders = function () {
          * 调整布局
          */
         adjustLayout() {
+            // 窗口尺寸变化时，重新计算每页显示条目数
+            this.orderManager.calculateRecordsPerPage();
+            
             // 窗口尺寸变化时，重新对齐表头，参照购物车实现
             setTimeout(() => {
                 try { fixOrderDetailsHeaderAlignment(); } catch (e) { }
