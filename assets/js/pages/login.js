@@ -1,6 +1,6 @@
 // 本地运行测试用
 setCookie("wxok", "ok", 3);
-localStorage.setItem('language', 'en'); // zh en
+localStorage.setItem('language', 'zh'); // zh en
 
 const lang = localStorage.getItem('language') || 'zh';
 
