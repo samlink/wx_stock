@@ -725,6 +725,16 @@ let page_myorders = function () {
             console.warn('Cart init failed on MyOrders:', e);
         }
 
+        // 初始化订单角标管理器
+        try {
+            if (typeof OrdersManager !== 'undefined') {
+                window._ordersManager = new OrdersManager();
+                await window._ordersManager.init();
+            }
+        } catch (e) {
+            console.warn('Orders manager init failed on MyOrders:', e);
+        }
+
         // 将orderManager暴露到全局作用域，供HTML中的onclick使用
         window.orderManager = orderManager;
 

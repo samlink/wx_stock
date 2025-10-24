@@ -76,6 +76,7 @@ async fn main() -> std::io::Result<()> {
                     .service(cart::submit_order)
                     .service(orders::get_user_orders)
                     .service(orders::get_order_details)
+                    .service(orders::get_pending_orders_count)
                     .service(service::serve_download)
                     .service(service::answer)
                     .service(service::translate)

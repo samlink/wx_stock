@@ -16,6 +16,11 @@ pub struct OrderDetailsRequest {
     order_id: String,
 }
 
+#[derive(Deserialize)]
+pub struct PendingOrdersCountRequest {
+    user_id: i32,
+}
+
 // 响应结构体
 #[derive(Serialize)]
 pub struct OrderSummary {
@@ -68,6 +73,12 @@ pub struct OrderDetailsResponse {
     success: bool,
     order: Option<OrderDetails>,
     message: String,
+}
+
+#[derive(Serialize)]
+pub struct PendingOrdersCountResponse {
+    success: bool,
+    count: i32,
 }
 
 // 错误处理辅助函数
@@ -269,6 +280,44 @@ pub async fn get_order_details(
         Err(e) => {
             eprintln!("查询订单明细失败: {}", e);
             create_error_response("查询订单明细失败")
+        }
+    }
+}
+
+/// 获取用户未处理订单数量
+#[post("/get_pending_orders_count")]
+pub async fn get_pending_orders_count(
+    db: web::Data<Pool>,
+    request: web::Json<PendingOrdersCountRequest>,
+    id: Identity,
+) -> HttpResponse {
+    // 验证用户登录状态
+    let user_name = id.identity().unwrap_or("".to_owned());
+    if user_name.is_empty() {
+        return create_unauthorized_response();
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 查询未处理订单数量（状态为"pending"的订单）
+    let count_result = conn
+        .query_one(
+            r#"SELECT COUNT(*) as count FROM orders WHERE user_id = $1 AND status = 'pending'"#,
+            &[&request.user_id],
+        )
+        .await;
+
+    match count_result {
+        Ok(row) => {
+            let count: i64 = row.get("count");
+            HttpResponse::Ok().json(PendingOrdersCountResponse {
+                success: true,
+                count: count as i32,
+            })
+        }
+        Err(e) => {
+            eprintln!("查询未处理订单数量失败: {}", e);
+            create_error_response("查询未处理订单数量失败")
         }
     }
 }
