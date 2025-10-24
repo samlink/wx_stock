@@ -401,18 +401,21 @@ let page_cart = function () {
             const lowStockClass = item.low_stock ? 'low-stock-warning' : '';
             const stockLengthDisplay = item.low_stock ? `<span class="low-stock-indicator">${item.stock_length}</span>` : item.stock_length;
             
-            // 翻译状态和厂家字段（如果需要）
+            // 翻译状态、厂家和产品名称字段（如果需要）
             const translatedStatus = lang === 'en' && typeof Translator !== 'undefined'
                 ? Translator.translateStatus(item.status, 'en')
                 : item.status;
             const translatedManufacturer = lang === 'en' && typeof Translator !== 'undefined'
                 ? Translator.translateManufacturer(item.manufacturer, 'en')
                 : item.manufacturer;
+            const translatedProductName = lang === 'en' && typeof Translator !== 'undefined'
+                ? Translator.translateProductName(item.product_name, 'en')
+                : item.product_name;
             
             html += `
                 <tr data-material="${item.material_number}" class="${lowStockClass}">
                     <td width="4%">${index + 1}</td>
-                    <td>${item.product_name}</td>
+                    <td>${translatedProductName}</td>
                     <td>${item.material_number}</td>
                     <td>${item.specification}</td>
                     <td>${translatedStatus}</td>

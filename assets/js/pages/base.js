@@ -3,29 +3,14 @@ if (lang == "en") {
     document.querySelector('#title-show').textContent = 'Inventory Inquiry';
     document.querySelector('#title').textContent = 'Five Star (Tianjin) Petroleum Equipment Co., Ltd.';
     document.querySelector('#title-name').innerHTML = '<p><i class="nav-icon fa fa-search"></i>Inventory Inquiry System</p>';
-    // 更新我的订单的英文翻译，保持角标结构
-    const myOrdersLink = document.querySelector('#my-orders');
-    if (myOrdersLink) {
-        const ordersSpan = myOrdersLink.querySelector('span:last-child');
-        if (ordersSpan) {
-            ordersSpan.textContent = 'My Orders';
-        }
-    }
-    // 更新购物车的英文翻译，保持角标结构
-    const shoppingCart = document.querySelector('#shopping-cart');
-    if (shoppingCart) {
-        const cartSpan = shoppingCart.querySelector('span:last-child');
-        if (cartSpan) {
-            cartSpan.textContent = 'Shopping Cart';
-        }
-    }
+    document.querySelector('#orders-text').textContent = 'My Orders';
+    document.querySelector('#cart-text').textContent = 'Shopping Cart';
+
     document.querySelector('#change-pwd').innerHTML = '<i class="nav-icon fa fa-user"></i>Change password</a>';
     document.querySelector('#logout').title = 'Log out';
     document.querySelector('#modal-sumit-button').textContent = 'Submit';
     document.querySelector('#modal-close-button').textContent = 'Cancel';
-    document.querySelector('#my-company').textContent = lang == 'zh' ?
-    "五星（天津）石油装备有限公司" :
-    'Five Star (Tianjin) Petroleum Equipment Co., Ltd.';
+    document.querySelector('#my-company').textContent = 'Five Star (Tianjin) Petroleum Equipment Co., Ltd.';
 }
 
 // 全局订单管理器实例
