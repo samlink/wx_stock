@@ -61,6 +61,7 @@ pub struct CartDetailItem {
     quantity: i32,
     total_price: f64,
     added_at: String,
+    low_stock: bool,
 }
 
 #[derive(Serialize)]
@@ -349,11 +350,16 @@ pub async fn get_cart_detail(
                 let quantity: i32 = row.get("quantity");
                 let unit_price: f64 = row.get("unit_price");
                 let total_item_price = unit_price * quantity as f64;
-                let stock_length: i32 = row.get("stock_length");
-                let stock_weight: f64 = row.get("stock_weight");
+                let original_stock_length: i32 = row.get("stock_length");
+                let original_stock_weight: f64 = row.get("stock_weight");
 
                 let added_at: std::time::SystemTime = row.get("added_at");
                 let datetime: chrono::DateTime<chrono::Utc> = added_at.into();
+
+                // 检查库存是否低于10，如果是则标记为低库存并重置为0
+                let low_stock = original_stock_length < 10;
+                let stock_length = if low_stock { 0 } else { original_stock_length };
+                let stock_weight = if low_stock { 0.0 } else { original_stock_weight };
 
                 // 计算总长度和总重量（基于数量）
                 total_length += stock_length * quantity;
@@ -373,6 +379,7 @@ pub async fn get_cart_detail(
                     quantity,
                     total_price: total_item_price,
                     added_at: datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
+                    low_stock,
                 });
             }
 
@@ -585,17 +592,16 @@ pub async fn submit_order(
 
         match stock_result {
             Ok(row) => {
-                let stock_length: i32 = row.get("stock_length");
+                let stock_length: i32 = row.get("stock_length");                
                 if stock_length < 10 {
-                    return HttpResponse::BadRequest().json(json!({
+                    return HttpResponse::Ok().json(json!({
                         "success": false,
-                        "message": format!("商品 {} 库存不足，当前库存：{}",
-                                          item.material_number, stock_length)
+                        "message": "部分商品库存不足，请确认"
                     }));
                 }
             }
             Err(_) => {
-                return HttpResponse::BadRequest().json(json!({
+                return HttpResponse::Ok().json(json!({
                     "success": false,
                     "message": format!("商品 {} 不存在", item.material_number)
                 }));
@@ -609,8 +615,6 @@ pub async fn submit_order(
         request.user_id,
         chrono::Utc::now().format("%Y%m%d%H%M%S")
     );
-
-    println!("order_id: {}", order_id);
 
     // 创建订单记录
     let order_result = transaction

@@ -169,6 +169,21 @@
                             background-color: #f8f9fa;
                         }
 
+                        // 低库存警告行样式
+                        &.low-stock-warning {
+                            background-color: #fff3cd;
+                            
+                            &:hover {
+                                background-color: #ffe69c;
+                            }
+                            
+                            td {
+                                color: #856404;
+                                font-weight: 500;
+                                border-bottom: 1px solid #ff6b6b;
+                            }
+                        }
+
                         td {
                             text-align: center;
                             vertical-align: middle;
@@ -180,6 +195,18 @@
                             white-space: nowrap;
                             overflow: hidden;
                             text-overflow: ellipsis;
+                            
+                            // 低库存指示器样式
+                            .low-stock-indicator {
+                                color: #dc3545;
+                                font-weight: 700;
+                                padding: 2px 8px;
+                                background-color: #f8d7da;
+                                border-radius: 4px;
+                                display: inline-block;
+                                font-size: 13px;
+                                border: 1px solid #f5c6cb;
+                            }
                         }
                     }
                 }

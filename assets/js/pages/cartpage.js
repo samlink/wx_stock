@@ -262,8 +262,12 @@ let page_cart = function () {
 
         let html = '';
         cartData.items.forEach((item, index) => {
+            // 如果库存不足，添加高亮类
+            const lowStockClass = item.low_stock ? 'low-stock-warning' : '';
+            const stockLengthDisplay = item.low_stock ? `<span class="low-stock-indicator">${item.stock_length}</span>` : item.stock_length;
+            
             html += `
-                <tr data-material="${item.material_number}">
+                <tr data-material="${item.material_number}" class="${lowStockClass}">
                     <td width="4%">${index + 1}</td>
                     <td>${item.product_name}</td>
                     <td>${item.material_number}</td>
@@ -272,7 +276,7 @@ let page_cart = function () {
                     <td width="15%">${item.standard}</td>
                     <td>${item.manufacturer}</td>
                     <td>${item.heat_number}</td>
-                    <td>${item.stock_length}</td>
+                    <td>${stockLengthDisplay}</td>
                     <td>${item.stock_weight.toFixed(2)}</td>
                     <td width="12%">${item.added_at}</td>
                     <td>
@@ -379,7 +383,7 @@ let page_cart = function () {
         document.getElementById('submit-total-items').textContent = cartData.total_count || 0;
         document.getElementById('submit-total-length').textContent = `${cartData.total_length || 0} mm`;
         document.getElementById('submit-total-weight').textContent = `${(cartData.total_weight || 0).toFixed(2)} kg`;
-        
+
         document.getElementById('confirm-submit-modal').style.display = 'block';
     }
 
@@ -527,6 +531,11 @@ let page_cart = function () {
                     }, 350);
                 } else {
                     notifier.show(result.message || texts[lang].operationFailed, 'danger', 4000);
+                    // 刷新购物车数据
+                    setTimeout(async () => {
+                        await loadCartData();
+                        // document.querySelector('#refresh-cart-btn').click();
+                    }, 350);
                 }
             } else {
                 notifier.show(texts[lang].serverError, 'danger', 4000);
