@@ -59,3 +59,15 @@ pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpR
         goto_login()
     }
 }
+
+///购物车页面
+#[get("/cart")]
+pub async fn cart(db: web::Data<Pool>, id: Identity) -> HttpResponse {
+    let user = get_user(&db, id).await;
+    if user.username != "" {
+        let html = r2s(|o| cart_html(o, user.id.to_string()));
+        HttpResponse::Ok().content_type("text/html").body(html)
+    } else {
+        goto_login()
+    }
+}

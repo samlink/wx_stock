@@ -1,0 +1,137 @@
+@use super::base_html;
+@use super::statics::*;
+@(user: String)
+
+@:base_html({
+<div class="cart-page">
+    <div class="cart-content has-bak">
+        <div class="cart-header">
+            <h2 class="cart-title">
+                <i class="fa fa-shopping-cart"></i>
+                购物车
+            </h2>
+            <div class="cart-actions">
+                <button class="btn btn-warning btn-sm" id="clear-cart-btn">
+                    <i class="fa fa-trash"></i>
+                    清空购物车
+                </button>
+                <button class="btn btn-primary btn-sm" id="refresh-cart-btn">
+                    <i class="fa fa-refresh"></i>
+                    刷新
+                </button>
+            </div>
+        </div>
+
+        <div class="cart-table-container">
+            <div class="table-container table-cart">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>序号</th>
+                            <th>商品名称</th>
+                            <th>物料号</th>
+                            <th>规格型号</th>
+                            <th>状态</th>
+                            <th>执行标准</th>
+                            <th>生产厂家</th>
+                            <th>炉批号</th>
+                            <th>库存长度(mm)</th>
+                            <th>库存重量(kg)</th>
+                            <th>添加时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cart-items-tbody">
+                        <!-- 购物车商品列表将在这里动态加载 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-info">
+                <div class="summary-item">
+                    <span class="summary-label">商品总数：</span>
+                    <span class="summary-value" id="total-items">0</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">总数量：</span>
+                    <span class="summary-value" id="total-quantity">0</span>
+                </div>
+                <div class="summary-item total-price">
+                    <span class="summary-label">总金额：</span>
+                    <span class="summary-value" id="total-price">¥0.00</span>
+                </div>
+            </div>
+            <div class="summary-actions">
+                <button class="btn btn-success btn-lg" id="submit-order-btn">
+                    <i class="fa fa-check"></i>
+                    提交订购
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认删除对话框 -->
+    <div class="modal" id="confirm-delete-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认删除</h3>
+                <button class="modal-close" id="close-delete-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要从购物车中删除这个商品吗？</p>
+                <div class="item-info" id="delete-item-info"></div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-delete">取消</button>
+                <button class="btn btn-danger" id="confirm-delete">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 确认清空对话框 -->
+    <div class="modal" id="confirm-clear-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认清空</h3>
+                <button class="modal-close" id="close-clear-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>确定要清空整个购物车吗？此操作不可撤销。</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancel-clear">取消</button>
+                <button class="btn btn-danger" id="confirm-clear">清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 订单提交成功对话框 -->
+    <div class="modal" id="order-success-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>订单提交成功</h3>
+                <button class="modal-close" id="close-success-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="success-info">
+                    <i class="fa fa-check-circle success-icon"></i>
+                    <p>您的订单已成功提交！</p>
+                    <div class="order-info">
+                        <p><strong>订单号：</strong><span id="order-number"></span></p>
+                        <p><strong>提交时间：</strong><span id="order-time"></span></p>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" id="close-success">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="/stock/static/@tools_service_js.name"></script>
+<script src="/stock/static/@cart_js.name"></script>
+<script src="/stock/static/@cart_page_js.name"></script>
+}, user)

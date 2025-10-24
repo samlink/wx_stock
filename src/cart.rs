@@ -46,6 +46,63 @@ pub struct CartItemsResponse {
     total_count: i32,
 }
 
+#[derive(Serialize)]
+pub struct CartDetailItem {
+    material_number: String,
+    product_name: String,
+    specification: String,
+    status: String,
+    standard: String,
+    manufacturer: String,
+    heat_number: String,
+    stock_length: i32,
+    stock_weight: f64,
+    unit_price: f64,
+    quantity: i32,
+    total_price: f64,
+    added_at: String,
+}
+
+#[derive(Serialize)]
+pub struct CartDetailResponse {
+    items: Vec<CartDetailItem>,
+    total_count: i32,
+    total_quantity: i32,
+    total_price: f64,
+}
+
+#[derive(Deserialize)]
+pub struct RemoveFromCartRequest {
+    user_id: i32,
+    material_number: String,
+}
+
+#[derive(Deserialize)]
+pub struct UpdateCartQuantityRequest {
+    user_id: i32,
+    material_number: String,
+    quantity: i32,
+}
+
+#[derive(Deserialize)]
+pub struct SubmitOrderRequest {
+    user_id: i32,
+    items: Vec<OrderItem>,
+}
+
+#[derive(Deserialize)]
+pub struct OrderItem {
+    material_number: String,
+    quantity: i32,
+}
+
+#[derive(Serialize)]
+pub struct OrderResponse {
+    success: bool,
+    order_id: Option<String>,
+    message: String,
+}
+
 /// 添加商品到购物车
 #[post("/add_to_cart")]
 pub async fn add_to_cart(
@@ -237,4 +294,377 @@ pub async fn get_cart_items(
             total_count: 0,
         }),
     }
+}
+
+/// 获取购物车详细信息（包含商品详情）
+#[post("/get_cart_detail")]
+pub async fn get_cart_detail(
+    db: web::Data<Pool>,
+    request: web::Json<UserRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "items": [],
+            "total_count": 0,
+            "total_quantity": 0,
+            "total_price": 0.0
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 获取购物车商品详细信息
+    let items_result = conn
+        .query(
+            r#"SELECT 
+                sc.material_number,
+                sc.quantity,
+                sc.added_at,
+                p.物料号,
+                split_part(t.node_name, ' ', 2) as product_name,
+                p.规格型号 as specification,
+                p.文本字段2 as status,
+                p.文本字段3 as standard,
+                p.文本字段5 as manufacturer,
+                p.文本字段4 as heat_number,
+                COALESCE(foo.库存长度, 0) as stock_length,
+                COALESCE(foo.理论重量, 0) as stock_weight,
+                COALESCE(foo.理论重量, 0) * 0.1 as unit_price
+            FROM shopping_cart sc
+            JOIN products p ON sc.material_number = p.物料号
+            JOIN tree t ON p.商品id = t.num
+            LEFT JOIN mv_length_weight foo ON p.物料号 = foo.物料号
+            WHERE sc.user_id = $1
+            ORDER BY sc.added_at DESC"#,
+            &[&request.user_id],
+        )
+        .await;
+
+    match items_result {
+        Ok(rows) => {
+            let mut items = Vec::new();
+            let mut total_quantity = 0;
+            let mut total_price = 0.0;
+
+            for row in rows {
+                let quantity: i32 = row.get("quantity");
+                let unit_price: f64 = row.get("unit_price");
+                let total_item_price = unit_price * quantity as f64;
+                
+                let added_at: std::time::SystemTime = row.get("added_at");
+                let datetime: chrono::DateTime<chrono::Utc> = added_at.into();
+                
+                total_quantity += quantity;
+                total_price += total_item_price;
+
+                items.push(CartDetailItem {
+                    material_number: row.get("material_number"),
+                    product_name: row.get("product_name"),
+                    specification: row.get("specification"),
+                    status: row.get("status"),
+                    standard: row.get("standard"),
+                    manufacturer: row.get("manufacturer"),
+                    heat_number: row.get("heat_number"),
+                    stock_length: row.get("stock_length"),
+                    stock_weight: row.get("stock_weight"),
+                    unit_price,
+                    quantity,
+                    total_price: total_item_price,
+                    added_at: datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
+                });
+            }
+
+            HttpResponse::Ok().json(CartDetailResponse {
+                total_count: items.len() as i32,
+                total_quantity,
+                total_price,
+                items,
+            })
+        }
+        Err(_) => HttpResponse::Ok().json(CartDetailResponse {
+            items: vec![],
+            total_count: 0,
+            total_quantity: 0,
+            total_price: 0.0,
+        }),
+    }
+}
+
+/// 从购物车中删除商品
+#[post("/remove_from_cart")]
+pub async fn remove_from_cart(
+    db: web::Data<Pool>,
+    request: web::Json<RemoveFromCartRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "success": false,
+            "message": "用户未登录"
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 删除购物车中的商品
+    let delete_result = conn
+        .execute(
+            "DELETE FROM shopping_cart WHERE user_id = $1 AND material_number = $2",
+            &[&request.user_id, &request.material_number],
+        )
+        .await;
+
+    match delete_result {
+        Ok(rows_affected) => {
+            if rows_affected > 0 {
+                HttpResponse::Ok().json(json!({
+                    "success": true,
+                    "message": "商品已从购物车中移除"
+                }))
+            } else {
+                HttpResponse::Ok().json(json!({
+                    "success": false,
+                    "message": "商品不在购物车中"
+                }))
+            }
+        }
+        Err(e) => {
+            eprintln!("删除购物车商品失败: {}", e);
+            HttpResponse::InternalServerError().json(json!({
+                "success": false,
+                "message": "删除失败，请重试"
+            }))
+        }
+    }
+}
+
+/// 更新购物车商品数量
+#[post("/update_cart_quantity")]
+pub async fn update_cart_quantity(
+    db: web::Data<Pool>,
+    request: web::Json<UpdateCartQuantityRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "success": false,
+            "message": "用户未登录"
+        }));
+    }
+
+    if request.quantity <= 0 {
+        return HttpResponse::BadRequest().json(json!({
+            "success": false,
+            "message": "数量必须大于0"
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 更新购物车商品数量
+    let update_result = conn
+        .execute(
+            "UPDATE shopping_cart SET quantity = $1 WHERE user_id = $2 AND material_number = $3",
+            &[&request.quantity, &request.user_id, &request.material_number],
+        )
+        .await;
+
+    match update_result {
+        Ok(rows_affected) => {
+            if rows_affected > 0 {
+                HttpResponse::Ok().json(json!({
+                    "success": true,
+                    "message": "数量已更新"
+                }))
+            } else {
+                HttpResponse::Ok().json(json!({
+                    "success": false,
+                    "message": "商品不在购物车中"
+                }))
+            }
+        }
+        Err(e) => {
+            eprintln!("更新购物车数量失败: {}", e);
+            HttpResponse::InternalServerError().json(json!({
+                "success": false,
+                "message": "更新失败，请重试"
+            }))
+        }
+    }
+}
+
+/// 清空购物车
+#[post("/clear_cart")]
+pub async fn clear_cart(
+    db: web::Data<Pool>,
+    request: web::Json<UserRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "success": false,
+            "message": "用户未登录"
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 清空购物车
+    let clear_result = conn
+        .execute(
+            "DELETE FROM shopping_cart WHERE user_id = $1",
+            &[&request.user_id],
+        )
+        .await;
+
+    match clear_result {
+        Ok(_) => {
+            HttpResponse::Ok().json(json!({
+                "success": true,
+                "message": "购物车已清空"
+            }))
+        }
+        Err(e) => {
+            eprintln!("清空购物车失败: {}", e);
+            HttpResponse::InternalServerError().json(json!({
+                "success": false,
+                "message": "清空失败，请重试"
+            }))
+        }
+    }
+}
+
+/// 提交订单
+#[post("/submit_order")]
+pub async fn submit_order(
+    db: web::Data<Pool>,
+    request: web::Json<SubmitOrderRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "success": false,
+            "message": "用户未登录"
+        }));
+    }
+
+    if request.items.is_empty() {
+        return HttpResponse::BadRequest().json(json!({
+            "success": false,
+            "message": "购物车为空"
+        }));
+    }
+
+    let mut conn = db.get().await.unwrap();
+
+    // 开始事务
+    let transaction = conn.transaction().await.unwrap();
+
+    // 检查库存是否充足
+    for item in &request.items {
+        let stock_result = transaction
+            .query_one(
+                "SELECT COALESCE(库存长度, 0) as stock_length FROM products p 
+                 LEFT JOIN mv_length_weight foo ON p.物料号 = foo.物料号 
+                 WHERE p.物料号 = $1",
+                &[&item.material_number],
+            )
+            .await;
+
+        match stock_result {
+            Ok(row) => {
+                let stock_length: i32 = row.get("stock_length");
+                if stock_length < item.quantity {
+                    return HttpResponse::BadRequest().json(json!({
+                        "success": false,
+                        "message": format!("商品 {} 库存不足，当前库存：{}，需要：{}", 
+                                          item.material_number, stock_length, item.quantity)
+                    }));
+                }
+            }
+            Err(_) => {
+                return HttpResponse::BadRequest().json(json!({
+                    "success": false,
+                    "message": format!("商品 {} 不存在", item.material_number)
+                }));
+            }
+        }
+    }
+
+    // 生成订单号
+    let order_id = format!("ORD-{}-{}", 
+                          chrono::Utc::now().format("%Y%m%d%H%M%S"),
+                          request.user_id);
+
+    // 创建订单记录
+    let order_result = transaction
+        .execute(
+            "INSERT INTO orders (order_id, user_id, status, created_at) VALUES ($1, $2, $3, NOW())",
+            &[&order_id, &request.user_id, &"pending"],
+        )
+        .await;
+
+    if order_result.is_err() {
+        return HttpResponse::InternalServerError().json(json!({
+            "success": false,
+            "message": "创建订单失败"
+        }));
+    }
+
+    // 创建订单详情
+    for item in &request.items {
+        let detail_result = transaction
+            .execute(
+                "INSERT INTO order_items (order_id, material_number, quantity) VALUES ($1, $2, $3)",
+                &[&order_id, &item.material_number, &item.quantity],
+            )
+            .await;
+
+        if detail_result.is_err() {
+            return HttpResponse::InternalServerError().json(json!({
+                "success": false,
+                "message": "创建订单详情失败"
+            }));
+        }
+    }
+
+    // 清空购物车
+    let clear_result = transaction
+        .execute(
+            "DELETE FROM shopping_cart WHERE user_id = $1",
+            &[&request.user_id],
+        )
+        .await;
+
+    if clear_result.is_err() {
+        return HttpResponse::InternalServerError().json(json!({
+            "success": false,
+            "message": "清空购物车失败"
+        }));
+    }
+
+    // 提交事务
+    if transaction.commit().await.is_err() {
+        return HttpResponse::InternalServerError().json(json!({
+            "success": false,
+            "message": "提交订单失败"
+        }));
+    }
+
+    HttpResponse::Ok().json(OrderResponse {
+        success: true,
+        order_id: Some(order_id),
+        message: "订单提交成功".to_string(),
+    })
 }

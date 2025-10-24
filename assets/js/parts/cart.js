@@ -60,10 +60,7 @@ class CartManager {
      * Initialize cart UI components
      */
     initCartUI() {
-        // 更新购物车显示
         this.updateCartDisplay(this.cartCount);
-
-        // 绑定购物车图标点击事件
         this.bindCartIconEvents();
     }
 
@@ -75,12 +72,8 @@ class CartManager {
         const cartContainer = document.querySelector('#shopping-cart');
         if (cartContainer) {
             cartContainer.addEventListener('click', () => {
-                // 这里可以添加点击购物车图标的处理逻辑
-                // 比如显示购物车详情页面或弹窗
-                console.log('购物车被点击，当前商品数量:', this.cartCount);
-
-                // 可以在这里添加跳转到购物车页面的逻辑
-                // window.location.href = '/stock/cart';
+                // 跳转到购物车页面
+                window.location.href = '/stock/cart';
             });
         }
     }
@@ -141,7 +134,7 @@ class CartManager {
             if (response.ok && result.success) {
                 // 成功添加
                 this.cartCount = result.cart_count || this.cartCount + 1;
-                
+
                 // 更新物料号列表
                 if (!this.cartMaterials.includes(materialNumber)) {
                     this.cartMaterials.push(materialNumber);
@@ -353,24 +346,15 @@ class CartManager {
 
         tableRows.forEach(row => {
             const materialCell = row.querySelector('.物料号');
-            
+
             if (materialCell) {
-                const materialNumber = materialCell.textContent.trim();            
+                const materialNumber = materialCell.textContent.trim();
                 // 检查是否在购物车中
                 if (this.cartMaterials.includes(materialNumber)) {
                     row.classList.add('cart-item-highlight');
-                    
-                    // 添加购物车图标指示
-                    const actionCell = row.querySelector('td:last-child');
-                    if (actionCell && !actionCell.querySelector('.cart-indicator')) {
-                        const indicator = document.createElement('span');
-                        indicator.className = 'cart-indicator';
-                        indicator.innerHTML = '<i class="fa fa-shopping-cart" style="color: #007bff; margin-left: 5px;"></i>';
-                        actionCell.appendChild(indicator);
-                    }
                 } else {
                     row.classList.remove('cart-item-highlight');
-                    
+
                     // 移除购物车图标指示
                     const indicator = row.querySelector('.cart-indicator');
                     if (indicator) {
