@@ -83,7 +83,7 @@
         border-top: 1px solid #dee2e6;
 
         .orders-list-section {
-            width: 30%;
+            width: 25%;
             border-right: 1px solid #dee2e6;
             display: flex;
             flex-direction: column;
@@ -125,7 +125,7 @@
         }
 
         .orders-details-section {
-            width: 70%;
+            width: 75%;
             display: flex;
             flex-direction: column;
             background: white;
@@ -319,8 +319,8 @@
     }
 }
 
-//
-订单明细表格样式 .order-details-table-container {
+//订单明细表格样式 
+.order-details-table-container {
     flex: 1;
     padding: 0;
     overflow: hidden;
@@ -334,47 +334,6 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-
-        .order-basic-info {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-
-            .info-item {
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                font-size: 14px;
-
-                .label {
-                    color: #6c757d;
-                    font-weight: 500;
-                }
-
-                .value {
-                    color: #212529;
-                    font-weight: 600;
-
-                    &.status {
-                        padding: 2px 8px;
-                        border-radius: 12px;
-                        font-size: 11px;
-                        text-transform: uppercase;
-                        letter-spacing: 0.5px;
-
-                        &.status-pending {
-                            background: #fff3cd;
-                            color: #856404;
-                        }
-
-                        &.status-done {
-                            background: #d4edda;
-                            color: #155724;
-                        }
-                    }
-                }
-            }
-        }
     }
 
     .table-container {
@@ -422,52 +381,29 @@
                     font-weight: 600;
                     background: #f8f9fa;
 
-                    // 订单明细表格列宽设置（去除操作列和添加时间列）
-                    &:nth-child(1) {
-                        width: 12%;
-                    }
-
-                    // 物料号
-                    &:nth-child(2) {
-                        width: 20%;
-                    }
-
-                    // 商品名称
-                    &:nth-child(3) {
-                        width: 15%;
-                    }
-
-                    // 规格
-                    &:nth-child(4) {
-                        width: 8%;
-                    }
-
-                    // 状态
-                    &:nth-child(5) {
-                        width: 12%;
-                    }
-
-                    // 标准
-                    &:nth-child(6) {
-                        width: 10%;
-                    }
-
-                    // 厂家
-                    &:nth-child(7) {
-                        width: 10%;
-                    }
-
-                    // 炉批号
-                    &:nth-child(8) {
-                        width: 8%;
-                    }
-
-                    // 数量
-                    &:nth-child(9) {
-                        width: 5%;
-                    }
-
-                    // 单价
+                    // 订单明细表格列宽设置（11列，总和100%）
+                    // 1 序号
+                    &:nth-child(1) { width: 5%; }
+                    // 2 商品名称
+                    &:nth-child(2) { width: 18%; }
+                    // 3 物料号
+                    &:nth-child(3) { width: 13%; }
+                    // 4 规格型号
+                    &:nth-child(4) { width: 12%; }
+                    // 5 状态
+                    &:nth-child(5) { width: 8%; }
+                    // 6 执行标准
+                    &:nth-child(6) { width: 10%; }
+                    // 7 生产厂家
+                    &:nth-child(7) { width: 9%; }
+                    // 8 炉批号
+                    &:nth-child(8) { width: 8%; }
+                    // 9 库存长度
+                    &:nth-child(9) { width: 7%; }
+                    // 10 库存重量
+                    &:nth-child(10) { width: 5%; }
+                    // 11 数量
+                    &:nth-child(11) { width: 5%; }
                 }
             }
 
@@ -520,42 +456,18 @@
                         overflow: hidden;
                         text-overflow: ellipsis;
 
-                        // 对应thead的列宽
-                        &:nth-child(1) {
-                            width: 12%;
-                        }
-
-                        &:nth-child(2) {
-                            width: 20%;
-                        }
-
-                        &:nth-child(3) {
-                            width: 15%;
-                        }
-
-                        &:nth-child(4) {
-                            width: 8%;
-                        }
-
-                        &:nth-child(5) {
-                            width: 12%;
-                        }
-
-                        &:nth-child(6) {
-                            width: 10%;
-                        }
-
-                        &:nth-child(7) {
-                            width: 10%;
-                        }
-
-                        &:nth-child(8) {
-                            width: 8%;
-                        }
-
-                        &:nth-child(9) {
-                            width: 5%;
-                        }
+                        // 对应thead的列宽（11列）
+                        &:nth-child(1) { width: 5%; }
+                        &:nth-child(2) { width: 18%; }
+                        &:nth-child(3) { width: 13%; }
+                        &:nth-child(4) { width: 12%; }
+                        &:nth-child(5) { width: 8%; }
+                        &:nth-child(6) { width: 10%; }
+                        &:nth-child(7) { width: 9%; }
+                        &:nth-child(8) { width: 8%; }
+                        &:nth-child(9) { width: 7%; }
+                        &:nth-child(10) { width: 5%; }
+                        &:nth-child(11) { width: 5%; }
 
                         // 状态列样式
                         &.status-cell {
@@ -630,8 +542,8 @@
     }
 }
 
-//
-订单明细默认状态（未选择订单） .order-details-placeholder {
+//订单明细默认状态（未选择订单） 
+.order-details-placeholder {
     flex: 1;
     display: flex;
     align-items: center;
@@ -658,6 +570,39 @@
             font-size: 14px;
             color: #6c757d;
             line-height: 1.4;
+        }
+    }
+}
+
+.orders-details-section {
+    .table-cart {
+        border: 1px solid #dee2e6;
+        border-radius: 0;
+        background: #fff;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            thead th {
+                text-align: center;
+                border: 1px solid #dee2e6;
+                font-weight: 600;
+                height: 40px;
+
+            }
+            tbody tr {
+                height: 40px;
+            }
+            tbody td {
+                text-align: center;
+                vertical-align: middle;
+                border: 1px solid #dee2e6;
+            }
+            tfoot td {
+                border: 1px solid #dee2e6;
+                font-weight: 600;
+                text-align: center;
+                height: 40px;
+            }
         }
     }
 }
@@ -861,16 +806,6 @@
                         flex-direction: column;
                         gap: 10px;
                         align-items: flex-start;
-
-                        .order-basic-info {
-                            flex-direction: column;
-                            gap: 8px;
-                            align-items: flex-start;
-
-                            .info-item {
-                                font-size: 13px;
-                            }
-                        }
                     }
 
                     .table-container {

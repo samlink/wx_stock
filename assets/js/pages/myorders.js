@@ -44,6 +44,7 @@ let page_myorders = function () {
             stockWeight: '库存重量',
             stockLengthUnit: '库存长度(mm)',
             stockWeightUnit: '库存重量(kg)',
+            quantity: '数量',
             totalItems: '商品总数',
             totalLength: '总长度',
             totalWeight: '总重量',
@@ -94,6 +95,7 @@ let page_myorders = function () {
             totalWeightUnit: 'kg',
             statusPending: 'Pending',
             statusDone: 'Done',
+            quantity: 'Quantity',
             retry: 'Retry',
             serialNumber: 'Serial No.',
             itemsCount: ' items'
@@ -193,6 +195,9 @@ let page_myorders = function () {
                     const data = await response.json();
                     if (data.success && data.order) {
                         this.selectedOrderDetails = data.order;
+                        // 成功后隐藏顶部加载指示器
+                        const headerLoading = document.getElementById('details-loading');
+                        if (headerLoading) headerLoading.style.display = 'none';
                         this.renderOrderDetails(data.order);
                     } else {
                         throw new Error(data.message || texts[lang].orderNotFound);
@@ -264,81 +269,97 @@ let page_myorders = function () {
         }
 
         /**
-         * 渲染订单明细
+         * 渲染订单明细（使用购物车样式的表格，带表头与底部汇总）
          */
         renderOrderDetails(orderData) {
             const container = document.querySelector('.order-details-container');
+            const infoBlock = document.getElementById('order-info');
+            const tableBlock = document.getElementById('order-details-table');
+            const tbody = document.getElementById('order-details-tbody');
+            const summaryBlock = document.getElementById('order-summary');
             
             if (!orderData || !orderData.items) {
-                container.innerHTML = `
-                    <div class="details-prompt">
-                        <i class="fa fa-info-circle"></i>
-                        <p>${texts[lang].selectOrderPrompt}</p>
-                    </div>
-                `;
+                // 无数据：隐藏信息区、表格与汇总，显示默认提示块
+                const headerLoading = document.getElementById('details-loading');
+                if (headerLoading) headerLoading.style.display = 'none';
+                const infoBlock = document.getElementById('order-info');
+                const tableBlock = document.getElementById('order-details-table');
+                const summaryBlock = document.getElementById('order-summary');
+                const defaultBlock = document.getElementById('default-details-state');
+                if (infoBlock) infoBlock.style.display = 'none';
+                if (tableBlock) tableBlock.style.display = 'none';
+                if (summaryBlock) summaryBlock.style.display = 'none';
+                if (defaultBlock) defaultBlock.style.display = 'block';
                 return;
             }
 
-            const statusClass = this.getOrderStatusClass(orderData.status);
-            const statusText = this.getOrderStatusText(orderData.status);
+            // 显示订单基本信息
+            if (infoBlock) {
+                const headerLoading = document.getElementById('details-loading');
+                if (headerLoading) headerLoading.style.display = 'none';
+                infoBlock.style.display = 'block';
+                const idEl = document.getElementById('order-id-display');
+                const dateEl = document.getElementById('order-date-display');
+                const statusEl = document.getElementById('order-status-display');
+                if (idEl) idEl.textContent = orderData.order_id || '';
+                if (dateEl) dateEl.textContent = this.formatDate(orderData.created_at);
+                if (statusEl) {
+                    statusEl.textContent = this.getOrderStatusText(orderData.status);
+                    statusEl.className = 'info-value status ' + this.getOrderStatusClass(orderData.status);
+                }
+            }
 
-            let html = `
-                <div class="order-details">                  
-                    <div class="order-items-table">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th width="4%">序号</th>
-                                    <th>${texts[lang].productName}</th>
-                                    <th>${texts[lang].materialNumber}</th>
-                                    <th>${texts[lang].specification}</th>
-                                    <th>${texts[lang].status}</th>
-                                    <th width="15%">${texts[lang].standard}</th>
-                                    <th>${texts[lang].manufacturer}</th>
-                                    <th>${texts[lang].heatNumber}</th>
-                                    <th>${texts[lang].stockLength}</th>
-                                    <th>${texts[lang].stockWeight}</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-            `;
-
-            orderData.items.forEach((item, index) => {
-                html += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.product_name || ''}</td>
-                        <td>${item.material_number || ''}</td>
-                        <td>${item.specification || ''}</td>
-                        <td>${item.status || ''}</td>
-                        <td title="${item.standard || ''}">${item.standard || ''}</td>
-                        <td>${item.manufacturer || ''}</td>
-                        <td title="${item.heat_number || ''}">${item.heat_number || ''}</td>
-                        <td>${item.stock_length || 0}</td>
-                        <td>${(item.stock_weight || 0).toFixed(2)}</td>
-                    </tr>
-                `;
+            // 计算汇总：商品总数（行数）、总长度、总重量（按数量汇总）
+            let totalItems = orderData.items.length;
+            let totalLength = 0;
+            let totalWeight = 0;
+            orderData.items.forEach(item => {
+                const qty = Number(item.quantity || 1);
+                const len = Number(item.stock_length || 0);
+                const wt = Number(item.stock_weight || 0);
+                totalLength += len * qty;
+                totalWeight += wt * qty;
             });
 
-            html += `
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="order-summary">
-                        <div class="summary-item">
-                            <span class="summary-label">${texts[lang].totalItems}:</span>
-                            <span class="summary-value">${orderData.summary?.total_items || 0}</span>
-                        </div>
-                        <div class="summary-item">
-                            <span class="summary-label">${texts[lang].totalWeight}:</span>
-                            <span class="summary-value">${(orderData.summary?.total_weight || 0).toFixed(2)} kg</span>
-                        </div>
-                    </div>
-                </div>
-            `;
+            // 填充表体，使用模板中已有的固定表头结构，保证只有tbody滚动
+            if (tableBlock && tbody) {
+                // 隐藏默认提示
+                const defaultBlock = document.getElementById('default-details-state');
+                if (defaultBlock) defaultBlock.style.display = 'none';
+                tableBlock.style.display = 'block';
+                let rowsHtml = '';
+                orderData.items.forEach((item, index) => {
+                    rowsHtml += `
+                        <tr>
+                            <td>${index + 1}</td>
+                            <td>${item.product_name || ''}</td>
+                            <td>${item.material_number || ''}</td>
+                            <td>${item.specification || ''}</td>
+                            <td>${item.status || ''}</td>
+                            <td title="${item.standard || ''}">${item.standard || ''}</td>
+                            <td>${item.manufacturer || ''}</td>
+                            <td title="${item.heat_number || ''}">${item.heat_number || ''}</td>
+                            <td>${Number(item.stock_length || 0)}</td>
+                            <td>${Number(item.stock_weight || 0).toFixed(2)}</td>
+                            <td>${Number(item.quantity || 1)}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = rowsHtml;
+                // 修复表头对齐，参照购物车实现
+                fixOrderDetailsHeaderAlignment();
+            }
 
-            container.innerHTML = html;
+            // 显示汇总信息
+            if (summaryBlock) {
+                summaryBlock.style.display = 'block';
+                const itemsEl = document.getElementById('order-total-items');
+                const lengthEl = document.getElementById('order-total-length');
+                const weightEl = document.getElementById('order-total-weight');
+                if (itemsEl) itemsEl.textContent = totalItems.toString();
+                if (lengthEl) lengthEl.textContent = `${totalLength} ${texts[lang].totalLengthUnit}`;
+                if (weightEl) weightEl.textContent = `${totalWeight.toFixed(2)} ${texts[lang].totalWeightUnit}`;
+            }
         }
 
         /**
@@ -376,13 +397,16 @@ let page_myorders = function () {
          * 显示订单明细加载状态
          */
         showDetailsLoadingState() {
-            const container = document.querySelector('.order-details-container');
-            container.innerHTML = `
-                <div class="loading-state">
-                    <i class="fa fa-spinner fa-spin"></i>
-                    <p>${texts[lang].loading}</p>
-                </div>
-            `;
+            // 仅显示顶部的加载指示器，不破坏既有表格结构
+            const headerLoading = document.getElementById('details-loading');
+            if (headerLoading) headerLoading.style.display = 'block';
+            // 隐藏表格和汇总，避免闪烁
+            const infoBlock = document.getElementById('order-info');
+            const tableBlock = document.getElementById('order-details-table');
+            const summaryBlock = document.getElementById('order-summary');
+            if (infoBlock) infoBlock.style.display = 'none';
+            if (tableBlock) tableBlock.style.display = 'none';
+            if (summaryBlock) summaryBlock.style.display = 'none';
         }
 
         /**
@@ -405,13 +429,25 @@ let page_myorders = function () {
          * 显示订单明细错误状态
          */
         showDetailsErrorState(errorMessage) {
-            const container = document.querySelector('.order-details-container');
-            container.innerHTML = `
-                <div class="error-state">
-                    <i class="fa fa-exclamation-triangle"></i>
-                    <p>${errorMessage || texts[lang].loadDetailsError}</p>
-                </div>
-            `;
+            // Do not replace the container; toggle the error block and keep structure
+            const headerLoading = document.getElementById('details-loading');
+            if (headerLoading) headerLoading.style.display = 'none';
+
+            const defaultBlock = document.getElementById('default-details-state');
+            const infoBlock = document.getElementById('order-info');
+            const tableBlock = document.getElementById('order-details-table');
+            const summaryBlock = document.getElementById('order-summary');
+            const emptyDetails = document.getElementById('empty-details');
+
+            if (defaultBlock) defaultBlock.style.display = 'none';
+            if (infoBlock) infoBlock.style.display = 'none';
+            if (tableBlock) tableBlock.style.display = 'none';
+            if (summaryBlock) summaryBlock.style.display = 'none';
+            if (emptyDetails) {
+                emptyDetails.style.display = 'block';
+                const emptyMsg = emptyDetails.querySelector('.empty-message');
+                if (emptyMsg) emptyMsg.textContent = errorMessage || texts[lang].loadDetailsError;
+            }
         }
 
         /**
@@ -537,7 +573,8 @@ let page_myorders = function () {
                     texts[lang].manufacturer,
                     texts[lang].heatNumber,
                     texts[lang].stockLengthUnit,
-                    texts[lang].stockWeightUnit
+                    texts[lang].stockWeightUnit,
+                    texts[lang].quantity
                 ];
 
                 tableHeaders.forEach((header, index) => {
@@ -636,13 +673,21 @@ let page_myorders = function () {
          */
         showDefaultPrompt() {
             if (!this.orderManager.selectedOrder) {
-                const container = document.querySelector('.order-details-container');
-                container.innerHTML = `
-                    <div class="details-prompt">
-                        <i class="fa fa-info-circle"></i>
-                        <p>${texts[lang].selectOrderPrompt}</p>
-                    </div>
-                `;
+                // Show default prompt block within existing structure, don't destroy the DOM
+                const headerLoading = document.getElementById('details-loading');
+                if (headerLoading) headerLoading.style.display = 'none';
+
+                const defaultBlock = document.getElementById('default-details-state');
+                const infoBlock = document.getElementById('order-info');
+                const tableBlock = document.getElementById('order-details-table');
+                const summaryBlock = document.getElementById('order-summary');
+                const emptyDetails = document.getElementById('empty-details');
+
+                if (defaultBlock) defaultBlock.style.display = 'block';
+                if (infoBlock) infoBlock.style.display = 'none';
+                if (tableBlock) tableBlock.style.display = 'none';
+                if (summaryBlock) summaryBlock.style.display = 'none';
+                if (emptyDetails) emptyDetails.style.display = 'none';
             }
         }
 
@@ -660,7 +705,10 @@ let page_myorders = function () {
          * 调整布局
          */
         adjustLayout() {
-            // 可以在这里添加响应式布局调整逻辑
+            // 窗口尺寸变化时，重新对齐表头，参照购物车实现
+            setTimeout(() => {
+                try { fixOrderDetailsHeaderAlignment(); } catch (e) {}
+            }, 100);
         }
 
         /**
@@ -692,6 +740,37 @@ let page_myorders = function () {
         window.orderManager = orderManager;
         
         pageController.initPage();
+    }
+
+    function fixOrderDetailsHeaderAlignment() {
+        const table = document.querySelector('#order-details-table table');
+        if (!table) return;
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        if (!thead || !tbody) return;
+
+        const adjust = () => {
+            const scrollbarWidth = tbody.offsetWidth - tbody.clientWidth;
+            if (scrollbarWidth > 0) {
+                thead.style.width = `calc(100% - ${scrollbarWidth}px)`;
+            } else {
+                thead.style.width = '100%';
+            }
+        };
+
+        // 初次调整
+        adjust();
+
+        // 监听变化
+        if (window.ResizeObserver) {
+            const resizeObserver = new ResizeObserver(adjust);
+            resizeObserver.observe(tbody);
+        }
+
+        // 当表体滚动时同步水平滚动（保险）
+        tbody.addEventListener('scroll', () => {
+            thead.scrollLeft = tbody.scrollLeft;
+        });
     }
 
     // 页面加载完成后初始化
