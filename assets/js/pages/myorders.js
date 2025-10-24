@@ -711,9 +711,19 @@ let page_myorders = function () {
     let pageController = null;
 
     // 初始化页面
-    function initPage() {
+    async function initPage() {
         pageController = new MyOrdersPageController();
         orderManager = pageController.orderManager;
+
+        // 初始化顶部购物车（保持角标与点击可用）
+        try {
+            if (typeof CartManager !== 'undefined') {
+                window._cartManager = new CartManager();
+                await window._cartManager.init();
+            }
+        } catch (e) {
+            console.warn('Cart init failed on MyOrders:', e);
+        }
 
         // 将orderManager暴露到全局作用域，供HTML中的onclick使用
         window.orderManager = orderManager;

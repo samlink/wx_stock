@@ -1,4 +1,13 @@
 let page_userset = function () {
+    // 初始化顶部购物车角标与点击
+    (async function(){
+        try {
+            if (typeof CartManager !== 'undefined') {
+                window._cartManager = new CartManager();
+                await window._cartManager.init();
+            }
+        } catch (e) { console.warn('Cart init failed on UserSet:', e); }
+    })();
     const lang = localStorage.getItem('language') || 'zh';
 
     if (lang != 'zh') {
