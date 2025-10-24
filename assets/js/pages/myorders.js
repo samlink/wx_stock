@@ -227,7 +227,7 @@ let page_myorders = function () {
             // 更新选中状态
             this.selectedOrder = orderId;
             this.updateOrderSelection();
-            
+
             // 获取订单明细
             this.getOrderDetails(orderId);
         }
@@ -237,7 +237,7 @@ let page_myorders = function () {
          */
         renderOrdersList() {
             const container = document.getElementById('orders-list');
-            
+
             if (this.orders.length === 0) {
                 container.innerHTML = `
                     <div class="empty-orders">
@@ -252,7 +252,7 @@ let page_myorders = function () {
             this.orders.forEach(order => {
                 const statusClass = this.getOrderStatusClass(order.status);
                 const statusText = this.getOrderStatusText(order.status);
-                
+
                 html += `
                     <div class="order-item" data-order-id="${order.order_id}" onclick="orderManager.selectOrder('${order.order_id}')">
                         <div class="order-header">
@@ -277,7 +277,7 @@ let page_myorders = function () {
             const tableBlock = document.getElementById('order-details-table');
             const tbody = document.getElementById('order-details-tbody');
             const summaryBlock = document.getElementById('order-summary');
-            
+
             if (!orderData || !orderData.items) {
                 // 无数据：隐藏信息区、表格与汇总，显示默认提示块
                 const headerLoading = document.getElementById('details-loading');
@@ -348,6 +348,8 @@ let page_myorders = function () {
                 tbody.innerHTML = rowsHtml;
                 // 修复表头对齐，参照购物车实现
                 fixOrderDetailsHeaderAlignment();
+                // 同步内层表格容器高度与外层容器一致
+                setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) {} }, 0);
             }
 
             // 显示汇总信息
@@ -360,6 +362,9 @@ let page_myorders = function () {
                 if (lengthEl) lengthEl.textContent = `${totalLength} ${texts[lang].totalLengthUnit}`;
                 if (weightEl) weightEl.textContent = `${totalWeight.toFixed(2)} ${texts[lang].totalWeightUnit}`;
             }
+            // 再次同步高度，考虑汇总区域显示后的布局变化
+            setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) {} }, 0);
+
         }
 
         /**
@@ -483,7 +488,7 @@ let page_myorders = function () {
          */
         formatDate(dateString) {
             if (!dateString) return '';
-            
+
             try {
                 const date = new Date(dateString);
                 return date.toLocaleString(lang === 'zh' ? 'zh-CN' : 'en-US');
@@ -708,6 +713,7 @@ let page_myorders = function () {
             // 窗口尺寸变化时，重新对齐表头，参照购物车实现
             setTimeout(() => {
                 try { fixOrderDetailsHeaderAlignment(); } catch (e) {}
+                try { syncOrderDetailsTableHeight(); } catch (e) {}
             }, 100);
         }
 
@@ -735,10 +741,10 @@ let page_myorders = function () {
     function initPage() {
         pageController = new MyOrdersPageController();
         orderManager = pageController.orderManager;
-        
+
         // 将orderManager暴露到全局作用域，供HTML中的onclick使用
         window.orderManager = orderManager;
-        
+
         pageController.initPage();
     }
 
@@ -773,6 +779,17 @@ let page_myorders = function () {
         });
     }
 
+    function syncOrderDetailsTableHeight() {
+        const outer = document.querySelector('.order-details-table-container');
+        const inner = document.querySelector('.order-details-table-container .table-container.table-order-details');
+        if (!outer || !inner) return;
+        const rect = outer.getBoundingClientRect();
+        const height = Math.max(0, Math.floor(rect.height));
+        if (height > 0) {
+            inner.style.height = height + 'px';
+        }
+    }
+
     // 页面加载完成后初始化
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initPage);
@@ -785,7 +802,7 @@ let page_myorders = function () {
         if (pageController) {
             // 重新初始化页面文本
             pageController.updatePageTexts();
-            
+
             // 重新渲染订单列表和明细
             if (orderManager) {
                 orderManager.renderOrdersList();
