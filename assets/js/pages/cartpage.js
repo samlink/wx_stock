@@ -106,6 +106,9 @@ let page_cart = function () {
 
         // 确保角标在页面加载时正确显示
         initCartBadge();
+
+        // 初始化订单角标管理器
+        initOrdersBadge();
     }
 
     // 初始化购物车角标
@@ -119,6 +122,24 @@ let page_cart = function () {
                     updateCartBadge(cartData.total_count);
                 }
             }, 100);
+        }
+    }
+
+    // 初始化订单角标
+    function initOrdersBadge() {
+        // 初始化订单角标管理器（如果可用）
+        if (typeof OrdersManager !== 'undefined') {
+            try {
+                // 创建全局订单管理器实例
+                if (typeof ordersManager === 'undefined' || !ordersManager) {
+                    window.ordersManager = new OrdersManager();
+                    ordersManager.init().catch(error => {
+                        console.warn('Failed to initialize orders manager in cart page:', error);
+                    });
+                }
+            } catch (error) {
+                console.warn('OrdersManager not available in cart page:', error);
+            }
         }
     }
 
@@ -521,6 +542,9 @@ let page_cart = function () {
                     // 先隐藏角标（订单提交成功，购物车清空）
                     animateCartBadgeClear();
 
+                    // 刷新订单角标（新增了一个待处理订单）
+                    refreshOrdersBadge();
+
                     // 显示订单成功对话框
                     showOrderSuccessModal(result.order_id);
                     notifier.show(texts[lang].orderSubmitted, 'success', 3000);
@@ -628,6 +652,30 @@ let page_cart = function () {
     // 隐藏加载状态
     function hideLoadingState() {
         // 加载状态会在renderCartTable中被替换
+    }
+
+    // 刷新订单角标
+    function refreshOrdersBadge() {
+        // 检查是否有全局的订单管理器实例
+        if (typeof ordersManager !== 'undefined' && ordersManager) {
+            // 延迟刷新，确保订单已经保存到数据库
+            setTimeout(() => {
+                ordersManager.refreshOrdersCount().catch(error => {
+                    console.warn('Failed to refresh orders badge:', error);
+                });
+            }, 500);
+        } else if (typeof OrdersManager !== 'undefined') {
+            // 如果没有全局实例，创建一个临时实例来刷新
+            setTimeout(async () => {
+                try {
+                    const tempOrdersManager = new OrdersManager();
+                    await tempOrdersManager.getPendingOrdersCount();
+                    tempOrdersManager.updateOrdersDisplay(tempOrdersManager.getCurrentPendingCount());
+                } catch (error) {
+                    console.warn('Failed to refresh orders badge with temp instance:', error);
+                }
+            }, 500);
+        }
     }
 
     // 将函数暴露到全局作用域

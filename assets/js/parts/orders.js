@@ -119,12 +119,51 @@ class OrdersManager {
     }
 
     /**
+     * 带动画的更新订单数量显示
+     * Update orders display with animation
+     * @param {number} count - 订单数量
+     */
+    updateOrdersDisplayWithAnimation(count) {
+        const ordersBadge = document.querySelector('#orders-count');
+        if (!ordersBadge) return;
+
+        this.pendingCount = count;
+
+        if (count > 0) {
+            // 先显示角标
+            ordersBadge.textContent = count;
+            ordersBadge.style.display = 'flex';
+
+            // 播放增加动画
+            ordersBadge.classList.remove('orders-count-animate');
+            // 强制重绘
+            ordersBadge.offsetHeight;
+            ordersBadge.classList.add('orders-count-animate');
+
+            // 动画结束后移除类
+            setTimeout(() => {
+                ordersBadge.classList.remove('orders-count-animate');
+            }, 600);
+        } else {
+            ordersBadge.style.display = 'none';
+        }
+    }
+
+    /**
      * 刷新订单数量
      * Refresh orders count
      */
     async refreshOrdersCount() {
+        const oldCount = this.pendingCount;
         const count = await this.getPendingOrdersCount();
-        this.updateOrdersDisplay(count);
+        
+        // 如果数量增加了，播放动画
+        if (count > oldCount) {
+            this.updateOrdersDisplayWithAnimation(count);
+        } else {
+            this.updateOrdersDisplay(count);
+        }
+        
         return count;
     }
 

@@ -259,9 +259,9 @@ let page_myorders = function () {
                     <div class="order-item" data-order-id="${order.order_id}" onclick="orderManager.selectOrder('${order.order_id}')">
                         <div class="order-header">
                             <div class="order-number">${order.order_id}</div>
+                            <div class="order-date">${this.formatDate(order.created_at)}</div>
                             <div class="order-status ${statusClass}">${statusText}</div>
                         </div>
-                        <div class="order-date">${this.formatDate(order.created_at)}</div>
                     </div>
                 `;
             });
@@ -351,7 +351,7 @@ let page_myorders = function () {
                 // 修复表头对齐，参照购物车实现
                 fixOrderDetailsHeaderAlignment();
                 // 同步内层表格容器高度与外层容器一致
-                setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) {} }, 0);
+                setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) { } }, 0);
             }
 
             // 显示汇总信息
@@ -365,7 +365,7 @@ let page_myorders = function () {
                 if (weightEl) weightEl.textContent = `${totalWeight.toFixed(2)} ${texts[lang].totalWeightUnit}`;
             }
             // 再次同步高度，考虑汇总区域显示后的布局变化
-            setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) {} }, 0);
+            setTimeout(() => { try { syncOrderDetailsTableHeight(); } catch (e) { } }, 0);
 
         }
 
@@ -699,8 +699,8 @@ let page_myorders = function () {
         adjustLayout() {
             // 窗口尺寸变化时，重新对齐表头，参照购物车实现
             setTimeout(() => {
-                try { fixOrderDetailsHeaderAlignment(); } catch (e) {}
-                try { syncOrderDetailsTableHeight(); } catch (e) {}
+                try { fixOrderDetailsHeaderAlignment(); } catch (e) { }
+                try { syncOrderDetailsTableHeight(); } catch (e) { }
             }, 100);
         }
 
@@ -791,7 +791,7 @@ let page_myorders = function () {
     }
 
     // 监听语言变化事件（如果有的话）
-    window.addEventListener('languageChanged', function(event) {
+    window.addEventListener('languageChanged', function (event) {
         if (pageController) {
             // 重新初始化页面文本
             pageController.updatePageTexts();
@@ -811,7 +811,7 @@ let page_myorders = function () {
         orderManager: () => orderManager,
         pageController: () => pageController,
         texts: texts,
-        updateLanguage: function(newLang) {
+        updateLanguage: function (newLang) {
             if (texts[newLang]) {
                 localStorage.setItem('language', newLang);
                 window.location.reload(); // 简单的重新加载页面来应用新语言
