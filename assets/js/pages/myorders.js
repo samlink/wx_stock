@@ -124,14 +124,47 @@ let page_myorders = function () {
 
         /**
          * 计算每页显示条目数
+         * 基于 orders-list-container 减去翻页控件高度
          */
         calculateRecordsPerPage() {
             try {
-                const ordersListHeight = window.innerHeight * 0.6; // 使用60%的视窗高度
-                const itemHeight = 58; // 每个订单项的大约高度（像素）
-                const maxRecords = Math.max(5, Math.floor(ordersListHeight / itemHeight));
-                this.recordsPerPage = Math.min(maxRecords, 20); // 限制最大20条
+                const container = document.querySelector('.orders-list-container');
+                const pagination = document.querySelector('.orders-pagination');
+                
+                if (!container) {
+                    this.recordsPerPage = 10;
+                    return;
+                }
+                
+                // 获取容器总高度
+                const containerHeight = container.clientHeight;
+                
+                // 获取翻页控件高度（包括边距和边框）
+                let paginationHeight = 0;
+                if (pagination) {
+                    const paginationStyle = window.getComputedStyle(pagination);
+                    paginationHeight = pagination.offsetHeight +
+                                     parseFloat(paginationStyle.marginTop || 0) +
+                                     parseFloat(paginationStyle.marginBottom || 0);
+                }
+                
+                // 计算可用于显示订单项的高度
+                const availableHeight = containerHeight - paginationHeight;
+                
+                // 每个订单项的高度（包括间距）
+                // order-item: padding 12px*2 + margin-bottom 8px + 内容约38px ≈ 70px
+                const itemHeight = 62;
+                
+                // 额外的内边距空间
+                const containerPadding = 20;
+                
+                // 计算可显示的订单数量
+                const maxRecords = Math.floor((availableHeight - containerPadding) / itemHeight);
+                
+                // 确保至少显示5条，最多20条
+                this.recordsPerPage = Math.max(5, Math.min(maxRecords, 20));
             } catch (error) {
+                console.error('计算每页显示条目数失败:', error);
                 this.recordsPerPage = 10; // 出错时使用默认值
             }
         }
@@ -688,7 +721,7 @@ let page_myorders = function () {
             // 更新搜索框
             const searchInput = document.getElementById('order-search-input');
             if (searchInput) {
-                searchInput.placeholder = lang === 'en' ? 'Search orders' : '搜索订单名称';
+                searchInput.placeholder = lang === 'en' ? 'Search orders' : '搜索订单';
             }
 
             // 更新翻页控件
@@ -816,13 +849,6 @@ let page_myorders = function () {
          */
         bindSearchListeners() {
             const searchInput = document.getElementById('order-search-input');
-            const searchBtn = document.getElementById('order-search-btn');
-
-            if (searchBtn) {
-                searchBtn.addEventListener('click', () => {
-                    this.handleSearch();
-                });
-            }
 
             if (searchInput) {
                 // 回车键搜索
