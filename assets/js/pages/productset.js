@@ -8,6 +8,53 @@ let page_productset = function () {
     let cartManager = null;
 
     const lang = localStorage.getItem('language') || 'zh';
+    
+    // 购物车相关文本映射
+    const cartTexts = {
+        zh: {
+            cartTitle: '购物车',
+            cartTooltip: '查看购物车',
+            addToCart: '添加到购物车',
+            addSuccess: '商品已添加到购物车',
+            addError: '添加失败，请重试',
+            networkError: '网络连接失败',
+            serverError: '服务器错误',
+            loginRequired: '请先登录',
+            alreadyInCart: '商品已在购物车中',
+            loading: '正在添加...',
+            emptyCart: '购物车为空',
+            itemsInCart: '购物车中有 {count} 件商品'
+        },
+        en: {
+            cartTitle: 'Shopping Cart',
+            cartTooltip: 'View Cart',
+            addToCart: 'Add to Cart',
+            addSuccess: 'Item added to cart successfully',
+            addError: 'Failed to add item, please try again',
+            networkError: 'Network connection failed',
+            serverError: 'Server error, please try again later',
+            loginRequired: 'Please login first to continue',
+            alreadyInCart: 'Item is already in cart',
+            loading: 'Adding...',
+            emptyCart: 'Cart is empty',
+            itemsInCart: '{count} item(s) in cart'
+        }
+    };
+
+    // 获取购物车相关文本的辅助函数
+    function getCartText(key, params = {}) {
+        let text = cartTexts[lang][key] || cartTexts['zh'][key] || key;
+        
+        // 简单的文本插值
+        if (params && typeof text === 'string') {
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+        }
+        
+        return text;
+    }
+
     if (lang == "en") {
         document.querySelector('#auto_input').placeholder = 'Name search';
         document.querySelector('.tree-title').textContent = 'Product category　';
@@ -43,6 +90,10 @@ let page_productset = function () {
         try {
             cartManager = new CartManager();
             await cartManager.init();
+            
+            // 确保购物车管理器使用正确的语言设置
+            cartManager.updateLanguage(lang);
+            
             console.log('Shopping cart initialized successfully');
         } catch (error) {
             console.error('Failed to initialize shopping cart:', error);
@@ -75,10 +126,19 @@ let page_productset = function () {
         }
     }
 
+    // 更新购物车语言设置
+    function updateCartLanguage(newLang) {
+        if (cartManager) {
+            cartManager.updateLanguage(newLang);
+        }
+    }
+
     // 将购物车相关函数暴露到全局作用域（如果需要）
     if (typeof window !== 'undefined') {
         window.getCartManager = getCartManager;
         window.refreshCartCount = refreshCartCount;
+        window.updateCartLanguage = updateCartLanguage;
+        window.getCartText = getCartText;
     }
 
     //配置自动完成和树的显示 ---------------------------------------------------

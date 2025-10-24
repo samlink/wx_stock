@@ -98,6 +98,9 @@ let page_cart = function () {
         // 设置页面标题
         document.title = texts[lang].cartTitle;
 
+        // 更新页面静态文本
+        updatePageText();
+
         // 绑定事件监听器
         bindEventListeners();
 
@@ -109,6 +112,116 @@ let page_cart = function () {
 
         // 初始化订单角标管理器
         initOrdersBadge();
+    }
+
+    /**
+     * 更新页面静态文本为对应语言
+     * Update page static text to corresponding language
+     */
+    function updatePageText() {
+        if (lang === 'en') {
+            // 页面标题
+            const cartTitle = document.querySelector('.cart-title');
+            if (cartTitle) {
+                cartTitle.innerHTML = '<i class="fa fa-shopping-cart"></i> Shopping Cart';
+            }
+
+            // 按钮文本
+            const clearCartBtn = document.querySelector('#clear-cart-btn');
+            if (clearCartBtn) {
+                clearCartBtn.innerHTML = '<i class="fa fa-trash"></i> Clear Cart';
+            }
+
+            const refreshCartBtn = document.querySelector('#refresh-cart-btn');
+            if (refreshCartBtn) {
+                refreshCartBtn.innerHTML = '<i class="fa fa-refresh"></i> Refresh';
+            }
+
+            const submitOrderBtn = document.querySelector('#submit-order-btn');
+            if (submitOrderBtn) {
+                submitOrderBtn.innerHTML = '<i class="fa fa-check"></i> Submit Order';
+            }
+
+            // 表头翻译
+            const tableHeaders = document.querySelectorAll('.table-cart thead th');
+            const headerTexts = ['No.', 'Product Name', 'Stock No.', 'Dia./OD*WT mm', 'Condition',
+                                'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)',
+                                'Weight (kg)', 'Added Time', 'Actions'];
+            tableHeaders.forEach((th, index) => {
+                if (index < headerTexts.length) {
+                    th.textContent = headerTexts[index];
+                }
+            });
+
+            // 汇总信息标签
+            const summaryLabels = document.querySelectorAll('.summary-label');
+            if (summaryLabels[0]) summaryLabels[0].textContent = 'Total Items:';
+            if (summaryLabels[1]) summaryLabels[1].textContent = 'Total Length:';
+            if (summaryLabels[2]) summaryLabels[2].textContent = 'Total Weight:';
+
+            // 确认删除对话框
+            updateModalText('#confirm-delete-modal', {
+                title: 'Confirm Delete',
+                body: 'Are you sure you want to remove this item from cart?',
+                cancel: 'Cancel',
+                confirm: 'Delete'
+            });
+
+            // 确认清空对话框
+            updateModalText('#confirm-clear-modal', {
+                title: 'Confirm Clear',
+                body: 'Are you sure you want to clear the entire cart? This action cannot be undone.',
+                cancel: 'Cancel',
+                confirm: 'Clear'
+            });
+
+            // 确认提交订单对话框
+            updateModalText('#confirm-submit-modal', {
+                title: 'Confirm Submit Order',
+                body: 'Are you sure you want to submit this order?',
+                cancel: 'Cancel',
+                confirm: 'Confirm'
+            });
+
+            // 确认提交订单对话框中的汇总信息标签
+            const submitModalLabels = document.querySelectorAll('#confirm-submit-modal .label');
+            if (submitModalLabels[0]) submitModalLabels[0].textContent = 'Total Items:';
+            if (submitModalLabels[1]) submitModalLabels[1].textContent = 'Total Length:';
+            if (submitModalLabels[2]) submitModalLabels[2].textContent = 'Total Weight:';
+
+            // 订单提交成功对话框
+            updateModalText('#order-success-modal', {
+                title: 'Order Submitted Successfully',
+                body: 'Your order has been submitted successfully!',
+                confirm: 'OK'
+            });
+
+            // 更新订单成功对话框中的标签
+            const orderInfoLabels = document.querySelectorAll('#order-success-modal strong');
+            if (orderInfoLabels[0]) orderInfoLabels[0].textContent = 'Order Number:';
+            if (orderInfoLabels[1]) orderInfoLabels[1].textContent = 'Submit Time:';
+        }
+    }
+
+    /**
+     * 更新模态框文本
+     * Update modal text
+     */
+    function updateModalText(modalId, texts) {
+        const modal = document.querySelector(modalId);
+        if (!modal) return;
+
+        const title = modal.querySelector('.modal-header h3');
+        if (title && texts.title) title.textContent = texts.title;
+
+        const body = modal.querySelector('.modal-body p');
+        if (body && texts.body) body.textContent = texts.body;
+
+        const cancelBtn = modal.querySelector('.btn-secondary');
+        if (cancelBtn && texts.cancel) cancelBtn.textContent = texts.cancel;
+
+        const confirmBtn = modal.querySelector('.btn-danger, .btn-success, .btn-primary');
+        if (confirmBtn && texts.confirm) confirmBtn.textContent = texts.confirm;
     }
 
     // 初始化购物车角标
@@ -281,11 +394,20 @@ let page_cart = function () {
             return;
         }
 
+        const deleteText = lang === 'en' ? 'Delete' : '删除';
         let html = '';
         cartData.items.forEach((item, index) => {
             // 如果库存不足，添加高亮类
             const lowStockClass = item.low_stock ? 'low-stock-warning' : '';
             const stockLengthDisplay = item.low_stock ? `<span class="low-stock-indicator">${item.stock_length}</span>` : item.stock_length;
+            
+            // 翻译状态和厂家字段（如果需要）
+            const translatedStatus = lang === 'en' && typeof Translator !== 'undefined'
+                ? Translator.translateStatus(item.status, 'en')
+                : item.status;
+            const translatedManufacturer = lang === 'en' && typeof Translator !== 'undefined'
+                ? Translator.translateManufacturer(item.manufacturer, 'en')
+                : item.manufacturer;
             
             html += `
                 <tr data-material="${item.material_number}" class="${lowStockClass}">
@@ -293,18 +415,18 @@ let page_cart = function () {
                     <td>${item.product_name}</td>
                     <td>${item.material_number}</td>
                     <td>${item.specification}</td>
-                    <td>${item.status}</td>
+                    <td>${translatedStatus}</td>
                     <td width="15%">${item.standard}</td>
-                    <td>${item.manufacturer}</td>
+                    <td>${translatedManufacturer}</td>
                     <td>${item.heat_number}</td>
                     <td>${stockLengthDisplay}</td>
                     <td>${item.stock_weight.toFixed(2)}</td>
                     <td width="12%">${item.added_at}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" 
+                        <button class="btn btn-sm btn-danger"
                                 onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.specification}')">
                             <i class="fa fa-trash"></i>
-                            删除
+                            ${deleteText}
                         </button>
                     </td>
                 </tr>
@@ -354,13 +476,23 @@ let page_cart = function () {
         currentDeleteItem = materialNumber;
 
         const itemInfo = document.getElementById('delete-item-info');
-        itemInfo.innerHTML = `
-            <div class="item-details">
-                <strong>商品名称：</strong>${productName}<br>
-                <strong>规格型号：</strong>${productSize}<br>
-                <strong>物料号：</strong>${materialNumber}
-            </div>
-        `;
+        if (lang === 'en') {
+            itemInfo.innerHTML = `
+                <div class="item-details">
+                    <strong>Product Name:</strong> ${productName}<br>
+                    <strong>Specification:</strong> ${productSize}<br>
+                    <strong>Stock No.:</strong> ${materialNumber}
+                </div>
+            `;
+        } else {
+            itemInfo.innerHTML = `
+                <div class="item-details">
+                    <strong>商品名称：</strong>${productName}<br>
+                    <strong>规格型号：</strong>${productSize}<br>
+                    <strong>物料号：</strong>${materialNumber}
+                </div>
+            `;
+        }
 
         document.getElementById('confirm-delete-modal').style.display = 'block';
     }

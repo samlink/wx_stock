@@ -11,6 +11,14 @@ if (lang == "en") {
             ordersSpan.textContent = 'My Orders';
         }
     }
+    // 更新购物车的英文翻译，保持角标结构
+    const shoppingCart = document.querySelector('#shopping-cart');
+    if (shoppingCart) {
+        const cartSpan = shoppingCart.querySelector('span:last-child');
+        if (cartSpan) {
+            cartSpan.textContent = 'Shopping Cart';
+        }
+    }
     document.querySelector('#change-pwd').innerHTML = '<i class="nav-icon fa fa-user"></i>Change password</a>';
     document.querySelector('#logout').title = 'Log out';
     document.querySelector('#modal-sumit-button').textContent = 'Submit';

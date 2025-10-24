@@ -92,7 +92,7 @@ build_javascript() {
     cd assets/js
     
     # 构建 tools_service.js (合并多个文件)
-    TOOLS_SERVICE_SOURCES="./parts/proto_tools.js ./parts/tools.js ./parts/alert.js ./parts/notifier.js ./parts/autocomplete.js ./parts/modal.js ./parts/tree.js ./parts/table.js ./parts/table_class.js ./parts/service.js ./parts/edit_table.js ./parts/customer.js ./parts/orders.js ./pages/functions.js"
+    TOOLS_SERVICE_SOURCES="./parts/proto_tools.js ./parts/tools.js ./parts/alert.js ./parts/notifier.js ./parts/autocomplete.js ./parts/modal.js ./parts/tree.js ./parts/table.js ./parts/table_class.js ./parts/service.js ./parts/translator.js ./parts/edit_table.js ./parts/customer.js ./parts/orders.js ./pages/functions.js"
     TOOLS_SERVICE_TARGET="../../static/tools_service.js"
 
     if [ "$FORCE_BUILD" = "1" ] || needs_rebuild "$TOOLS_SERVICE_TARGET" $TOOLS_SERVICE_SOURCES; then

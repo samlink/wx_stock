@@ -10,27 +10,99 @@ class CartManager {
         this.lang = localStorage.getItem('language') || 'zh';
         this.animationController = new AnimationController();
 
-        // 文本映射
+        // 购物车相关文本映射
         this.texts = {
             zh: {
+                // 购物车图标和标题
+                cartTitle: '购物车',
+                cartTooltip: '查看购物车',
+                
+                // 添加按钮相关
                 addToCart: '添加到购物车',
+                addToCartShort: '加入购物车',
+                
+                // 操作成功消息
                 addSuccess: '商品已添加到购物车',
+                itemAdded: '已添加到购物车',
+                
+                // 错误消息
                 addError: '添加失败，请重试',
-                networkError: '网络连接失败',
-                serverError: '服务器错误',
-                loginRequired: '请先登录',
-                alreadyInCart: '商品已在购物车中'
+                networkError: '网络连接失败，请检查网络连接',
+                serverError: '服务器错误，请稍后重试',
+                loginRequired: '请先登录后再操作',
+                alreadyInCart: '商品已在购物车中',
+                invalidItem: '无效的商品信息',
+                operationFailed: '操作失败',
+                
+                // 状态提示
+                loading: '正在添加...',
+                processing: '处理中...',
+                
+                // 购物车状态
+                emptyCart: '购物车为空',
+                cartCount: '购物车商品数量',
+                itemsInCart: '购物车中有 {count} 件商品',
+                
+                // 按钮状态
+                buttonDisabled: '按钮已禁用',
+                pleaseWait: '请稍候...'
             },
             en: {
+                // 购物车图标和标题
+                cartTitle: 'Shopping Cart',
+                cartTooltip: 'View Cart',
+                
+                // 添加按钮相关
                 addToCart: 'Add to Cart',
-                addSuccess: 'Item added to cart',
-                addError: 'Failed to add, please try again',
-                networkError: 'Network connection failed',
-                serverError: 'Server error',
-                loginRequired: 'Please login first',
-                alreadyInCart: 'Item already in cart'
+                addToCartShort: 'Add to Cart',
+                
+                // 操作成功消息
+                addSuccess: 'Item added to cart successfully',
+                itemAdded: 'Added to cart',
+                
+                // 错误消息
+                addError: 'Failed to add item, please try again',
+                networkError: 'Network connection failed, please check your connection',
+                serverError: 'Server error, please try again later',
+                loginRequired: 'Please login first to continue',
+                alreadyInCart: 'Item is already in cart',
+                invalidItem: 'Invalid item information',
+                operationFailed: 'Operation failed',
+                
+                // 状态提示
+                loading: 'Adding...',
+                processing: 'Processing...',
+                
+                // 购物车状态
+                emptyCart: 'Cart is empty',
+                cartCount: 'Cart item count',
+                itemsInCart: '{count} item(s) in cart',
+                
+                // 按钮状态
+                buttonDisabled: 'Button disabled',
+                pleaseWait: 'Please wait...'
             }
         };
+    }
+
+    /**
+     * 获取本地化文本
+     * Get localized text
+     * @param {string} key - 文本键
+     * @param {object} params - 参数对象，用于文本插值
+     * @returns {string} 本地化文本
+     */
+    getText(key, params = {}) {
+        let text = this.texts[this.lang][key] || this.texts['zh'][key] || key;
+        
+        // 简单的文本插值
+        if (params && typeof text === 'string') {
+            Object.keys(params).forEach(param => {
+                text = text.replace(`{${param}}`, params[param]);
+            });
+        }
+        
+        return text;
     }
 
     /**
@@ -71,6 +143,9 @@ class CartManager {
     bindCartIconEvents() {
         const cartContainer = document.querySelector('#shopping-cart');
         if (cartContainer) {
+            // 设置购物车图标的标题和提示
+            cartContainer.title = this.getText('cartTooltip');
+            
             cartContainer.addEventListener('click', () => {
                 // 跳转到购物车页面
                 window.location.href = '/stock/cart';
@@ -160,7 +235,7 @@ class CartManager {
 
                 // 显示成功消息
                 notifier.show(
-                    result.message || this.texts[this.lang].addSuccess,
+                    result.message || this.getText('addSuccess'),
                     'success',
                     3000
                 );
@@ -184,16 +259,20 @@ class CartManager {
      * Handle add error
      */
     handleAddError(result, status) {
-        let message = this.texts[this.lang].addError;
+        let message = this.getText('addError');
 
         if (status === 401) {
-            message = this.texts[this.lang].loginRequired;
+            message = this.getText('loginRequired');
             // 可以考虑跳转到登录页面
             setTimeout(() => {
                 window.location.href = '/';
             }, 2000);
         } else if (status === 409) {
-            message = this.texts[this.lang].alreadyInCart;
+            message = this.getText('alreadyInCart');
+        } else if (status === 400) {
+            message = this.getText('invalidItem');
+        } else if (status >= 500) {
+            message = this.getText('serverError');
         } else if (result.message) {
             message = result.message;
         }
@@ -207,7 +286,7 @@ class CartManager {
      */
     handleNetworkError() {
         notifier.show(
-            this.texts[this.lang].networkError,
+            this.getText('networkError'),
             'danger',
             4000
         );
@@ -221,6 +300,7 @@ class CartManager {
         if (loading) {
             button.disabled = true;
             button.classList.add('loading');
+            button.title = this.getText('loading');
             const icon = button.querySelector('i');
             if (icon) {
                 icon.className = 'fa fa-spinner fa-spin';
@@ -228,6 +308,7 @@ class CartManager {
         } else {
             button.disabled = false;
             button.classList.remove('loading');
+            button.title = this.getText('addToCart');
             const icon = button.querySelector('i');
             if (icon) {
                 icon.className = 'fa fa-plus';
@@ -248,10 +329,20 @@ class CartManager {
 
         if (count > 0) {
             cartBadge.textContent = count;
+            cartBadge.title = this.getText('itemsInCart', { count: count });
             // 使用 flex 以便数字在圆内完全居中
             cartBadge.style.display = 'flex';
         } else {
             cartBadge.style.display = 'none';
+            cartBadge.title = this.getText('emptyCart');
+        }
+
+        // 更新购物车图标的提示文本
+        const cartContainer = document.querySelector('#shopping-cart');
+        if (cartContainer) {
+            cartContainer.title = count > 0 
+                ? this.getText('itemsInCart', { count: count })
+                : this.getText('cartTooltip');
         }
     }
 
@@ -376,6 +467,36 @@ class CartManager {
             const indicator = row.querySelector('.cart-indicator');
             if (indicator) {
                 indicator.remove();
+            }
+        });
+    }
+
+    /**
+     * 更新语言设置
+     * Update language setting
+     * @param {string} newLang - 新的语言代码 ('zh' 或 'en')
+     */
+    updateLanguage(newLang) {
+        if (newLang && (newLang === 'zh' || newLang === 'en')) {
+            this.lang = newLang;
+            
+            // 更新所有按钮的标题
+            this.updateButtonTitles();
+            
+            // 更新购物车显示
+            this.updateCartDisplay(this.cartCount);
+        }
+    }
+
+    /**
+     * 更新所有购物车按钮的标题
+     * Update all cart button titles
+     */
+    updateButtonTitles() {
+        const addButtons = document.querySelectorAll('.btn-add-cart');
+        addButtons.forEach(button => {
+            if (!button.classList.contains('loading')) {
+                button.title = this.getText('addToCart');
             }
         });
     }

@@ -478,15 +478,23 @@ let page_myorders = function () {
                 tableBlock.style.display = 'block';
                 let rowsHtml = '';
                 orderData.items.forEach((item, index) => {
+                    // 翻译状态和厂家字段（如果需要）
+                    const translatedStatus = lang === 'en' && typeof Translator !== 'undefined'
+                        ? Translator.translateStatus(item.status || '', 'en')
+                        : (item.status || '');
+                    const translatedManufacturer = lang === 'en' && typeof Translator !== 'undefined'
+                        ? Translator.translateManufacturer(item.manufacturer || '', 'en')
+                        : (item.manufacturer || '');
+                    
                     rowsHtml += `
                         <tr>
                             <td>${index + 1}</td>
                             <td>${item.product_name || ''}</td>
                             <td>${item.material_number || ''}</td>
                             <td>${item.specification || ''}</td>
-                            <td>${item.status || ''}</td>
+                            <td>${translatedStatus}</td>
                             <td title="${item.standard || ''}">${item.standard || ''}</td>
-                            <td>${item.manufacturer || ''}</td>
+                            <td>${translatedManufacturer}</td>
                             <td title="${item.heat_number || ''}">${item.heat_number || ''}</td>
                             <td>${Number(item.stock_length || 0)}</td>
                             <td>${Number(item.stock_weight || 0).toFixed(2)}</td>
