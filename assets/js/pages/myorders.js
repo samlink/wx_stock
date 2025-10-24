@@ -128,7 +128,7 @@ let page_myorders = function () {
         calculateRecordsPerPage() {
             try {
                 const ordersListHeight = window.innerHeight * 0.6; // 使用60%的视窗高度
-                const itemHeight = 56; // 每个订单项的大约高度（像素）
+                const itemHeight = 58; // 每个订单项的大约高度（像素）
                 const maxRecords = Math.max(5, Math.floor(ordersListHeight / itemHeight));
                 this.recordsPerPage = Math.min(maxRecords, 20); // 限制最大20条
             } catch (error) {
