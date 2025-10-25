@@ -78,12 +78,6 @@ pub struct RemoveFromCartRequest {
     material_number: String,
 }
 
-#[derive(Deserialize)]
-pub struct UpdateCartQuantityRequest {
-    user_id: i32,
-    material_number: String,
-    quantity: i32,
-}
 
 #[derive(Deserialize, Debug)]
 pub struct SubmitOrderRequest {
@@ -94,6 +88,8 @@ pub struct SubmitOrderRequest {
 #[derive(Deserialize, Debug)]
 pub struct OrderItem {
     material_number: String,
+    length: i32,
+    weight: f64,
 }
 
 #[derive(Serialize)]
@@ -239,7 +235,7 @@ pub async fn get_cart_materials(
     }
 }
 
-/// 获取购物车商品列表（预留功能）
+/// 获取购物车商品列表
 #[post("/get_cart_items")]
 pub async fn get_cart_items(
     db: web::Data<Pool>,
@@ -449,67 +445,6 @@ pub async fn remove_from_cart(
     }
 }
 
-/// 更新购物车商品数量
-#[post("/update_cart_quantity")]
-pub async fn update_cart_quantity(
-    db: web::Data<Pool>,
-    request: web::Json<UpdateCartQuantityRequest>,
-    id: Identity,
-) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());
-
-    if user_name.is_empty() {
-        return HttpResponse::Unauthorized().json(json!({
-            "success": false,
-            "message": "用户未登录"
-        }));
-    }
-
-    if request.quantity <= 0 {
-        return HttpResponse::BadRequest().json(json!({
-            "success": false,
-            "message": "数量必须大于0"
-        }));
-    }
-
-    let conn = db.get().await.unwrap();
-
-    // 更新购物车商品数量
-    let update_result = conn
-        .execute(
-            "UPDATE shopping_cart SET quantity = $1 WHERE user_id = $2 AND material_number = $3",
-            &[
-                &request.quantity,
-                &request.user_id,
-                &request.material_number,
-            ],
-        )
-        .await;
-
-    match update_result {
-        Ok(rows_affected) => {
-            if rows_affected > 0 {
-                HttpResponse::Ok().json(json!({
-                    "success": true,
-                    "message": "数量已更新"
-                }))
-            } else {
-                HttpResponse::Ok().json(json!({
-                    "success": false,
-                    "message": "商品不在购物车中"
-                }))
-            }
-        }
-        Err(e) => {
-            eprintln!("更新购物车数量失败: {}", e);
-            HttpResponse::InternalServerError().json(json!({
-                "success": false,
-                "message": "更新失败，请重试"
-            }))
-        }
-    }
-}
-
 /// 清空购物车
 #[post("/clear_cart")]
 pub async fn clear_cart(
@@ -634,11 +569,9 @@ pub async fn submit_order(
     // 创建订单详情
     for item in &request.items {
         let sql = format!(
-            "INSERT INTO order_items (order_id, material_number) VALUES ('{}', '{}')",
-            order_id, item.material_number
+            "INSERT INTO order_items (order_id, material_number, length, weight) VALUES ('{}', '{}', {}, {})",
+            order_id, item.material_number, item.length, item.weight
         );
-
-        // println!("sql: {}", sql);
 
         let detail_result = transaction.execute(sql.as_str(), &[]).await;
 

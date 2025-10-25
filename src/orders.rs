@@ -53,7 +53,7 @@ pub struct OrderDetailItem {
     manufacturer: String,
     heat_number: String,
     stock_length: i32,
-    stock_weight: f64,
+    stock_weight: f32,
     quantity: i32,
 }
 
@@ -287,12 +287,11 @@ pub async fn get_order_details(
                 p.文本字段3 as standard,
                 p.文本字段5 as manufacturer,
                 p.文本字段4 as heat_number,
-                COALESCE(mv.库存长度, 0) as stock_length,
-                COALESCE(mv.理论重量, 0) as stock_weight
+                oi.length,
+                oi.weight
             FROM order_items oi
             JOIN products p ON oi.material_number = p.物料号
             JOIN tree t ON p.商品id = t.num
-            LEFT JOIN mv_length_weight mv ON p.物料号 = mv.物料号
             WHERE oi.order_id = $1"#,
             &[&request.order_id],
         )
@@ -307,8 +306,8 @@ pub async fn get_order_details(
 
             for row in rows {
                 let quantity: i32 = 1;
-                let stock_weight: f64 = row.get("stock_weight");
-                let total_item_weight = stock_weight * quantity as f64;
+                let stock_weight: f32 = row.get("weight");
+                let total_item_weight = stock_weight as f64;
 
                 total_items += 1;
                 total_quantity += quantity;
@@ -322,7 +321,7 @@ pub async fn get_order_details(
                     standard: row.get("standard"),
                     manufacturer: row.get("manufacturer"),
                     heat_number: row.get("heat_number"),
-                    stock_length: row.get("stock_length"),
+                    stock_length: row.get("length"),
                     stock_weight,
                     quantity,
                 });

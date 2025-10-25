@@ -145,8 +145,8 @@ let page_cart = function () {
             // 表头翻译
             const tableHeaders = document.querySelectorAll('.table-cart thead th');
             const headerTexts = ['No.', 'Product Name', 'Stock No.', 'Dia./OD*WT mm', 'Condition',
-                                'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)',
-                                'Weight (kg)', 'Added Time', 'Actions'];
+                'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)',
+                'Weight (kg)', 'Added Time', 'Actions'];
             tableHeaders.forEach((th, index) => {
                 if (index < headerTexts.length) {
                     th.textContent = headerTexts[index];
@@ -400,7 +400,7 @@ let page_cart = function () {
             // 如果库存不足，添加高亮类
             const lowStockClass = item.low_stock ? 'low-stock-warning' : '';
             const stockLengthDisplay = item.low_stock ? `<span class="low-stock-indicator">${item.stock_length}</span>` : item.stock_length;
-            
+
             // 翻译状态、厂家和产品名称字段（如果需要）
             const translatedStatus = lang === 'en' && typeof Translator !== 'undefined'
                 ? Translator.translateStatus(item.status, 'en')
@@ -411,7 +411,7 @@ let page_cart = function () {
             const translatedProductName = lang === 'en' && typeof Translator !== 'undefined'
                 ? Translator.translateProductName(item.product_name, 'en')
                 : item.product_name;
-            
+
             html += `
                 <tr data-material="${item.material_number}" class="${lowStockClass}">
                     <td width="4%">${index + 1}</td>
@@ -658,6 +658,8 @@ let page_cart = function () {
 
             const orderItems = cartData.items.map(item => ({
                 material_number: item.material_number,
+                length: item.stock_length,
+                weight: item.stock_weight
             }));
 
             const response = await fetch('/stock/submit_order', {

@@ -71,7 +71,6 @@ async fn main() -> std::io::Result<()> {
                     .service(cart::get_cart_items)
                     .service(cart::get_cart_detail)
                     .service(cart::remove_from_cart)
-                    .service(cart::update_cart_quantity)
                     .service(cart::clear_cart)
                     .service(cart::submit_order)
                     .service(orders::get_user_orders)
