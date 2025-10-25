@@ -416,6 +416,7 @@ let page_cart = function () {
                 <tr data-material="${item.material_number}" class="${lowStockClass}">
                     <td width="4%">${index + 1}</td>
                     <td>${translatedProductName}</td>
+                    <td>${item.cz}</td>
                     <td>${item.material_number}</td>
                     <td>${item.specification}</td>
                     <td>${translatedStatus}</td>
@@ -427,7 +428,7 @@ let page_cart = function () {
                     <td width="12%">${item.added_at}</td>
                     <td>
                         <button class="btn btn-sm btn-danger"
-                                onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.specification}')">
+                                onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.cz}', '${item.specification}')">
                             <i class="fa fa-trash"></i>
                             ${deleteText}
                         </button>
@@ -475,7 +476,7 @@ let page_cart = function () {
 
 
     // 显示删除确认对话框
-    function showDeleteConfirmModal(materialNumber, productName, productSize) {
+    function showDeleteConfirmModal(materialNumber, productName, cz, productSize) {
         currentDeleteItem = materialNumber;
 
         const itemInfo = document.getElementById('delete-item-info');
@@ -483,6 +484,7 @@ let page_cart = function () {
             itemInfo.innerHTML = `
                 <div class="item-details">
                     <strong>Product Name:</strong> ${productName}<br>
+                    <strong>Material:</strong> ${cz}<br>
                     <strong>Specification:</strong> ${productSize}<br>
                     <strong>Stock No.:</strong> ${materialNumber}
                 </div>
@@ -491,6 +493,7 @@ let page_cart = function () {
             itemInfo.innerHTML = `
                 <div class="item-details">
                     <strong>商品名称：</strong>${productName}<br>
+                    <strong>材质：</strong>${cz}<br>
                     <strong>规格型号：</strong>${productSize}<br>
                     <strong>物料号：</strong>${materialNumber}
                 </div>

@@ -47,6 +47,7 @@ pub struct UserOrdersResponse {
 pub struct OrderDetailItem {
     material_number: String,
     product_name: String,
+    cz: String,
     specification: String,
     status: String,
     standard: String,
@@ -282,6 +283,7 @@ pub async fn get_order_details(
             r#"SELECT 
                 oi.material_number,
                 split_part(t.node_name, ' ', 2) as product_name,
+                split_part(t.node_name, ' ', 1) as cz,
                 p.规格型号 as specification,
                 p.文本字段2 as status,
                 p.文本字段3 as standard,
@@ -316,6 +318,7 @@ pub async fn get_order_details(
                 items.push(OrderDetailItem {
                     material_number: row.get("material_number"),
                     product_name: row.get("product_name"),
+                    cz: row.get("cz"),
                     specification: row.get("specification"),
                     status: row.get("status"),
                     standard: row.get("standard"),

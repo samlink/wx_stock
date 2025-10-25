@@ -35,6 +35,7 @@ let page_myorders = function () {
             unauthorized: '无权限访问此订单',
             materialNumber: '物料号',
             productName: '商品名称',
+            material: '材质',
             specification: '规格型号',
             status: '状态',
             standard: '执行标准',
@@ -79,6 +80,7 @@ let page_myorders = function () {
             unauthorized: 'Unauthorized to access this order',
             materialNumber: 'Material Number',
             productName: 'Product Name',
+            material: 'Material',
             specification: 'Specification',
             status: 'Status',
             standard: 'Standard',
@@ -493,6 +495,7 @@ let page_myorders = function () {
                         <tr>
                             <td>${index + 1}</td>
                             <td>${translatedProductName}</td>
+                            <td>${item.cz || ''}</td>
                             <td>${item.material_number || ''}</td>
                             <td>${item.specification || ''}</td>
                             <td>${translatedStatus}</td>
@@ -774,6 +777,7 @@ let page_myorders = function () {
                 const headerTexts = [
                     texts[lang].serialNumber,
                     texts[lang].productName,
+                    texts[lang].material,
                     texts[lang].materialNumber,
                     texts[lang].specification,
                     texts[lang].status,
