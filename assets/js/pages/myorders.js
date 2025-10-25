@@ -440,7 +440,7 @@ let page_myorders = function () {
                 if (infoBlock) infoBlock.style.display = 'none';
                 if (tableBlock) tableBlock.style.display = 'none';
                 if (summaryBlock) summaryBlock.style.display = 'none';
-                if (defaultBlock) defaultBlock.style.display = 'block';
+                if (defaultBlock) defaultBlock.style.display = 'flex';
                 return;
             }
 
@@ -477,7 +477,7 @@ let page_myorders = function () {
                 // 隐藏默认提示
                 const defaultBlock = document.getElementById('default-details-state');
                 if (defaultBlock) defaultBlock.style.display = 'none';
-                tableBlock.style.display = 'block';
+                tableBlock.style.display = 'flex';
                 let rowsHtml = '';
                 orderData.items.forEach((item, index) => {
                     // 翻译状态、厂家和产品名称字段（如果需要）
@@ -956,7 +956,7 @@ let page_myorders = function () {
                 const summaryBlock = document.getElementById('order-summary');
                 const emptyDetails = document.getElementById('empty-details');
 
-                if (defaultBlock) defaultBlock.style.display = 'block';
+                if (defaultBlock) defaultBlock.style.display = 'flex';
                 if (infoBlock) infoBlock.style.display = 'none';
                 if (tableBlock) tableBlock.style.display = 'none';
                 if (summaryBlock) summaryBlock.style.display = 'none';
