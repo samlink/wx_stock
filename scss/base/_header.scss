@@ -229,6 +229,10 @@
     text-decoration: none;
     display: flex;
     align-items: center;
+
+    .orders-icon-wrapper {
+        margin-right: 4px;
+    }
     
     &:hover {
         .nav-icon {
