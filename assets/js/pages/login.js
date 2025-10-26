@@ -1,4 +1,4 @@
-// 本地运行测试用
+// 本地运行测试用，需退出后重新登录（可使用 /stock/logout 退出登录）
 setCookie("wxok", "ok", 3);
 localStorage.setItem('language', 'zh'); // zh en
 
