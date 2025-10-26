@@ -144,7 +144,7 @@ let page_productset = function () {
     //配置自动完成和树的显示 ---------------------------------------------------
 
     let tree_height = document.querySelector('.tree-container').clientHeight;
-    let row_num = Math.floor((tree_height - 50) / 30);
+    let row_num = Math.floor((tree_height - 80) / 30);
 
     let tree_data = {
         leaf_click: (id, name) => {

@@ -2,7 +2,7 @@ const lang = localStorage.getItem('language') || 'zh';
 if (lang == "en") {
     document.querySelector('#title-show').textContent = 'Inventory Inquiry';
     document.querySelector('#title').textContent = 'Five Star (Tianjin) Petroleum Equipment Co., Ltd.';
-    document.querySelector('#title-name').innerHTML = '<p><i class="nav-icon fa fa-search"></i>Inventory Inquiry System</p>';
+    document.querySelector('#title-name').innerHTML = '<a href="/stock/"><p><i class="nav-icon fa fa-search"></i>Inventory Inquiry System</p></a>';
     document.querySelector('#orders-text').textContent = 'My Orders';
     document.querySelector('#cart-text').textContent = 'Shopping Cart';
 

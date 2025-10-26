@@ -194,6 +194,28 @@
 #title-name {
     color: white;
     font-size: 16px;
+
+    a {
+        text-decoration: none;
+        color: white;
+        display: block;
+
+        p {
+            margin: 0;
+            padding: 0;
+            transition: color 150ms;
+        }
+
+        &:hover {
+            p {
+                color: $menu-hover-color;
+            }
+
+            .nav-icon {
+                color: $menu-hover-color;
+            }
+        }
+    }
 }
 
 #go-home {
