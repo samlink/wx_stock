@@ -10,3 +10,5 @@ download/.~lock.*
 /upload/
 /download/*.xlsx
 .DS_Store
+/.kiro/
+
