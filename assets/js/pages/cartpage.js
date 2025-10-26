@@ -511,6 +511,12 @@ let page_cart = function () {
 
     // 显示清空确认对话框
     function showClearConfirmModal() {
+        // 检查购物车是否为空
+        if (cartData.items.length === 0) {
+            notifier.show(texts[lang].noItems, 'warning', 3000);
+            return;
+        }
+
         document.getElementById('confirm-clear-modal').style.display = 'block';
     }
 

@@ -29,18 +29,6 @@ wx-stock is a Rust-based inventory management system for 五星(天津)石油装
 ./build.sh
 ```
 
-### Rust Cargo Commands
-```bash
-# Run server directly (without frontend build)
-cargo run
-
-# Build for development
-cargo build
-
-# Build for release
-cargo build --release
-```
-
 ## Architecture
 
 ### Backend Structure
