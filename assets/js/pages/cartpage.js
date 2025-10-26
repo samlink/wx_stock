@@ -201,6 +201,9 @@ let page_cart = function () {
             if (orderInfoLabels[0]) orderInfoLabels[0].textContent = 'Order Number:';
             if (orderInfoLabels[1]) orderInfoLabels[1].textContent = 'Submit Time:';
         }
+        // 重建购物车表头，按当前语言设置列
+        rebuildCartTableHeader();
+
     }
 
     /**
@@ -223,6 +226,27 @@ let page_cart = function () {
         const confirmBtn = modal.querySelector('.btn-danger, .btn-success, .btn-primary');
         if (confirmBtn && texts.confirm) confirmBtn.textContent = texts.confirm;
     }
+
+    // 重建购物车表头
+    function rebuildCartTableHeader() {
+        const theadRow = document.querySelector('.table-cart thead tr');
+        if (!theadRow) return;
+        const headersZh = ['序号', '商品名称', '材质', '物料号', '规格型号', '状态', '库存长度(mm)', '库存重量(kg)', '订购长度(mm)', '订购数量','订购重量(kg)', '备注', '操作'];
+        const headersEn = ['No.', 'Product Name', 'Material', 'Stock No.', 'Dia./OD*WT mm', 'Condition', 'Length (mm)', 'Weight (kg)', 'Order Length (mm)', 'Quantity', 'Order Weight (kg)', 'Note', 'Actions'];
+        const headers = (lang === 'en') ? headersEn : headersZh;
+        theadRow.innerHTML = headers.map((h, idx) => {
+            if (idx === 0) {
+                return `<th width="4%">${h}</th>`;
+            } else if (idx === 9) {
+                return `<th width="6%">${h}</th>`;
+            } else if (idx === 11) {
+                return `<th width="15%">${h}</th>`;
+            } else {
+                return `<th>${h}</th>`;
+            }
+        }).join('');
+    }
+
 
     // 初始化购物车角标
     function initCartBadge() {
@@ -266,6 +290,13 @@ let page_cart = function () {
         // 清空购物车按钮
         document.getElementById('clear-cart-btn').addEventListener('click', () => {
             showClearConfirmModal();
+        });
+
+        // 订购长度输入框
+        document.addEventListener('input', (e) => {
+            if (e.target.classList.contains('order-length-input') || e.target.classList.contains('order-quantity-input')) {
+                updateOrderWeight(e.target);
+            }
         });
 
         // 提交订单按钮
@@ -338,6 +369,80 @@ let page_cart = function () {
         });
     }
 
+    // 更新订购重量
+    function updateOrderWeight(input) {
+        // 从当前行读取订购长度、订购数量和库存信息，按“订购重量=订购长度*单位重量*订购数量”计算
+        const row = input.closest('tr');
+        if (!row) return;
+
+        const stockLengthCell = row.querySelector('.stock-length');
+        const stockWeightCell = row.querySelector('.stock-weight');
+        const orderWeightCell = row.querySelector('.order-weight');
+        const lengthInput = row.querySelector('.order-length-input');
+        const qtyInput = row.querySelector('.order-quantity-input');
+
+        // 解析库存长度与库存重量（从文本单元格提取数字）
+        const stockLength = stockLengthCell ? Number((stockLengthCell.textContent || '').replace(/[^0-9.]/g, '')) : 0;
+        const stockWeight = stockWeightCell ? Number((stockWeightCell.textContent || '').replace(/[^0-9.]/g, '')) : 0;
+
+        // 获取订购长度与订购数量
+        let orderLength = lengthInput ? Number(lengthInput.value) : 0;
+        if (!isFinite(orderLength) || orderLength < 0) orderLength = 0;
+        let orderQty = qtyInput ? parseInt(String(qtyInput.value), 10) : 0;
+        if (!isFinite(orderQty) || orderQty < 0) orderQty = 0;
+
+        // 校验：订购长度 * 订购数量 不得超过库存长度
+        if (stockLength > 0 && (orderLength * orderQty) > stockLength) {
+            const editedLength = input.classList.contains('order-length-input');
+            const editedQty = input.classList.contains('order-quantity-input');
+            if (editedLength && orderQty > 0) {
+                // 调整订购长度为最大允许值（向下取整到整数mm）
+                const maxLen = stockLength / orderQty;
+                const adjusted = Math.floor(maxLen);
+                orderLength = adjusted;
+                if (lengthInput) lengthInput.value = String(adjusted);
+            } else if (editedQty && orderLength > 0) {
+                // 调整订购数量为最大允许整数
+                const maxQty = Math.floor(stockLength / orderLength);
+                orderQty = maxQty;
+                if (qtyInput) qtyInput.value = String(maxQty);
+            } else {
+                // 若无法判断输入来源或为0的情况，做保守处理：不超限且不强制为1
+                // 尝试优先调整长度
+                if (orderQty > 0) {
+                    const maxLen = stockLength / orderQty;
+                    const adjusted = Math.floor(maxLen);
+                    orderLength = adjusted;
+                    if (lengthInput) lengthInput.value = String(adjusted);
+                }
+            }
+            const warnMsg = lang === 'en'
+                ? 'Total ordered length cannot exceed stock length. Adjusted to the maximum allowed.'
+                : '订购总长度不能超过库存长度，已自动调整到最大允许值';
+            if (typeof notifier !== 'undefined' && notifier && typeof notifier.show === 'function') {
+                notifier.show(warnMsg, 'warning', 2500);
+            } else {
+                console.warn(warnMsg);
+            }
+        }
+
+        // 订购重量 = 订购长度 * 单位重量 * 订购数量；单位重量 = 库存重量 / 库存长度
+        let result = 0;
+        if (stockLength > 0 && isFinite(stockWeight)) {
+            const unitWeight = stockWeight / stockLength;
+            result = orderLength * unitWeight * orderQty;
+        }
+
+        if (orderWeightCell) {
+            orderWeightCell.textContent = result.toFixed(1);
+        }
+
+        // 结果写回 dataset，便于后续提交或统计
+        row.dataset.orderLength = String(orderLength);
+        row.dataset.orderQuantity = String(orderQty);
+        row.dataset.orderWeight = String(result);
+    }
+
     // 加载购物车数据
     async function loadCartData() {
         if (isLoading) return;
@@ -383,7 +488,7 @@ let page_cart = function () {
         if (cartData.items.length === 0) {
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="12" class="empty-cart">
+                    <td colspan="13" class="empty-cart">
                         <div class="empty-cart-content">
                             <i class="fa fa-shopping-cart"></i>
                             <p>${texts[lang].noItems}</p>
@@ -420,12 +525,12 @@ let page_cart = function () {
                     <td>${item.material_number}</td>
                     <td>${item.specification}</td>
                     <td>${translatedStatus}</td>
-                    <td width="15%">${item.standard}</td>
-                    <td>${translatedManufacturer}</td>
-                    <td>${item.heat_number}</td>
-                    <td>${stockLengthDisplay}</td>
-                    <td>${item.stock_weight.toFixed(2)}</td>
-                    <td width="12%">${item.added_at}</td>
+                    <td class="stock-length">${stockLengthDisplay}</td>
+                    <td class="stock-weight">${item.stock_weight.toFixed(1)}</td>
+                    <td><input class="order-length-input form-control input-sm" data-material="${item.material_number}" value="${item.stock_length}"></td>
+                    <td width="6%"><input class="order-quantity-input form-control input-sm" data-material="${item.material_number}" value="1"></td>
+                    <td class="order-weight">${item.stock_weight.toFixed(1)}</td>
+                    <td width="15%"><input class="order-note-input form-control input-sm" style="text-align: left;" data-material="${item.material_number}"></td>
                     <td>
                         <button class="btn btn-sm btn-danger"
                                 onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.cz}', '${item.specification}')">
@@ -785,7 +890,7 @@ let page_cart = function () {
         const tbody = document.getElementById('cart-items-tbody');
         tbody.innerHTML = `
             <tr>
-                <td colspan="12" class="loading-state">
+                <td colspan="13" class="loading-state">
                     <div class="loading-content">
                         <i class="fa fa-spinner fa-spin"></i>
                         <p>${texts[lang].loading}</p>
