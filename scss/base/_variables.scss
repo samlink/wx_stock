@@ -24,7 +24,7 @@ $menu-hover-color: lighten($color-primary, 55%) !default;
 $editable-color: tomato;
 $table-hover-color: lighten($color-primary, 45%) !default;
 $table-focus-color: lighten($color-primary, 42%) !default;
-$table-border-color: lighten(desaturate($color-primary, 60%), 35%); //rgba($black, 0.09);
+$table-border-color: #dee2e6;
 
 $primary-50: lighten($color-primary, 25%) !default;
 $primary-100: lighten($color-primary, 20%) !default;
