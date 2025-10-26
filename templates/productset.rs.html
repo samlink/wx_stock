@@ -1,6 +1,7 @@
 @use super::base_html;
+@use crate::service::UserData;
 @use super::statics::*;
-@(user: String)
+@(user: UserData)
 
 @:base_html({
 <div class="product-set">

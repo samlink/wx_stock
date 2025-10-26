@@ -251,17 +251,20 @@
     text-decoration: none;
     display: flex;
     align-items: center;
+    transition: all 0.3s ease;
 
     .orders-icon-wrapper {
         margin-right: 4px;
     }
-    
+
     &:hover {
         .nav-icon {
             font-weight: bold;
             color: $menu-hover-color;
         }
         color: $menu-hover-color;
+        transform: translateY(-1px);
+        opacity: 0.8;
     }
 }
 
@@ -274,8 +277,9 @@
 #change-pwd {
     font-size: 16px;
     margin-left: 4px;
-    margin-right: 30px;    
+    margin-right: 30px;
     color: $menu-hover-color;
+    transition: all 0.3s ease;
 
     i {
         margin-right: 3px;
@@ -286,6 +290,8 @@
             font-weight: bold;
             color: $menu-hover-color;
         }
+        transform: translateY(-1px);
+        opacity: 0.8;
     }
 }
 

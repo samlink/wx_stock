@@ -1,6 +1,7 @@
 @use time::now;
+@use crate::service::UserData;
 @use super::statics::*;
-@(content: Content, user: String)
+@(content: Content, user: UserData)
 <!DOCTYPE html>
 <html lang="zh-CN">
 
@@ -26,6 +27,7 @@
             </a>
         </div>
         <div id="go-home">
+            <div id="user-name">@user.company</div>
             <a id="my-orders" href="/stock/myorders" class="nav-link">
                 <span class="orders-icon-wrapper">
                     <i class="nav-icon fa fa-list-alt"></i>
@@ -44,7 +46,7 @@
             <a id="logout" title="退出登录" href="/stock/logout"><i class="nav-icon fa fa-sign-out"></i></a>
         </div>
     </div>
-    <div id="user-id" hidden>@user</div>
+    <div id="user-id" hidden>@user.id</div>
 
     <div class="modal" id="for-click-close">
         <div class="modal-dialog" id="modal-drag">

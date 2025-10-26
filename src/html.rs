@@ -53,7 +53,7 @@ pub async fn user_set(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(&db, id).await;
     if user.username != "" {
-        let html = r2s(|o| productset_html(o, user.id.to_string()));
+        let html = r2s(|o| productset_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -65,7 +65,7 @@ pub async fn home(_req: HttpRequest, db: web::Data<Pool>, id: Identity) -> HttpR
 pub async fn cart(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(&db, id).await;
     if user.username != "" {
-        let html = r2s(|o| cart_html(o, user.id.to_string()));
+        let html = r2s(|o| cart_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
@@ -77,7 +77,7 @@ pub async fn cart(db: web::Data<Pool>, id: Identity) -> HttpResponse {
 pub async fn myorders(db: web::Data<Pool>, id: Identity) -> HttpResponse {
     let user = get_user(&db, id).await;
     if user.username != "" {
-        let html = r2s(|o| myorders_html(o, user.id.to_string()));
+        let html = r2s(|o| myorders_html(o, user));
         HttpResponse::Ok().content_type("text/html").body(html)
     } else {
         goto_login()
