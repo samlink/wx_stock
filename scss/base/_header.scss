@@ -277,6 +277,10 @@
     margin-right: 30px;    
     color: $menu-hover-color;
 
+    i {
+        margin-right: 3px;
+    }
+
     &:hover {
         .nav-icon {
             font-weight: bold;
