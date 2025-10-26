@@ -60,6 +60,9 @@ pub struct CartDetailItem {
     stock_weight: f64,
     unit_price: f64,
     quantity: i32,
+    order_length: i32,
+    order_weight: f64,
+    note: Option<String>,
     total_price: f64,
     added_at: String,
     low_stock: bool,
@@ -91,6 +94,23 @@ pub struct OrderItem {
     material_number: String,
     length: i32,
     weight: f64,
+    quantity: i32,
+    note: String,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct SaveCartDetailsRequest {
+    user_id: i32,
+    items: Vec<CartDetailUpdate>,
+}
+
+#[derive(Deserialize, Debug)]
+pub struct CartDetailUpdate {
+    material_number: String,
+    quantity: i32,
+    order_length: i32,
+    order_weight: f64,
+    note: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -327,7 +347,10 @@ pub async fn get_cart_detail(
                 p.文本字段4 as heat_number,
                 COALESCE(foo.库存长度, 0) as stock_length,
                 COALESCE(foo.理论重量, 0) as stock_weight,
-                COALESCE(foo.理论重量, 0) * 0.1 as unit_price
+                COALESCE(foo.理论重量, 0) * 0.1 as unit_price,
+                COALESCE(sc.order_length, 0) as order_length,
+                COALESCE(sc.order_weight, 0) as order_weight,
+                sc.note as note
             FROM shopping_cart sc
             JOIN products p ON sc.material_number = p.物料号
             JOIN tree t ON p.商品id = t.num
@@ -350,6 +373,9 @@ pub async fn get_cart_detail(
                 let total_item_price = unit_price * quantity as f64;
                 let original_stock_length: i32 = row.get("stock_length");
                 let original_stock_weight: f64 = row.get("stock_weight");
+                let saved_order_length: i32 = row.get("order_length");
+                let saved_order_weight: f64 = row.get("order_weight");
+                let saved_note: Option<String> = row.get("note");
 
                 let added_at: std::time::SystemTime = row.get("added_at");
                 let datetime: chrono::DateTime<chrono::Utc> = added_at.into();
@@ -359,9 +385,19 @@ pub async fn get_cart_detail(
                 let stock_length = if low_stock { 0 } else { original_stock_length };
                 let stock_weight = if low_stock { 0.0 } else { original_stock_weight };
 
-                // 计算总长度和总重量（基于数量）
-                total_length += stock_length * quantity;
-                total_weight += stock_weight * quantity as f64;
+                // 基于保存数据或默认规则回显 Input 值
+                // 若 saved_order_length == 0: 用库存长度作为订购长度，订购数量=1，订购重量=库存重量
+                // 若 saved_order_length > 0: 用保存的订购长度/重量/备注
+                let (order_length, order_weight) = if saved_order_length > 0 {
+                    (saved_order_length, saved_order_weight)
+                } else {
+                    (stock_length, stock_weight)
+                };
+                let display_quantity = if saved_order_length > 0 { quantity } else { 1 };
+
+                // 计算总长度和总重量（基于显示用数量）
+                total_length += order_length * display_quantity;
+                total_weight += order_weight * display_quantity as f64;
 
                 items.push(CartDetailItem {
                     material_number: row.get("material_number"),
@@ -375,7 +411,10 @@ pub async fn get_cart_detail(
                     stock_length,
                     stock_weight,
                     unit_price,
-                    quantity,
+                    quantity: display_quantity,
+                    order_length,
+                    order_weight,
+                    note: saved_note,
                     total_price: total_item_price,
                     added_at: datetime.format("%Y-%m-%d %H:%M:%S").to_string(),
                     low_stock,
@@ -489,6 +528,59 @@ pub async fn clear_cart(
     }
 }
 
+/// 保存购物车明细（在前端输入框 blur 后逐行保存）
+#[post("/save_cart_details")]
+pub async fn save_cart_details(
+    db: web::Data<Pool>,
+    request: web::Json<SaveCartDetailsRequest>,
+    id: Identity,
+) -> HttpResponse {
+    let user_name = id.identity().unwrap_or("".to_owned());
+
+    if user_name.is_empty() {
+        return HttpResponse::Unauthorized().json(json!({
+            "success": false,
+            "message": "用户未登录"
+        }));
+    }
+
+    if request.items.is_empty() {
+        return HttpResponse::Ok().json(json!({
+            "success": true
+        }));
+    }
+
+    let conn = db.get().await.unwrap();
+
+    // 批量保存（逐条 upsert）
+    for it in &request.items {
+        let note_val: Option<&str> = it.note.as_deref();
+        let result = conn
+            .execute(
+                r#"INSERT INTO shopping_cart (user_id, material_number, quantity, order_length, order_weight, note)
+                   VALUES ($1, $2, $3, $4, $5, $6)
+                   ON CONFLICT (user_id, material_number)
+                   DO UPDATE SET quantity = EXCLUDED.quantity,
+                                 order_length = EXCLUDED.order_length,
+                                 order_weight = EXCLUDED.order_weight,
+                                 note = EXCLUDED.note"#,
+                &[&request.user_id, &it.material_number, &it.quantity, &it.order_length, &it.order_weight, &note_val],
+            )
+            .await;
+        
+        if result.is_err() {
+            return HttpResponse::InternalServerError().json(json!({
+                "success": false,
+                "message": format!("保存物料 {} 失败", it.material_number)
+            }));
+        }
+    }
+
+    HttpResponse::Ok().json(json!({
+        "success": true
+    }))
+}
+
 /// 提交订单
 #[post("/submit_order")]
 pub async fn submit_order(
@@ -517,8 +609,17 @@ pub async fn submit_order(
     // 开始事务
     let transaction = conn.transaction().await.unwrap();
 
-    // 检查库存是否充足
+    // 参数校验 + 库存校验
     for item in &request.items {
+        // 基本参数校验：长度、数量、重量必须为正
+        if item.length <= 0 || item.quantity <= 0 || item.weight <= 0.0 {
+            return HttpResponse::BadRequest().json(json!({
+                "success": false,
+                "message": format!("商品 {} 的订购长度/数量/重量必须为正数", item.material_number)
+            }));
+        }
+
+        // 查询库存长度并校验“总订购长度 <= 库存长度”
         let stock_result = transaction
             .query_one(
                 "SELECT COALESCE(foo.库存长度, 0) as stock_length FROM products p 
@@ -530,11 +631,15 @@ pub async fn submit_order(
 
         match stock_result {
             Ok(row) => {
-                let stock_length: i32 = row.get("stock_length");                
-                if stock_length < 10 {
+                let stock_length: i32 = row.get("stock_length");
+                let requested_total: i32 = item.length.saturating_mul(item.quantity);
+                if requested_total > stock_length {
                     return HttpResponse::Ok().json(json!({
                         "success": false,
-                        "message": "部分商品库存不足，请确认"
+                        "message": format!(
+                            "商品 {} 的总订购长度 {} 超过库存长度 {}",
+                            item.material_number, requested_total, stock_length
+                        )
                     }));
                 }
             }
@@ -571,12 +676,19 @@ pub async fn submit_order(
 
     // 创建订单详情
     for item in &request.items {
-        let sql = format!(
-            "INSERT INTO order_items (order_id, material_number, length, weight) VALUES ('{}', '{}', {}, {})",
-            order_id, item.material_number, item.length, item.weight
-        );
-
-        let detail_result = transaction.execute(sql.as_str(), &[]).await;
+        let detail_result = transaction
+            .execute(
+                "INSERT INTO order_items (order_id, material_number, length, weight, quantity, note) VALUES ($1, $2, $3, $4, $5, $6)",
+                &[
+                    &order_id,
+                    &item.material_number,
+                    &item.length,
+                    &item.weight,
+                    &item.quantity,
+                    &item.note,
+                ],
+            )
+            .await;
 
         if detail_result.is_err() {
             return HttpResponse::InternalServerError().json(json!({

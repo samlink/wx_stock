@@ -3,6 +3,15 @@
  * Shopping Cart Page Controller
  */
 let page_cart = function () {
+    // 简单的防抖函数
+    function debounce(fn, delay) {
+        let timer = null;
+        return function(...args) {
+            clearTimeout(timer);
+            timer = setTimeout(() => fn.apply(this, args), delay);
+        }
+    }
+
     // 检查用户登录状态
     if (!getCookie("wxok")) {
         window.location.href = "/";
@@ -267,13 +276,13 @@ let page_cart = function () {
         // 初始化订单角标管理器（如果可用）
         if (typeof OrdersManager !== 'undefined') {
             try {
-                // 创建全局订单管理器实例
-                if (typeof ordersManager === 'undefined' || !ordersManager) {
+                // 创建全局订单管理器实例（始终通过 window 引用，避免局部同名变量为 null 导致调用失败）
+                if (!window.ordersManager) {
                     window.ordersManager = new OrdersManager();
-                    ordersManager.init().catch(error => {
-                        console.warn('Failed to initialize orders manager in cart page:', error);
-                    });
                 }
+                window.ordersManager.init().catch(error => {
+                    console.warn('Failed to initialize orders manager in cart page:', error);
+                });
             } catch (error) {
                 console.warn('OrdersManager not available in cart page:', error);
             }
@@ -344,6 +353,32 @@ let page_cart = function () {
         document.getElementById('close-submit-modal').addEventListener('click', () => {
             hideSubmitConfirmModal();
         });
+
+        // 输入框 blur 后仅保存当前行（逐行防抖）
+        const saveTimers = {};
+        document.addEventListener('blur', (e) => {
+            const target = e.target;
+            if (
+                target.classList.contains('order-length-input') ||
+                target.classList.contains('order-quantity-input') ||
+                target.classList.contains('order-note-input')
+            ) {
+                const row = target.closest('tr[data-material]');
+                if (!row) return;
+                // 先更新该行的订购重量 dataset
+                if (target.classList.contains('order-length-input') || target.classList.contains('order-quantity-input')) {
+                    updateOrderWeight(target);
+                }
+                const material = row.getAttribute('data-material');
+                // 逐行/逐物料防抖
+                if (saveTimers[material]) clearTimeout(saveTimers[material]);
+                saveTimers[material] = setTimeout(() => {
+                    const item = buildCartItemFromRow(row);
+                    saveSingleCartDetail(item);
+                    delete saveTimers[material];
+                }, 400);
+            }
+        }, true);
 
         // 订单成功对话框
         document.getElementById('close-success-modal').addEventListener('click', () => {
@@ -527,10 +562,10 @@ let page_cart = function () {
                     <td>${translatedStatus}</td>
                     <td class="stock-length">${stockLengthDisplay}</td>
                     <td class="stock-weight">${item.stock_weight.toFixed(1)}</td>
-                    <td><input class="order-length-input form-control input-sm" data-material="${item.material_number}" value="${item.stock_length}"></td>
-                    <td width="6%"><input class="order-quantity-input form-control input-sm" data-material="${item.material_number}" value="1"></td>
-                    <td class="order-weight">${item.stock_weight.toFixed(1)}</td>
-                    <td width="15%"><input class="order-note-input form-control input-sm" style="text-align: left;" data-material="${item.material_number}"></td>
+                    <td><input class="order-length-input form-control input-sm" data-material="${item.material_number}" value="${item.order_length}"></td>
+                    <td width="6%"><input class="order-quantity-input form-control input-sm" data-material="${item.material_number}" value="${item.quantity}"></td>
+                    <td class="order-weight">${item.order_weight.toFixed(1)}</td>
+                    <td width="15%"><input class="order-note-input form-control input-sm" style="text-align: left;" data-material="${item.material_number}" value="${item.note || ''}"></td>
                     <td>
                         <button class="btn btn-sm btn-danger"
                                 onclick="showDeleteConfirmModal('${item.material_number}', '${item.product_name}', '${item.cz}', '${item.specification}')">
@@ -650,9 +685,33 @@ let page_cart = function () {
         }
 
         // 更新确认对话框中的汇总信息
+        // 商品总数直接取购物车数量
         document.getElementById('submit-total-items').textContent = cartData.total_count || 0;
-        document.getElementById('submit-total-length').textContent = `${cartData.total_length || 0} mm`;
-        document.getElementById('submit-total-weight').textContent = `${(cartData.total_weight || 0).toFixed(2)} kg`;
+
+        // 总长度按“订购长度 × 订购数量”的合计来计算
+        const tbody = document.getElementById('cart-items-tbody');
+        const rows = tbody ? Array.from(tbody.querySelectorAll('tr[data-material]')) : [];
+        let totalOrderedLength = 0;
+        rows.forEach(row => {
+            const len = Number(row.dataset.orderLength || (row.querySelector('.order-length-input')?.value ?? '0')) || 0;
+            const qty = parseInt(row.dataset.orderQuantity || String(row.querySelector('.order-quantity-input')?.value ?? '0'), 10) || 0;
+            totalOrderedLength += len * qty;
+        });
+        document.getElementById('submit-total-length').textContent = `${totalOrderedLength} mm`;
+
+        // 总重量改为合计“订购重量”
+        let totalOrderedWeight = 0;
+        rows.forEach(row => {
+            // 优先从 dataset 读取，否则从单元格文本解析
+            const weightFromDataset = Number(row.dataset.orderWeight || '0');
+            let weight = weightFromDataset;
+            if (!isFinite(weight) || weight <= 0) {
+                const weightText = row.querySelector('.order-weight')?.textContent || '0';
+                weight = Number(weightText.replace(/[^0-9.]/g, '')) || 0;
+            }
+            totalOrderedWeight += weight;
+        });
+        document.getElementById('submit-total-weight').textContent = `${totalOrderedWeight.toFixed(1)} kg`;
 
         document.getElementById('confirm-submit-modal').style.display = 'block';
     }
@@ -768,13 +827,43 @@ let page_cart = function () {
         try {
             isLoading = true;
             hideSubmitConfirmModal();
-            showLoadingState();
 
-            const orderItems = cartData.items.map(item => ({
-                material_number: item.material_number,
-                length: item.stock_length,
-                weight: item.stock_weight
-            }));
+            // 从表格中读取每一行的订购数据（订购长度、订购数量、备注、订购重量）
+            const tbody = document.getElementById('cart-items-tbody');
+            const rows = tbody ? Array.from(tbody.querySelectorAll('tr[data-material]')) : [];
+            if (rows.length === 0) {
+                console.warn('No rows found in cart table when submitting order');
+                notifier && notifier.show && notifier.show(texts[lang].noItems, 'warning', 3000);
+                isLoading = false;
+                return;
+            }
+
+            const orderItems = rows.map(row => {
+                const material_number = row.getAttribute('data-material');
+                const lengthInput = row.querySelector('.order-length-input');
+                const qtyInput = row.querySelector('.order-quantity-input');
+                const noteInput = row.querySelector('.order-note-input');
+                const weightCell = row.querySelector('.order-weight');
+
+                // 优先读取之前计算写入到 dataset 的值，其次读取输入框/文本
+                let order_length = Number(row.dataset.orderLength || (lengthInput ? lengthInput.value : '0')) || 0;
+                let order_quantity = parseInt(row.dataset.orderQuantity || (qtyInput ? String(qtyInput.value) : '0'), 10) || 0;
+                let order_weight = Number(row.dataset.orderWeight || (weightCell ? (weightCell.textContent || '').replace(/[^0-9.]/g, '') : '0')) || 0;
+                const note = noteInput ? (noteInput.value || '').trim() : '';
+
+                // 兼容旧后端字段（length/weight）并附加新字段以供后端使用
+                return {
+                    material_number,
+                    length: order_length,
+                    weight: order_weight,
+                    quantity: order_quantity,
+                    note
+                };
+            });
+
+            // 调试：输出提交条目
+            console.log('Submitting order items:', orderItems);
+
 
             const response = await fetch('/stock/submit_order', {
                 method: 'POST',
@@ -903,6 +992,90 @@ let page_cart = function () {
     // 隐藏加载状态
     function hideLoadingState() {
         // 加载状态会在renderCartTable中被替换
+    }
+
+    // 从一行构建提交对象
+    function buildCartItemFromRow(row) {
+        const material_number = row.getAttribute('data-material');
+        const lengthInput = row.querySelector('.order-length-input');
+        const qtyInput = row.querySelector('.order-quantity-input');
+        const noteInput = row.querySelector('.order-note-input');
+        const weightCell = row.querySelector('.order-weight');
+
+        let order_length = Number(row.dataset.orderLength || (lengthInput ? lengthInput.value : '0')) || 0;
+        let quantity = parseInt(row.dataset.orderQuantity || (qtyInput ? String(qtyInput.value) : '0'), 10) || 0;
+        let order_weight = Number(row.dataset.orderWeight || (weightCell ? (weightCell.textContent || '').replace(/[^0-9.]/g, '') : '0')) || 0;
+        const note = noteInput ? (noteInput.value || '').trim() : '';
+
+        return { material_number, order_length, quantity, order_weight, note };
+    }
+
+    // 保存单行购物车明细
+    async function saveSingleCartDetail(item) {
+        try {
+            const res = await fetch('/stock/save_cart_details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: Number(document.querySelector('#user-id').textContent.trim()),
+                    items: [item]
+                })
+            });
+            if (!res.ok) {
+                console.warn('save_cart_details failed:', res.status);
+                return;
+            }
+            const result = await res.json();
+            if (!result.success) {
+                console.warn('save_cart_details response:', result);
+            }
+        } catch (err) {
+            console.error('saveSingleCartDetail error:', err);
+        }
+    }
+
+    // 保存购物车明细到后台
+    async function saveCartDetails() {
+        try {
+            const tbody = document.getElementById('cart-items-tbody');
+            const rows = tbody ? Array.from(tbody.querySelectorAll('tr[data-material]')) : [];
+            if (rows.length === 0) return;
+
+            const items = rows.map(row => {
+                const material_number = row.getAttribute('data-material');
+                const lengthInput = row.querySelector('.order-length-input');
+                const qtyInput = row.querySelector('.order-quantity-input');
+                const noteInput = row.querySelector('.order-note-input');
+                const weightCell = row.querySelector('.order-weight');
+
+                let order_length = Number(row.dataset.orderLength || (lengthInput ? lengthInput.value : '0')) || 0;
+                let quantity = parseInt(row.dataset.orderQuantity || (qtyInput ? String(qtyInput.value) : '0'), 10) || 0;
+                let order_weight = Number(row.dataset.orderWeight || (weightCell ? (weightCell.textContent || '').replace(/[^0-9.]/g, '') : '0')) || 0;
+                const note = noteInput ? (noteInput.value || '').trim() : '';
+
+                return { material_number, order_length, quantity, order_weight, note };
+            });
+
+            const res = await fetch('/stock/save_cart_details', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: Number(document.querySelector('#user-id').textContent.trim()),
+                    items
+                })
+            });
+
+            if (!res.ok) {
+                console.warn('save_cart_details failed:', res.status);
+                return;
+            }
+            const result = await res.json();
+            if (!result.success) {
+                console.warn('save_cart_details response:', result);
+            }
+        } catch (err) {
+            console.error('saveCartDetails error:', err);
+        }
     }
 
     // 刷新订单角标
