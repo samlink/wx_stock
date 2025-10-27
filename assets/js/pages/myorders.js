@@ -43,9 +43,11 @@ let page_myorders = function () {
             heatNumber: '炉批号',
             stockLength: '库存长度',
             stockWeight: '库存重量',
+            orderLength: '订购长度(mm)',
+            orderWeight: '订购重量(kg)',
             stockLengthUnit: '库存长度(mm)',
             stockWeightUnit: '库存重量(kg)',
-            quantity: '数量',
+            quantity: '订购数量',
             totalItems: '商品总数',
             totalLength: '总长度',
             totalWeight: '总重量',
@@ -55,7 +57,8 @@ let page_myorders = function () {
             statusDone: '已处理',
             retry: '重试',
             serialNumber: '序号',
-            itemsCount: '件商品'
+            itemsCount: '件商品',
+            note: '备注'
         },
         en: {
             pageTitle: 'My Orders',
@@ -88,6 +91,8 @@ let page_myorders = function () {
             heatNumber: 'Heat Number',
             stockLength: 'Stock Length',
             stockWeight: 'Stock Weight',
+            orderLength: 'Order Length(mm)',
+            orderWeight: 'Order Weight(kg)',
             stockLengthUnit: 'Stock Length(mm)',
             stockWeightUnit: 'Stock Weight(kg)',
             totalItems: 'Total Items',
@@ -100,7 +105,8 @@ let page_myorders = function () {
             quantity: 'Quantity',
             retry: 'Retry',
             serialNumber: 'Serial No.',
-            itemsCount: ' items'
+            itemsCount: ' items',
+            note: 'Note'
         }
     };
 
@@ -466,10 +472,10 @@ let page_myorders = function () {
             let totalWeight = 0;
             orderData.items.forEach(item => {
                 const qty = Number(item.quantity || 1);
-                const len = Number(item.stock_length || 0);
-                const wt = Number(item.stock_weight || 0);
+                const len = Number(item.length || 0);
+                const wt = Number(item.weight || 0);
                 totalLength += len * qty;
-                totalWeight += wt * qty;
+                totalWeight += wt;
             });
 
             // 填充表体，使用模板中已有的固定表头结构，保证只有tbody滚动
@@ -499,12 +505,10 @@ let page_myorders = function () {
                             <td>${item.material_number || ''}</td>
                             <td>${item.specification || ''}</td>
                             <td>${translatedStatus}</td>
-                            <td title="${item.standard || ''}">${item.standard || ''}</td>
-                            <td>${translatedManufacturer}</td>
-                            <td title="${item.heat_number || ''}">${item.heat_number || ''}</td>
-                            <td>${Number(item.stock_length || 0)}</td>
-                            <td>${Number(item.stock_weight || 0).toFixed(2)}</td>
+                            <td>${Number(item.length || 0)}</td>
                             <td>${Number(item.quantity || 1)}</td>
+                            <td>${Number(item.weight || 0).toFixed(1)}</td>
+                            <td>${item.note || ''}</td>
                         </tr>
                     `;
                 });
@@ -781,12 +785,10 @@ let page_myorders = function () {
                     texts[lang].materialNumber,
                     texts[lang].specification,
                     texts[lang].status,
-                    texts[lang].standard,
-                    texts[lang].manufacturer,
-                    texts[lang].heatNumber,
-                    texts[lang].stockLengthUnit,
-                    texts[lang].stockWeightUnit,
-                    texts[lang].quantity
+                    texts[lang].orderLength,
+                    texts[lang].quantity,
+                    texts[lang].orderWeight,
+                    texts[lang].note
                 ];
 
                 tableHeaders.forEach((header, index) => {

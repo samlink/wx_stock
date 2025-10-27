@@ -537,6 +537,16 @@ let page_cart = function () {
         const deleteText = lang === 'en' ? 'Delete' : '删除';
         let html = '';
         cartData.items.forEach((item, index) => {
+            // 渲染后更新 dataset，确保汇总准确
+            setTimeout(() => {
+                const row = document.querySelector(`tr[data-material="${item.material_number}"]`);
+                if (row) {
+                    row.dataset.orderLength = String(item.order_length || 0);
+                    row.dataset.orderQuantity = String(item.quantity || 0);
+                    row.dataset.orderWeight = String(item.order_weight || 0);
+                }
+            }, 0);
+
             // 如果库存不足，添加高亮类
             const lowStockClass = item.low_stock ? 'low-stock-warning' : '';
             const stockLengthDisplay = item.low_stock ? `<span class="low-stock-indicator">${item.stock_length}</span>` : item.stock_length;
@@ -913,14 +923,32 @@ let page_cart = function () {
         }
     }
 
-    // 更新汇总信息
+    // 更新汇总信息（以当前表格输入为准）
     function updateSummary() {
-        document.getElementById('total-items').textContent = cartData.total_count || 0;
-        document.getElementById('total-length').textContent = `${cartData.total_length || 0} mm`;
-        document.getElementById('total-weight').textContent = `${(cartData.total_weight || 0).toFixed(2)} kg`;
+        const tbody = document.getElementById('cart-items-tbody');
+        const rows = tbody ? Array.from(tbody.querySelectorAll('tr[data-material]')) : [];
+        const totalItems = rows.length;
+        let totalLen = 0;
+        let totalW = 0;
+        rows.forEach(row => {
+            const len = Number(row.dataset.orderLength || (row.querySelector('.order-length-input')?.value ?? '0')) || 0;
+            const qty = parseInt(row.dataset.orderQuantity || String(row.querySelector('.order-quantity-input')?.value ?? '0'), 10) || 0;
+            const wds = Number(row.dataset.orderWeight || '0');
+            let w = wds;
+            if (!isFinite(w) || w <= 0) {
+                const weightText = row.querySelector('.order-weight')?.textContent || '0';
+                w = Number(weightText.replace(/[^0-9.]/g, '')) || 0;
+            }
+            totalLen += len * qty;
+            totalW += w;
+        });
 
-        // 更新顶部购物车角标
-        updateCartBadge(cartData.total_count || 0);
+        document.getElementById('total-items').textContent = totalItems;
+        document.getElementById('total-length').textContent = `${totalLen} mm`;
+        document.getElementById('total-weight').textContent = `${totalW.toFixed(2)} kg`;
+
+        // 同步角标
+        updateCartBadge(totalItems);
     }
 
     // 更新购物车角标

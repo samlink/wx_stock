@@ -50,12 +50,10 @@ pub struct OrderDetailItem {
     cz: String,
     specification: String,
     status: String,
-    standard: String,
-    manufacturer: String,
-    heat_number: String,
-    stock_length: i32,
-    stock_weight: f32,
+    length: i32,
+    weight: f64,
     quantity: i32,
+    note: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -128,13 +126,15 @@ pub async fn get_user_orders(
     let page = request.page.unwrap_or(1);
     let rec = request.rec.unwrap_or(10);
     let search = request.search.as_deref().unwrap_or("").trim();
-    
+
     let (orders_result, total_count) = if search.is_empty() {
         // 无搜索时的查询
-        let total_result = conn.query_one(
-            "SELECT COUNT(*) as total FROM orders o WHERE o.user_id = $1",
-            &[&request.user_id]
-        ).await;
+        let total_result = conn
+            .query_one(
+                "SELECT COUNT(*) as total FROM orders o WHERE o.user_id = $1",
+                &[&request.user_id],
+            )
+            .await;
         let total_count = match total_result {
             Ok(row) => row.get::<_, i64>("total"),
             Err(_) => 0,
@@ -143,8 +143,9 @@ pub async fn get_user_orders(
         let skip = ((page - 1) * rec) as i64;
         let rec_i64 = rec as i64;
 
-        let orders_result = conn.query(
-            r#"SELECT
+        let orders_result = conn
+            .query(
+                r#"SELECT
                 o.order_id,
                 o.created_at,
                 o.status,
@@ -158,23 +159,26 @@ pub async fn get_user_orders(
             GROUP BY o.order_id, o.created_at, o.status
             ORDER BY o.created_at DESC
             OFFSET $2 LIMIT $3"#,
-            &[&request.user_id, &skip, &rec_i64]
-        ).await;
-        
+                &[&request.user_id, &skip, &rec_i64],
+            )
+            .await;
+
         (orders_result, total_count)
     } else {
         // 有搜索时的查询
         let search_param = format!("%{}%", search);
-        let total_result = conn.query_one(
-            r#"SELECT COUNT(*) as total FROM orders o 
+        let total_result = conn
+            .query_one(
+                r#"SELECT COUNT(*) as total FROM orders o 
                WHERE o.user_id = $1 
                AND (o.order_id ILIKE $2 OR EXISTS (
                    SELECT 1 FROM order_items oi2 
                    JOIN tree t ON oi2.material_number = t.num 
                    WHERE oi2.order_id = o.order_id AND t.node_name ILIKE $3
                ))"#,
-            &[&request.user_id, &search_param, &search_param]
-        ).await;
+                &[&request.user_id, &search_param, &search_param],
+            )
+            .await;
         let total_count = match total_result {
             Ok(row) => row.get::<_, i64>("total"),
             Err(_) => 0,
@@ -183,8 +187,9 @@ pub async fn get_user_orders(
         let skip = ((page - 1) * rec) as i64;
         let rec_i64 = rec as i64;
 
-        let orders_result = conn.query(
-            r#"SELECT
+        let orders_result = conn
+            .query(
+                r#"SELECT
                 o.order_id,
                 o.created_at,
                 o.status,
@@ -203,16 +208,23 @@ pub async fn get_user_orders(
             GROUP BY o.order_id, o.created_at, o.status
             ORDER BY o.created_at DESC
             OFFSET $4 LIMIT $5"#,
-            &[&request.user_id, &search_param, &search_param, &skip, &rec_i64]
-        ).await;
-        
+                &[
+                    &request.user_id,
+                    &search_param,
+                    &search_param,
+                    &skip,
+                    &rec_i64,
+                ],
+            )
+            .await;
+
         (orders_result, total_count)
     };
 
     match orders_result {
         Ok(rows) => {
             let mut orders = Vec::new();
-            
+
             for row in rows {
                 let created_at: std::time::SystemTime = row.get("created_at");
                 let datetime: chrono::DateTime<chrono::Utc> = created_at.into();
@@ -286,11 +298,10 @@ pub async fn get_order_details(
                 split_part(t.node_name, ' ', 1) as cz,
                 p.规格型号 as specification,
                 p.文本字段2 as status,
-                p.文本字段3 as standard,
-                p.文本字段5 as manufacturer,
-                p.文本字段4 as heat_number,
                 oi.length,
-                oi.weight
+                oi.weight,
+                oi.quantity,
+                oi.note
             FROM order_items oi
             JOIN products p ON oi.material_number = p.物料号
             JOIN tree t ON p.商品id = t.num
@@ -307,8 +318,8 @@ pub async fn get_order_details(
             let mut total_weight = 0.0;
 
             for row in rows {
-                let quantity: i32 = 1;
-                let stock_weight: f32 = row.get("weight");
+                let quantity: i32 = row.get("quantity");
+                let stock_weight: f64 = row.get("weight");
                 let total_item_weight = stock_weight as f64;
 
                 total_items += 1;
@@ -321,12 +332,10 @@ pub async fn get_order_details(
                     cz: row.get("cz"),
                     specification: row.get("specification"),
                     status: row.get("status"),
-                    standard: row.get("standard"),
-                    manufacturer: row.get("manufacturer"),
-                    heat_number: row.get("heat_number"),
-                    stock_length: row.get("length"),
-                    stock_weight,
+                    length: row.get("length"),
+                    weight: row.get("weight"),
                     quantity,
+                    note: row.get("note"),
                 });
             }
 
