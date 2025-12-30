@@ -8,7 +8,27 @@ let page_productset = function () {
     let cartManager = null;
 
     const lang = localStorage.getItem('language') || 'zh';
-    
+
+    // 过滤窗口(表头过滤)文案中英文切换
+    // 模板里默认写中文，这里按 lang 动态替换，避免英文界面仍显示“取消”
+    (function applyFilterI18n() {
+        const txt = (zh, en) => (lang == 'zh' ? zh : en);
+
+        // 顶部复选框区域：全选 / 取消
+        const checkAllSpan = document.querySelector('label[for="f-check-all"] .all-choose');
+        if (checkAllSpan) checkAllSpan.textContent = txt('全选', 'All');
+
+        const uncheckAllSpan = document.querySelector('label[for="f-uncheck-all"] .all-choose');
+        if (uncheckAllSpan) uncheckAllSpan.textContent = txt('取消', 'Cancel');
+
+        // 底部按钮：取消 / 确定
+        const cancelBtn = document.querySelector('#f-cancel');
+        if (cancelBtn) cancelBtn.textContent = txt('取消', 'Cancel');
+
+        const okBtn = document.querySelector('#f-ok');
+        if (okBtn) okBtn.textContent = txt('确定', 'OK');
+    })();
+
     // 购物车相关文本映射
     const cartTexts = {
         zh: {
@@ -44,14 +64,14 @@ let page_productset = function () {
     // 获取购物车相关文本的辅助函数
     function getCartText(key, params = {}) {
         let text = cartTexts[lang][key] || cartTexts['zh'][key] || key;
-        
+
         // 简单的文本插值
         if (params && typeof text === 'string') {
             Object.keys(params).forEach(param => {
                 text = text.replace(`{${param}}`, params[param]);
             });
         }
-        
+
         return text;
     }
 
@@ -90,10 +110,10 @@ let page_productset = function () {
         try {
             cartManager = new CartManager();
             await cartManager.init();
-            
+
             // 确保购物车管理器使用正确的语言设置
             cartManager.updateLanguage(lang);
-            
+
             console.log('Shopping cart initialized successfully');
         } catch (error) {
             console.error('Failed to initialize shopping cart:', error);
@@ -107,7 +127,7 @@ let page_productset = function () {
         if (cartManager) {
             // 确保购物车UI状态正确
             cartManager.updateCartDisplay(cartManager.getCurrentCount());
-            
+
             // 高亮显示在购物车中的表格条目
             cartManager.highlightCartItems();
         }
@@ -148,6 +168,27 @@ let page_productset = function () {
 
     let tree_data = {
         leaf_click: (id, name) => {
+            // 切换树节点时重置过滤状态（避免上一节点的过滤条件/按钮红色残留）
+            try {
+                global.filter_conditions && global.filter_conditions.clear && global.filter_conditions.clear();
+                global.filter_sqls && (global.filter_sqls.length = 0);
+
+                // 清空当前表格请求的过滤条件
+                if (tool_table && tool_table.table_data && tool_table.table_data().post_data) {
+                    tool_table.table_data().post_data.filter = '';
+                }
+
+                // 关闭过滤面板并清空内容
+                const filterBox = document.querySelector('.filter-container');
+                if (filterBox) {
+                    filterBox.style.display = 'none';
+                    const choose = filterBox.querySelector('.f-choose');
+                    if (choose) choose.innerHTML = '';
+                }
+            } catch (e) {
+                console.warn('reset filter state failed:', e);
+            }
+
             global.product_name = name;
             global.product_id = id;
 
@@ -170,10 +211,13 @@ let page_productset = function () {
                 onTableRefresh();
             });
 
-            // 清除状态
+            // 清除按钮红色（并同步通用过滤器的按钮着色逻辑）
             document.querySelectorAll('.filter_button').forEach(button => {
                 button.classList.remove('red');
             });
+            if (typeof tableFilter !== 'undefined' && tableFilter.updateButtonColors) {
+                tableFilter.updateButtonColors();
+            }
         }
     }
 
@@ -278,348 +322,424 @@ let page_productset = function () {
         }
     });
 
+
     // ------------------------------------ 过滤部分开始--------------------------------------------
-    // 表头过滤按钮中英文对照
-    let eng_map;
 
-    // 建立过滤器, 作为创建表格后的回调函数
-    function make_filter() {
-        const ths = document.querySelectorAll('.table-container thead th');
-        for (let th of ths) {
-            if (th.querySelector('.filter_button')) {
-                return false;
+    // 表头过滤按钮中英文对照：用于英文表头下仍能正确匹配后端字段名/按钮变红
+    const eng_map = {
+        'Dia./OD*WT mm': '规格',
+        'Condition': '状态',
+        'Standard': '执行标准',
+        'Manufacturer': '生产厂家',
+        'Heat No.': '炉批号',
+        'Length (mm)': '库存长度',
+        // 兼容有时表头可能带单位/空格
+        'Length (mm) ': '库存长度',
+    };
+
+    let has_filter = lang == "zh" ? ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'] :
+        ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
+
+    // 使用通用过滤器
+    const tableFilter = initTableFilter({
+        normalizeName: (name) => (lang == 'zh' ? name : (eng_map[name] || name)),
+        // 过滤条目翻译：英文界面下展示英文，但提交过滤时仍使用原始中文值(data-value)
+        translateItem: ({ filterName, value }) => {
+            if (lang !== 'en') return value;
+            // filterName 在 normalizeName 后为中文字段名
+            if (filterName === '生产厂家') {
+                return (typeof Translator !== 'undefined' && Translator.translateManufacturer)
+                    ? Translator.translateManufacturer(value, 'en')
+                    : value;
             }
-        }
-
-        let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'];
-
-        if (lang != "zh") {
-            has_filter = ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
-            eng_map = {
-                'Dia./OD*WT mm': '规格',
-                'Condition': '状态',
-                'Standard': '执行标准',
-                'Manufacturer': '生产厂家',
-                'Heat No.': '炉批号',
-                'Length (mm)': '库存长度'
+            if (filterName === '状态') {
+                return (typeof Translator !== 'undefined' && Translator.translateStatus)
+                    ? Translator.translateStatus(value, 'en')
+                    : value;
             }
-        }
-
-        ths.forEach(th => {
-            if (has_filter.indexOf(th.textContent) != -1) {
-                th.innerHTML = `${th.textContent} <button class="filter_button"><i class="fa fa-filter"></i></button>`;
-            }
-        });
-
-        document.querySelectorAll('.filter_button').forEach(button => {
-            button.addEventListener('click', function (e) {
-                e.stopPropagation();
-                let filter = document.querySelector('.filter-container');
-                filter.style.top = e.clientY + 20 + "px";
-                filter.style.left = e.clientX - this.parentNode.clientWidth + 20 + "px";
-                document.querySelector('#f-check-all').checked = false;
-
-                filter.style.display = "block";
-
-                let na = button.parentNode.textContent.trim();
-                na = lang == "zh" ? na : eng_map[na];
-
-                let search = document.querySelector('#search-input').value;
-                let cate = "正常销售";
-                let id = document.querySelector('#product-id').textContent.trim();
-
-                document.querySelector('#filter-name').textContent = na;
-
-                let filter_sql = "";
-                if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
-                    filter_sql = global.filter_sqls[1].sql;
-                } else if (global.filter_sqls.length > 0 && na == global.filter_sqls[0].name) {
-                    filter_sql = "";
-                } else if (global.filter_sqls.length == 0) {
-                    filter_sql = "";
-                } else if (global.filter_sqls.length > 0 && na != global.filter_sqls[0].name) {
-                    filter_sql = global.filter_sqls[0].sql;
-                }
-
-                let post_data = {
-                    id: id,
-                    name: search,
-                    cate: cate,
-                    filter_name: na,
-                    filter: filter_sql,
-                };
-
-                fetch('/stock/fetch_filter_items', {
-                    method: 'post',
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(post_data),
-                })
-                    .then(response => response.json())
-                    .then(content => {
-                        let html = "";
-                        let n = 0;
-                        for (let row of content) {
-                            if (row.trim() == "" && n == 0) {
-                                row = lang == "zh" ? "(空白)" : "(Blank)";
-                                n++;
-                            } else if (row.trim() == "" && n == 1) {
-                                continue;
-                            }
-
-                            if (post_data.filter_name == "状态" && lang == "en") {
-                                row = service.status_to_en(row);
-                            }
-
-                            if (post_data.filter_name == "生产厂家" && lang == "en") {
-                                row = service.factor_to_en(row);
-                            }
-
-                            html += `
-                                <label class="check-radio">
-                                    <input class="form-check" type="checkbox">
-                                    <span class="checkmark"></span>
-                                    <span class="all-choose">${row}</span>
-                                </label>
-                            `;
-                        }
-
-                        filter.querySelector('.f-choose').innerHTML = html;
-
-                        let now_select = [];
-                        for (let item of global.filter_sqls) {
-                            if (item.name.trim() == na) {
-                                now_select = item.now;
-                                break;
-                            }
-                        }
-
-                        for (let ch of filter.querySelectorAll('.form-check')) {
-                            let na = ch.parentNode.textContent.trim();
-
-                            if (na == "(Blank)") {
-                                na = "(空白)";
-                            }
-
-                            if (post_data.filter_name == "状态" && lang == "en") {
-                                na = service.status_to_zh(na);
-                            }
-
-                            if (post_data.filter_name == "生产厂家" && lang == "en") {
-                                na = service.factor_to_zh(na);
-                            }
-
-                            if (now_select.indexOf(`<${na}>`) != -1) {
-                                ch.checked = true;
-                            }
-                        }
-                    });
-            })
-        });
-
-        make_red();
-    }
-
-    // 确定
-    document.querySelector('#f-ok').addEventListener('click', (e) => {
-        e.stopPropagation();
-        e.preventDefault();
-
-        document.querySelector('.filter-container').style.display = "none";
-
-        let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
-        let filter_name = document.querySelector('#filter-name').textContent
-
-        // console.log(filter_name);
-
-        let f_sql = "", check_now = "";
-
-        // 全选状态
-        let all_checked = document.querySelector('#f-check-all').checked;
-
-        if (all_checked) {
-            document.querySelector('.f-choose').innerHTML = "";
-
-            if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
-                global.filter_conditions.delete(filter_name);
-                global.filter_sqls.shift();
-                let filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
-
-                let post_data = {
-                    filter: filter,
-                    page: 1,
-                };
-
-                fresh_table(post_data);
-            }
-
-            return;
-        }
-
-        checked.forEach(ch => {
-            let ch_name = ch.parentNode.textContent.trim();
-
-            // console.log(ch_name);
-
-
-            if (ch_name == "(Blank)") {
-                ch_name = "(空白)";
-            }
-
-            if (filter_name == "状态" && lang == "en") {
-                ch_name = service.status_to_zh(ch_name);
-            }
-
-            if (filter_name == "生产厂家" && lang == "en") {
-                ch_name = service.factor_to_zh(ch_name);
-            }
-
-            // console.log(ch_name);
-
-
-            if (ch.checked) {
-                f_sql += `${filter_name} = '${ch_name}' OR `;
-                check_now += `<${ch_name}>, `;   // 与 过滤器原始值 格式一致
-            }
-        });
-
-        // 非空选中
-        if (check_now != "") {
-            // 去掉末尾的 OR, 并加括号
-            let f_sql2 = f_sql.slice(0, -4) + ')';
-
-            global.filter_conditions.set(filter_name, f_sql2);
-            let filter = get_filter();
-
-            if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
-                check_now != "" && check_now.split(',').length != checked.length + 1) {
-                let orig = "";   // 过滤器原始值
-                checked.forEach(ch => {
-                    orig += `${ch.parentNode.textContent.trim()}, `;
-                });
-
-                let sql = {
-                    name: filter_name,
-                    sql: filter,
-                    origin: orig,
-                    now: check_now,
-                }
-
-                global.filter_sqls.unshift(sql);
-
-            } else if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
-                if (check_now == global.filter_sqls[0].origin || check_now.split(',').length == checked.length + 1) {
-                    global.filter_sqls.shift();
-                    filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
-                } else {
-                    global.filter_sqls[0].sql = filter;
-                    global.filter_sqls[0].now = check_now;
-                }
-            }
-
-            let post_data = {
-                filter: filter,
-                page: 1,
+            return value;
+        },
+        getThs: () => document.querySelectorAll('.table-container thead th'),
+        has_filter: has_filter,
+        url: '/stock/fetch_filter_items',
+        state: global,
+        position: 'cursor',
+        buildFetchPostData: ({ name, baseFilterSql }) => {
+            let search = document.querySelector('#search-input').value;
+            // wx_stock 的 productset 页面没有 #p-select（erp 版本才有库存类别下拉框），这里做兼容：
+            // - 若存在则取其值
+            // - 否则使用默认类别（与导出/查询接口一致）
+            const cateEl = document.querySelector('#p-select');
+            let cate = cateEl ? cateEl.value : '正常销售';
+            let id = document.querySelector('#product-id').textContent.trim();
+            return {
+                id: id,
+                name: search,
+                cate: cate,
+                filter_name: name,
+                filter: baseFilterSql,
             };
-
-            fresh_table(post_data);
-        } else {
-            // 全不选的情况
-            document.querySelector('#f-check-all').click();
-            document.querySelector('#f-ok').click();
-        }
+        },
+        onRefreshTable: (filterSql) => {
+            document.querySelector('.f-choose').innerHTML = '';
+            Object.assign(tool_table.table_data().post_data, { filter: filterSql, page: 1 });
+            tool_table.fetch_table((content) => {
+                make_filter();
+                if (typeof add_lu_link === 'function') add_lu_link();
+                show_stat(content);
+            });
+        },
     });
 
-    // 过滤点击 ok 后，刷新表格
-    function fresh_table(data) {
-        document.querySelector('.f-choose').innerHTML = "";
-        Object.assign(tool_table.table_data().post_data, data);
-
-        tool_table.fetch_table((content) => {
-            make_filter();
-            // add_lu_link();
-            show_stat(content);
-            onTableRefresh();
-        });
-
-        make_red();
+    function make_filter() {
+        tableFilter.ensureButtons();
+        tableFilter.updateButtonColors();
     }
-
-    //设置过滤按钮颜色
-    function make_red() {
-        document.querySelectorAll('.filter_button').forEach(button => {
-            let name = button.parentNode.textContent.trim();
-
-            if (lang == "en") {
-                name = eng_map[name];
-            }
-
-            let has = false;
-            for (let item of global.filter_sqls) {
-                if (item.name == name) {
-                    button.classList.add('red');
-                    has = true;
-                    break;
-                }
-            }
-            if (!has) {
-                button.classList.remove('red');
-            }
-        });
-    }
-
-    function get_filter() {
-        let filter = `AND (`;
-
-        // 构建过滤器（查询字符串）
-        for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
-            filter += `${value} AND (`;
-        }
-
-        filter = filter.slice(0, -6);
-        return filter;
-    }
-
-    // 取消
-    document.querySelector('#f-cancel').addEventListener('click', () => {
-        document.querySelector('.filter-container').style.display = "none";
-        document.querySelector('.f-choose').innerHTML = "";
-
-    });
-
-    // 全选
-    document.querySelector('#f-check-all').addEventListener('click', () => {
-        let checked = document.querySelector('#f-check-all').checked;
-        document.querySelector('.f-choose').querySelectorAll('.form-check').forEach(input => {
-            if (checked) {
-                input.checked = true;
-            } else {
-                input.checked = false;
-            }
-        })
-    });
-
-    // 点击空白区域关闭 filter
-    document.querySelector('body').addEventListener('click', (e) => {
-        let filters = ['filter-container', 'f-title', 'f-choose', 'f-sumit', 'f-items',
-            'checkmark', 'check-radio', 'form-check', 'all-choose', 'f-button'];
-        if (filters.indexOf(e.target.className) == -1) {
-            document.querySelector('.filter-container').style.display = "none";
-            document.querySelector('.f-choose').innerHTML = "";
-        }
-    });
-
-    // Esc 按键关闭 filter
-    document.addEventListener('keydown', (event) => {
-        const keyName = event.key;
-        if (keyName === 'Escape') {
-            document.querySelector('.filter-container').style.display = "none";
-            document.querySelector('.f-choose').innerHTML = "";
-        }
-    }, false);
 
     // ------------------------------- 过滤部分结束 --------------------------------
+
+    // // ------------------------------------ 过滤部分开始--------------------------------------------
+    // // 表头过滤按钮中英文对照
+    // let eng_map;
+
+    // // 建立过滤器, 作为创建表格后的回调函数
+    // function make_filter() {
+    //     const ths = document.querySelectorAll('.table-container thead th');
+    //     for (let th of ths) {
+    //         if (th.querySelector('.filter_button')) {
+    //             return false;
+    //         }
+    //     }
+
+    //     let has_filter = ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'];
+
+    //     if (lang != "zh") {
+    //         has_filter = ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
+    //         eng_map = {
+    //             'Dia./OD*WT mm': '规格',
+    //             'Condition': '状态',
+    //             'Standard': '执行标准',
+    //             'Manufacturer': '生产厂家',
+    //             'Heat No.': '炉批号',
+    //             'Length (mm)': '库存长度'
+    //         }
+    //     }
+
+    //     ths.forEach(th => {
+    //         if (has_filter.indexOf(th.textContent) != -1) {
+    //             th.innerHTML = `${th.textContent} <button class="filter_button"><i class="fa fa-filter"></i></button>`;
+    //         }
+    //     });
+
+    //     document.querySelectorAll('.filter_button').forEach(button => {
+    //         button.addEventListener('click', function (e) {
+    //             e.stopPropagation();
+    //             let filter = document.querySelector('.filter-container');
+    //             filter.style.top = e.clientY + 20 + "px";
+    //             filter.style.left = e.clientX - this.parentNode.clientWidth + 20 + "px";
+    //             document.querySelector('#f-check-all').checked = false;
+
+    //             filter.style.display = "block";
+
+    //             let na = button.parentNode.textContent.trim();
+    //             na = lang == "zh" ? na : eng_map[na];
+
+    //             let search = document.querySelector('#search-input').value;
+    //             let cate = "正常销售";
+    //             let id = document.querySelector('#product-id').textContent.trim();
+
+    //             document.querySelector('#filter-name').textContent = na;
+
+    //             let filter_sql = "";
+    //             if (global.filter_sqls.length > 1 && na == global.filter_sqls[0].name) {
+    //                 filter_sql = global.filter_sqls[1].sql;
+    //             } else if (global.filter_sqls.length > 0 && na == global.filter_sqls[0].name) {
+    //                 filter_sql = "";
+    //             } else if (global.filter_sqls.length == 0) {
+    //                 filter_sql = "";
+    //             } else if (global.filter_sqls.length > 0 && na != global.filter_sqls[0].name) {
+    //                 filter_sql = global.filter_sqls[0].sql;
+    //             }
+
+    //             let post_data = {
+    //                 id: id,
+    //                 name: search,
+    //                 cate: cate,
+    //                 filter_name: na,
+    //                 filter: filter_sql,
+    //             };
+
+    //             fetch('/stock/fetch_filter_items', {
+    //                 method: 'post',
+    //                 headers: {
+    //                     "Content-Type": "application/json",
+    //                 },
+    //                 body: JSON.stringify(post_data),
+    //             })
+    //                 .then(response => response.json())
+    //                 .then(content => {
+    //                     let html = "";
+    //                     let n = 0;
+    //                     for (let row of content) {
+    //                         if (row.trim() == "" && n == 0) {
+    //                             row = lang == "zh" ? "(空白)" : "(Blank)";
+    //                             n++;
+    //                         } else if (row.trim() == "" && n == 1) {
+    //                             continue;
+    //                         }
+
+    //                         if (post_data.filter_name == "状态" && lang == "en") {
+    //                             row = service.status_to_en(row);
+    //                         }
+
+    //                         if (post_data.filter_name == "生产厂家" && lang == "en") {
+    //                             row = service.factor_to_en(row);
+    //                         }
+
+    //                         html += `
+    //                             <label class="check-radio">
+    //                                 <input class="form-check" type="checkbox">
+    //                                 <span class="checkmark"></span>
+    //                                 <span class="all-choose">${row}</span>
+    //                             </label>
+    //                         `;
+    //                     }
+
+    //                     filter.querySelector('.f-choose').innerHTML = html;
+
+    //                     let now_select = [];
+    //                     for (let item of global.filter_sqls) {
+    //                         if (item.name.trim() == na) {
+    //                             now_select = item.now;
+    //                             break;
+    //                         }
+    //                     }
+
+    //                     for (let ch of filter.querySelectorAll('.form-check')) {
+    //                         let na = ch.parentNode.textContent.trim();
+
+    //                         if (na == "(Blank)") {
+    //                             na = "(空白)";
+    //                         }
+
+    //                         if (post_data.filter_name == "状态" && lang == "en") {
+    //                             na = service.status_to_zh(na);
+    //                         }
+
+    //                         if (post_data.filter_name == "生产厂家" && lang == "en") {
+    //                             na = service.factor_to_zh(na);
+    //                         }
+
+    //                         if (now_select.indexOf(`<${na}>`) != -1) {
+    //                             ch.checked = true;
+    //                         }
+    //                     }
+    //                 });
+    //         })
+    //     });
+
+    //     make_red();
+    // }
+
+    // // 确定
+    // document.querySelector('#f-ok').addEventListener('click', (e) => {
+    //     e.stopPropagation();
+    //     e.preventDefault();
+
+    //     document.querySelector('.filter-container').style.display = "none";
+
+    //     let checked = document.querySelector('.f-choose').querySelectorAll('.form-check');
+    //     let filter_name = document.querySelector('#filter-name').textContent
+
+    //     // console.log(filter_name);
+
+    //     let f_sql = "", check_now = "";
+
+    //     // 全选状态
+    //     let all_checked = document.querySelector('#f-check-all').checked;
+
+    //     if (all_checked) {
+    //         document.querySelector('.f-choose').innerHTML = "";
+
+    //         if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
+    //             global.filter_conditions.delete(filter_name);
+    //             global.filter_sqls.shift();
+    //             let filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
+
+    //             let post_data = {
+    //                 filter: filter,
+    //                 page: 1,
+    //             };
+
+    //             fresh_table(post_data);
+    //         }
+
+    //         return;
+    //     }
+
+    //     checked.forEach(ch => {
+    //         let ch_name = ch.parentNode.textContent.trim();
+
+    //         // console.log(ch_name);
+
+
+    //         if (ch_name == "(Blank)") {
+    //             ch_name = "(空白)";
+    //         }
+
+    //         if (filter_name == "状态" && lang == "en") {
+    //             ch_name = service.status_to_zh(ch_name);
+    //         }
+
+    //         if (filter_name == "生产厂家" && lang == "en") {
+    //             ch_name = service.factor_to_zh(ch_name);
+    //         }
+
+    //         // console.log(ch_name);
+
+
+    //         if (ch.checked) {
+    //             f_sql += `${filter_name} = '${ch_name}' OR `;
+    //             check_now += `<${ch_name}>, `;   // 与 过滤器原始值 格式一致
+    //         }
+    //     });
+
+    //     // 非空选中
+    //     if (check_now != "") {
+    //         // 去掉末尾的 OR, 并加括号
+    //         let f_sql2 = f_sql.slice(0, -4) + ')';
+
+    //         global.filter_conditions.set(filter_name, f_sql2);
+    //         let filter = get_filter();
+
+    //         if ((global.filter_sqls.length == 0 || global.filter_sqls[0].name != filter_name) &&
+    //             check_now != "" && check_now.split(',').length != checked.length + 1) {
+    //             let orig = "";   // 过滤器原始值
+    //             checked.forEach(ch => {
+    //                 orig += `${ch.parentNode.textContent.trim()}, `;
+    //             });
+
+    //             let sql = {
+    //                 name: filter_name,
+    //                 sql: filter,
+    //                 origin: orig,
+    //                 now: check_now,
+    //             }
+
+    //             global.filter_sqls.unshift(sql);
+
+    //         } else if (global.filter_sqls.length > 0 && global.filter_sqls[0].name == filter_name) {
+    //             if (check_now == global.filter_sqls[0].origin || check_now.split(',').length == checked.length + 1) {
+    //                 global.filter_sqls.shift();
+    //                 filter = global.filter_sqls.length == 0 ? "" : global.filter_sqls[0].sql;
+    //             } else {
+    //                 global.filter_sqls[0].sql = filter;
+    //                 global.filter_sqls[0].now = check_now;
+    //             }
+    //         }
+
+    //         let post_data = {
+    //             filter: filter,
+    //             page: 1,
+    //         };
+
+    //         fresh_table(post_data);
+    //     } else {
+    //         // 全不选的情况
+    //         document.querySelector('#f-check-all').click();
+    //         document.querySelector('#f-ok').click();
+    //     }
+    // });
+
+    // // 过滤点击 ok 后，刷新表格
+    // function fresh_table(data) {
+    //     document.querySelector('.f-choose').innerHTML = "";
+    //     Object.assign(tool_table.table_data().post_data, data);
+
+    //     tool_table.fetch_table((content) => {
+    //         make_filter();
+    //         // add_lu_link();
+    //         show_stat(content);
+    //         onTableRefresh();
+    //     });
+
+    //     make_red();
+    // }
+
+    // //设置过滤按钮颜色
+    // function make_red() {
+    //     document.querySelectorAll('.filter_button').forEach(button => {
+    //         let name = button.parentNode.textContent.trim();
+
+    //         if (lang == "en") {
+    //             name = eng_map[name];
+    //         }
+
+    //         let has = false;
+    //         for (let item of global.filter_sqls) {
+    //             if (item.name == name) {
+    //                 button.classList.add('red');
+    //                 has = true;
+    //                 break;
+    //             }
+    //         }
+    //         if (!has) {
+    //             button.classList.remove('red');
+    //         }
+    //     });
+    // }
+
+    // function get_filter() {
+    //     let filter = `AND (`;
+
+    //     // 构建过滤器（查询字符串）
+    //     for (const [key, value] of global.filter_conditions) {    //遍历 使用 for of
+    //         filter += `${value} AND (`;
+    //     }
+
+    //     filter = filter.slice(0, -6);
+    //     return filter;
+    // }
+
+    // // 取消
+    // document.querySelector('#f-cancel').addEventListener('click', () => {
+    //     document.querySelector('.filter-container').style.display = "none";
+    //     document.querySelector('.f-choose').innerHTML = "";
+
+    // });
+
+    // // 全选
+    // document.querySelector('#f-check-all').addEventListener('click', () => {
+    //     let checked = document.querySelector('#f-check-all').checked;
+    //     document.querySelector('.f-choose').querySelectorAll('.form-check').forEach(input => {
+    //         if (checked) {
+    //             input.checked = true;
+    //         } else {
+    //             input.checked = false;
+    //         }
+    //     })
+    // });
+
+    // // 点击空白区域关闭 filter
+    // document.querySelector('body').addEventListener('click', (e) => {
+    //     let filters = ['filter-container', 'f-title', 'f-choose', 'f-sumit', 'f-items',
+    //         'checkmark', 'check-radio', 'form-check', 'all-choose', 'f-button'];
+    //     if (filters.indexOf(e.target.className) == -1) {
+    //         document.querySelector('.filter-container').style.display = "none";
+    //         document.querySelector('.f-choose').innerHTML = "";
+    //     }
+    // });
+
+    // // Esc 按键关闭 filter
+    // document.addEventListener('keydown', (event) => {
+    //     const keyName = event.key;
+    //     if (keyName === 'Escape') {
+    //         document.querySelector('.filter-container').style.display = "none";
+    //         document.querySelector('.f-choose').innerHTML = "";
+    //     }
+    // }, false);
+
+    // // ------------------------------- 过滤部分结束 --------------------------------
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function () {
