@@ -184,6 +184,7 @@ api_key=your_api_key
 setCookie("wxok", "ok", 3);
 localStorage.setItem('language', 'zh'); // 'en' 为调试英文
 ```
+- 首先运行访问 `http://127.0.0.1:8087/stock/logout`, 然后再重新登录
 
 ### 2. static 目录为自动生成，无需修改
 

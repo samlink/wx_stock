@@ -294,17 +294,17 @@ pub async fn get_order_details(
         .query(
             r#"SELECT 
                 oi.material_number,
-                split_part(t.node_name, ' ', 2) as product_name,
-                split_part(t.node_name, ' ', 1) as cz,
-                p.规格型号 as specification,
-                p.文本字段2 as status,
+                pi.name as product_name,
+                pi.material as cz,
+                pi.size as specification,
+                pi.status as status,
                 oi.length,
                 oi.weight,
                 oi.quantity,
                 oi.note
             FROM order_items oi
             JOIN products p ON oi.material_number = p.物料号
-            JOIN tree t ON p.商品id = t.num
+            JOIN product_info pi ON p.产品id = pi.id
             WHERE oi.order_id = $1"#,
             &[&request.order_id],
         )

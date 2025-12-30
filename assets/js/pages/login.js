@@ -1,4 +1,4 @@
-// 本地运行测试用，需退出后重新登录（可使用 /stock/logout 退出登录）
+// 本地测试，首先运行： /stock/logout 退出登录，然后再正常登录
 // 已设置编译发布脚本中自动注释掉，编译后恢复。无需手动
 setCookie("wxok", "ok", 3);
 localStorage.setItem('language', 'zh'); // zh en

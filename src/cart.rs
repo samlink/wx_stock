@@ -338,12 +338,12 @@ pub async fn get_cart_detail(
                 sc.quantity,
                 sc.added_at,
                 p.物料号,
-                split_part(t.node_name, ' ', 2) as product_name,
-                split_part(t.node_name, ' ', 1) as cz,
-                p.规格型号 as specification,
-                p.文本字段2 as status,
-                p.文本字段3 as standard,
-                p.文本字段5 as manufacturer,
+                pi.name as product_name,
+                pi.material as cz,
+                pi.size as specification,
+                pi.status as status,
+                pi.tech_no as standard,
+                c.文本字段1 as manufacturer,
                 p.文本字段4 as heat_number,
                 COALESCE(foo.库存长度, 0) as stock_length,
                 COALESCE(foo.理论重量, 0) as stock_weight,
@@ -352,8 +352,9 @@ pub async fn get_cart_detail(
                 COALESCE(sc.order_weight, 0) as order_weight,
                 sc.note as note
             FROM shopping_cart sc
-            JOIN products p ON sc.material_number = p.物料号
-            JOIN tree t ON p.商品id = t.num
+            JOIN products p ON sc.material_number = p.物料号            
+            JOIN product_info pi ON p.产品id = pi.id
+            JOIN customers c ON pi.supplier_id = c.id
             LEFT JOIN mv_length_weight foo ON p.物料号 = foo.物料号
             WHERE sc.user_id = $1
             ORDER BY sc.added_at DESC"#,

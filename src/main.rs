@@ -5,14 +5,14 @@ use deadpool_postgres::Runtime;
 use dotenv::dotenv;
 use serde::Deserialize;
 
+mod cart;
 mod html;
+mod information;
+mod orders;
 mod product;
 mod service;
 mod tree;
 mod user_set;
-mod information;
-mod cart;
-mod orders;
 
 #[derive(Deserialize)]
 struct Config {
@@ -73,7 +73,7 @@ async fn main() -> std::io::Result<()> {
                     .service(cart::remove_from_cart)
                     .service(cart::clear_cart)
                     .service(cart::save_cart_details)
-                     .service(cart::submit_order)
+                    .service(cart::submit_order)
                     .service(orders::get_user_orders)
                     .service(orders::get_order_details)
                     .service(orders::get_pending_orders_count)

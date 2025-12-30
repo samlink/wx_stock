@@ -22,22 +22,24 @@ pub async fn fetch_product(
     };
 
     let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-        build_sql_search(db.clone(), f_data).await;
+        build_sql_search(f_data).await;
 
     let skip = (post_data.page - 1) * post_data.rec;
     // 区域限制
     let area = "".to_owned();
     let done = "".to_owned();
 
-    let sql_fields = "SELECT node_name, products.物料号, 规格型号, products.文本字段2 状态,
-            products.物料号, products.文本字段3 执行标准, products.文本字段5 生产厂家, products.文本字段4 炉号,
+    let sql_fields = "
+            SELECT pi.material || ' ' || pi.name as node_name,  pi.size 规格型号,
+                pi.status 状态, pi.tech_no 执行标准, c.文本字段1 生产厂家, products.物料号, products.文本字段4 炉号,
             COALESCE(foo.库存长度,0) 库存长度, COALESCE(foo.理论重量,0) 库存重量, products.备注,".to_owned();
 
     let sql = format!(
         r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
             {}
             JOIN documents on 单号id = 单号
-            JOIN tree on tree.num = products.商品id
+            JOIN product_info pi on pi.id = products.产品id
+            JOIN customers c on c.id = pi.supplier_id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN mv_length_weight as foo
             ON products.物料号 = foo.物料号
@@ -99,6 +101,8 @@ pub async fn fetch_product(
                 FROM products
                 {}
                 JOIN documents on 单号id = 单号
+                JOIN product_info pi on pi.id = products.产品id
+                JOIN customers c on c.id = pi.supplier_id
                 LEFT JOIN mv_length_weight as foo
                 ON products.物料号 = foo.物料号
                 WHERE {} {} {} {} {} {} and products.物料号 <> '锯口费' and documents.文本字段10 !=''"#,
@@ -129,16 +133,13 @@ pub async fn fetch_product(
 }
 
 async fn build_sql_search(
-    db: web::Data<Pool>,
     post_data: FilterData,
 ) -> (String, String, String, String, String) {
-    let f_map = map_fields(db.clone(), "商品规格").await;
-
     // where 条件第一个 sql, 其他 sql 跟在其后
     let product_sql = if post_data.id == "" {
         "true".to_owned()
     } else {
-        format!("products.商品id = '{}'", post_data.id)
+        format!("pi.tree_num = '{}'", post_data.id)
     };
 
     let now_sql = if post_data.cate == "正常销售" {
@@ -160,9 +161,9 @@ async fn build_sql_search(
         let name: Vec<&str> = post.split(" ").collect();
         for na in name {
             conditions += &format!(
-                r#"AND (LOWER(products.{}) LIKE '%{}%' OR LOWER(products.{}) LIKE '%{}%')
+                r#"AND (LOWER(pi.size) LIKE '%{}%' OR LOWER(pi.status) LIKE '%{}%')
                 "#,
-                f_map["规格"], na, f_map["状态"], na,
+                na, na,
             );
         }
     }
@@ -172,10 +173,10 @@ async fn build_sql_search(
     if post_data.filter != "" {
         filter_sql = post_data
             .filter
-            .replace("规格", "规格型号")
-            .replace("状态", "products.文本字段2")
-            .replace("执行标准", "products.文本字段3")
-            .replace("生产厂家", "products.文本字段5")
+            .replace("规格", "pi.size")
+            .replace("状态", "pi.status")
+            .replace("执行标准", "pi.tech_no")
+            .replace("生产厂家", "c.文本字段1")
             .replace("炉批号", "products.文本字段4")
             .replace("库存长度 (mm)", "库存长度")
             .replace("(空白)", "");
@@ -207,13 +208,13 @@ pub async fn fetch_statistic(db: web::Data<Pool>, cate: String, id: Identity) ->
         let cate_sql = if cate == "all" {
             "true".to_owned()
         } else {
-            format!("tree.num like '{}%'", cate)
+            format!("pi.tree_num like '{}%'", cate)
         };
 
         let sql = format!(
             r#"select COALESCE(sum(库存长度)/1000, 0) 库存长度, COALESCE(sum(理论重量),0) 库存重量 
             from products p
-            join tree on tree.num = p.商品id
+            join product_info pi on pi.id = p.产品id
             left join mv_length_weight foo on foo.物料号 = p.物料号  
             where {} and 库存状态='' and COALESCE(库存长度,0) > 10"#,
             cate_sql
@@ -264,7 +265,7 @@ pub async fn fetch_filter_items(
             filter_name: "".to_owned(),
         };
         let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-            build_sql_search(db.clone(), f_data).await;
+            build_sql_search(f_data).await;
 
         let mut items: Vec<String> = Vec::new();
 
@@ -272,6 +273,7 @@ pub async fn fetch_filter_items(
             let sql = format!(
                 r#"SELECT DISTINCT 库存长度 FROM products 
                     {}
+                    JOIN product_info pi on pi.id = products.产品id
                     LEFT JOIN mv_length_weight as foo
                     ON products.物料号 = foo.物料号
                     where {} {} {} {}
@@ -290,6 +292,7 @@ pub async fn fetch_filter_items(
             let sql = format!(
                 r#"SELECT DISTINCT {} FROM products
                     {}
+                    JOIN product_info pi on pi.id = products.产品id
                     LEFT JOIN mv_length_weight as foo
                     ON products.物料号 = foo.物料号
                     where {} {} {} {}
@@ -337,18 +340,23 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
     };
 
     let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
-        build_sql_search(db.clone(), f_data).await;
+        build_sql_search(f_data).await;
 
     let sql = format!(
-        r#"select products.物料号, split_part(node_name,' ',2) as 名称, split_part(node_name,' ',1) as 材质,
-                规格型号 规格, products.文本字段2 状态, products.文本字段3 执行标准, products.文本字段4 炉批号, 
-                products.文本字段5 生产厂家, COALESCE(foo.库存长度,0)::text 库存长度_mm, COALESCE(foo.理论重量,0)::text 库存重量_kg,
-                (ROW_NUMBER () OVER (ORDER BY 规格型号))::text as 序号, products.备注 from products
-            {} JOIN tree ON products.商品id = tree.num
+        r#"
+            select products.物料号, pi.name 名称, pi.material 材质, pi.size 规格, pi.status 状态, 
+                pi.tech_no 执行标准, products.文本字段4 炉批号, c.文本字段1 生产厂家, 
+                COALESCE(foo.库存长度,0)::text 库存长度_mm, COALESCE(foo.理论重量,0)::text 库存重量_kg,
+                (ROW_NUMBER () OVER (ORDER BY pi.size))::text as 序号, products.备注 
+            from products
+            {} 
+            JOIN product_info pi on pi.id = products.产品id
+            JOIN customers c on c.id = pi.supplier_id
             join documents d on d.单号 = products.单号id
             LEFT JOIN mv_length_weight as foo
             ON products.物料号 = foo.物料号
-            where {} {} {} {} {}"#,
+            where {} {} {} {} {}
+        "#,
         lock_join_sql, product_sql, conditions, now_sql, filter_sql, NOT_DEL_SQL
     );
 
