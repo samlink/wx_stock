@@ -90,8 +90,8 @@ var service = function () {
             },
             header_names: lang == "zh" ?
                 {
-                    "名称": "pi.name",
-                    "材质": "pi.material",
+                    "名称": "tree.name",
+                    "材质": "tree.material",
                     "物料号": "products.物料号",
                     "规格": "pi.size",
                     "状态": "pi.status",
@@ -103,8 +103,8 @@ var service = function () {
                     "备注": "products.备注",
                 } :
                 {
-                    "Type": "pi.name",
-                    "Material": "pi.material",
+                    "Type": "tree.name",
+                    "Material": "tree.material",
                     "Stock No.": "products.物料号",
                     "Dia./OD*WT mm": "pi.size",
                     "Condition": "pi.status",

@@ -338,8 +338,8 @@ pub async fn get_cart_detail(
                 sc.quantity,
                 sc.added_at,
                 p.物料号,
-                pi.name as product_name,
-                pi.material as cz,
+                tree.name as product_name,
+                tree.material as cz,
                 pi.size as specification,
                 pi.status as status,
                 pi.tech_no as standard,
@@ -354,6 +354,7 @@ pub async fn get_cart_detail(
             FROM shopping_cart sc
             JOIN products p ON sc.material_number = p.物料号            
             JOIN product_info pi ON p.产品id = pi.id
+            JOIN tree ON tree.num =  pi.tree_num
             JOIN customers c ON pi.supplier_id = c.id
             LEFT JOIN mv_length_weight foo ON p.物料号 = foo.物料号
             WHERE sc.user_id = $1

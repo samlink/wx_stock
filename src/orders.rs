@@ -174,7 +174,7 @@ pub async fn get_user_orders(
                AND (o.order_id ILIKE $2 OR EXISTS (
                    SELECT 1 FROM order_items oi2 
                    JOIN tree t ON oi2.material_number = t.num 
-                   WHERE oi2.order_id = o.order_id AND t.node_name ILIKE $3
+                   WHERE oi2.order_id = o.order_id AND t.material || ' ' || t.name ILIKE $3
                ))"#,
                 &[&request.user_id, &search_param, &search_param],
             )
@@ -203,7 +203,7 @@ pub async fn get_user_orders(
             AND (o.order_id ILIKE $2 OR EXISTS (
                 SELECT 1 FROM order_items oi2
                 JOIN tree t ON oi2.material_number = t.num
-                WHERE oi2.order_id = o.order_id AND t.node_name ILIKE $3
+                WHERE oi2.order_id = o.order_id AND t.material || ' ' || t.name ILIKE $3
             ))
             GROUP BY o.order_id, o.created_at, o.status
             ORDER BY o.created_at DESC
@@ -294,8 +294,8 @@ pub async fn get_order_details(
         .query(
             r#"SELECT 
                 oi.material_number,
-                pi.name as product_name,
-                pi.material as cz,
+                tree.name as product_name,
+                tree.material as cz,
                 pi.size as specification,
                 pi.status as status,
                 oi.length,
@@ -305,6 +305,7 @@ pub async fn get_order_details(
             FROM order_items oi
             JOIN products p ON oi.material_number = p.物料号
             JOIN product_info pi ON p.产品id = pi.id
+            JOIN tree ON tree.num =  pi.tree_num
             WHERE oi.order_id = $1"#,
             &[&request.order_id],
         )

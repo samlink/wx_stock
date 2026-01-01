@@ -30,7 +30,7 @@ pub async fn fetch_product(
     let done = "".to_owned();
 
     let sql_fields = "
-            SELECT pi.material || ' ' || pi.name as node_name,  pi.size 规格型号,
+            SELECT tree.material || ' ' || tree.name as node_name,  pi.size 规格型号,
                 pi.status 状态, pi.tech_no 执行标准, c.文本字段1 生产厂家, products.物料号, products.文本字段4 炉号,
             COALESCE(foo.库存长度,0) 库存长度, COALESCE(foo.理论重量,0) 库存重量, products.备注,".to_owned();
 
@@ -39,6 +39,7 @@ pub async fn fetch_product(
             {}
             JOIN documents on 单号id = 单号
             JOIN product_info pi on pi.id = products.产品id
+            JOIN tree on tree.num = pi.tree_num
             JOIN customers c on c.id = pi.supplier_id
             LEFT JOIN lu on lu.炉号 = products.文本字段10
             LEFT JOIN mv_length_weight as foo
@@ -102,6 +103,7 @@ pub async fn fetch_product(
                 {}
                 JOIN documents on 单号id = 单号
                 JOIN product_info pi on pi.id = products.产品id
+                JOIN tree on tree.num = pi.tree_num
                 JOIN customers c on c.id = pi.supplier_id
                 LEFT JOIN mv_length_weight as foo
                 ON products.物料号 = foo.物料号
@@ -255,7 +257,6 @@ pub async fn fetch_filter_items(
 ) -> HttpResponse {
     let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
-        let f_map = map_fields(db.clone(), "商品规格").await;
         let conn = db.get().await.unwrap();
         let f_data = FilterData {
             id: post_data.id.clone(),
@@ -264,52 +265,38 @@ pub async fn fetch_filter_items(
             filter: post_data.filter.clone(),
             filter_name: "".to_owned(),
         };
+        
         let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
             build_sql_search(f_data).await;
 
+        let field = post_data
+            .filter_name
+            .replace("状态", "pi.status")
+            .replace("规格", "pi.size")
+            .replace("执行标准", "pi.tech_no")
+            .replace("生产厂家", "c.文本字段1")
+            .replace("炉批号", "products.文本字段4")
+            .replace("区域", "products.文本字段6")
+            .replace("(空白)", "");
+
         let mut items: Vec<String> = Vec::new();
 
-        if post_data.filter_name.contains("库存长度") {
-            let sql = format!(
-                r#"SELECT DISTINCT 库存长度 FROM products 
-                    {}
-                    JOIN product_info pi on pi.id = products.产品id
+        let sql = format!(
+            r#"SELECT DISTINCT {field}::text FROM products
+                    join product_info pi ON products.产品id = pi.id
+                    join customers c on pi.supplier_id = c.id
+                    {lock_join_sql}
                     LEFT JOIN mv_length_weight as foo
                     ON products.物料号 = foo.物料号
-                    where {} {} {} {}
-                    ORDER BY 库存长度"#,
-                lock_join_sql, product_sql, conditions, now_sql, filter_sql,
-            );
+                    where {product_sql} {conditions} {now_sql} {filter_sql}
+                    ORDER BY {field}"#,
+        );
 
-            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        // println!("SQL: {}\n", sql);
 
-            for row in rows {
-                let v: i32 = row.get(0);
-                let va = format!("{}", v);
-                items.push(va);
-            }
-        } else {
-            let sql = format!(
-                r#"SELECT DISTINCT {} FROM products
-                    {}
-                    JOIN product_info pi on pi.id = products.产品id
-                    LEFT JOIN mv_length_weight as foo
-                    ON products.物料号 = foo.物料号
-                    where {} {} {} {}
-                    ORDER BY {}"#,
-                f_map[post_data.filter_name.as_str()],
-                lock_join_sql,
-                product_sql,
-                conditions,
-                now_sql,
-                filter_sql,
-                f_map[post_data.filter_name.as_str()]
-            );
-
-            let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
-            for row in rows {
-                items.push(row.get(0));
-            }
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            items.push(row.get(0));
         }
 
         HttpResponse::Ok().json(items)
@@ -317,6 +304,80 @@ pub async fn fetch_filter_items(
         HttpResponse::Ok().json(-1)
     }
 }
+
+// //获取 filter items
+// #[post("/fetch_filter_items")]
+// pub async fn fetch_filter_items(
+//     db: web::Data<Pool>,
+//     post_data: web::Json<FilterData>,
+//     id: Identity,
+// ) -> HttpResponse {
+//     let user_name = id.identity().unwrap_or("".to_owned());
+//     if user_name != "" {
+//         let f_map = map_fields(db.clone(), "商品规格").await;
+//         let conn = db.get().await.unwrap();
+//         let f_data = FilterData {
+//             id: post_data.id.clone(),
+//             name: post_data.name.clone(),
+//             cate: post_data.cate.clone(),
+//             filter: post_data.filter.clone(),
+//             filter_name: "".to_owned(),
+//         };
+//         let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
+//             build_sql_search(f_data).await;
+
+//         let mut items: Vec<String> = Vec::new();
+
+//         if post_data.filter_name.contains("库存长度") {
+//             let sql = format!(
+//                 r#"SELECT DISTINCT 库存长度 FROM products 
+//                     {}
+//                     JOIN product_info pi on pi.id = products.产品id
+//                     JOIN tree on tree.num = pi.tree_num
+//                     LEFT JOIN mv_length_weight as foo
+//                     ON products.物料号 = foo.物料号
+//                     where {} {} {} {}
+//                     ORDER BY 库存长度"#,
+//                 lock_join_sql, product_sql, conditions, now_sql, filter_sql,
+//             );
+
+//             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+
+//             for row in rows {
+//                 let v: i32 = row.get(0);
+//                 let va = format!("{}", v);
+//                 items.push(va);
+//             }
+//         } else {
+//             let sql = format!(
+//                 r#"SELECT DISTINCT {} FROM products
+//                     {}
+//                     JOIN product_info pi on pi.id = products.产品id
+//                     JOIN tree on tree.num = pi.tree_num
+//                     LEFT JOIN mv_length_weight as foo
+//                     ON products.物料号 = foo.物料号
+//                     where {} {} {} {}
+//                     ORDER BY {}"#,
+//                 f_map[post_data.filter_name.as_str()],
+//                 lock_join_sql,
+//                 product_sql,
+//                 conditions,
+//                 now_sql,
+//                 filter_sql,
+//                 f_map[post_data.filter_name.as_str()]
+//             );
+
+//             let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+//             for row in rows {
+//                 items.push(row.get(0));
+//             }
+//         }
+
+//         HttpResponse::Ok().json(items)
+//     } else {
+//         HttpResponse::Ok().json(-1)
+//     }
+// }
 
 #[derive(Deserialize, Serialize)]
 pub struct ProductName {
@@ -344,13 +405,14 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
 
     let sql = format!(
         r#"
-            select products.物料号, pi.name 名称, pi.material 材质, pi.size 规格, pi.status 状态, 
+            select products.物料号, tree.name 名称, tree.material 材质, pi.size 规格, pi.status 状态, 
                 pi.tech_no 执行标准, products.文本字段4 炉批号, c.文本字段1 生产厂家, 
                 COALESCE(foo.库存长度,0)::text 库存长度_mm, COALESCE(foo.理论重量,0)::text 库存重量_kg,
                 (ROW_NUMBER () OVER (ORDER BY pi.size))::text as 序号, products.备注 
             from products
             {} 
             JOIN product_info pi on pi.id = products.产品id
+            JOIN tree on tree.num = pi.tree_num
             JOIN customers c on c.id = pi.supplier_id
             join documents d on d.单号 = products.单号id
             LEFT JOIN mv_length_weight as foo

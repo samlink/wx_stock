@@ -30,7 +30,7 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
 
     let rows = &conn
         .query(
-            r##"SELECT node_name, num, pnum, show FROM tree 
+            r##"SELECT material || ' ' || name AS node_name, num, pnum, show FROM tree 
             WHERE pnum=$1 AND show=true AND not_use=false 
             order by orders"##, 
             &[&num],
@@ -82,7 +82,11 @@ pub async fn tree_auto(
         let pinyin = search.s.to_lowercase() + "%";
         let rows = &conn
             .query(
-                r#"SELECT num AS id, node_name AS label FROM tree WHERE not_use=false AND pinyin LIKE $2 OR LOWER(node_name) LIKE $1 LIMIT 10"#, //查询字段名称与结构名称对应
+                r#"SELECT num AS id, material || ' ' || name AS label 
+                FROM tree 
+                WHERE not_use=false 
+                    AND (pinyin LIKE $2 OR LOWER(material || ' ' || name) LIKE $1)
+                LIMIT 10"#, //查询字段名称与结构名称对应
                 &[&s, &pinyin],
             )
             .await

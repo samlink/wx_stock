@@ -7,7 +7,7 @@ use reqwest::Client;
 use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
-use std::collections::HashMap;
+// use std::collections::HashMap;
 use std::io::{self, Write};
 use tokio_postgres::Row;
 
@@ -81,26 +81,26 @@ pub async fn get_user(db: &web::Data<Pool>, id: Identity) -> UserData {
     }
 }
 
-//映射使用的字段 is_use
-pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
-    let conn = db.get().await.unwrap();
-    let rows = &conn
-        .query(
-            r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
-                    FROM tableset WHERE table_name=$1 AND is_use=true ORDER BY show_order"#,
-            &[&table_name],
-        )
-        .await
-        .unwrap();
+// //映射使用的字段 is_use
+// pub async fn map_fields(db: web::Data<Pool>, table_name: &str) -> HashMap<String, String> {
+//     let conn = db.get().await.unwrap();
+//     let rows = &conn
+//         .query(
+//             r#"SELECT field_name, show_name, data_type, ctr_type, option_value, default_value, show_width, all_edit
+//                     FROM tableset WHERE table_name=$1 AND is_use=true ORDER BY show_order"#,
+//             &[&table_name],
+//         )
+//         .await
+//         .unwrap();
 
-    let mut f_map: HashMap<String, String> = HashMap::new();
+//     let mut f_map: HashMap<String, String> = HashMap::new();
 
-    for row in rows {
-        f_map.insert(row.get("show_name"), row.get("field_name"));
-    }
+//     for row in rows {
+//         f_map.insert(row.get("show_name"), row.get("field_name"));
+//     }
 
-    f_map
-}
+//     f_map
+// }
 
 #[derive(Deserialize, Serialize)]
 pub struct Fields {
