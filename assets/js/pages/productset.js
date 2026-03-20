@@ -26,6 +26,19 @@ let page_productset = function () {
         return unit == 'in' ? 'in' : 'mm';
     }
 
+    const LEN_UNIT_TEXTS = {
+        zh: {
+            controlLabel: '长度单位',
+            mmHeader: '库存长度 (mm)',
+            ftHeader: '库存长度 (ft)',
+        },
+        en: {
+            controlLabel: 'Len unit',
+            mmHeader: 'Length (mm)',
+            ftHeader: 'Length (ft)',
+        }
+    };
+
     // 过滤窗口(表头过滤)文案中英文切换
     // 模板里默认写中文，这里按 lang 动态替换，避免英文界面仍显示“取消”
     (function applyFilterI18n() {
@@ -121,6 +134,7 @@ let page_productset = function () {
         filter_conditions: new Map(),
         filter_sqls: [],
         spec_unit: normalizeSpecUnit(localStorage.getItem(SPEC_UNIT_STORAGE_KEY)),
+        get len_unit() { return this.spec_unit == 'in' ? 'ft' : 'mm'; },
     }
 
     function getSpecHeaderText(unit = global.spec_unit) {
@@ -139,6 +153,10 @@ let page_productset = function () {
         }
     }
 
+    function getLenHeaderText(unit = global.len_unit) {
+        return unit == 'ft' ? LEN_UNIT_TEXTS[lang].ftHeader : LEN_UNIT_TEXTS[lang].mmHeader;
+    }
+
     function normalizeFilterName(name) {
         return {
             '规格': '规格',
@@ -151,6 +169,9 @@ let page_productset = function () {
             'Manufacturer': '生产厂家',
             'Heat No.': '炉批号',
             'Length (mm)': '库存长度',
+            'Length (ft)': '库存长度',
+            '库存长度 (mm)': '库存长度',
+            '库存长度 (ft)': '库存长度',
             'Length (mm) ': '库存长度',
         }[name] || name;
     }
@@ -251,6 +272,86 @@ let page_productset = function () {
         updateFilterPopupSpecValues();
     }
 
+    function getLenHeaderCell() {
+        const lenHeaders = new Set([
+            '库存长度',
+            LEN_UNIT_TEXTS.zh.mmHeader,
+            LEN_UNIT_TEXTS.zh.ftHeader,
+            LEN_UNIT_TEXTS.en.mmHeader,
+            LEN_UNIT_TEXTS.en.ftHeader,
+        ]);
+
+        return Array.from(document.querySelectorAll('.table-product thead th'))
+            .find(th => lenHeaders.has(th.textContent.trim()));
+    }
+
+    function formatLenFeet(mmLen) {
+        return (mmLen || '').replace(/[0-9]+(?:\.[0-9]+)?/g, (match) => {
+            const value = Number(match);
+            return Number.isFinite(value) ? (value / 304.8).toFixed(3) : match;
+        });
+    }
+
+    function formatLenForUnit(mmLen, unit = global.len_unit) {
+        return unit == 'ft' ? formatLenFeet(mmLen) : (mmLen || '');
+    }
+
+    function updateLenHeader() {
+        const lenHeader = getLenHeaderCell();
+        if (!lenHeader) {
+            return;
+        }
+
+        setHeaderText(lenHeader, getLenHeaderText());
+        const tableData = tool_table.table_data && tool_table.table_data();
+        if (tableData && tableData.header_names) {
+            tableData.header_names[LEN_UNIT_TEXTS.zh.mmHeader] = 'COALESCE(foo.库存长度,0)';
+            tableData.header_names[LEN_UNIT_TEXTS.zh.ftHeader] = 'COALESCE(foo.库存长度,0)';
+            tableData.header_names[LEN_UNIT_TEXTS.en.mmHeader] = 'COALESCE(foo.库存长度,0)';
+            tableData.header_names[LEN_UNIT_TEXTS.en.ftHeader] = 'COALESCE(foo.库存长度,0)';
+        }
+    }
+
+    function updateRenderedLenCells() {
+        document.querySelectorAll('.table-product tbody td.库存长度').forEach(cell => {
+            const mmLen = cell.dataset.mmLen ? decodeURIComponent(cell.dataset.mmLen) : cell.textContent.trim();
+            if (!cell.dataset.mmLen) {
+                cell.dataset.mmLen = encodeURIComponent(mmLen);
+            }
+
+            const lenText = formatLenForUnit(mmLen, global.len_unit);
+            cell.textContent = lenText;
+            cell.title = lenText;
+        });
+    }
+
+    function updateFilterPopupLenValues() {
+        const container = document.querySelector('.filter-container');
+        if (!container || container.style.display !== 'block') {
+            return;
+        }
+
+        const filterNameEl = document.querySelector('#filter-name');
+        if (!filterNameEl || filterNameEl.textContent.trim() !== '库存长度') {
+            return;
+        }
+
+        container.querySelectorAll('.f-choose label.check-radio').forEach(label => {
+            const input = label.querySelector('input.form-check');
+            const span = label.querySelector('span.all-choose');
+            if (!input || !span) return;
+
+            const rawMmValue = (input.dataset && input.dataset.value) ? input.dataset.value : span.textContent.trim();
+            span.textContent = formatLenForUnit(rawMmValue, global.len_unit);
+        });
+    }
+
+    function applyLenUnitDisplay() {
+        updateLenHeader();
+        updateRenderedLenCells();
+        updateFilterPopupLenValues();
+    }
+
     // 初始化购物车功能
     async function initializeCart() {
         try {
@@ -269,6 +370,7 @@ let page_productset = function () {
     // 购物车表格刷新回调
     function onTableRefresh() {
         applySpecUnitDisplay();
+        applyLenUnitDisplay();
 
         if (canDownload() && typeof add_lu_link === 'function') {
             add_lu_link();
@@ -398,6 +500,7 @@ let page_productset = function () {
 
     service.build_product_table(row_num, make_filter, onTableRefresh, show_stat);
     applySpecUnitDisplay();
+    applyLenUnitDisplay();
 
     // 点击树的 stem 显示统计信息
     function show_statistic(cate) {
@@ -465,6 +568,7 @@ let page_productset = function () {
                 cate: "正常销售",
                 lang: lang,
                 spec_unit: global.spec_unit,
+                len_unit: global.len_unit,
             };
 
             fetch(`/stock/product_out`, {
@@ -567,6 +671,7 @@ let page_productset = function () {
             global.spec_unit = normalizeSpecUnit(this.value);
             localStorage.setItem(SPEC_UNIT_STORAGE_KEY, global.spec_unit);
             applySpecUnitDisplay();
+            applyLenUnitDisplay();
             tableFilter.updateButtonColors();
         });
     }

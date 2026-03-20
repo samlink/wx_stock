@@ -386,6 +386,7 @@ pub struct ProductName {
     search: String,
     lang: String,
     spec_unit: String,
+    len_unit: String,
 }
 
 //导出数据
@@ -451,6 +452,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             rows.as_ref(),
             product.lang.as_str(),
             product.spec_unit.as_str(),
+            product.len_unit.as_str(),
         );
     } else {
         let p_type = if product.id.starts_with('3') {
@@ -477,11 +479,12 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             {{"name": "Standard", "width": 25}},
             {{"name": "Manufacturer", "width": 15}},
             {{"name": "Heat No.", "width": 15}},
-            {{"name": "Length (mm)", "width": 15}},
+            {{"name": "{}", "width": 15}},
             {{"name": "Weight (Kg)", "width": 15}},
             {{"name": "Remarks", "width": 20}}
         ]"#,
-            p_type
+            p_type,
+            if product.len_unit == "ft" { "Length (ft)" } else { "Length (mm)" }
         );
 
         let en_title: Vec<Fields> = serde_json::from_str(&t_str).unwrap();
@@ -493,6 +496,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             rows.as_ref(),
             product.lang.as_str(),
             product.spec_unit.as_str(),
+            product.len_unit.as_str(),
         );
     }
 

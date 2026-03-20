@@ -132,6 +132,7 @@ pub fn out_excel(
     rows: &Vec<Row>,
     lang: &str,
     spec_unit: &str,
+    len_unit: &str,
 ) {
     let file_name = format!("./download/{}.xlsx", name);
     let mut wb = Workbook::new();
@@ -150,6 +151,12 @@ pub fn out_excel(
                     header_name = "规格 (in)".to_string();
                 } else {
                     header_name = "规格 (mm)".to_string();
+                }
+            } else if header_name == "库存长度_mm" {
+                if len_unit == "ft" {
+                    header_name = "库存长度 (ft)".to_string();
+                } else {
+                    header_name = "库存长度 (mm)".to_string();
                 }
             }
             sheet
@@ -174,6 +181,8 @@ pub fn out_excel(
                 let mut name: String = row.get(f.name.as_str());
                 if f.name == "规格" && spec_unit == "in" {
                     name = format_spec_inches(&name);
+                } else if f.name == "库存长度_mm" && len_unit == "ft" {
+                    name = format_len_feet(&name);
                 }
                 sheet.write_with_format(n, m, name, &format2).unwrap();
                 m += 1;
@@ -202,6 +211,8 @@ pub fn out_excel(
                     "".to_owned()
                 } else if f.name == "规格" && spec_unit == "in" {
                     format_spec_inches(&name)
+                } else if f.name == "库存长度_mm" && len_unit == "ft" {
+                    format_len_feet(&name)
                 } else {
                     name
                 };
@@ -242,6 +253,37 @@ fn format_spec_inches(mm_spec: &str) -> String {
     if !current_number.is_empty() {
         if let Ok(val) = current_number.parse::<f64>() {
             result.push_str(&format!("{:.3}", val / 25.4));
+        } else {
+            result.push_str(&current_number);
+        }
+    }
+
+    result
+}
+
+fn format_len_feet(mm_len: &str) -> String {
+    let mut result = String::new();
+    let mut current_number = String::new();
+
+    for c in mm_len.chars() {
+        if c.is_ascii_digit() || c == '.' {
+            current_number.push(c);
+        } else {
+            if !current_number.is_empty() {
+                if let Ok(val) = current_number.parse::<f64>() {
+                    result.push_str(&format!("{:.3}", val / 304.8));
+                } else {
+                    result.push_str(&current_number);
+                }
+                current_number.clear();
+            }
+            result.push(c);
+        }
+    }
+
+    if !current_number.is_empty() {
+        if let Ok(val) = current_number.parse::<f64>() {
+            result.push_str(&format!("{:.3}", val / 304.8));
         } else {
             result.push_str(&current_number);
         }
