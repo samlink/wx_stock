@@ -366,7 +366,7 @@ var service = function () {
                             // 移除路径前缀和.pdf后缀，然后去掉生产厂家部分（如果有）
                             const cont_lu = cont.replace("/upload/pdf/", "").replace(".pdf", "").split("__")[0];
                             if (cont_lu == da) {
-                                lu.innerHTML = `<a href="${cont}" title="点击下载质保书" target="_blank">${lu.textContent.trim()}</a>`;
+                                lu.innerHTML = `<a href="http://sale.wxpetro.com${cont}" title="点击下载质保书" target="_blank">${lu.textContent.trim()}</a>`;
                                 break;
                             }
                         }

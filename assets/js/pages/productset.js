@@ -270,7 +270,7 @@ let page_productset = function () {
     function onTableRefresh() {
         applySpecUnitDisplay();
 
-        if (typeof add_lu_link === 'function') {
+        if (canDownload() && typeof add_lu_link === 'function') {
             add_lu_link();
         }
 
@@ -283,6 +283,13 @@ let page_productset = function () {
             // 高亮显示在购物车中的表格条目
             cartManager.highlightCartItems();
         }
+    }
+
+    function canDownload() {
+        const el = document.querySelector('#can-download');
+        if (!el) return false;
+        const v = (el.textContent || '').trim().toLowerCase();
+        return v === 'true' || v === '1' || v === 'yes';
     }
 
     // 获取购物车管理器实例（供其他模块使用）

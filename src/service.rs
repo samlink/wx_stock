@@ -20,6 +20,7 @@ pub struct UserData {
     pub username: String,
     pub company: String,
     pub get_pass: i32,
+    pub can_download: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -51,6 +52,7 @@ pub async fn get_user(db: &web::Data<Pool>, id: Identity) -> UserData {
         username: "".to_owned(),
         company: "".to_owned(),
         get_pass: 0,
+        can_download: false,
     };
 
     let user_name = id.identity().unwrap_or("".to_owned());
@@ -58,7 +60,7 @@ pub async fn get_user(db: &web::Data<Pool>, id: Identity) -> UserData {
         let conn = db.get().await.unwrap();
         let rows = &conn
             .query(
-                r#"SELECT id, username, 名称, 6-get_pass as get_pass 
+                r#"SELECT id, username, 名称, 6-get_pass as get_pass, 布尔字段1 as can_download
                 FROM customers WHERE username=$1"#,
                 &[&user_name],
             )
@@ -73,6 +75,7 @@ pub async fn get_user(db: &web::Data<Pool>, id: Identity) -> UserData {
                 user.username = row.get("username");
                 user.company = row.get("名称");
                 user.get_pass = row.get("get_pass");
+                user.can_download = row.get("can_download");
             }
             user
         }
