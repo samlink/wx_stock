@@ -489,3 +489,26 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
 
     HttpResponse::Ok().json(&product.name)
 }
+
+
+///获取炉号质保书
+#[post("/fetch_lu")]
+pub async fn fetch_lu(
+    db: web::Data<Pool>,
+    lh: web::Json<Vec<String>>,
+) -> HttpResponse {
+    let conn = db.get().await.unwrap();
+    let mut lu_arr = Vec::new();
+    for lu in lh.iter() {
+        let sql = format!(
+            r#"select 质保书 from lu where split_part(炉号, '__', 1) = '{}'"#,
+            lu
+        );
+        let rows = &conn.query(sql.as_str(), &[]).await.unwrap();
+        for row in rows {
+            let value: String = row.get("质保书");
+            lu_arr.push(value);
+        }
+    }
+    HttpResponse::Ok().json(lu_arr)
+}

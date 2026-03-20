@@ -330,6 +330,51 @@ var service = function () {
         return tr;
     }
 
+    /// 获取炉号
+    let get_lu = function (tem_trs) {
+        let trs = [];
+        tem_trs.forEach(tr => {
+            if (tr.querySelector('.炉号')) {
+                trs.push(tr);
+            }
+        });
+
+        let lus_arr = [];
+        for (let tr of trs) {
+            let lu = tr.querySelector('.炉号');
+            if (lu.textContent.trim() != '' && lu.textContent.trim() != '--') {
+                // 不可换行
+                let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                lus_arr.push(da);
+            }
+        }
+
+        if (lus_arr.length > 0) {
+            fetch("/stock/fetch_lu", {
+                method: 'post',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(lus_arr),
+            })
+                .then(response => response.json())
+                .then(content => {
+                    for (let tr of trs) {
+                        const lu = tr.querySelector('.炉号');
+                        for (let cont of content) {
+                            const da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                            // 移除路径前缀和.pdf后缀，然后去掉生产厂家部分（如果有）
+                            const cont_lu = cont.replace("/upload/pdf/", "").replace(".pdf", "").split("__")[0];
+                            if (cont_lu == da) {
+                                lu.innerHTML = `<a href="${cont}" title="点击下载质保书" target="_blank">${lu.textContent.trim()}</a>`;
+                                break;
+                            }
+                        }
+                    }
+                })
+        }
+    }
+
     return {
         build_table_header: build_table_header,
         build_product_table: build_product_table,
@@ -337,5 +382,6 @@ var service = function () {
         status_to_zh: status_to_zh,
         factor_to_en: factor_to_en,
         factor_to_zh: factor_to_zh,
+        get_lu: get_lu,
     }
 }();

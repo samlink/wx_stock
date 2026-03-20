@@ -270,6 +270,10 @@ let page_productset = function () {
     function onTableRefresh() {
         applySpecUnitDisplay();
 
+        if (typeof add_lu_link === 'function') {
+            add_lu_link();
+        }
+
         // 表格刷新后，购物车按钮事件监听器会自动工作（使用事件委托）
         // 这里可以添加其他需要在表格刷新后执行的购物车相关逻辑
         if (cartManager) {
@@ -354,7 +358,6 @@ let page_productset = function () {
             Object.assign(tool_table.table_data().post_data, post_data);
             tool_table.fetch_table((content) => {
                 make_filter();
-                // add_lu_link();
                 show_stat(content);
                 onTableRefresh();
             });
@@ -436,6 +439,12 @@ let page_productset = function () {
                 show_statistic(cate);
             })
         });
+    }
+
+    // 添加炉号链接
+    function add_lu_link() {
+        let trs = document.querySelectorAll('.table-product tbody tr');
+        service.get_lu(trs);
     }
 
     // 导出数据
@@ -538,7 +547,6 @@ let page_productset = function () {
             Object.assign(tool_table.table_data().post_data, { filter: filterSql, page: 1 });
             tool_table.fetch_table((content) => {
                 make_filter();
-                if (typeof add_lu_link === 'function') add_lu_link();
                 show_stat(content);
                 onTableRefresh();
             });
