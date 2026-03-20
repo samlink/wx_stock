@@ -344,7 +344,9 @@ var service = function () {
             let lu = tr.querySelector('.炉号');
             if (lu.textContent.trim() != '' && lu.textContent.trim() != '--') {
                 // 不可换行
-                let da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                let spec_cell = tr.querySelector('.规格');
+                let spec_val = spec_cell.dataset.mmSpec ? decodeURIComponent(spec_cell.dataset.mmSpec) : spec_cell.textContent.trim();
+                let da = `${tr.querySelector('.材质').textContent.trim()}_${spec_val}_${lu.textContent.trim()}`;
                 lus_arr.push(da);
             }
         }
@@ -362,7 +364,9 @@ var service = function () {
                     for (let tr of trs) {
                         const lu = tr.querySelector('.炉号');
                         for (let cont of content) {
-                            const da = `${tr.querySelector('.材质').textContent.trim()}_${tr.querySelector('.规格').textContent.trim()}_${lu.textContent.trim()}`;
+                            let spec_cell = tr.querySelector('.规格');
+                            let spec_val = spec_cell.dataset.mmSpec ? decodeURIComponent(spec_cell.dataset.mmSpec) : spec_cell.textContent.trim();
+                            const da = `${tr.querySelector('.材质').textContent.trim()}_${spec_val}_${lu.textContent.trim()}`;
                             // 移除路径前缀和.pdf后缀，然后去掉生产厂家部分（如果有）
                             const cont_lu = cont.replace("/upload/pdf/", "").replace(".pdf", "").split("__")[0];
                             if (cont_lu == da) {
