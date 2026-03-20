@@ -8,6 +8,23 @@ let page_productset = function () {
     let cartManager = null;
 
     const lang = localStorage.getItem('language') || 'zh';
+    const SPEC_UNIT_STORAGE_KEY = 'productset_spec_unit';
+    const SPEC_UNIT_TEXTS = {
+        zh: {
+            controlLabel: '规格单位',
+            mmHeader: '规格 (mm)',
+            inHeader: '规格 (in)',
+        },
+        en: {
+            controlLabel: 'Spec unit',
+            mmHeader: 'Dia./OD*WT mm',
+            inHeader: 'Dia./OD*WT in',
+        }
+    };
+
+    function normalizeSpecUnit(unit) {
+        return unit == 'in' ? 'in' : 'mm';
+    }
 
     // 过滤窗口(表头过滤)文案中英文切换
     // 模板里默认写中文，这里按 lang 动态替换，避免英文界面仍显示“取消”
@@ -103,6 +120,135 @@ let page_productset = function () {
         product_name: "",
         filter_conditions: new Map(),
         filter_sqls: [],
+        spec_unit: normalizeSpecUnit(localStorage.getItem(SPEC_UNIT_STORAGE_KEY)),
+    }
+
+    function getSpecHeaderText(unit = global.spec_unit) {
+        return unit == 'in' ? SPEC_UNIT_TEXTS[lang].inHeader : SPEC_UNIT_TEXTS[lang].mmHeader;
+    }
+
+    function syncSpecUnitControl() {
+        const label = document.querySelector('#spec-unit-label');
+        if (label) {
+            label.textContent = SPEC_UNIT_TEXTS[lang].controlLabel;
+        }
+
+        const select = document.querySelector('#spec-unit-select');
+        if (select) {
+            select.value = global.spec_unit;
+        }
+    }
+
+    function normalizeFilterName(name) {
+        return {
+            '规格': '规格',
+            '规格 (mm)': '规格',
+            '规格 (in)': '规格',
+            'Dia./OD*WT mm': '规格',
+            'Dia./OD*WT in': '规格',
+            'Condition': '状态',
+            'Standard': '执行标准',
+            'Manufacturer': '生产厂家',
+            'Heat No.': '炉批号',
+            'Length (mm)': '库存长度',
+            'Length (mm) ': '库存长度',
+        }[name] || name;
+    }
+
+    function setHeaderText(th, text) {
+        const filterButton = th.querySelector('.filter_button');
+        if (!filterButton) {
+            th.textContent = text;
+            return;
+        }
+
+        const textNode = Array.from(th.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+        if (textNode) {
+            textNode.textContent = `${text} `;
+        } else {
+            th.insertBefore(document.createTextNode(`${text} `), filterButton);
+        }
+    }
+
+    function getSpecHeaderCell() {
+        const specHeaders = new Set([
+            '规格',
+            SPEC_UNIT_TEXTS.zh.mmHeader,
+            SPEC_UNIT_TEXTS.zh.inHeader,
+            SPEC_UNIT_TEXTS.en.mmHeader,
+            SPEC_UNIT_TEXTS.en.inHeader,
+        ]);
+
+        return Array.from(document.querySelectorAll('.table-product thead th'))
+            .find(th => specHeaders.has(th.textContent.trim()));
+    }
+
+    function formatSpecInches(mmSpec) {
+        return (mmSpec || '').replace(/[0-9]+(?:\.[0-9]+)?/g, (match) => {
+            const value = Number(match);
+            return Number.isFinite(value) ? (value / 25.4).toFixed(3) : match;
+        });
+    }
+
+    function formatSpecForUnit(mmSpec, unit = global.spec_unit) {
+        return unit == 'in' ? formatSpecInches(mmSpec) : (mmSpec || '');
+    }
+
+    function updateSpecHeader() {
+        const specHeader = getSpecHeaderCell();
+        if (!specHeader) {
+            return;
+        }
+
+        setHeaderText(specHeader, getSpecHeaderText());
+        const tableData = tool_table.table_data && tool_table.table_data();
+        if (tableData && tableData.header_names) {
+            tableData.header_names[SPEC_UNIT_TEXTS.zh.mmHeader] = 'pi.size';
+            tableData.header_names[SPEC_UNIT_TEXTS.zh.inHeader] = 'pi.size';
+            tableData.header_names[SPEC_UNIT_TEXTS.en.mmHeader] = 'pi.size';
+            tableData.header_names[SPEC_UNIT_TEXTS.en.inHeader] = 'pi.size';
+        }
+    }
+
+    function updateRenderedSpecCells() {
+        document.querySelectorAll('.table-product tbody td.规格').forEach(cell => {
+            const mmSpec = cell.dataset.mmSpec ? decodeURIComponent(cell.dataset.mmSpec) : cell.textContent.trim();
+            if (!cell.dataset.mmSpec) {
+                cell.dataset.mmSpec = encodeURIComponent(mmSpec);
+            }
+
+            const specText = formatSpecForUnit(mmSpec, global.spec_unit);
+            cell.textContent = specText;
+            cell.title = specText;
+        });
+    }
+
+    function updateFilterPopupSpecValues() {
+        const container = document.querySelector('.filter-container');
+        if (!container || container.style.display !== 'block') {
+            return;
+        }
+
+        const filterNameEl = document.querySelector('#filter-name');
+        if (!filterNameEl || filterNameEl.textContent.trim() !== '规格') {
+            return;
+        }
+
+        container.querySelectorAll('.f-choose label.check-radio').forEach(label => {
+            const input = label.querySelector('input.form-check');
+            const span = label.querySelector('span.all-choose');
+            if (!input || !span) return;
+
+            const rawMmValue = (input.dataset && input.dataset.value) ? input.dataset.value : span.textContent.trim();
+            span.textContent = formatSpecForUnit(rawMmValue, global.spec_unit);
+        });
+    }
+
+    function applySpecUnitDisplay() {
+        syncSpecUnitControl();
+        updateSpecHeader();
+        updateRenderedSpecCells();
+        updateFilterPopupSpecValues();
     }
 
     // 初始化购物车功能
@@ -122,6 +268,8 @@ let page_productset = function () {
 
     // 购物车表格刷新回调
     function onTableRefresh() {
+        applySpecUnitDisplay();
+
         // 表格刷新后，购物车按钮事件监听器会自动工作（使用事件委托）
         // 这里可以添加其他需要在表格刷新后执行的购物车相关逻辑
         if (cartManager) {
@@ -239,6 +387,7 @@ let page_productset = function () {
     //商品规格表格数据 -------------------------------------------------------------------
 
     service.build_product_table(row_num, make_filter, onTableRefresh, show_stat);
+    applySpecUnitDisplay();
 
     // 点击树的 stem 显示统计信息
     function show_statistic(cate) {
@@ -338,25 +487,17 @@ let page_productset = function () {
     // ------------------------------------ 过滤部分开始--------------------------------------------
 
     // 表头过滤按钮中英文对照：用于英文表头下仍能正确匹配后端字段名/按钮变红
-    const eng_map = {
-        'Dia./OD*WT mm': '规格',
-        'Condition': '状态',
-        'Standard': '执行标准',
-        'Manufacturer': '生产厂家',
-        'Heat No.': '炉批号',
-        'Length (mm)': '库存长度',
-        // 兼容有时表头可能带单位/空格
-        'Length (mm) ': '库存长度',
-    };
-
-    let has_filter = lang == "zh" ? ['规格', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'] :
-        ['Dia./OD*WT mm', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
+    let has_filter = lang == "zh" ? ['规格', '规格 (mm)', '规格 (in)', '状态', '执行标准', '生产厂家', '炉批号', '库存长度 (mm)'] :
+        ['Dia./OD*WT mm', 'Dia./OD*WT in', 'Condition', 'Standard', 'Manufacturer', 'Heat No.', 'Length (mm)'];
 
     // 使用通用过滤器
     const tableFilter = initTableFilter({
-        normalizeName: (name) => (lang == 'zh' ? name : (eng_map[name] || name)),
+        normalizeName: normalizeFilterName,
         // 过滤条目翻译：英文界面下展示英文，但提交过滤时仍使用原始中文值(data-value)
         translateItem: ({ filterName, value }) => {
+            if (filterName === '规格') {
+                return formatSpecForUnit(value, global.spec_unit);
+            }
             if (lang !== 'en') return value;
             // filterName 在 normalizeName 后为中文字段名
             if (filterName === '生产厂家') {
@@ -399,9 +540,20 @@ let page_productset = function () {
                 make_filter();
                 if (typeof add_lu_link === 'function') add_lu_link();
                 show_stat(content);
+                onTableRefresh();
             });
         },
     });
+
+    const specUnitSelect = document.querySelector('#spec-unit-select');
+    if (specUnitSelect) {
+        specUnitSelect.addEventListener('change', function () {
+            global.spec_unit = normalizeSpecUnit(this.value);
+            localStorage.setItem(SPEC_UNIT_STORAGE_KEY, global.spec_unit);
+            applySpecUnitDisplay();
+            tableFilter.updateButtonColors();
+        });
+    }
 
     function make_filter() {
         tableFilter.ensureButtons();

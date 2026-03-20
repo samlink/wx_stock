@@ -94,6 +94,8 @@ var service = function () {
                     "材质": "tree.material",
                     "物料号": "products.物料号",
                     "规格": "pi.size",
+                    "规格 (mm)": "pi.size",
+                    "规格 (in)": "pi.size",
                     "状态": "pi.status",
                     "执行标准": "pi.tech_no",
                     "生产厂家": "c.文本字段1",
@@ -107,6 +109,7 @@ var service = function () {
                     "Material": "tree.material",
                     "Stock No.": "products.物料号",
                     "Dia./OD*WT mm": "pi.size",
+                    "Dia./OD*WT in": "pi.size",
                     "Condition": "pi.status",
                     "Standard": "pi.tech_no",
                     "Manufacturer": "c.文本字段1",
@@ -128,7 +131,7 @@ var service = function () {
                 { name: '名称', width: 4 },
                 { name: '材质', width: 4 },
                 { name: '物料号', width: 4 },
-                { name: '规格', width: 4 },
+                { name: '规格 (mm)', width: 4 },
                 { name: '状态', width: 4 },
                 { name: '执行标准', width: 6 },
                 { name: '生产厂家', width: 4 },
@@ -197,8 +200,9 @@ var service = function () {
         if (lang == "zh") {
             let rec = tr.split(SPLITER);
             let name = rec[1].split(" ");
+            let spec_data = encodeURIComponent(rec[3]);
             row = `<tr><td class="add-to-cart"><button class="btn-add-cart" data-material="${rec[2]}" title="添加到购物车"><i class="fa fa-plus"></i></button></td><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
-                <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
+                <td class="物料号">${rec[2]}</td><td class="规格" data-mm-spec="${spec_data}">${rec[3]}</td><td class="状态">${rec[4]}</td>
                 <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家">${rec[6]}</td>
                 <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td><td>${rec[9]}</td><td>${rec[10]}</td></tr>`;
         } else {
@@ -207,8 +211,9 @@ var service = function () {
 
             let rec = tr.split(SPLITER);
             let name = rec[1].split(" ");
+            let spec_data = encodeURIComponent(rec[3]);
             row = `<tr><td class="add-to-cart"><button class="btn-add-cart" data-material="${rec[2]}" title="Add to Cart"><i class="fa fa-plus"></i></button></td><td class="序号">${rec[0]}</td><td class="名称">${name[1]}</td><td class="材质">${name[0]}</td>
-                    <td class="物料号">${rec[2]}</td><td class="规格">${rec[3]}</td><td class="状态">${rec[4]}</td>
+                    <td class="物料号">${rec[2]}</td><td class="规格" data-mm-spec="${spec_data}">${rec[3]}</td><td class="状态">${rec[4]}</td>
                     <td class="执行标准" title="${rec[5]}">${rec[5]}</td><td class="生产厂家" title="${rec[6]}">${rec[6]}</td>
                     <td class="炉号" title="${rec[7]}">${rec[7]}</td><td>${rec[8]}</td>
                     <td>${rec[9]}</td><td class="备注"></td></tr>`;
