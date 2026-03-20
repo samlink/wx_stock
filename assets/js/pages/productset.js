@@ -464,6 +464,7 @@ let page_productset = function () {
                 filter: get_filter(),
                 cate: "正常销售",
                 lang: lang,
+                spec_unit: global.spec_unit,
             };
 
             fetch(`/stock/product_out`, {

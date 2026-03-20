@@ -113,7 +113,7 @@ pub async fn change_pass(
     user: web::Json<ChangePass>,
     id: Identity,
 ) -> HttpResponse {
-    let user_name = id.identity().unwrap_or("".to_owned());    
+    let user_name = id.identity().unwrap_or("".to_owned());
     if user_name != "" {
         let conn = db.get().await.unwrap();
         let salt_pass = md5(user.old_pass.clone(), SALT);
@@ -144,4 +144,3 @@ pub async fn change_pass(
         return HttpResponse::Ok().json(0);
     }
 }
-

@@ -131,6 +131,7 @@ pub fn out_excel(
     fields: &Vec<Fields>,
     rows: &Vec<Row>,
     lang: &str,
+    spec_unit: &str,
 ) {
     let file_name = format!("./download/{}.xlsx", name);
     let mut wb = Workbook::new();
@@ -143,7 +144,17 @@ pub fn out_excel(
 
     if lang == "zh" {
         for f in fields {
-            sheet.write_with_format(0, n, &f.name, &format).unwrap();
+            let mut header_name = f.name.clone();
+            if header_name == "规格" {
+                if spec_unit == "in" {
+                    header_name = "规格 (in)".to_string();
+                } else {
+                    header_name = "规格 (mm)".to_string();
+                }
+            }
+            sheet
+                .write_with_format(0, n, &header_name, &format)
+                .unwrap();
             sheet.set_column_width(n, f.width).unwrap();
             n += 1;
         }
@@ -160,7 +171,10 @@ pub fn out_excel(
         for row in rows {
             let mut m = 0u16;
             for f in fields {
-                let name: &str = row.get(f.name.as_str());
+                let mut name: String = row.get(f.name.as_str());
+                if f.name == "规格" && spec_unit == "in" {
+                    name = format_spec_inches(&name);
+                }
                 sheet.write_with_format(n, m, name, &format2).unwrap();
                 m += 1;
             }
@@ -186,6 +200,8 @@ pub fn out_excel(
                     }
                 } else if f.name == "备注" {
                     "".to_owned()
+                } else if f.name == "规格" && spec_unit == "in" {
+                    format_spec_inches(&name)
                 } else {
                     name
                 };
@@ -201,6 +217,37 @@ pub fn out_excel(
     }
 
     wb.save(file_name).unwrap();
+}
+
+fn format_spec_inches(mm_spec: &str) -> String {
+    let mut result = String::new();
+    let mut current_number = String::new();
+
+    for c in mm_spec.chars() {
+        if c.is_ascii_digit() || c == '.' {
+            current_number.push(c);
+        } else {
+            if !current_number.is_empty() {
+                if let Ok(val) = current_number.parse::<f64>() {
+                    result.push_str(&format!("{:.3}", val / 25.4));
+                } else {
+                    result.push_str(&current_number);
+                }
+                current_number.clear();
+            }
+            result.push(c);
+        }
+    }
+
+    if !current_number.is_empty() {
+        if let Ok(val) = current_number.parse::<f64>() {
+            result.push_str(&format!("{:.3}", val / 25.4));
+        } else {
+            result.push_str(&current_number);
+        }
+    }
+
+    result
 }
 
 fn status_to_en(status: &str) -> String {

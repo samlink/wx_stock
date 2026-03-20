@@ -13,8 +13,7 @@ use templates::*; // Ctrl + 鼠标左键 查看 templates.rs, 这是自动生成
 pub async fn static_file(path: Path<String>) -> HttpResponse {
     let name = &path.into_inner();
     if let Some(data) = StaticFile::get(name) {
-        HttpResponse::Ok()
-            .body(data.content)
+        HttpResponse::Ok().body(data.content)
     } else {
         HttpResponse::NotFound()
             .reason("No such static file.")

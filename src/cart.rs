@@ -82,7 +82,6 @@ pub struct RemoveFromCartRequest {
     material_number: String,
 }
 
-
 #[derive(Deserialize, Debug)]
 pub struct SubmitOrderRequest {
     user_id: i32,
@@ -385,7 +384,11 @@ pub async fn get_cart_detail(
                 // 检查库存是否低于10，如果是则标记为低库存并重置为0
                 let low_stock = original_stock_length < 10;
                 let stock_length = if low_stock { 0 } else { original_stock_length };
-                let stock_weight = if low_stock { 0.0 } else { original_stock_weight };
+                let stock_weight = if low_stock {
+                    0.0
+                } else {
+                    original_stock_weight
+                };
 
                 // 基于保存数据或默认规则回显 Input 值
                 // 若 saved_order_length == 0: 用库存长度作为订购长度，订购数量=1，订购重量=库存重量
@@ -569,7 +572,7 @@ pub async fn save_cart_details(
                 &[&request.user_id, &it.material_number, &it.quantity, &it.order_length, &it.order_weight, &note_val],
             )
             .await;
-        
+
         if result.is_err() {
             return HttpResponse::InternalServerError().json(json!({
                 "success": false,

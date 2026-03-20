@@ -134,9 +134,7 @@ pub async fn fetch_product(
     HttpResponse::Ok().json((products, count, pages, long, weight))
 }
 
-async fn build_sql_search(
-    post_data: FilterData,
-) -> (String, String, String, String, String) {
+async fn build_sql_search(post_data: FilterData) -> (String, String, String, String, String) {
     // where 条件第一个 sql, 其他 sql 跟在其后
     let product_sql = if post_data.id == "" {
         "true".to_owned()
@@ -265,7 +263,7 @@ pub async fn fetch_filter_items(
             filter: post_data.filter.clone(),
             filter_name: "".to_owned(),
         };
-        
+
         let (product_sql, conditions, now_sql, filter_sql, lock_join_sql) =
             build_sql_search(f_data).await;
 
@@ -330,7 +328,7 @@ pub async fn fetch_filter_items(
 
 //         if post_data.filter_name.contains("库存长度") {
 //             let sql = format!(
-//                 r#"SELECT DISTINCT 库存长度 FROM products 
+//                 r#"SELECT DISTINCT 库存长度 FROM products
 //                     {}
 //                     JOIN product_info pi on pi.id = products.产品id
 //                     JOIN tree on tree.num = pi.tree_num
@@ -387,6 +385,7 @@ pub struct ProductName {
     filter: String,
     search: String,
     lang: String,
+    spec_unit: String,
 }
 
 //导出数据
@@ -451,12 +450,21 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             &fields,
             rows.as_ref(),
             product.lang.as_str(),
+            product.spec_unit.as_str(),
         );
     } else {
         let p_type = if product.id.starts_with('3') {
-            "Dia. (mm)"
+            if product.spec_unit == "in" {
+                "Dia. (in)"
+            } else {
+                "Dia. (mm)"
+            }
         } else {
-            "OD*WT (mm)"
+            if product.spec_unit == "in" {
+                "OD*WT (in)"
+            } else {
+                "OD*WT (mm)"
+            }
         };
         let t_str = format!(
             r#"[
@@ -484,19 +492,16 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             &fields,
             rows.as_ref(),
             product.lang.as_str(),
+            product.spec_unit.as_str(),
         );
     }
 
     HttpResponse::Ok().json(&product.name)
 }
 
-
 ///获取炉号质保书
 #[post("/fetch_lu")]
-pub async fn fetch_lu(
-    db: web::Data<Pool>,
-    lh: web::Json<Vec<String>>,
-) -> HttpResponse {
+pub async fn fetch_lu(db: web::Data<Pool>, lh: web::Json<Vec<String>>) -> HttpResponse {
     let conn = db.get().await.unwrap();
     let mut lu_arr = Vec::new();
     for lu in lh.iter() {

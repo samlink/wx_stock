@@ -32,7 +32,7 @@ async fn get_tree(db: web::Data<Pool>, num: String) -> Vec<TreeNode> {
         .query(
             r##"SELECT material || ' ' || name AS node_name, num, pnum, show FROM tree 
             WHERE pnum=$1 AND show=true AND not_use=false 
-            order by orders"##, 
+            order by orders"##,
             &[&num],
         )
         .await
@@ -107,4 +107,3 @@ pub async fn tree_auto(
         HttpResponse::Ok().json(-1)
     }
 }
-
