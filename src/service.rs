@@ -1,12 +1,13 @@
 use actix_files as fs;
 use actix_identity::Identity;
-use actix_web::{get, post, web, Error, HttpRequest, HttpResponse};
+// use actix_web::{get, post, web, Error, HttpRequest, HttpResponse}; // 因暂不需要备注翻译，先注释掉
+use actix_web::{get, web, Error, HttpRequest};
 use deadpool_postgres::Pool;
-use dotenv::dotenv;
-use reqwest::Client;
+// use dotenv::dotenv;
+// use reqwest::Client;
 use rust_xlsxwriter::{Format, FormatAlign, Workbook};
 use serde::{Deserialize, Serialize};
-use serde_json::json;
+// use serde_json::json;
 // use std::collections::HashMap;
 use std::io::{self, Write};
 use tokio_postgres::Row;
@@ -401,39 +402,39 @@ pub async fn answer() -> String {
     "ok".to_owned()
 }
 
-#[post("/translate")]
-pub async fn translate(data: String) -> HttpResponse {
-    HttpResponse::Ok().json(trans(&data).await)
-}
+// #[post("/translate")]
+// pub async fn translate(data: String) -> HttpResponse {
+//     HttpResponse::Ok().json(trans(&data).await)
+// }
 
-// 翻译中文为英文
-async fn trans(chinese_text: &str) -> String {
-    dotenv().ok();
-    let api_key = dotenv::var("api_key").unwrap();
-    let client = Client::new();
+// // 翻译中文为英文
+// async fn trans(chinese_text: &str) -> String {
+//     dotenv().ok();
+//     let api_key = dotenv::var("api_key").unwrap();
+//     let client = Client::new();
 
-    let request_body = json!({
-        "model": "qwen-plus",
-        "messages": [
-            { "role": "system", "content": "You are a helpful assistant." },
-            { "role": "user", "content": format!("请将以下中文翻译成英文，不作解释：{}", chinese_text) }
-        ]
-    });
+//     let request_body = json!({
+//         "model": "qwen-plus",
+//         "messages": [
+//             { "role": "system", "content": "You are a helpful assistant." },
+//             { "role": "user", "content": format!("请将以下中文翻译成英文，不作解释：{}", chinese_text) }
+//         ]
+//     });
 
-    let response = client
-        .post("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
-        .header("Authorization", format!("Bearer {}", api_key))
-        .header("Content-Type", "application/json")
-        .json(&request_body)
-        .send()
-        .await
-        .unwrap();
+//     let response = client
+//         .post("https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions")
+//         .header("Authorization", format!("Bearer {}", api_key))
+//         .header("Content-Type", "application/json")
+//         .json(&request_body)
+//         .send()
+//         .await
+//         .unwrap();
 
-    let response_json: serde_json::Value = response.json().await.unwrap();
+//     let response_json: serde_json::Value = response.json().await.unwrap();
 
-    let translated_text = response_json["choices"][0]["message"]["content"]
-        .as_str()
-        .unwrap_or("翻译失败");
+//     let translated_text = response_json["choices"][0]["message"]["content"]
+//         .as_str()
+//         .unwrap_or("翻译失败");
 
-    translated_text.to_owned()
-}
+//     translated_text.to_owned()
+// }

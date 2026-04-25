@@ -32,7 +32,7 @@ pub async fn fetch_product(
     let sql_fields = "
             SELECT tree.material || ' ' || tree.name as node_name,  pi.size 规格型号,
                 pi.status 状态, pi.tech_no 执行标准, c.文本字段1 生产厂家, products.物料号, products.文本字段4 炉号,
-            COALESCE(foo.库存长度,0) 库存长度, COALESCE(foo.理论重量,0) 库存重量, products.备注,".to_owned();
+            COALESCE(foo.库存长度,0) 库存长度, COALESCE(foo.理论重量,0) 库存重量,".to_owned();
 
     let sql = format!(
         r#"{} ROW_NUMBER () OVER (ORDER BY {}) as 序号 FROM products
@@ -68,7 +68,7 @@ pub async fn fetch_product(
     let mut products = Vec::new();
     for row in rows {
         let product = format!(
-            "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
+            "{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}",
             row.get::<&str, i64>("序号"),
             SPLITER,
             row.get::<&str, &str>("node_name"),
@@ -89,8 +89,6 @@ pub async fn fetch_product(
             SPLITER,
             row.get::<&str, f64>("库存重量"),
             SPLITER,
-            row.get::<&str, &str>("备注"),
-            SPLITER
         );
 
         products.push(product);
@@ -408,7 +406,7 @@ pub async fn product_out(db: web::Data<Pool>, product: web::Json<ProductName>) -
             select products.物料号, tree.name 名称, tree.material 材质, pi.size 规格, pi.status 状态, 
                 pi.tech_no 执行标准, products.文本字段4 炉批号, c.文本字段1 生产厂家, 
                 COALESCE(foo.库存长度,0)::text 库存长度_mm, COALESCE(foo.理论重量,0)::text 库存重量_kg,
-                (ROW_NUMBER () OVER (ORDER BY pi.size))::text as 序号, products.备注 
+                (ROW_NUMBER () OVER (ORDER BY pi.size))::text as 序号, '' 备注
             from products
             {} 
             JOIN product_info pi on pi.id = products.产品id
